@@ -22,16 +22,20 @@ function init() {
     const isDarkBg = (typeof STATE !== 'undefined' && STATE.theme === 'dark');
     scene.background = new THREE.Color(isDarkBg ? 0x11141a : 0xe8edf2);
 
-    camera = new THREE.PerspectiveCamera(42, window.innerWidth / window.innerHeight, 0.2, 700);
+    camera = new THREE.PerspectiveCamera(42, window.innerWidth / window.innerHeight, 0.5, 450);
     const cx = (typeof getActiveCenterX === 'function') ? getActiveCenterX() : 16.0;
-    const cz = (typeof getActiveCenterZ === 'function') ? getActiveCenterZ() : -18.0;
+    const cz = (typeof getActiveCenterZ === 'function') ? getActiveCenterZ() : -22.0;
     const isMobile = window.innerWidth < 768;
     const initCamY = isMobile ? 54 : 64;
     const initCamZ = isMobile ? (cz + 18) : (cz + 22);
     camera.position.set(cx, initCamY, initCamZ);
 
-    // Высокий pixelRatio (до 2.5) для максимальной кристальной чёткости текста на экранах телефонов (Retina)
-    renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'default' });
+    // Высокий pixelRatio (до 2.5) и logarithmicDepthBuffer для полного исключения Z-fighting и взаимного проникновения текстур
+    renderer = new THREE.WebGLRenderer({
+        antialias: true,
+        powerPreference: 'default',
+        logarithmicDepthBuffer: true
+    });
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2.5));
     renderer.shadowMap.enabled = STATE.showShadows;
@@ -121,9 +125,9 @@ function init() {
     buildBuilding4Floor2(bldg4FloorGroups[2]);
     buildBuilding4Floor3(bldg4FloorGroups[3]);
 
-    // Построение стен со сопряжением стыков (устранение взаимного проникновения)
-    if (typeof flushAllPendingWalls === 'function') {
-        flushAllPendingWalls();
+    // Бесшовный монолитный расчёт стыков всех стен всех этажей
+    if (typeof finalizeAllPendingWalls === 'function') {
+        finalizeAllPendingWalls();
     }
 
     buildRoofs();
@@ -144,6 +148,15 @@ function init() {
     updateAlignmentGuides();
     updateStairValidationAxes();
     setupUI();
+    try {
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.has('bldg') && typeof setBuildingFilter === 'function') {
+            setBuildingFilter(urlParams.get('bldg'));
+        }
+        if (urlParams.has('floor') && typeof setMode === 'function') {
+            setMode(urlParams.get('floor'));
+        }
+    } catch (e) {}
     if (typeof initNavigator === 'function') {
         initNavigator();
     }
@@ -153,7 +166,7 @@ function init() {
 
     // Быстрый отклик на любые действия пользователя для On-Demand рендеринга
     ['pointerdown', 'pointermove', 'wheel', 'touchstart', 'touchmove', 'keydown', 'input', 'change'].forEach(evt => {
-        window.addEventListener(evt, () => requestRender(25), { passive: true });
+        window.addEventListener(evt, () => requestRender(15), { passive: true });
     });
 
     window.addEventListener('resize', onWindowResize);
@@ -445,13 +458,10 @@ function isLabelOccludedByUpperSlabs(labelItem, floorNum = null, bldId = null) {
     if (labelItem.isVector3) {
         _tempLabelWorldPos.copy(labelItem);
     } else {
-        const lx = labelItem.localX !== undefined ? labelItem.localX : (labelItem.x || 0);
-        const lz = labelItem.localZ !== undefined ? labelItem.localZ : (labelItem.z || 0);
-        const ly = (labelItem.mesh && labelItem.mesh.position) ? labelItem.mesh.position.y : 0.04;
         _tempLabelWorldPos.set(
-            fg.position.x + lx,
-            fg.position.y + ly,
-            fg.position.z + lz
+            fg.position.x + labelItem.localX,
+            fg.position.y + labelItem.mesh.position.y,
+            fg.position.z + labelItem.localZ
         );
     }
 
@@ -662,19 +672,25 @@ function recalcTargetPositions() {
 }
 
 function updateWallHeights() {
+    if (typeof finalizeAllPendingWalls === 'function') {
+        finalizeAllPendingWalls();
+    }
     wallMeshes.forEach(m => {
+        const h = STATE.wallHeight;
+
         if (m.userData && m.userData.isColumn) {
-            m.scale.y = STATE.wallHeight;
-            m.position.y = STATE.wallHeight / 2;
+            m.scale.y = h;
+            m.position.y = h / 2;
         } else {
-            m.scale.y = STATE.wallHeight + WALL_SINK;
-            m.position.y = (STATE.wallHeight - WALL_SINK) / 2;
+            m.scale.y = h + WALL_SINK;
+            m.position.y = (h - WALL_SINK) / 2;
         }
     });
 
     doorMeshes.forEach(m => {
-        m.scale.y = STATE.wallHeight + WALL_SINK;
-        m.position.y = (STATE.wallHeight - WALL_SINK) / 2;
+        const h = Math.max(0.1, STATE.wallHeight - 0.05);
+        m.scale.y = h + WALL_SINK;
+        m.position.y = (h - WALL_SINK) / 2;
         m.visible = STATE.showDoors;
     });
 
@@ -723,7 +739,6 @@ function requestRender(frames = 30) {
     framesToRender = Math.max(framesToRender, frames);
     renderRequested = true;
 }
-window.requestRender = requestRender;
 
 function updateShadows() {
     if (renderer && renderer.shadowMap && renderer.shadowMap.enabled) {
@@ -799,35 +814,31 @@ function animate(currentTime = 0) {
     // В фоновой вкладке полностью усыпляем рендерер (0% нагрузки на CPU/GPU)
     if (document.hidden) return;
 
-    // Ограничение частоты кадров (60 FPS стандарт/ультра, 30 FPS в экономичном режиме)
-    const targetFps = (STATE.preset === 'eco') ? 30 : 60;
-    const interval = 1000 / targetFps;
-    const delta = currentTime - lastRenderTime;
-    if (delta < interval - 1) {
+    // Расчет дельты времени без искусственных лагов для плавных 60/120 FPS
+    const delta = lastRenderTime ? Math.min(currentTime - lastRenderTime, 64) : 16;
+    lastRenderTime = currentTime;
+
+    // В экономичном режиме экономим батарею (30 FPS)
+    if (STATE.preset === 'eco' && delta < 32) {
         return;
     }
 
-    // 1. Проверяем анимацию этажей (интерполяция)
-    let isFloorsMoving = false;
+    // Плавная интерполяция этажей
     for (let f = 1; f <= 7; f++) {
         if (floorGroups[f] && STATE.targetPos[f]) {
             if (floorGroups[f].position.distanceToSquared(STATE.targetPos[f]) > 0.0001) {
-                isFloorsMoving = true;
                 floorGroups[f].position.lerp(STATE.targetPos[f], 0.15);
                 if (renderer.shadowMap && renderer.shadowMap.enabled) {
                     renderer.shadowMap.needsUpdate = true;
                 }
             } else if (!floorGroups[f].position.equals(STATE.targetPos[f])) {
                 floorGroups[f].position.copy(STATE.targetPos[f]);
-                isFloorsMoving = true;
             }
         }
     }
 
-    // 2. Проверяем анимацию камеры и центра вращения
-    let isCamMoving = false;
+    // Плавный переход камеры
     if (STATE.targetCamPos) {
-        isCamMoving = true;
         camera.position.lerp(STATE.targetCamPos, 0.16);
         if (controls) {
             camera.lookAt(controls.target);
@@ -843,43 +854,17 @@ function animate(currentTime = 0) {
             }
         }
     } else if (controls) {
-        const controlsMoved = controls.update();
-        if (controlsMoved) {
-            isCamMoving = true;
-        }
+        controls.update();
     }
 
+    // Плавный переход центра вращения
     if (STATE.targetControlsCenter) {
-        isCamMoving = true;
         controls.target.lerp(STATE.targetControlsCenter, 0.16);
         if (controls.target.distanceTo(STATE.targetControlsCenter) < 0.05) {
             controls.target.copy(STATE.targetControlsCenter);
             STATE.targetControlsCenter = null;
             if (controls) controls.update();
         }
-    }
-
-    // 3. Проверяем анимацию маршрута навигатора
-    const isRouteActive = (typeof NAV_STATE !== 'undefined' && NAV_STATE.activeRoute);
-    if (isRouteActive) {
-        if (typeof updateNavigatorAnimation === 'function') {
-            updateNavigatorAnimation(delta);
-        }
-    }
-
-    // Если есть активные движения, запрашиваем продление рендеринга
-    if (isFloorsMoving || isCamMoving || isRouteActive) {
-        requestRender(5);
-    }
-
-    // ON-DEMAND IDLE SLEEP: Если ничего не движется и лимит запрошенных кадров исчерпан — спим!
-    // Полное падение нагрузки на CPU/GPU до 0%, устройство не нагревается и не сажает батарею!
-    if (framesToRender <= 0 && !isFloorsMoving && !isCamMoving && !isRouteActive) {
-        return;
-    }
-
-    if (framesToRender > 0) {
-        framesToRender--;
     }
 
     frameCounter++;
@@ -898,8 +883,15 @@ function animate(currentTime = 0) {
             renderScreenSpaceLabels();
         }
     }
-
-    lastRenderTime = currentTime - (delta % interval);
+    if (typeof updateNavigatorAnimation === 'function') {
+        updateNavigatorAnimation(delta);
+    }
+    if (typeof NAV_STATE !== 'undefined' && NAV_STATE.activeRoute && typeof requestRender === 'function') {
+        requestRender(2);
+    }
+    if (typeof updateCompassNeedle === 'function') {
+        updateCompassNeedle();
+    }
 }
 
 if (document.readyState === 'loading') {

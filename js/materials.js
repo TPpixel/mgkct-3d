@@ -25,15 +25,18 @@ const MATERIALS = {
     wall: new THREE.MeshStandardMaterial({
         color: isInitialDark ? 0x2d3748 : 0xffffff,
         roughness: 0.65,
-        metalness: 0.04
+        metalness: 0.04,
+        polygonOffset: true,
+        polygonOffsetFactor: 1.0,
+        polygonOffsetUnits: 1.0
     }),
     doorThin: new THREE.MeshStandardMaterial({
         color: isInitialDark ? 0x384557 : 0x78869b,
         roughness: 0.5,
         metalness: 0.1,
         polygonOffset: true,
-        polygonOffsetFactor: -1,
-        polygonOffsetUnits: -1
+        polygonOffsetFactor: 0.5,
+        polygonOffsetUnits: 0.5
     }),
     stair: new THREE.MeshStandardMaterial({
         color: isInitialDark ? 0x242d3d : 0xb8c0cb,
@@ -47,8 +50,16 @@ const MATERIALS = {
         color: isInitialDark ? 0x1f2735 : 0xb0b8c4,
         roughness: 0.75
     }),
-    edgeMain: new THREE.LineBasicMaterial({ color: isInitialDark ? 0x4a5568 : 0x334155, linewidth: 1 }),
-    edgeDoor: new THREE.LineBasicMaterial({ color: isInitialDark ? 0x4a5568 : 0x64748b, linewidth: 1 }),
+    edgeMain: new THREE.LineBasicMaterial({
+        color: isInitialDark ? 0x4a5568 : 0x334155,
+        linewidth: 1,
+        depthTest: true
+    }),
+    edgeDoor: new THREE.LineBasicMaterial({
+        color: isInitialDark ? 0x4a5568 : 0x64748b,
+        linewidth: 1,
+        depthTest: true
+    }),
     guideLine: new THREE.LineDashedMaterial({
         color: 0x94a3b8,
         dashSize: 0.45,

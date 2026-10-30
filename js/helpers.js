@@ -63,12 +63,54 @@ function addFloorPolygon(targetGroup, points, isCore = false) {
     mesh.add(line);
 }
 
-// Реестр групп с отложенным построением стен для бесшовного совмещения стыков (Junction Solver)
-const _pendingWallGroups = new Set();
+// Генерация рёбер для параллелепипеда стены без внутренних швов и наложений
+function buildWallBoxEdges(len, h, thickness, hasStartCap = true, hasEndCap = true, isDoor = false) {
+    const hx = len / 2;
+    const hy = 0.5; // Локальная высота в геометрии BoxGeometry (масштабируется mesh.scale.y)
+    const hz = thickness / 2;
+
+    const p = [];
+    function addLine(x1, y1, z1, x2, y2, z2) {
+        p.push(x1, y1, z1, x2, y2, z2);
+    }
+
+    // 1. Продольные верхние рёбра (всегда рисуются на верхней грани стены)
+    addLine(-hx, hy, -hz,  hx, hy, -hz);
+    addLine(-hx, hy,  hz,  hx, hy,  hz);
+
+    // 2. Продольные нижние рёбра
+    addLine(-hx, -hy, -hz,  hx, -hy, -hz);
+    addLine(-hx, -hy,  hz,  hx, -hy,  hz);
+
+    // 3. Торцевой стык начала (X = -hx) рисуется только при открытом торце или проёме
+    if (hasStartCap) {
+        addLine(-hx,  hy, -hz, -hx,  hy,  hz); // верхняя поперечная грань
+        addLine(-hx, -hy, -hz, -hx, -hy,  hz); // нижняя поперечная грань
+        addLine(-hx, -hy, -hz, -hx,  hy, -hz); // вертикальное ребро 1
+        addLine(-hx, -hy,  hz, -hx,  hy,  hz); // вертикальное ребро 2
+    }
+
+    // 4. Торцевой стык конца (X = +hx) рисуется только при открытом торце или проёме
+    if (hasEndCap) {
+        addLine(hx,  hy, -hz,  hx,  hy,  hz); // верхняя поперечная грань
+        addLine(hx, -hy, -hz,  hx, -hy,  hz); // нижняя поперечная грань
+        addLine(hx, -hy, -hz,  hx,  hy, -hz); // вертикальное ребро 3
+        addLine(hx, -hy,  hz,  hx,  hy,  hz); // вертикальное ребро 4
+    }
+
+    const geom = new THREE.BufferGeometry();
+    geom.setAttribute('position', new THREE.BufferAttribute(new Float32Array(p), 3));
+    return geom;
+}
+
+const PENDING_WALL_GROUPS = new Set();
 
 function addWallLine(targetGroup, x1, z1, x2, z2, openings = [], wallThickness = 0.18, isColumn = false) {
     const isHorizontal = Math.abs(z2 - z1) < 0.001;
+    const startCoord = isHorizontal ? Math.min(x1, x2) : Math.min(z1, z2);
+    const endCoord = isHorizontal ? Math.max(x1, x2) : Math.max(z1, z2);
     const fixedCoord = isHorizontal ? z1 : x1;
+
     const isOuterWall = wallThickness >= 0.20;
 
     // Регистрация дверей для архитектурного графа навигатора
@@ -96,336 +138,313 @@ function addWallLine(targetGroup, x1, z1, x2, z2, openings = [], wallThickness =
         }
     }
 
-    if (!targetGroup) return;
-    if (!targetGroup._pendingWallLines) {
-        targetGroup._pendingWallLines = [];
-    }
-    targetGroup._pendingWallLines.push({
-        x1, z1, x2, z2, openings, wallThickness, isColumn
-    });
-    _pendingWallGroups.add(targetGroup);
-}
-
-// Построение геометрии рёбер стен без паразитных поперечных линий на торцах стыкующихся стен
-function createWallEdgesGeometry(len, thickness, omitStart = false, omitEnd = false) {
-    const hw = len / 2;
-    const ht = thickness / 2;
-    const yTop = 0.5;
-    const yBot = -0.5;
-    const positions = [];
-
-    // 4 продольных ребра (вдоль длины стены)
-    positions.push(-hw, yTop, -ht,  hw, yTop, -ht);
-    positions.push(-hw, yTop,  ht,  hw, yTop,  ht);
-    positions.push(-hw, yBot, -ht,  hw, yBot, -ht);
-    positions.push(-hw, yBot,  ht,  hw, yBot,  ht);
-
-    // 4 вертикальных угловых ребра
-    positions.push(-hw, yBot, -ht, -hw, yTop, -ht);
-    positions.push(-hw, yBot,  ht, -hw, yTop,  ht);
-    positions.push( hw, yBot, -ht,  hw, yTop, -ht);
-    positions.push( hw, yBot,  ht,  hw, yTop,  ht);
-
-    // Поперечные рёбра начального торца (только если торец не примыкает к смежной стене)
-    if (!omitStart) {
-        positions.push(-hw, yTop, -ht, -hw, yTop, ht);
-        positions.push(-hw, yBot, -ht, -hw, yBot, ht);
-    }
-
-    // Поперечные рёбра конечного торца (только если торец не примыкает к смежной стене)
-    if (!omitEnd) {
-        positions.push(hw, yTop, -ht, hw, yTop, ht);
-        positions.push(hw, yBot, -ht, hw, yBot, ht);
-    }
-
-    const geom = new THREE.BufferGeometry();
-    geom.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
-    return geom;
-}
-
-// Алгоритм бесшовного сопряжения и устранения взаимного проникновения стен (Junction Solver)
-function solveCampusJunctions(targetGroup, pendingLines) {
-    const segments = [];
-    let id = 0;
-
-    for (const line of pendingLines) {
-        const isHorizontal = Math.abs(line.z2 - line.z1) < 0.001;
-        const startCoord = isHorizontal ? Math.min(line.x1, line.x2) : Math.min(line.z1, line.z2);
-        const endCoord = isHorizontal ? Math.max(line.x1, line.x2) : Math.max(line.z1, line.z2);
-        const fixedCoord = isHorizontal ? line.z1 : line.x1;
-        const sorted = [...line.openings].sort((a, b) => a.from - b.from);
-        let cursor = startCoord;
-
-        for (const op of sorted) {
-            const oStart = Math.max(startCoord, op.from);
-            const oEnd = Math.min(endCoord, op.to);
-            if (oStart > cursor + 0.02) {
-                segments.push({
-                    id: id++,
-                    isHorizontal,
-                    c1: cursor,
-                    c2: oStart,
-                    fixedCoord,
-                    thickness: line.wallThickness,
-                    isColumn: line.isColumn,
-                    isExterior: line.wallThickness >= 0.20,
-                    isDoor: false
+    // Регистрация стен для коллизий и A* навигации
+    const sorted = [...openings].sort((a, b) => a.from - b.from);
+    let navCursor = startCoord;
+    for (const op of sorted) {
+        const oStart = Math.max(startCoord, op.from);
+        const oEnd = Math.min(endCoord, op.to);
+        if (oStart > navCursor + 0.02) {
+            if (!isColumn && targetGroup && targetGroup.userData && targetGroup.userData.floor && typeof WALLS_REGISTRY !== 'undefined' && Array.isArray(WALLS_REGISTRY)) {
+                WALLS_REGISTRY.push({
+                    floor: targetGroup.userData.floor,
+                    building: targetGroup.userData.building,
+                    x1: isHorizontal ? navCursor : fixedCoord,
+                    z1: isHorizontal ? fixedCoord : navCursor,
+                    x2: isHorizontal ? oStart : fixedCoord,
+                    z2: isHorizontal ? fixedCoord : oStart,
+                    thickness: wallThickness
                 });
             }
-            if (op.type !== 'open') {
-                const isExtDoor = op.isExterior !== undefined ? op.isExterior : (line.wallThickness >= 0.20);
-                segments.push({
-                    id: id++,
-                    isHorizontal,
-                    c1: oStart,
-                    c2: oEnd,
-                    fixedCoord,
-                    thickness: 0.09,
-                    isColumn: line.isColumn,
-                    isExterior: isExtDoor,
-                    isDoor: true
-                });
-            }
-            cursor = oEnd;
         }
-        if (cursor < endCoord - 0.02) {
-            segments.push({
-                id: id++,
-                isHorizontal,
-                c1: cursor,
-                c2: endCoord,
-                fixedCoord,
-                thickness: line.wallThickness,
-                isColumn: line.isColumn,
-                isExterior: line.wallThickness >= 0.20,
-                isDoor: false
-            });
-        }
+        navCursor = oEnd;
     }
-
-    const walls = segments.filter(s => !s.isDoor);
-    const doors = segments.filter(s => s.isDoor);
-
-    const solved = walls.map(w => ({
-        ...w,
-        origC1: w.c1,
-        origC2: w.c2,
-        omitStartCap: false,
-        omitEndCap: false
-    }));
-
-    // Интеллектуальная подрезка дверных полотен на стыках со смежными стенами
-    const solvedDoors = doors.map(d => ({
-        ...d,
-        origC1: d.c1,
-        origC2: d.c2
-    }));
-
-    function wallContinuesThrough(fixedCoord, axisCoord, isH) {
-        for (const other of solved) {
-            if (other.isHorizontal === isH && Math.abs(other.fixedCoord - fixedCoord) < 0.05) {
-                if (axisCoord > other.origC1 + 0.06 && axisCoord < other.origC2 - 0.06) {
-                    return other;
-                }
-                for (const o2 of solved) {
-                    if (o2 !== other && o2.isHorizontal === isH && Math.abs(o2.fixedCoord - fixedCoord) < 0.05) {
-                        if (Math.abs(other.origC2 - axisCoord) <= 0.06 && Math.abs(o2.origC1 - axisCoord) <= 0.06) {
-                            return other;
-                        }
-                    }
-                }
-            }
-        }
-        return null;
-    }
-
-    for (let i = 0; i < solved.length; i++) {
-        const A = solved[i];
-        for (let j = 0; j < solved.length; j++) {
-            if (i === j) continue;
-            const B = solved[j];
-
-            if (A.isHorizontal && !B.isHorizontal) {
-                const x0 = B.fixedCoord;
-                const z0 = A.fixedCoord;
-
-                const xInA = (x0 >= A.origC1 - 0.06 && x0 <= A.origC2 + 0.06);
-                const zInB = (z0 >= B.origC1 - 0.06 && z0 <= B.origC2 + 0.06);
-
-                if (xInA && zInB) {
-                    const atAStart = Math.abs(x0 - A.origC1) <= 0.06;
-                    const atAEnd = Math.abs(x0 - A.origC2) <= 0.06;
-                    const aContinues = !atAStart && !atAEnd || !!wallContinuesThrough(A.fixedCoord, x0, true);
-
-                    const atBStart = Math.abs(z0 - B.origC1) <= 0.06;
-                    const atBEnd = Math.abs(z0 - B.origC2) <= 0.06;
-                    const bContinues = !atBStart && !atBEnd || !!wallContinuesThrough(B.fixedCoord, z0, false);
-
-                    if (!aContinues && bContinues) {
-                        // Т-образный стык: стена A упирается в проходящую стену B
-                        if (atAStart) {
-                            A.c1 = Math.max(A.c1, x0 + B.thickness / 2);
-                            A.omitStartCap = true;
-                        } else if (atAEnd) {
-                            A.c2 = Math.min(A.c2, x0 - B.thickness / 2);
-                            A.omitEndCap = true;
-                        }
-                    } else if (aContinues && !bContinues) {
-                        // Т-образный стык: стена B упирается в проходящую стену A
-                        if (atBStart) {
-                            B.c1 = Math.max(B.c1, z0 + A.thickness / 2);
-                            B.omitStartCap = true;
-                        } else if (atBEnd) {
-                            B.c2 = Math.min(B.c2, z0 - A.thickness / 2);
-                            B.omitEndCap = true;
-                        }
-                    } else if (aContinues && bContinues) {
-                        // Крестообразный стык или стык составных стен
-                        if (atAEnd || atAStart) {
-                            if (atAStart) {
-                                A.c1 = Math.max(A.c1, x0 + B.thickness / 2);
-                                A.omitStartCap = true;
-                            } else if (atAEnd) {
-                                A.c2 = Math.min(A.c2, x0 - B.thickness / 2);
-                                A.omitEndCap = true;
-                            }
-                        } else if (atBEnd || atBStart) {
-                            if (atBStart) {
-                                B.c1 = Math.max(B.c1, z0 + A.thickness / 2);
-                                B.omitStartCap = true;
-                            } else if (atBEnd) {
-                                B.c2 = Math.min(B.c2, z0 - A.thickness / 2);
-                                B.omitEndCap = true;
-                            }
-                        }
-                    } else if (!aContinues && !bContinues) {
-                        // Г-образный угол: сопряжение двух сходящихся стен
-                        let aIsPrimary = true;
-                        if (A.isExterior !== B.isExterior) {
-                            aIsPrimary = A.isExterior;
-                        } else if (Math.abs(A.thickness - B.thickness) > 0.01) {
-                            aIsPrimary = A.thickness > B.thickness;
-                        }
-
-                        if (aIsPrimary) {
-                            if (atAStart) {
-                                A.c1 = Math.min(A.c1, x0 - B.thickness / 2);
-                            } else {
-                                A.c2 = Math.max(A.c2, x0 + B.thickness / 2);
-                            }
-                            if (atBStart) {
-                                B.c1 = Math.max(B.c1, z0 + A.thickness / 2);
-                                B.omitStartCap = true;
-                            } else {
-                                B.c2 = Math.min(B.c2, z0 - A.thickness / 2);
-                                B.omitEndCap = true;
-                            }
-                        } else {
-                            if (atBStart) {
-                                B.c1 = Math.min(B.c1, z0 - A.thickness / 2);
-                            } else {
-                                B.c2 = Math.max(B.c2, z0 + A.thickness / 2);
-                            }
-                            if (atAStart) {
-                                A.c1 = Math.max(A.c1, x0 + B.thickness / 2);
-                                A.omitStartCap = true;
-                            } else {
-                                A.c2 = Math.min(A.c2, x0 - B.thickness / 2);
-                                A.omitEndCap = true;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    // Подрезка дверных полотен, примыкающих к перпендикулярным или продольным стенам
-    for (let i = 0; i < solvedDoors.length; i++) {
-        const D = solvedDoors[i];
-        for (let j = 0; j < solved.length; j++) {
-            const W = solved[j];
-
-            // 1. Перпендикулярное пересечение двери со стеной
-            if (D.isHorizontal !== W.isHorizontal) {
-                const dCoord = D.fixedCoord; // координата линии двери
-                const wCoord = W.fixedCoord; // координата линии стены
-
-                const wInD = (wCoord >= D.origC1 - 0.05 && wCoord <= D.origC2 + 0.05);
-                const dInW = (dCoord >= W.origC1 - 0.05 && dCoord <= W.origC2 + 0.05);
-
-                if (wInD && dInW) {
-                    if (Math.abs(wCoord - D.origC1) <= W.thickness / 2 + 0.08) {
-                        D.c1 = Math.max(D.c1, wCoord + W.thickness / 2);
-                    } else if (Math.abs(wCoord - D.origC2) <= W.thickness / 2 + 0.08) {
-                        D.c2 = Math.min(D.c2, wCoord - W.thickness / 2);
-                    }
-                }
-            }
-            // 2. Параллельное или продольное наложение
-            else if (Math.abs(D.fixedCoord - W.fixedCoord) <= (D.thickness + W.thickness) / 2 - 0.02) {
-                const oStart = Math.max(D.origC1, W.origC1);
-                const oEnd = Math.min(D.origC2, W.origC2);
-                if (oEnd - oStart > 0.02) {
-                    if (D.origC1 < oStart) {
-                        D.c2 = Math.min(D.c2, oStart);
-                    } else if (D.origC2 > oEnd) {
-                        D.c1 = Math.max(D.c1, oEnd);
-                    }
-                }
-            }
-        }
-    }
-
-    const validDoors = solvedDoors.filter(d => (d.c2 - d.c1) > 0.05);
-    return [...solved, ...validDoors];
-}
-
-function flushWalls(targetGroup) {
-    if (!targetGroup || !targetGroup._pendingWallLines || targetGroup._pendingWallLines.length === 0) return;
-    const pendingLines = targetGroup._pendingWallLines;
-    targetGroup._pendingWallLines = [];
-    _pendingWallGroups.delete(targetGroup);
-
-    const solvedSegments = solveCampusJunctions(targetGroup, pendingLines);
-
-    for (let i = 0; i < solvedSegments.length; i++) {
-        const seg = solvedSegments[i];
-        const angle = seg.isHorizontal ? 0 : Math.PI / 2;
-        createWallSegment(
-            targetGroup,
-            seg.c1,
-            seg.c2,
-            seg.fixedCoord,
-            seg.isHorizontal,
-            angle,
-            seg.thickness,
-            seg.isDoor,
-            seg.isExterior,
-            seg.isColumn,
-            seg.omitStartCap,
-            seg.omitEndCap
-        );
-
-        if (!seg.isDoor && !seg.isColumn && targetGroup.userData && targetGroup.userData.floor && typeof WALLS_REGISTRY !== 'undefined' && Array.isArray(WALLS_REGISTRY)) {
+    if (navCursor < endCoord - 0.02) {
+        if (!isColumn && targetGroup && targetGroup.userData && targetGroup.userData.floor && typeof WALLS_REGISTRY !== 'undefined' && Array.isArray(WALLS_REGISTRY)) {
             WALLS_REGISTRY.push({
                 floor: targetGroup.userData.floor,
                 building: targetGroup.userData.building,
-                x1: seg.isHorizontal ? seg.c1 : seg.fixedCoord,
-                z1: seg.isHorizontal ? seg.fixedCoord : seg.c1,
-                x2: seg.isHorizontal ? seg.c2 : seg.fixedCoord,
-                z2: seg.isHorizontal ? seg.fixedCoord : seg.c2,
-                thickness: seg.thickness
+                x1: isHorizontal ? navCursor : fixedCoord,
+                z1: isHorizontal ? fixedCoord : navCursor,
+                x2: isHorizontal ? endCoord : fixedCoord,
+                z2: isHorizontal ? fixedCoord : endCoord,
+                thickness: wallThickness
             });
+        }
+    }
+
+    // Добавляем стену в очередь этажа для монолитного расчёта стыков
+    if (targetGroup) {
+        targetGroup._pendingWalls = targetGroup._pendingWalls || [];
+        targetGroup._pendingWalls.push({
+            x1, z1, x2, z2, openings, wallThickness, isColumn, isHorizontal, isOuterWall
+        });
+        PENDING_WALL_GROUPS.add(targetGroup);
+    }
+}
+
+// Превращает все собранные линии стен этажа в бесшовную монолитную геометрию без врезаний
+function finalizeFloorWalls(targetGroup) {
+    if (!targetGroup || !targetGroup._pendingWalls || targetGroup._pendingWalls.length === 0) return;
+    const rawWalls = targetGroup._pendingWalls;
+    targetGroup._pendingWalls = [];
+
+    // Нормализация координат стен
+    let walls = rawWalls.map((w, idx) => {
+        const isH = w.isHorizontal;
+        const u1 = isH ? Math.min(w.x1, w.x2) : Math.min(w.z1, w.z2);
+        const u2 = isH ? Math.max(w.x1, w.x2) : Math.max(w.z1, w.z2);
+        const fixed = isH ? w.z1 : w.x1;
+        return {
+            id: idx,
+            isH,
+            u1,
+            u2,
+            fixed,
+            thickness: w.wallThickness,
+            isOuter: w.isOuterWall,
+            isColumn: w.isColumn,
+            angle: isH ? 0 : Math.PI / 2,
+            openings: w.openings || [],
+            trimU1: u1,
+            trimU2: u2,
+            hasStartCap: true,
+            hasEndCap: true
+        };
+    });
+
+    // 1. Устранение случайных дублирующихся / перекрывающихся соосных отрезков стен
+    for (let i = 0; i < walls.length; i++) {
+        const w1 = walls[i];
+        for (let j = i + 1; j < walls.length; j++) {
+            const w2 = walls[j];
+            if (w1.isH === w2.isH && Math.abs(w1.fixed - w2.fixed) < 0.05) {
+                const overlapStart = Math.max(w1.u1, w2.u1);
+                const overlapEnd = Math.min(w1.u2, w2.u2);
+                if (overlapEnd > overlapStart + 0.02) {
+                    if (w1.u1 <= w2.u1 && w1.u2 >= w2.u2) {
+                        w1.openings.push(...w2.openings);
+                        w2.trimU1 = w2.trimU2;
+                    } else if (w2.u1 <= w1.u1 && w2.u2 >= w1.u2) {
+                        w2.openings.push(...w1.openings);
+                        w1.trimU1 = w1.trimU2;
+                    } else if (w1.u1 <= w2.u1) {
+                        w2.u1 = w1.u2;
+                        w2.trimU1 = w1.u2;
+                    } else {
+                        w1.u1 = w2.u2;
+                        w1.trimU1 = w2.u2;
+                    }
+                }
+            }
+        }
+    }
+    walls = walls.filter(w => w.trimU2 - w.trimU1 > 0.01);
+
+    // 2. Разбиение перекрестий стен (когда вертикальная стена насквозь пересекает горизонтальную)
+    const splitWalls = [];
+    for (const w of walls) {
+        if (w.isH) {
+            splitWalls.push(w);
+            continue;
+        }
+        const splits = [];
+        for (const other of walls) {
+            if (other.isH) {
+                const Xv = w.fixed;
+                const Zh = other.fixed;
+                if (w.u1 + 0.05 < Zh && Zh < w.u2 - 0.05 && other.u1 + 0.05 < Xv && Xv < other.u2 - 0.05) {
+                    splits.push(Zh);
+                }
+            }
+        }
+        if (splits.length === 0) {
+            splitWalls.push(w);
+        } else {
+            splits.sort((a, b) => a - b);
+            let cur = w.u1;
+            for (const s of splits) {
+                const segOps = w.openings.filter(op => op.from >= cur && op.to <= s);
+                splitWalls.push({
+                    ...w, u1: cur, u2: s, trimU1: cur, trimU2: s, openings: segOps
+                });
+                cur = s;
+            }
+            const segOps = w.openings.filter(op => op.from >= cur && op.to <= w.u2);
+            splitWalls.push({
+                ...w, u1: cur, u2: w.u2, trimU1: cur, trimU2: w.u2, openings: segOps
+            });
+        }
+    }
+    walls = splitWalls;
+
+    // Вспомогательная функция: проверяет, продолжается ли стена соосно дальше в той же плоскости
+    function continuesCollinear(wall, endpointVal, isStart) {
+        for (let k = 0; k < walls.length; k++) {
+            const other = walls[k];
+            if (other === wall) continue;
+            if (other.isH === wall.isH && Math.abs(other.fixed - wall.fixed) < 0.05) {
+                if (isStart && Math.abs(other.u2 - endpointVal) < 0.05) return true;
+                if (!isStart && Math.abs(other.u1 - endpointVal) < 0.05) return true;
+            }
+        }
+        return false;
+    }
+
+    // 3. Соосные стены, идущие встык по одной линии
+    for (let i = 0; i < walls.length; i++) {
+        const w1 = walls[i];
+        for (let j = 0; j < walls.length; j++) {
+            if (i === j) continue;
+            const w2 = walls[j];
+            if (w1.isH === w2.isH && Math.abs(w1.fixed - w2.fixed) < 0.05) {
+                if (Math.abs(w1.u2 - w2.u1) < 0.05) {
+                    w1.hasEndCap = false;
+                    w2.hasStartCap = false;
+                }
+            }
+        }
+    }
+
+    // 4. Автоматическое определение T-образных и L-образных стыков и подрезка встык
+    for (let i = 0; i < walls.length; i++) {
+        const w1 = walls[i];
+        for (let j = 0; j < walls.length; j++) {
+            if (i === j) continue;
+            const w2 = walls[j];
+
+            // Перпендикулярные стены: w1 горизонтальная, w2 вертикальная
+            if (w1.isH && !w2.isH) {
+                const Xv = w2.fixed;
+                const Zh = w1.fixed;
+                const Tv = w2.thickness;
+                const Th = w1.thickness;
+
+                // Стены могут взаимодействовать ТОЛЬКО если точка пересечения (Xv, Zh) лежит в пределах обоих отрезков!
+                const xInSpan = (w1.u1 - 0.05 <= Xv && Xv <= w1.u2 + 0.05);
+                const zInSpan = (w2.u1 - 0.05 <= Zh && Zh <= w2.u2 + 0.05);
+
+                if (xInSpan && zInSpan) {
+                    const bStartTouches = Math.abs(w2.u1 - Zh) < 0.05;
+                    const bEndTouches = Math.abs(w2.u2 - Zh) < 0.05;
+                    const aStartTouches = Math.abs(w1.u1 - Xv) < 0.05;
+                    const aEndTouches = Math.abs(w1.u2 - Xv) < 0.05;
+
+                    const aTouches = aStartTouches || aEndTouches;
+                    const bTouches = bStartTouches || bEndTouches;
+
+                    // Проверяем, не продолжается ли стена соосно сквозь этот стык
+                    const aContinues = (aStartTouches && continuesCollinear(w1, w1.u1, true)) ||
+                                       (aEndTouches && continuesCollinear(w1, w1.u2, false));
+                    const bContinues = (bStartTouches && continuesCollinear(w2, w2.u1, true)) ||
+                                       (bEndTouches && continuesCollinear(w2, w2.u2, false));
+
+                    // Истинный L-угол: обе стены заканчиваются в одной точке И ни одна не продолжается дальше
+                    const isCorner = (aTouches && bTouches) && (!aContinues && !bContinues);
+
+                    if (isCorner) {
+                        // Угловой L-стык: наружная стена закрывает угол, примыкающая подрезается встык
+                        let horizExtends = true;
+                        if (!w1.isOuter && w2.isOuter) horizExtends = false;
+
+                        if (horizExtends) {
+                            if (aStartTouches) w1.trimU1 = Math.min(w1.trimU1, Xv - Tv / 2);
+                            if (aEndTouches) w1.trimU2 = Math.max(w1.trimU2, Xv + Tv / 2);
+                            if (bStartTouches) {
+                                w2.trimU1 = Math.max(w2.trimU1, Zh + Th / 2);
+                                w2.hasStartCap = false;
+                            }
+                            if (bEndTouches) {
+                                w2.trimU2 = Math.min(w2.trimU2, Zh - Th / 2);
+                                w2.hasEndCap = false;
+                            }
+                        } else {
+                            if (bStartTouches) w2.trimU1 = Math.min(w2.trimU1, Zh - Th / 2);
+                            if (bEndTouches) w2.trimU2 = Math.max(w2.trimU2, Zh + Th / 2);
+                            if (aStartTouches) {
+                                w1.trimU1 = Math.max(w1.trimU1, Xv + Tv / 2);
+                                w1.hasStartCap = false;
+                            }
+                            if (aEndTouches) {
+                                w1.trimU2 = Math.min(w1.trimU2, Xv - Tv / 2);
+                                w1.hasEndCap = false;
+                            }
+                        }
+                    } else {
+                        // T-образный стык: примыкающая стена обрезается заподлицо с гранью сквозной стены
+                        if (bTouches) {
+                            // Вертикальная стена примыкает к горизонтальной
+                            if (bStartTouches) {
+                                w2.trimU1 = Math.max(w2.trimU1, Zh + Th / 2);
+                                w2.hasStartCap = false;
+                            }
+                            if (bEndTouches) {
+                                w2.trimU2 = Math.min(w2.trimU2, Zh - Th / 2);
+                                w2.hasEndCap = false;
+                            }
+                        } else if (aTouches) {
+                            // Горизонтальная стена примыкает к вертикальной
+                            if (aStartTouches) {
+                                w1.trimU1 = Math.max(w1.trimU1, Xv + Tv / 2);
+                                w1.hasStartCap = false;
+                            }
+                            if (aEndTouches) {
+                                w1.trimU2 = Math.min(w1.trimU2, Xv - Tv / 2);
+                                w1.hasEndCap = false;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // Создание 3D-мешей и чистых рёбер для каждого сегмента стены
+    for (const w of walls) {
+        const S = w.trimU1;
+        const E = w.trimU2;
+        if (E - S <= 0.01) continue;
+
+        const validOps = [];
+        for (const op of (w.openings || [])) {
+            const oStart = Math.max(S, op.from);
+            const oEnd = Math.min(E, op.to);
+            if (oEnd > oStart + 0.01) {
+                validOps.push({
+                    from: oStart,
+                    to: oEnd,
+                    type: op.type,
+                    isExterior: op.isExterior !== undefined ? op.isExterior : w.isOuter
+                });
+            }
+        }
+        validOps.sort((a, b) => a.from - b.from);
+
+        let cursor = S;
+        for (const op of validOps) {
+            if (op.from > cursor + 0.01) {
+                const segStartCap = (cursor === S) ? w.hasStartCap : true;
+                const segEndCap = true; // Дверной косяк
+                createWallSegment(targetGroup, cursor, op.from, w.fixed, w.isH, w.angle, w.thickness, false, w.isOuter, w.isColumn, segStartCap, segEndCap);
+            }
+            if (op.type !== 'open') {
+                createWallSegment(targetGroup, op.from, op.to, w.fixed, w.isH, w.angle, 0.09, true, op.isExterior, w.isColumn, false, false);
+            }
+            cursor = op.to;
+        }
+        if (cursor < E - 0.01) {
+            const segStartCap = (cursor === S) ? w.hasStartCap : true;
+            const segEndCap = w.hasEndCap;
+            createWallSegment(targetGroup, cursor, E, w.fixed, w.isH, w.angle, w.thickness, false, w.isOuter, w.isColumn, segStartCap, segEndCap);
         }
     }
 }
 
-function flushAllPendingWalls() {
-    for (const group of _pendingWallGroups) {
-        flushWalls(group);
+function finalizeAllPendingWalls() {
+    for (const group of PENDING_WALL_GROUPS) {
+        finalizeFloorWalls(group);
     }
-    _pendingWallGroups.clear();
+    PENDING_WALL_GROUPS.clear();
 }
 
 function addArbitraryWallSegment(targetGroup, x1, z1, x2, z2, thickness = 0.18, isDoor = false, isExterior = false) {
@@ -454,20 +473,21 @@ function addArbitraryWallSegment(targetGroup, x1, z1, x2, z2, thickness = 0.18, 
     const mat = isDoor ? MATERIALS.doorThin : MATERIALS.wall;
     const mesh = new THREE.Mesh(geom, mat);
 
-    const h = STATE.wallHeight;
+    const effectiveExterior = isExterior || (thickness >= 0.20);
+    const h = isDoor ? (STATE.wallHeight - 0.05) : STATE.wallHeight;
     mesh.scale.y = h + WALL_SINK;
     mesh.position.set(cx, (h - WALL_SINK) / 2, cz);
     mesh.rotation.y = -angle;
     mesh.castShadow = true;
     mesh.receiveShadow = true;
-    const effectiveExterior = isExterior || (thickness >= 0.20);
     mesh.userData.isExterior = effectiveExterior;
     mesh.userData.isInterior = !effectiveExterior && (isDoor || (thickness < 0.20));
     mesh.userData.isDoor = isDoor;
     targetGroup.add(mesh);
 
-    const edgeGeom = new THREE.EdgesGeometry(geom);
+    const edgeGeom = buildWallBoxEdges(len, 1, thickness, true, true, isDoor);
     const edgeLine = new THREE.LineSegments(edgeGeom, isDoor ? MATERIALS.edgeDoor : MATERIALS.edgeMain);
+    edgeLine.renderOrder = 1;
     edgeLine.userData.isExterior = effectiveExterior;
     edgeLine.userData.isInterior = mesh.userData.isInterior;
     edgeLine.userData.isDoor = isDoor;
@@ -482,9 +502,9 @@ function addArbitraryWallSegment(targetGroup, x1, z1, x2, z2, thickness = 0.18, 
     }
 }
 
-function createWallSegment(targetGroup, c1, c2, fixedCoord, isHorizontal, angle, thickness, isDoor, isExterior = false, isColumn = false, omitStart = false, omitEnd = false) {
+function createWallSegment(targetGroup, c1, c2, fixedCoord, isHorizontal, angle, thickness, isDoor, isExterior = false, isColumn = false, hasStartCap = true, hasEndCap = true) {
     const len = Math.abs(c2 - c1);
-    if (len <= 0.01) return;
+    if (len <= 0.005) return;
 
     const mid = (c1 + c2) / 2;
     const cx = isHorizontal ? mid : fixedCoord;
@@ -494,7 +514,7 @@ function createWallSegment(targetGroup, c1, c2, fixedCoord, isHorizontal, angle,
     const mat = isDoor ? MATERIALS.doorThin : MATERIALS.wall;
     const mesh = new THREE.Mesh(geom, mat);
 
-    const h = STATE.wallHeight;
+    const h = isDoor ? (STATE.wallHeight - 0.05) : STATE.wallHeight;
     mesh.scale.y = h + WALL_SINK;
     mesh.position.set(cx, (h - WALL_SINK) / 2, cz);
     mesh.rotation.y = -angle;
@@ -503,14 +523,16 @@ function createWallSegment(targetGroup, c1, c2, fixedCoord, isHorizontal, angle,
     mesh.userData.isExterior = isExterior;
     mesh.userData.isInterior = !isExterior && (isDoor || (thickness < 0.20));
     mesh.userData.isDoor = isDoor;
+    mesh.userData.isHorizontal = isHorizontal;
     if (isColumn) {
         mesh.userData.isColumn = true;
         mesh.userData.isInterior = true;
     }
     targetGroup.add(mesh);
 
-    const edgeGeom = isDoor ? new THREE.EdgesGeometry(geom) : createWallEdgesGeometry(len, thickness, omitStart, omitEnd);
+    const edgeGeom = buildWallBoxEdges(len, 1, thickness, hasStartCap, hasEndCap, isDoor);
     const edgeLine = new THREE.LineSegments(edgeGeom, isDoor ? MATERIALS.edgeDoor : MATERIALS.edgeMain);
+    edgeLine.renderOrder = 1;
     edgeLine.userData.isExterior = isExterior;
     edgeLine.userData.isInterior = mesh.userData.isInterior;
     edgeLine.userData.isDoor = isDoor;
@@ -546,7 +568,7 @@ function addSquareColumn(targetGroup, cx, cz, size = 0.28, isExterior = false) {
     mesh.userData.isColumn = true;
     targetGroup.add(mesh);
 
-    const edgeGeom = new THREE.EdgesGeometry(geom);
+    const edgeGeom = buildWallBoxEdges(size, 1, size, true, true, false);
     const edgeLine = new THREE.LineSegments(edgeGeom, MATERIALS.edgeMain);
     edgeLine.userData.isExterior = isExterior;
     edgeLine.userData.isInterior = !isExterior;
@@ -715,6 +737,13 @@ function addRoomLabel3D(targetGroup, floorNum, text, x, z, isSmall = false, isWi
 
     if (typeof ROOMS_REGISTRY !== 'undefined') {
         const dispVal = formatRoomDisplayName(text.replace('\n', ' '), buildingNum);
+        const t = (text || '').trim();
+        let prio = 2;
+        if (/столов|спорт|актов|гардероб|библиот|конференц/i.test(t)) prio = 0;
+        else if (/^\d+[\u0400-\u04FFA-Za-z]?$/.test(t)) prio = 1;
+        else if (t.startsWith('ЛК') || t.startsWith('\u041B\u041A')) prio = 3;
+        else if (t === 'С/У' || t === '\u0421/\u0423') prio = 4;
+
         ROOMS_REGISTRY.push({
             text: dispVal,
             rawText: text,
@@ -727,7 +756,8 @@ function addRoomLabel3D(targetGroup, floorNum, text, x, z, isSmall = false, isWi
             isWide: isWide,
             baseW: baseW,
             customScale: customScale || 1.0,
-            ratio: height / width
+            ratio: height / width,
+            priority: prio
         });
     }
 }
@@ -810,19 +840,6 @@ function renderScreenSpaceLabels() {
     // что позволяет им оставаться ВНУТРИ кабинетов и НЕ пропадать с чертежа!
     const zoomScale = Math.min(Math.max(38 / Math.max(camDist, 22), 0.55), 1.05);
 
-    // Сортировка: наивысший приоритет у ключевых кабинетов и лабораторий,
-    // чтобы при общем виде сверху в первую очередь ВСЕГДА были видны номера комнат,
-    // а второстепенные тех. помещения (С/У, ЛК) уступали им место без перекрытия
-    function getRoomPriority(r) {
-        const t = (r.text || '').trim();
-        if (/столов|спорт|актов|гардероб|библиот|конференц/i.test(t)) return 0; // Наивысший приоритет (всегда видны на карте)
-        if (/^\d+[\u0400-\u04FFA-Za-z]?$/.test(t)) return 1; // 101, 102, 111А
-        if (t.includes('\n') || t.length > 3) return 2;
-        if (t.startsWith('ЛК') || t.startsWith('\u041B\u041A')) return 3;
-        if (t === 'С/У' || t === '\u0421/\u0423') return 4;
-        return 2;
-    }
-
     const candidateRooms = [];
     for (let i = 0; i < ROOMS_REGISTRY.length; i++) {
         const r = ROOMS_REGISTRY[i];
@@ -837,29 +854,15 @@ function renderScreenSpaceLabels() {
         const fg = floorGroups[r.floor];
         if (!fg || !fg.visible) continue;
 
-        // В многоэтажном виде отсекаем кабинеты, которые перекрыты сплошными плитами верхних этажей,
-        // чтобы они не просвечивали сквозь потолок и не конфликтовали с верхними плашками
-        if (!isSingle && typeof isLabelOccludedByUpperSlabs === 'function') {
-            if (isLabelOccludedByUpperSlabs(r, r.floor, r.building)) {
-                continue;
-            }
-        }
-
         candidateRooms.push({ room: r, fg });
     }
 
-    // 100% Детерминированная сортировка: приоритет + точный порядок по номеру комнаты и координатам
-    // (полностью исключает случайную инверсию порядка и мерцание плашек от кадра к кадру)
+    // Быстрая O(1) сортировка по предрассчитанному приоритету
     candidateRooms.sort((a, b) => {
-        const pa = getRoomPriority(a.room);
-        const pb = getRoomPriority(b.room);
+        const pa = a.room.priority !== undefined ? a.room.priority : 2;
+        const pb = b.room.priority !== undefined ? b.room.priority : 2;
         if (pa !== pb) return pa - pb;
-        const textCmp = a.room.text.localeCompare(b.room.text, undefined, { numeric: true });
-        if (textCmp !== 0) return textCmp;
-        if (a.room.floor !== b.room.floor) return a.room.floor - b.room.floor;
-        if (a.room.building !== b.room.building) return a.room.building - b.room.building;
-        if (a.room.x !== b.room.x) return a.room.x - b.room.x;
-        return a.room.z - b.room.z;
+        return a.room.text.localeCompare(b.room.text, undefined, { numeric: true });
     });
 
     // Полифилл roundRect для 100% совместимости
@@ -929,13 +932,12 @@ function renderScreenSpaceLabels() {
         const x1 = x0 + badgeW;
         const y1 = y0 + badgeH;
 
-        // 3. Строгая проверка наложения с гарантированным зазором:
-        // Минимальный зазор гарантирует, что внешняя обводка (1.3-2.0px) и тень (размытие 4px)
-        // ни при каких условиях не пересекаются и не наползают друг на друга
-        const badgeKey = `${r.building}-${r.floor}-${r.text}-${Math.round(r.x * 10)}-${Math.round(r.z * 10)}`;
+        // 3. Строгая проверка наложения с гистерезисом (плашки не наслаиваются и не мерцают при микроколебаниях):
+        const badgeKey = `${r.building}-${r.floor}-${r.text}`;
         const wasVisible = activeBadgeKeys.has(badgeKey);
-        const baseMargin = isFarZoom ? 1.8 : 3.0;
-        const margin = wasVisible ? Math.max(1.2 * zoomScale, 1.0) : baseMargin;
+        // При сильном отдалении порог зазора уменьшается до 0.8px, чтобы метки плотнее упаковывались и оставались на карте
+        const baseMargin = isFarZoom ? 0.8 : 2.5;
+        const margin = wasVisible ? 0.0 : baseMargin;
 
         let overlap = false;
         for (let b = 0; b < drawnBoxes.length; b++) {
@@ -958,9 +960,9 @@ function renderScreenSpaceLabels() {
         const badgeText = isDarkTheme ? '#f8fafc' : '#0f172a';
         const badgeSec = isDarkTheme ? '#94a3b8' : '#475569';
 
-        overlayCtx.shadowColor = isDarkTheme ? 'rgba(0, 0, 0, 0.60)' : 'rgba(0, 0, 0, 0.14)';
-        overlayCtx.shadowBlur = Math.round(4 * zoomScale);
-        overlayCtx.shadowOffsetY = Math.round(1.5 * zoomScale);
+        overlayCtx.shadowColor = isDarkTheme ? 'rgba(0, 0, 0, 0.45)' : 'rgba(0, 0, 0, 0.12)';
+        overlayCtx.shadowBlur = 0;
+        overlayCtx.shadowOffsetY = 1;
 
         overlayCtx.fillStyle = badgeBg;
         overlayCtx.strokeStyle = badgeStroke;

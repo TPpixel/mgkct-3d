@@ -274,26 +274,21 @@ function setViewMode(is2D) {
         apply2DControls(is2D);
     }
 
-    const cx = controls ? controls.target.x : getActiveCenterX();
-    const cz = controls ? controls.target.z : getActiveCenterZ();
-    const isMobile = window.innerWidth < 768;
-    const isBoth = STATE.buildingFilter === 'both';
-    const distY = isMobile ? (isBoth ? 54 : 42) : (isBoth ? 68 : 46);
-    const offsetZ = isMobile ? (isBoth ? 18 : 14) : 22;
-
-    if (is2D) {
-        if (controls) {
-            controls.target.set(cx, 0, cz);
-        }
-        // Вид сверху прямо на карту строго с юга на север
-        STATE.targetCamPos = new THREE.Vector3(cx, distY, cz + offsetZ);
+    if (typeof smoothTiltTo === 'function') {
+        smoothTiltTo(is2D ? 0.08 : 0.95);
     } else {
-        // Перспективный 3D ракурс под углом
-        const maxF = STATE.mode === 'slice' ? STATE.sliceMaxFloor : (STATE.mode === 'all' ? 7 : 1);
-        const midY = ((STATE.mode === 'all' || STATE.mode === 'slice') && STATE.exploded)
-            ? (STATE.wallHeight + STATE.explodeGap) * (maxF / 2)
-            : (STATE.wallHeight * 0.45 * maxF);
-        STATE.targetCamPos = new THREE.Vector3(cx - 24, 52 + midY, cz + 52);
+        const cx = controls ? controls.target.x : getActiveCenterX();
+        const cz = controls ? controls.target.z : getActiveCenterZ();
+        const isMobile = window.innerWidth < 768;
+        const isBoth = STATE.buildingFilter === 'both';
+        const distY = isMobile ? (isBoth ? 54 : 42) : (isBoth ? 68 : 46);
+        const offsetZ = isMobile ? (isBoth ? 18 : 14) : 22;
+
+        if (is2D) {
+            STATE.targetCamPos = new THREE.Vector3(cx, distY, cz + offsetZ);
+        } else {
+            STATE.targetCamPos = new THREE.Vector3(cx - 24, 52, cz + 52);
+        }
     }
 
     if (typeof updateFloorsInteriorVisibility === 'function') {
