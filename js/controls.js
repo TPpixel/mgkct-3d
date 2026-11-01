@@ -26,6 +26,7 @@ function initControls(camera, domElement) {
     controls.minDistance = 10;
     controls.maxDistance = 115;
     controls.screenSpacePanning = true; // Важно для плавного перемещения карты
+    controls.enableZoom = false; // Исключаем двойное зумирование OrbitControls при скролле колесиком
 
     const cx = (typeof getActiveCenterX === 'function') ? getActiveCenterX() : 24.0;
     const cz = (typeof getActiveCenterZ === 'function') ? getActiveCenterZ() : -22.0;
@@ -39,6 +40,19 @@ function initControls(camera, domElement) {
 
     // Зум к позиции курсора (BIM / CAD Zoom to Pointer)
     domElement.addEventListener('wheel', onPointerZoom, { passive: false });
+
+    // Включаем зум OrbitControls исключительно для двухпальцевого жеста pinch на смартфонах
+    domElement.addEventListener('touchstart', (e) => {
+        if (e.touches && e.touches.length >= 2 && controls) {
+            controls.enableZoom = true;
+        }
+    }, { passive: true });
+    domElement.addEventListener('touchend', () => {
+        if (controls) controls.enableZoom = false;
+    }, { passive: true });
+    domElement.addEventListener('touchcancel', () => {
+        if (controls) controls.enableZoom = false;
+    }, { passive: true });
 
     // Клик / тап по карте для выбора кабинета
     let pointerDownPos = { x: 0, y: 0 };
@@ -64,10 +78,6 @@ function initControls(camera, domElement) {
 
     // Оповещение цикла рендеринга о движении камеры (On-Demand Render)
     controls.addEventListener('change', () => {
-        // Защита камеры от проваливания под уровень перекрытий (Camera floor clipping)
-        if (camera && camera.position.y < 0.35) {
-            camera.position.y = 0.35;
-        }
         if (typeof requestRender === 'function') {
             requestRender(20);
         }
@@ -242,57 +252,88 @@ function handleMapClick(event) {
 }
 
 function onPointerZoom(event) {
-    if (!controls || !camera) return;
+    if (!controls || !camera || !renderer) return;
 
     // Предотвращаем дефолтный скролл страницы
     event.preventDefault();
 
     STATE.targetCamPos = null;
     STATE.targetControlsCenter = null;
+    resetControlsMomentum();
 
     const domElement = renderer.domElement;
     const rect = domElement.getBoundingClientRect();
+    if (!mouseVec) mouseVec = new THREE.Vector2();
     mouseVec.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
     mouseVec.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
 
+    if (!raycaster) raycaster = new THREE.Raycaster();
     raycaster.setFromCamera(mouseVec, camera);
 
-    const targets = Array.isArray(slabMeshes) && slabMeshes.length > 0 ? slabMeshes : scene.children;
-    const intersects = raycaster.intersectObjects(targets, false);
+    const activeFloorY = (controls.target && !isNaN(controls.target.y)) ? controls.target.y : 0;
+    if (!floorPlane) floorPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
+    floorPlane.constant = -activeFloorY;
+
+    // Ищем точку пересечения луча курсора с плоскостью этажа
     let hitPoint = null;
-
-    for (let i = 0; i < intersects.length; i++) {
-        const hit = intersects[i];
-        if (hit.object && hit.object.visible && hit.point) {
-            hitPoint = hit.point.clone();
-            break;
-        }
-    }
-
-    if (!hitPoint) {
-        floorPlane.constant = -controls.target.y;
-        const pt = new THREE.Vector3();
-        if (raycaster.ray.intersectPlane(floorPlane, pt)) {
+    const pt = new THREE.Vector3();
+    if (raycaster.ray.intersectPlane(floorPlane, pt)) {
+        // Проверяем, что точка находится в пределах территории колледжа, а не на горизонте
+        if (Math.hypot(pt.x - 25, pt.z - (-25)) < 300) {
             hitPoint = pt;
         }
     }
 
-    if (hitPoint) {
-        const zoomIn = event.deltaY < 0;
-        const factor = zoomIn ? 0.86 : 1.16;
+    // Если курсор смотрит в бесконечность или мимо кампуса, зумируем относительно текущего центра
+    if (!hitPoint) {
+        hitPoint = controls.target.clone();
+        hitPoint.y = activeFloorY;
+    }
 
-        const camToHit = camera.position.clone().sub(hitPoint);
-        const targetToHit = controls.target.clone().sub(hitPoint);
+    const zoomIn = event.deltaY < 0;
+    let factor = zoomIn ? 0.85 : 1.18;
 
-        const newDist = camToHit.length() * factor;
+    // Корректная проверка дистанции до цели (controls.target)
+    const currentDist = camera.position.distanceTo(controls.target);
+    const targetDist = currentDist * factor;
 
-        if (newDist >= controls.minDistance && newDist <= controls.maxDistance) {
-            camera.position.copy(hitPoint).addScaledVector(camToHit, factor);
-            controls.target.copy(hitPoint).addScaledVector(targetToHit, factor);
+    const minD = controls.minDistance || 10;
+    const maxD = controls.maxDistance || 115;
 
-            if (typeof requestRender === 'function') {
-                requestRender(20);
-            }
-        }
+    if (targetDist < minD) {
+        factor = minD / currentDist;
+    } else if (targetDist > maxD) {
+        factor = maxD / currentDist;
+    }
+
+    if (Math.abs(factor - 1.0) < 0.001) {
+        return; // Достигнут лимит приближения/отдаления
+    }
+
+    // Зум к точке курсора: точка hitPoint на экране остаётся неподвижной
+    const camOffset = camera.position.clone().sub(hitPoint).multiplyScalar(factor);
+    const targetOffset = controls.target.clone().sub(hitPoint).multiplyScalar(factor);
+
+    camera.position.copy(hitPoint).add(camOffset);
+    controls.target.copy(hitPoint).add(targetOffset);
+
+    // Гарантируем, что target.y строго лежит на плоскости этажа
+    controls.target.y = activeFloorY;
+
+    // Ограничиваем смещение target границами территории колледжа, чтобы не потерять карту
+    controls.target.x = THREE.MathUtils.clamp(controls.target.x, -35.0, 95.0);
+    controls.target.z = THREE.MathUtils.clamp(controls.target.z, -80.0, 35.0);
+
+    // Ограничиваем минимальную высоту камеры над полом
+    const minCamY = activeFloorY + (STATE.is2D ? 10.0 : 0.80);
+    if (camera.position.y < minCamY) {
+        camera.position.y = minCamY;
+    }
+
+    // Синхронизируем OrbitControls
+    controls.update();
+
+    if (typeof requestRender === 'function') {
+        requestRender(20);
     }
 }
