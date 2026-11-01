@@ -678,7 +678,7 @@ function resetSettingsToDefault() {
     STATE.showLabels = true;
     STATE.smartLabelOcclusion = true;
     STATE.showRoof = false;
-    STATE.showTerritory = false;
+    STATE.showTerritory = (typeof ROAD_3D_MINIMALISM !== 'undefined' ? ROAD_3D_MINIMALISM === 0 : false);
     STATE.showStairAxes = false;
     STATE.showGuides = false;
     STATE.showEdges = true;
@@ -705,7 +705,7 @@ function resetSettingsToDefault() {
     const tRoof = document.getElementById('toggle-roof');
     if (tRoof) tRoof.checked = false;
     const tTerritory = document.getElementById('toggle-territory');
-    if (tTerritory) tTerritory.checked = false;
+    if (tTerritory) tTerritory.checked = STATE.showTerritory;
 
     setBuildingFilter('both', false);
     setMode('1', false);
