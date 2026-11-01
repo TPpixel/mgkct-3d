@@ -397,6 +397,9 @@ function updateTerritoryVisibility() {
     if (territoryGroup) {
         territoryGroup.visible = STATE.showTerritory;
     }
+    if (roadNetworkGroup) {
+        roadNetworkGroup.visible = !STATE.showTerritory;
+    }
     updateShadows();
     requestRender(20);
 }
