@@ -315,9 +315,6 @@ function buildDrivewaysAndInnerRoads(group) {
     midMesh.receiveShadow = true;
     group.add(midMesh);
 
-    // ШЛАГБАУМ 2: ПЕРЕДВИНУТ В УКАЗАННЫЙ КРАСНЫЙ КРУГ МЕЖДУ К2 И К4 (X = 34.0, Z = -18.8)
-    addBarrierGateRotated(group, 34.0, midRoadZ, midRoadW);
-
     // Бордюры проезда между К2 и К4:
     // Южный бордюр (от К2 до угла)
     addCurbSegment(group, innerRoadX + innerRoadW / 2, midRoadZ + midRoadW / 2, midXEnd, midRoadZ + midRoadW / 2);
@@ -366,9 +363,6 @@ function buildDrivewaysAndInnerRoads(group) {
     // Южный бордюр (с разрывом на въезд между К3 и К4)
     addCurbSegment(group, northXStart, northRoadZ + northRoadW / 2, innerRoadX - innerRoadW / 2, northRoadZ + northRoadW / 2);
     addCurbSegment(group, innerRoadX + innerRoadW / 2, northRoadZ + northRoadW / 2, roadX1, northRoadZ + northRoadW / 2);
-
-    // ШЛАГБАУМ 1: НА СЕВЕРНОМ ПРОЕЗДЕ ПОСЛЕ ПОВОРОТА (X = 71.0, Z = northRoadZ)
-    addBarrierGateRotated(group, 71.0, northRoadZ, northRoadW);
 }
 
 // ----------------------------------------------------
