@@ -133,13 +133,15 @@
                    class="w-full bg-slate-900/90 border border-slate-700/80 rounded-xl px-3.5 py-2.5 text-[16px] sm:text-xs text-slate-100 placeholder-slate-500 outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 transition">
         </div>
 
-        <!-- Быстрые теги поиска -->
-        <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5 text-[11px] flex-shrink-0">
-            <button class="search-tag-chip px-2.5 py-1 rounded-lg transition font-medium flex-shrink-0" data-query="2-102">2-102</button>
-            <button class="search-tag-chip px-2.5 py-1 rounded-lg transition font-medium flex-shrink-0" data-query="1-105">1-105</button>
-            <button class="search-tag-chip px-2.5 py-1 rounded-lg transition font-medium flex-shrink-0" data-query="4-104">4-104</button>
-            <button class="search-tag-chip px-2.5 py-1 rounded-lg transition font-medium flex-shrink-0" data-query="Столовая">Столовая</button>
-            <button class="search-tag-chip px-2.5 py-1 rounded-lg transition font-medium flex-shrink-0" data-query="С/У">С/У</button>
+        <!-- Быстрые теги ключевых аудиторий с названиями -->
+        <div class="flex flex-wrap items-center gap-1.5 py-0.5 text-[11px] flex-shrink-0">
+            <button class="search-tag-chip px-2.5 py-1 rounded-lg transition font-medium" data-query="Столовая">Столовая</button>
+            <button class="search-tag-chip px-2.5 py-1 rounded-lg transition font-medium" data-query="Спортзал">Спортзал</button>
+            <button class="search-tag-chip px-2.5 py-1 rounded-lg transition font-medium" data-query="Актовый зал">Актовый зал</button>
+            <button class="search-tag-chip px-2.5 py-1 rounded-lg transition font-medium" data-query="Библиотека">Библиотека</button>
+            <button class="search-tag-chip px-2.5 py-1 rounded-lg transition font-medium" data-query="Гардероб">Гардероб</button>
+            <button class="search-tag-chip px-2.5 py-1 rounded-lg transition font-medium" data-query="Конференц-зал">Конференц-зал</button>
+            <button class="search-tag-chip px-2.5 py-1 rounded-lg transition font-medium" data-query="С/У">Санузел</button>
         </div>
 
         <!-- Список результатов -->
@@ -224,7 +226,7 @@
         <!-- Скрытая совместимость для программных вызовов -->
         <button id="btn-toggle-elevators" type="button" class="hidden"><span id="elevators-status-text">Без лифтов</span></button>
 
-        <!-- Быстрые направления: сетка кнопок единого стиля -->
+        <!-- Кнопки направлений: сбалансированная сетка из 6 кнопок -->
         <div class="grid grid-cols-2 sm:grid-cols-3 gap-1.5 text-[11px] pt-0.5 flex-shrink-0">
             <button id="btn-quick-toilet" type="button" title="Построить маршрут к ближайшему туалету" class="nav-quick-chip btn-interactive px-2 py-1.5 rounded-lg flex items-center justify-center transition font-medium w-full">
                 <span class="truncate">Ближайший туалет</span>
@@ -232,13 +234,16 @@
             <button class="nav-quick-chip btn-interactive px-2 py-1.5 rounded-lg flex items-center justify-center transition font-medium w-full" data-target="Главный вход">
                 <span class="truncate">Главный вход</span>
             </button>
+            <button class="nav-quick-chip btn-interactive px-2 py-1.5 rounded-lg flex items-center justify-center transition font-medium w-full" data-target="Главный вход 2">
+                <span class="truncate">Главный вход 2</span>
+            </button>
             <button class="nav-quick-chip btn-interactive px-2 py-1.5 rounded-lg flex items-center justify-center transition font-medium w-full" data-target="Столовая">
                 <span class="truncate">Столовая</span>
             </button>
             <button class="nav-quick-chip btn-interactive px-2 py-1.5 rounded-lg flex items-center justify-center transition font-medium w-full" data-target="Спортзал">
                 <span class="truncate">Спортзал</span>
             </button>
-            <button class="nav-quick-chip btn-interactive px-2 py-1.5 rounded-lg flex items-center justify-center transition font-medium w-full col-span-2 sm:col-span-1" data-target="Актовый зал">
+            <button class="nav-quick-chip btn-interactive px-2 py-1.5 rounded-lg flex items-center justify-center transition font-medium w-full" data-target="Актовый зал">
                 <span class="truncate">Актовый зал</span>
             </button>
         </div>

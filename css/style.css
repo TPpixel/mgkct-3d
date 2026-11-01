@@ -549,10 +549,26 @@ body[data-theme="dark"] #btn-toggle-territory.mode-active {
     color: #ffffff !important;
 }
 
-/* Элементы списка результатов поиска */
+/* Элементы списка результатов поиска и недавней истории */
+.room-search-item {
+    min-height: 46px;
+}
+.room-search-title {
+    line-height: 1.35 !important;
+    padding-bottom: 2px !important;
+}
+.room-search-sub {
+    line-height: 1.2 !important;
+}
 body[data-theme="light"] .room-search-item:hover {
     background-color: #f1f5f9 !important;
     border-color: #e2e8f0 !important;
+}
+body[data-theme="light"] .room-search-item .text-slate-200 {
+    color: #0f172a !important;
+}
+body[data-theme="light"] .room-search-item .text-slate-400 {
+    color: #64748b !important;
 }
 body[data-theme="light"] .room-search-badge {
     background-color: #e0f2fe !important;

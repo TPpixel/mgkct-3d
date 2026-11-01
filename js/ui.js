@@ -419,6 +419,11 @@ function selectRoom(roomInfo, shouldFly = true) {
         setMode(String(roomInfo.floor));
     }
 
+    // Сохраняем в недавние поиски
+    if (typeof saveRecentSearch === 'function') {
+        saveRecentSearch(roomInfo);
+    }
+
     // Обновляем текст в поисковом виджете шапки
     const cleanName = roomInfo.text ? roomInfo.text.replace(/\n/g, ' ').trim() : 'Кабинет';
     const isNum = /^\d/.test(cleanName) || /^[2-4]-\d/.test(cleanName);
@@ -514,6 +519,51 @@ function formatSearchRoomBadgeAndTitle(item) {
     return { codeLabel: shortBadge, displayTitle: fullText };
 }
 
+// --- НЕДАВНИЕ ПОИСКИ (RECENT SEARCHES STORAGE) ---
+const RECENT_SEARCHES_STORAGE_KEY = 'mgkct_recent_searches';
+const MAX_RECENT_SEARCHES_COUNT = 8;
+
+function getRecentSearches() {
+    try {
+        const raw = localStorage.getItem(RECENT_SEARCHES_STORAGE_KEY);
+        if (!raw) return [];
+        const arr = JSON.parse(raw);
+        return Array.isArray(arr) ? arr : [];
+    } catch (e) {
+        return [];
+    }
+}
+
+function saveRecentSearch(roomInfo) {
+    if (!roomInfo || !roomInfo.text) return;
+    try {
+        const { codeLabel, displayTitle } = formatSearchRoomBadgeAndTitle(roomInfo);
+        const item = {
+            floor: roomInfo.floor,
+            building: roomInfo.building,
+            x: roomInfo.x,
+            z: roomInfo.z,
+            text: roomInfo.text,
+            codeLabel,
+            displayTitle,
+            timestamp: Date.now()
+        };
+        const current = getRecentSearches();
+        const filtered = current.filter(r => !(r.building === item.building && r.floor === item.floor && r.codeLabel === item.codeLabel));
+        filtered.unshift(item);
+        if (filtered.length > MAX_RECENT_SEARCHES_COUNT) {
+            filtered.length = MAX_RECENT_SEARCHES_COUNT;
+        }
+        localStorage.setItem(RECENT_SEARCHES_STORAGE_KEY, JSON.stringify(filtered));
+    } catch (e) {}
+}
+
+function clearRecentSearches() {
+    try {
+        localStorage.removeItem(RECENT_SEARCHES_STORAGE_KEY);
+    } catch (e) {}
+}
+
 // Поиск кабинетов
 function setupSearch() {
     const searchModal = document.getElementById('search-modal');
@@ -560,6 +610,97 @@ function setupSearch() {
         if (!searchResults) return;
         query = (query || '').trim().toLowerCase();
 
+        function attachItemClickListeners() {
+            searchResults.querySelectorAll('.room-search-item').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const f = parseInt(btn.dataset.floor, 10);
+                    const b = parseInt(btn.dataset.bldg, 10);
+                    const x = parseFloat(btn.dataset.x);
+                    const z = parseFloat(btn.dataset.z);
+                    const t = btn.dataset.text;
+                    closeSearch();
+                    // Все корпуса остаются видимыми в общем контексте кампуса (не скрываем остальные корпуса)
+                    if (STATE.buildingFilter !== 'both' && typeof setBuildingFilter === 'function') {
+                        setBuildingFilter('both', false);
+                    }
+                    const roomInfo = { floor: f, building: b, x: x, z: z, text: t };
+                    saveRecentSearch(roomInfo);
+                    selectRoom(roomInfo, true);
+                    if (typeof showRoomContextPopup === 'function') {
+                        showRoomContextPopup(roomInfo, window.innerWidth / 2, window.innerHeight * 0.42, false);
+                    }
+                });
+            });
+        }
+
+        // 1) Пустой поисковый запрос: показываем историю недавних поисков
+        if (!query) {
+            const recent = getRecentSearches();
+            if (recent.length > 0) {
+                let html = `
+                    <div class="flex items-center justify-between px-1 py-1.5 text-slate-400 text-[11px] font-semibold flex-shrink-0 border-b border-slate-700/40 mb-1">
+                        <span class="flex items-center gap-1.5 text-slate-300">
+                            <svg class="w-3.5 h-3.5 text-sky-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            Недавние поиски
+                        </span>
+                        <button id="btn-clear-recent" class="text-slate-400 hover:text-sky-400 transition text-[11px] font-medium hover:underline p-0.5">
+                            Очистить историю
+                        </button>
+                    </div>
+                `;
+                recent.forEach(item => {
+                    const bldgLabel = `Корпус ${item.building}`;
+                    const floorLabel = `${item.floor} этаж`;
+                    const dataText = (item.text || '').replace(/\n/g, ' ');
+                    html += `
+                        <button class="room-search-item flex items-center justify-between gap-2.5 p-2 rounded-xl hover:bg-slate-800/80 border border-transparent hover:border-slate-700/60 transition text-left w-full group overflow-hidden flex-shrink-0"
+                                data-floor="${item.floor}" data-bldg="${item.building}" data-x="${item.x}" data-z="${item.z}" data-text="${dataText}">
+                            <div class="flex items-center gap-2.5 min-w-0 flex-1 overflow-hidden">
+                                <div class="room-search-badge min-w-[3.25rem] max-w-[4.75rem] px-2 h-8 rounded-lg border flex items-center justify-center font-extrabold text-xs tracking-tight flex-shrink-0 overflow-hidden text-ellipsis whitespace-nowrap">
+                                    ${item.codeLabel}
+                                </div>
+                                <div class="min-w-0 flex-1 flex flex-col justify-center overflow-hidden py-0.5">
+                                    <div class="room-search-title font-bold text-slate-200 text-xs truncate group-hover:text-sky-400 transition leading-snug py-0.5">${item.displayTitle}</div>
+                                    <div class="room-search-sub text-[10px] text-slate-400 truncate leading-none mt-0.5">${bldgLabel} • ${floorLabel}</div>
+                                </div>
+                            </div>
+                            <svg class="w-4 h-4 text-slate-500 group-hover:text-sky-400 transition flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                            </svg>
+                        </button>
+                    `;
+                });
+                searchResults.innerHTML = html;
+
+                document.getElementById('btn-clear-recent')?.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    clearRecentSearches();
+                    renderSearchResults('');
+                });
+
+                attachItemClickListeners();
+                return;
+            } else {
+                searchResults.innerHTML = `
+                    <div class="text-center py-8 px-4 flex flex-col items-center justify-center gap-2 text-slate-400">
+                        <div class="w-10 h-10 rounded-full bg-slate-800/80 flex items-center justify-center text-slate-500 mb-1">
+                            <svg class="w-5 h-5 text-sky-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
+                        </div>
+                        <div class="text-xs font-semibold text-slate-200">Быстрый поиск аудиторий</div>
+                        <div class="text-[11px] text-slate-400 max-w-[260px] leading-relaxed">
+                            Выберите категорию из кнопок выше или начните ввод номера кабинета
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+        }
+
+        // 2) Активный поиск по запросу
         if (typeof ROOMS_REGISTRY === 'undefined' || ROOMS_REGISTRY.length === 0) {
             searchResults.innerHTML = '<div class="text-center py-4 text-xs text-slate-500">Загрузка базы кабинетов...</div>';
             return;
@@ -585,12 +726,6 @@ function setupSearch() {
 
         const filtered = ROOMS_REGISTRY.filter(r => {
             const rawOrig = (r.rawText || r.text || '').toLowerCase();
-            // Скрываем чисто архитектурные подписи («Второй свет», «Витраж», «Переход...»), если пользователь не ищет их специально
-            if (!query && (/второй свет|витраж|переход/i.test(rawOrig))) {
-                return false;
-            }
-            if (!query) return true;
-
             const roomText = r.text.toLowerCase();
             const cleanText = rawOrig.replace(/\n/g, ' ').toLowerCase();
             const bldg = r.building;
@@ -659,15 +794,15 @@ function setupSearch() {
             const { codeLabel, displayTitle } = formatSearchRoomBadgeAndTitle(item);
             const dataText = (item.text || '').replace(/\n/g, ' ');
             html += `
-                <button class="room-search-item flex items-center justify-between gap-2 p-2.5 rounded-xl hover:bg-slate-800/80 border border-transparent hover:border-slate-700/60 transition text-left w-full group overflow-hidden"
+                <button class="room-search-item flex items-center justify-between gap-2.5 p-2 rounded-xl hover:bg-slate-800/80 border border-transparent hover:border-slate-700/60 transition text-left w-full group overflow-hidden flex-shrink-0"
                         data-floor="${item.floor}" data-bldg="${item.building}" data-x="${item.x}" data-z="${item.z}" data-text="${dataText}">
                     <div class="flex items-center gap-2.5 min-w-0 flex-1 overflow-hidden">
                         <div class="room-search-badge min-w-[3.25rem] max-w-[4.75rem] px-2 h-8 rounded-lg border flex items-center justify-center font-extrabold text-xs tracking-tight flex-shrink-0 overflow-hidden text-ellipsis whitespace-nowrap">
                             ${codeLabel}
                         </div>
-                        <div class="min-w-0 flex-1 overflow-hidden">
-                            <div class="font-bold text-slate-200 text-xs truncate group-hover:text-sky-400 transition">${displayTitle}</div>
-                            <div class="text-[10px] text-slate-400 truncate">${bldgLabel} • ${floorLabel}</div>
+                        <div class="min-w-0 flex-1 flex flex-col justify-center overflow-hidden py-0.5">
+                            <div class="room-search-title font-bold text-slate-200 text-xs truncate group-hover:text-sky-400 transition leading-snug py-0.5">${displayTitle}</div>
+                            <div class="room-search-sub text-[10px] text-slate-400 truncate leading-none mt-0.5">${bldgLabel} • ${floorLabel}</div>
                         </div>
                     </div>
                     <svg class="w-4 h-4 text-slate-500 group-hover:text-sky-400 transition flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -677,25 +812,7 @@ function setupSearch() {
             `;
         });
         searchResults.innerHTML = html;
-
-        searchResults.querySelectorAll('.room-search-item').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const f = parseInt(btn.dataset.floor, 10);
-                const b = parseInt(btn.dataset.bldg, 10);
-                const x = parseFloat(btn.dataset.x);
-                const z = parseFloat(btn.dataset.z);
-                const t = btn.dataset.text;
-                closeSearch();
-                if (typeof setBuildingFilter === 'function') {
-                    setBuildingFilter(String(b), false);
-                }
-                const roomInfo = { floor: f, building: b, x: x, z: z, text: t };
-                selectRoom(roomInfo, true);
-                if (typeof showRoomContextPopup === 'function') {
-                    showRoomContextPopup(roomInfo, window.innerWidth / 2, window.innerHeight * 0.42, false);
-                }
-            });
-        });
+        attachItemClickListeners();
     }
 }
 
@@ -1035,12 +1152,12 @@ function setupRoomContextPopup() {
 
                     const g = NAV_STATE.graph;
                     if (!NAV_STATE.startPoint && g) {
-                        const entrance = g.getNode('b1_f1_entrance_main');
+                        const entrance = g.getNode('b3_f1_entrance_west') || g.getNode('b1_f1_entrance_main');
                         if (entrance) {
                             NAV_STATE.startPoint = entrance;
                             const inputA = document.getElementById('nav-input-start');
                             if (inputA) {
-                                inputA.value = 'Главный вход (Корпус 1)';
+                                inputA.value = 'Главный вход (Корпус 3)';
                                 inputA.setAttribute('data-is-default', 'true');
                             }
                         }
