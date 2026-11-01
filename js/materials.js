@@ -6,16 +6,16 @@ const isInitialDark = (typeof STATE !== 'undefined' && STATE.theme === 'dark');
 
 const MATERIALS = {
     slab: new THREE.MeshStandardMaterial({
-        color: isInitialDark ? 0x1a212d : 0xd2d8e0,
-        roughness: 0.88,
-        metalness: 0.04,
+        color: isInitialDark ? 0x161f2e : 0xf8fafc,
+        roughness: 0.90,
+        metalness: 0.02,
         transparent: false,
         opacity: 1.0
     }),
     coreSlab: new THREE.MeshStandardMaterial({
-        color: isInitialDark ? 0x151b24 : 0xc7ced8,
-        roughness: 0.88,
-        metalness: 0.04,
+        color: isInitialDark ? 0x121a26 : 0xeef2f6,
+        roughness: 0.90,
+        metalness: 0.02,
         transparent: false,
         opacity: 1.0,
         polygonOffset: true,
@@ -23,32 +23,32 @@ const MATERIALS = {
         polygonOffsetUnits: -1
     }),
     wall: new THREE.MeshStandardMaterial({
-        color: isInitialDark ? 0x2d3748 : 0xffffff,
+        color: isInitialDark ? 0x283548 : 0xffffff,
         roughness: 0.65,
-        metalness: 0.04
+        metalness: 0.03
     }),
     doorThin: new THREE.MeshStandardMaterial({
-        color: isInitialDark ? 0x384557 : 0x78869b,
-        roughness: 0.5,
-        metalness: 0.1,
-        polygonOffset: true,
-        polygonOffsetFactor: -1,
-        polygonOffsetUnits: -1
-    }),
-    stair: new THREE.MeshStandardMaterial({
-        color: isInitialDark ? 0x242d3d : 0xb8c0cb,
-        roughness: 0.7,
+        color: isInitialDark ? 0x3b4d66 : 0x94a3b8,
+        roughness: 0.55,
         metalness: 0.08,
         polygonOffset: true,
         polygonOffsetFactor: -1,
         polygonOffsetUnits: -1
     }),
+    stair: new THREE.MeshStandardMaterial({
+        color: isInitialDark ? 0x222e40 : 0xcbd5e1,
+        roughness: 0.72,
+        metalness: 0.05,
+        polygonOffset: true,
+        polygonOffsetFactor: -1,
+        polygonOffsetUnits: -1
+    }),
     elevatorCar: new THREE.MeshStandardMaterial({
-        color: isInitialDark ? 0x1f2735 : 0xb0b8c4,
+        color: isInitialDark ? 0x1e293b : 0xcbd5e1,
         roughness: 0.75
     }),
-    edgeMain: new THREE.LineBasicMaterial({ color: isInitialDark ? 0x4a5568 : 0x334155, linewidth: 1 }),
-    edgeDoor: new THREE.LineBasicMaterial({ color: isInitialDark ? 0x4a5568 : 0x64748b, linewidth: 1 }),
+    edgeMain: new THREE.LineBasicMaterial({ color: isInitialDark ? 0x475569 : 0x475569, linewidth: 1 }),
+    edgeDoor: new THREE.LineBasicMaterial({ color: isInitialDark ? 0x475569 : 0x64748b, linewidth: 1 }),
     guideLine: new THREE.LineDashedMaterial({
         color: 0x94a3b8,
         dashSize: 0.45,
@@ -69,20 +69,20 @@ const MATERIALS = {
         opacity: 0.65
     }),
     roof: new THREE.MeshStandardMaterial({
-        color: 0x94a3b8,
+        color: isInitialDark ? 0x1e293b : 0x94a3b8,
         roughness: 0.85,
         metalness: 0.08,
         transparent: false,
         opacity: 1.0
     }),
     edgeRoof: new THREE.LineBasicMaterial({
-        color: 0x334155,
+        color: 0x475569,
         linewidth: 1
     }),
 
     // Минималистичная дорога по умолчанию (заливка полотна, контрастный контур, осевая линия)
     minimalRoadSurface: new THREE.MeshStandardMaterial({
-        color: isInitialDark ? 0x181e28 : 0xc8d1dc,
+        color: isInitialDark ? 0x131b26 : 0xdce4ee,
         roughness: 0.95,
         metalness: 0.02,
         polygonOffset: true,
@@ -90,37 +90,37 @@ const MATERIALS = {
         polygonOffsetUnits: 2
     }),
     roadContourLine: new THREE.LineBasicMaterial({
-        color: isInitialDark ? 0x94a3b8 : 0x334155, // Высококонтрастный контур кромки полотна
+        color: isInitialDark ? 0x475569 : 0x64748b,
         linewidth: 1
     }),
     roadCenterLine: new THREE.LineBasicMaterial({
-        color: isInitialDark ? 0x475569 : 0x64748b, // Неяркая осевая разметка полос
+        color: isInitialDark ? 0x334155 : 0x94a3b8,
         linewidth: 1
     }),
-    
-    // Материалы прилегающей территории и благоустройства
+
+    // Материалы прилегающей территории и благоустройства (адаптируются под светлую и тёмную тему)
     asphaltRoad: new THREE.MeshStandardMaterial({
-        color: 0x23272f,
+        color: isInitialDark ? 0x1c222d : 0x475569,
         roughness: 0.92,
         metalness: 0.04
     }),
     asphaltDriveway: new THREE.MeshStandardMaterial({
-        color: 0x2b313a,
+        color: isInitialDark ? 0x232a36 : 0x64748b,
         roughness: 0.90,
         metalness: 0.05
     }),
     curb: new THREE.MeshStandardMaterial({
-        color: 0x38414e,
+        color: isInitialDark ? 0x333d4d : 0x94a3b8,
         roughness: 0.85,
         metalness: 0.05
     }),
     sidewalk: new THREE.MeshStandardMaterial({
-        color: 0x4e5765,
+        color: isInitialDark ? 0x2c3545 : 0xcbd5e1,
         roughness: 0.90,
         metalness: 0.04
     }),
     lawn: new THREE.MeshStandardMaterial({
-        color: 0x2a4435,
+        color: isInitialDark ? 0x1d3528 : 0x86efac,
         roughness: 0.95,
         metalness: 0.0
     }),
@@ -166,12 +166,12 @@ const MATERIALS = {
         roughness: 0.9
     }),
     treeFoliage: new THREE.MeshStandardMaterial({
-        color: 0x1e4620,
+        color: isInitialDark ? 0x1e4620 : 0x22c55e,
         roughness: 0.85,
         metalness: 0.0
     }),
     treeFoliageLight: new THREE.MeshStandardMaterial({
-        color: 0x2d5a27,
+        color: isInitialDark ? 0x2d5a27 : 0x4ade80,
         roughness: 0.85,
         metalness: 0.0
     }),
@@ -181,11 +181,11 @@ const MATERIALS = {
         metalness: 0.7
     }),
     signBlue: new THREE.MeshStandardMaterial({
-        color: 0x1d4ed8,
+        color: 0x0284c7,
         roughness: 0.4
     }),
     signRed: new THREE.MeshStandardMaterial({
-        color: 0xdc2626,
+        color: 0xe11d48,
         roughness: 0.4
     }),
     signWhite: new THREE.MeshStandardMaterial({

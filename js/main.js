@@ -20,7 +20,7 @@ function init() {
 
     scene = new THREE.Scene();
     const isDarkBg = (typeof STATE !== 'undefined' && STATE.theme === 'dark');
-    scene.background = new THREE.Color(isDarkBg ? 0x11141a : 0xe8edf2);
+    scene.background = new THREE.Color(isDarkBg ? 0x0b0f17 : 0xeef2f6);
 
     camera = new THREE.PerspectiveCamera(42, window.innerWidth / window.innerHeight, 0.2, 700);
     const cx = (typeof getActiveCenterX === 'function') ? getActiveCenterX() : 16.0;
@@ -946,20 +946,49 @@ function animate(currentTime = 0) {
         }
     }
 
-    // 2. Проверяем анимацию камеры и центра вращения
+    // 2. Проверяем синхронную анимацию камеры и центра вращения (без конфликта с инерцией OrbitControls)
     let isCamMoving = false;
-    if (STATE.targetCamPos) {
+    if (STATE.targetCamPos || STATE.targetControlsCenter) {
         isCamMoving = true;
-        camera.position.lerp(STATE.targetCamPos, 0.16);
+        if (typeof resetControlsMomentum === "function") {
+            resetControlsMomentum();
+        }
+
+        let centerDone = true;
+        if (STATE.targetControlsCenter && controls) {
+            controls.target.lerp(STATE.targetControlsCenter, 0.18);
+            if (controls.target.distanceTo(STATE.targetControlsCenter) < 0.04) {
+                controls.target.copy(STATE.targetControlsCenter);
+                STATE.targetControlsCenter = null;
+            } else {
+                centerDone = false;
+            }
+        }
+
+        let posDone = true;
+        if (STATE.targetCamPos) {
+            camera.position.lerp(STATE.targetCamPos, 0.18);
+            if (camera.position.distanceTo(STATE.targetCamPos) < 0.04) {
+                camera.position.copy(STATE.targetCamPos);
+                STATE.targetCamPos = null;
+            } else {
+                posDone = false;
+            }
+        }
+
         if (controls) {
             camera.lookAt(controls.target);
         }
-        if (camera.position.distanceTo(STATE.targetCamPos) < 0.1) {
-            camera.position.copy(STATE.targetCamPos);
+
+        if (centerDone && posDone) {
             STATE.targetCamPos = null;
+            STATE.targetControlsCenter = null;
             if (controls) {
+                if (typeof resetControlsMomentum === "function") {
+                    resetControlsMomentum();
+                }
                 controls.update();
-                if (typeof apply2DControls === 'function') {
+                if (typeof apply2DControls === "function") {
                     apply2DControls(STATE.is2D);
                 }
             }
@@ -968,16 +997,6 @@ function animate(currentTime = 0) {
         const controlsMoved = controls.update();
         if (controlsMoved) {
             isCamMoving = true;
-        }
-    }
-
-    if (STATE.targetControlsCenter) {
-        isCamMoving = true;
-        controls.target.lerp(STATE.targetControlsCenter, 0.16);
-        if (controls.target.distanceTo(STATE.targetControlsCenter) < 0.05) {
-            controls.target.copy(STATE.targetControlsCenter);
-            STATE.targetControlsCenter = null;
-            if (controls) controls.update();
         }
     }
 

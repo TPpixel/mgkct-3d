@@ -1061,7 +1061,8 @@ function renderScreenSpaceLabels() {
         const lines = isMulti ? r.rawText.split('\n') : [r.text];
 
         // Базовый размер шрифта масштабируется в зависимости от удаления камеры (от 1.05 до 0.55)
-        const baseFontSize = (r.isSmall ? 12.5 : (r.isWide ? 14.5 : 15.5)) * scaleMult;
+        const customScaleFactor = (typeof r.customScale === 'number' && r.customScale > 0) ? r.customScale : 1.0;
+        const baseFontSize = (r.isSmall ? 12.5 : (r.isWide ? 14.5 : 15.5)) * customScaleFactor * scaleMult;
         const fontSize = Math.max(Math.round(baseFontSize * zoomScale), 8.5);
 
         const fontStack = '-apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Segoe UI", Roboto, system-ui, sans-serif';
@@ -1094,8 +1095,8 @@ function renderScreenSpaceLabels() {
         // ни при каких условиях не пересекаются и не наползают друг на друга
         const badgeKey = `${r.building}-${r.floor}-${r.text}-${Math.round(r.x * 10)}-${Math.round(r.z * 10)}`;
         const wasVisible = activeBadgeKeys.has(badgeKey);
-        const baseMargin = isFarZoom ? 1.8 : 3.0;
-        const margin = wasVisible ? Math.max(1.2 * zoomScale, 1.0) : baseMargin;
+        const baseMargin = Math.max(1.6, Math.min(2.8, 2.6 * zoomScale));
+        const margin = wasVisible ? Math.max(0.8, 1.0 * zoomScale) : baseMargin;
 
         let overlap = false;
         for (let b = 0; b < drawnBoxes.length; b++) {
@@ -1113,12 +1114,12 @@ function renderScreenSpaceLabels() {
 
         // 4. Отрисовка плашки номера кабинета (Тёмная / Светлая тема):
         const isDarkTheme = (typeof STATE !== 'undefined' && STATE.theme === 'dark');
-        const badgeBg = isDarkTheme ? '#1e2633' : '#ffffff';
-        const badgeStroke = isDarkTheme ? '#64748b' : '#334155';
+        const badgeBg = isDarkTheme ? '#1e293b' : '#ffffff';
+        const badgeStroke = isDarkTheme ? '#475569' : '#94a3b8';
         const badgeText = isDarkTheme ? '#f8fafc' : '#0f172a';
         const badgeSec = isDarkTheme ? '#94a3b8' : '#475569';
 
-        overlayCtx.shadowColor = isDarkTheme ? 'rgba(0, 0, 0, 0.60)' : 'rgba(0, 0, 0, 0.14)';
+        overlayCtx.shadowColor = isDarkTheme ? 'rgba(0, 0, 0, 0.55)' : 'rgba(15, 23, 42, 0.10)';
         overlayCtx.shadowBlur = Math.round(4 * zoomScale);
         overlayCtx.shadowOffsetY = Math.round(1.5 * zoomScale);
 
@@ -1156,6 +1157,11 @@ function renderScreenSpaceLabels() {
     // Отрисовка Screen-Space Retina бейджей навигатора (Точки А, Б, лестничные указатели)
     if (typeof renderNavigatorScreenBadges === 'function') {
         renderNavigatorScreenBadges(overlayCtx, dpr, w, h);
+    }
+
+    // Синхронизация позиции всплывающего попапа выбранного кабинета с его 3D-координатами
+    if (typeof updateRoomContextPopupScreenPos === 'function') {
+        updateRoomContextPopupScreenPos(w, h);
     }
 
     overlayCtx.restore();

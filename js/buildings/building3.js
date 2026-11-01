@@ -295,7 +295,7 @@
             addRoomLabel(targetGroup, 1, 'С/У', 0.2, -40.7, true, false, 3, 0.78);
             addRoomLabel(targetGroup, 1, 'С/У', 3.3, -41.9, true, false, 3, 0.76);
             addRoomLabel(targetGroup, 1, 'С/У', 0.2, -43.1, true, false, 3, 0.78);
-            addRoomLabel(targetGroup, 1, 'ЛК№1', 4.1, -46.0, true, false, 3, 0.88);
+            addRoomLabel(targetGroup, 1, 'ЛК№1', 1.5, -46.0, true, false, 3, 0.88);
             addRoomLabel(targetGroup, 1, '114', 1.5, -50.2, false, false, 3, 0.95);
             addRoomLabel(targetGroup, 1, '114А', 1.5, -53.8, true, false, 3, 0.90);
             addRoomLabel(targetGroup, 1, '117', 1.5, -58.3, false, false, 3, 1.05);
@@ -461,10 +461,10 @@
             // 3D-плашки помещений 2-го этажа Корпуса 3 (buildingId = 3)
             addRoomLabel(targetGroup, 2, '201', 1.5, -19.8, false, false, 3, 1.0);
             addRoomLabel(targetGroup, 2, '201А', 1.5, -25.6, true, false, 3, 0.90);
-            addRoomLabel(targetGroup, 2, 'ЛК№1', 4.1, -28.6, true, false, 3, 0.90);
+            addRoomLabel(targetGroup, 2, 'ЛК№1', 1.5, -28.6, true, false, 3, 0.88);
             addRoomLabel(targetGroup, 2, '205', 1.5, -36.1, false, false, 3, 1.05);
             addRoomLabel(targetGroup, 2, '205А', 1.5, -43.0, true, false, 3, 0.90);
-            addRoomLabel(targetGroup, 2, 'ЛК№2', 4.1, -46.0, true, false, 3, 0.90);
+            addRoomLabel(targetGroup, 2, 'ЛК№2', 1.5, -46.0, true, false, 3, 0.88);
             addRoomLabel(targetGroup, 2, '207', 1.5, -50.0, false, false, 3, 0.95);
             addRoomLabel(targetGroup, 2, '209', 1.4, -55.5, false, false, 3, 1.0);
             addRoomLabel(targetGroup, 2, '209А', 1.4, -60.2, true, false, 3, 0.90);

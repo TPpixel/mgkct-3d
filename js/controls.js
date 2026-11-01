@@ -7,6 +7,17 @@ let mouseVec = null;
 let floorPlane = null;
 let isCtrlZooming = false;
 
+function resetControlsMomentum() {
+    if (!controls) return;
+    if (controls.sphericalDelta) {
+        controls.sphericalDelta.set(0, 0, 0);
+    }
+    if (controls.panOffset) {
+        controls.panOffset.set(0, 0, 0);
+    }
+}
+window.resetControlsMomentum = resetControlsMomentum;
+
 function initControls(camera, domElement) {
     controls = new THREE.OrbitControls(camera, domElement);
     controls.enableDamping = true;
@@ -33,9 +44,10 @@ function initControls(camera, domElement) {
     let pointerDownPos = { x: 0, y: 0 };
     domElement.addEventListener('pointerdown', (e) => {
         // Если была анимация камеры, прерываем её при первом взаимодействии пользователя
-        if (STATE.targetCamPos) {
+        if (STATE.targetCamPos || STATE.targetControlsCenter) {
             STATE.targetCamPos = null;
             STATE.targetControlsCenter = null;
+            resetControlsMomentum();
             if (controls) controls.update();
         }
         pointerDownPos = { x: e.clientX, y: e.clientY };
@@ -69,12 +81,7 @@ function apply2DControls(is2D) {
     controls.enableRotate = !is2D;
 
     // Сбрасываем инерцию демпфирования, чтобы исключить паразитное вращение
-    if (controls.sphericalDelta) {
-        controls.sphericalDelta.set(0, 0, 0);
-    }
-    if (controls.panOffset) {
-        controls.panOffset.set(0, 0, 0);
-    }
+    resetControlsMomentum();
 
     if (is2D) {
         controls.mouseButtons = {
@@ -115,6 +122,9 @@ function apply2DControls(is2D) {
 
 function zoomIn() {
     if (!controls || !camera) return;
+    STATE.targetCamPos = null;
+    STATE.targetControlsCenter = null;
+    resetControlsMomentum();
     const factor = 0.80;
     const camToTarget = camera.position.clone().sub(controls.target);
     if (camToTarget.length() * factor >= controls.minDistance) {
@@ -126,6 +136,9 @@ function zoomIn() {
 
 function zoomOut() {
     if (!controls || !camera) return;
+    STATE.targetCamPos = null;
+    STATE.targetControlsCenter = null;
+    resetControlsMomentum();
     const factor = 1.25;
     const camToTarget = camera.position.clone().sub(controls.target);
     const currDist = camToTarget.length();
@@ -136,30 +149,20 @@ function zoomOut() {
     if (typeof requestRender === 'function') requestRender(25);
 }
 
-function handleMapClick(event) {
-    if (!renderer || !camera) return;
-
-    // 0. Режим выбора точки на карте в навигаторе
-    if (typeof handleNavigatorMapClick === 'function' && handleNavigatorMapClick(event)) {
-        return;
-    }
-
+function findRoomAtScreenPoint(clientX, clientY) {
     // 1. Проверяем попадание в экранные плашки кабинетов (интеллектуальный поиск ближайшего центра)
     if (Array.isArray(renderedScreenBadges) && renderedScreenBadges.length > 0) {
-        const cx = event.clientX;
-        const cy = event.clientY;
-        const hitMargin = 12; // Комфортная зона тапа для мобильного (большой палец)
-
+        const hitMargin = 14; // Комфортная зона тапа для мобильного (большой палец)
         let bestBadge = null;
         let bestDist = Infinity;
 
         for (let i = 0; i < renderedScreenBadges.length; i++) {
             const b = renderedScreenBadges[i];
-            if (cx >= b.x0 - hitMargin && cx <= b.x1 + hitMargin &&
-                cy >= b.y0 - hitMargin && cy <= b.y1 + hitMargin) {
+            if (clientX >= b.x0 - hitMargin && clientX <= b.x1 + hitMargin &&
+                clientY >= b.y0 - hitMargin && clientY <= b.y1 + hitMargin) {
                 const midX = (b.x0 + b.x1) / 2;
                 const midY = (b.y0 + b.y1) / 2;
-                const dist = Math.hypot(cx - midX, cy - midY);
+                const dist = Math.hypot(clientX - midX, clientY - midY);
                 if (dist < bestDist) {
                     bestDist = dist;
                     bestBadge = b;
@@ -167,26 +170,20 @@ function handleMapClick(event) {
             }
         }
 
-        if (bestBadge) {
-            if (typeof showRoomContextPopup === 'function') {
-                showRoomContextPopup(bestBadge.room, cx, cy);
-            } else if (typeof selectRoom === 'function') {
-                selectRoom(bestBadge.room);
-            }
-            return;
+        if (bestBadge && bestBadge.room) {
+            return bestBadge.room;
         }
     }
 
-    // 2. Иначе 3D Raycasting
+    // 2. Иначе 3D Raycasting по плоскостям плашек видимого этажа
+    if (!renderer || !camera) return null;
     const rect = renderer.domElement.getBoundingClientRect();
-    const x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
-    const y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+    const x = ((clientX - rect.left) / rect.width) * 2 - 1;
+    const y = -((clientY - rect.top) / rect.height) * 2 + 1;
 
     const clickRaycaster = new THREE.Raycaster();
     clickRaycaster.setFromCamera(new THREE.Vector2(x, y), camera);
 
-    // Фильтруем плашки кабинетов: опрашиваем только те, чей этаж и группа сейчас видимы,
-    // чтобы исключить ложные срабатывания (фантомные клики) сквозь невидимые этажи!
     const activeFloor = (STATE.mode !== 'all' && STATE.mode !== 'sideBySide' && STATE.mode !== 'slice')
         ? parseInt(STATE.mode, 10)
         : null;
@@ -195,7 +192,6 @@ function handleMapClick(event) {
         .filter(l => {
             if (!l.mesh) return false;
             if (activeFloor !== null && l.floor !== activeFloor) return false;
-            // Проверяем видимость по цепочке родителей
             let p = l.mesh.parent;
             while (p) {
                 if (p.visible === false) return false;
@@ -206,21 +202,42 @@ function handleMapClick(event) {
         .map(l => l.mesh);
 
     const intersects = clickRaycaster.intersectObjects(visibleLabelMeshes, false);
-
-    // Если кликнули не в плашку, закрываем всплывающий попап кабинета
-    if (typeof hideRoomContextPopup === 'function') {
-        hideRoomContextPopup();
-    }
-
     if (intersects.length > 0) {
         const hitMesh = intersects[0].object;
         if (hitMesh.userData && hitMesh.userData.roomInfo) {
-            if (typeof showRoomContextPopup === 'function') {
-                showRoomContextPopup(hitMesh.userData.roomInfo, event.clientX, event.clientY);
-            } else if (typeof selectRoom === 'function') {
-                selectRoom(hitMesh.userData.roomInfo);
-            }
+            return hitMesh.userData.roomInfo;
         }
+    }
+
+    return null;
+}
+window.findRoomAtScreenPoint = findRoomAtScreenPoint;
+
+function handleMapClick(event) {
+    if (!renderer || !camera) return;
+
+    // Гасим любую паразитную инерцию от микросдвига пальца при тапе
+    resetControlsMomentum();
+
+    const hitRoom = findRoomAtScreenPoint(event.clientX, event.clientY);
+
+    // 0. Режим выбора точки на карте в навигаторе
+    if (typeof handleNavigatorMapClick === 'function' && handleNavigatorMapClick(event, hitRoom)) {
+        return;
+    }
+
+    if (hitRoom) {
+        if (typeof showRoomContextPopup === 'function') {
+            showRoomContextPopup(hitRoom, event.clientX, event.clientY);
+        } else if (typeof selectRoom === 'function') {
+            selectRoom(hitRoom);
+        }
+        return;
+    }
+
+    // Если кликнули мимо кабинетов — закрываем всплывающий попап
+    if (typeof hideRoomContextPopup === 'function') {
+        hideRoomContextPopup();
     }
 }
 
@@ -230,6 +247,9 @@ function onPointerZoom(event) {
     // Предотвращаем дефолтный скролл страницы
     event.preventDefault();
 
+    STATE.targetCamPos = null;
+    STATE.targetControlsCenter = null;
+
     const domElement = renderer.domElement;
     const rect = domElement.getBoundingClientRect();
     mouseVec.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
@@ -237,8 +257,6 @@ function onPointerZoom(event) {
 
     raycaster.setFromCamera(mouseVec, camera);
 
-    // Оптимизация: проверяем пересечение только с плитами перекрытий этажей (быстро, O(1))
-    // вместо тяжелого рекурсивного обхода всех тысяч мешей сцены
     const targets = Array.isArray(slabMeshes) && slabMeshes.length > 0 ? slabMeshes : scene.children;
     const intersects = raycaster.intersectObjects(targets, false);
     let hitPoint = null;
@@ -251,7 +269,6 @@ function onPointerZoom(event) {
         }
     }
 
-    // Если курсор смотрит мимо геометрии модели, берем пересечение с горизонтальной плоскостью на высоте таргета
     if (!hitPoint) {
         floorPlane.constant = -controls.target.y;
         const pt = new THREE.Vector3();
@@ -261,21 +278,16 @@ function onPointerZoom(event) {
     }
 
     if (hitPoint) {
-        // Коэффициент зума: чувствительный и плавный
         const zoomIn = event.deltaY < 0;
         const factor = zoomIn ? 0.86 : 1.16;
 
-        // Вектор от точки под курсором к камере и таргету
         const camToHit = camera.position.clone().sub(hitPoint);
         const targetToHit = controls.target.clone().sub(hitPoint);
 
         const newDist = camToHit.length() * factor;
 
         if (newDist >= controls.minDistance && newDist <= controls.maxDistance) {
-            // Приближаем камеру вдоль луча к точке под курсором
             camera.position.copy(hitPoint).addScaledVector(camToHit, factor);
-            
-            // Также плавно смещаем фокусную точку таргета в сторону курсора
             controls.target.copy(hitPoint).addScaledVector(targetToHit, factor);
 
             if (typeof requestRender === 'function') {

@@ -3,7 +3,7 @@
 // ИНТЕРАКТИВНАЯ КАРТА КОЛЛЕДЖА (2D / 3D)
 // ==========================================
 
-const SETTINGS_KEY = 'college_3d_map_settings_v2';
+const SETTINGS_KEY = 'college_3d_map_settings_v3';
 
 function setTheme(themeName, shouldSave = true) {
     if (themeName !== 'dark' && themeName !== 'light') {
@@ -14,45 +14,61 @@ function setTheme(themeName, shouldSave = true) {
 
     const isDark = (themeName === 'dark');
 
-    // 3D Three.js сцена (глубокий нейтральный фон без лишнего блеска)
+    // 3D Three.js сцена (приятный картографический фон)
     if (typeof scene !== 'undefined' && scene) {
-        scene.background = new THREE.Color(isDark ? 0x11141a : 0xe8edf2);
+        scene.background = new THREE.Color(isDark ? 0x0b0f17 : 0xeef2f6);
     }
 
-    // 3D Three.js материалы (мягкие матовые тона, которые не бьют по глазам)
+    // 3D Three.js материалы (сбалансированная палитра для светлого и тёмного режима)
     if (typeof MATERIALS !== 'undefined') {
         if (isDark) {
             // ТЁМНАЯ ТЕМА:
-            if (MATERIALS.slab) MATERIALS.slab.color.setHex(0x1a212d);          // матовый темный сланец (пол)
-            if (MATERIALS.coreSlab) MATERIALS.coreSlab.color.setHex(0x151b24);  // ядро этажа
-            if (MATERIALS.wall) MATERIALS.wall.color.setHex(0x2d3748);          // благородные темно-серые стены
-            if (MATERIALS.stair) MATERIALS.stair.color.setHex(0x242d3d);        // лестницы: адаптированы под тёмную тему!
-            if (MATERIALS.elevatorCar) MATERIALS.elevatorCar.color.setHex(0x1f2735); // кабина/шахта лифта: адаптирована под темную тему!
-            if (MATERIALS.doorThin) MATERIALS.doorThin.color.setHex(0x384557);  // полотна дверей
-            if (MATERIALS.edgeMain) MATERIALS.edgeMain.color.setHex(0x4a5568);  // четкие контуры чертежа
-            if (MATERIALS.edgeDoor) MATERIALS.edgeDoor.color.setHex(0x4a5568);  // контуры дверей
-            if (MATERIALS.roof) MATERIALS.roof.color.setHex(0x1a222e);          // крыша здания
-            if (MATERIALS.edgeRoof) MATERIALS.edgeRoof.color.setHex(0x374355);  // контур крыши
-            if (MATERIALS.guideLine) MATERIALS.guideLine.color.setHex(0x475569);// направляющие
-            if (MATERIALS.minimalRoadSurface) MATERIALS.minimalRoadSurface.color.setHex(0x181e28);
-            if (MATERIALS.roadContourLine) MATERIALS.roadContourLine.color.setHex(0x94a3b8);
-            if (MATERIALS.roadCenterLine) MATERIALS.roadCenterLine.color.setHex(0x475569);
+            if (MATERIALS.slab) MATERIALS.slab.color.setHex(0x161f2e);
+            if (MATERIALS.coreSlab) MATERIALS.coreSlab.color.setHex(0x121a26);
+            if (MATERIALS.wall) MATERIALS.wall.color.setHex(0x283548);
+            if (MATERIALS.stair) MATERIALS.stair.color.setHex(0x222e40);
+            if (MATERIALS.elevatorCar) MATERIALS.elevatorCar.color.setHex(0x1e293b);
+            if (MATERIALS.doorThin) MATERIALS.doorThin.color.setHex(0x3b4d66);
+            if (MATERIALS.edgeMain) MATERIALS.edgeMain.color.setHex(0x475569);
+            if (MATERIALS.edgeDoor) MATERIALS.edgeDoor.color.setHex(0x475569);
+            if (MATERIALS.roof) MATERIALS.roof.color.setHex(0x1e293b);
+            if (MATERIALS.edgeRoof) MATERIALS.edgeRoof.color.setHex(0x475569);
+            if (MATERIALS.guideLine) MATERIALS.guideLine.color.setHex(0x475569);
+            if (MATERIALS.minimalRoadSurface) MATERIALS.minimalRoadSurface.color.setHex(0x131b26);
+            if (MATERIALS.roadContourLine) MATERIALS.roadContourLine.color.setHex(0x475569);
+            if (MATERIALS.roadCenterLine) MATERIALS.roadCenterLine.color.setHex(0x334155);
+            // Прилегающая территория в тёмной теме
+            if (MATERIALS.asphaltRoad) MATERIALS.asphaltRoad.color.setHex(0x1c222d);
+            if (MATERIALS.asphaltDriveway) MATERIALS.asphaltDriveway.color.setHex(0x232a36);
+            if (MATERIALS.curb) MATERIALS.curb.color.setHex(0x333d4d);
+            if (MATERIALS.sidewalk) MATERIALS.sidewalk.color.setHex(0x2c3545);
+            if (MATERIALS.lawn) MATERIALS.lawn.color.setHex(0x1d3528);
+            if (MATERIALS.treeFoliage) MATERIALS.treeFoliage.color.setHex(0x1e4620);
+            if (MATERIALS.treeFoliageLight) MATERIALS.treeFoliageLight.color.setHex(0x2d5a27);
         } else {
             // СВЕТЛАЯ ТЕМА:
-            if (MATERIALS.slab) MATERIALS.slab.color.setHex(0xd2d8e0);          // спокойный матовый светлый камень
-            if (MATERIALS.coreSlab) MATERIALS.coreSlab.color.setHex(0xc7ced8);  // ядро этажа
-            if (MATERIALS.wall) MATERIALS.wall.color.setHex(0xffffff);          // белые четкие стены
-            if (MATERIALS.stair) MATERIALS.stair.color.setHex(0xb8c0cb);        // лестницы в светлой теме
-            if (MATERIALS.elevatorCar) MATERIALS.elevatorCar.color.setHex(0xb0b8c4); // лифт в светлой теме
-            if (MATERIALS.doorThin) MATERIALS.doorThin.color.setHex(0x78869b);  // полотна дверей
-            if (MATERIALS.edgeMain) MATERIALS.edgeMain.color.setHex(0x334155);  // темные чертежные линии
-            if (MATERIALS.edgeDoor) MATERIALS.edgeDoor.color.setHex(0x64748b);  // контуры дверей
-            if (MATERIALS.roof) MATERIALS.roof.color.setHex(0x94a3b8);          // крыша
-            if (MATERIALS.edgeRoof) MATERIALS.edgeRoof.color.setHex(0x334155);  // контур крыши
-            if (MATERIALS.guideLine) MATERIALS.guideLine.color.setHex(0x94a3b8);// направляющие
-            if (MATERIALS.minimalRoadSurface) MATERIALS.minimalRoadSurface.color.setHex(0xc8d1dc);
-            if (MATERIALS.roadContourLine) MATERIALS.roadContourLine.color.setHex(0x334155);
-            if (MATERIALS.roadCenterLine) MATERIALS.roadCenterLine.color.setHex(0x64748b);
+            if (MATERIALS.slab) MATERIALS.slab.color.setHex(0xf8fafc);
+            if (MATERIALS.coreSlab) MATERIALS.coreSlab.color.setHex(0xeef2f6);
+            if (MATERIALS.wall) MATERIALS.wall.color.setHex(0xffffff);
+            if (MATERIALS.stair) MATERIALS.stair.color.setHex(0xcbd5e1);
+            if (MATERIALS.elevatorCar) MATERIALS.elevatorCar.color.setHex(0xcbd5e1);
+            if (MATERIALS.doorThin) MATERIALS.doorThin.color.setHex(0x94a3b8);
+            if (MATERIALS.edgeMain) MATERIALS.edgeMain.color.setHex(0x475569);
+            if (MATERIALS.edgeDoor) MATERIALS.edgeDoor.color.setHex(0x64748b);
+            if (MATERIALS.roof) MATERIALS.roof.color.setHex(0x94a3b8);
+            if (MATERIALS.edgeRoof) MATERIALS.edgeRoof.color.setHex(0x475569);
+            if (MATERIALS.guideLine) MATERIALS.guideLine.color.setHex(0x94a3b8);
+            if (MATERIALS.minimalRoadSurface) MATERIALS.minimalRoadSurface.color.setHex(0xdce4ee);
+            if (MATERIALS.roadContourLine) MATERIALS.roadContourLine.color.setHex(0x64748b);
+            if (MATERIALS.roadCenterLine) MATERIALS.roadCenterLine.color.setHex(0x94a3b8);
+            // Прилегающая территория в светлой теме
+            if (MATERIALS.asphaltRoad) MATERIALS.asphaltRoad.color.setHex(0x475569);
+            if (MATERIALS.asphaltDriveway) MATERIALS.asphaltDriveway.color.setHex(0x64748b);
+            if (MATERIALS.curb) MATERIALS.curb.color.setHex(0x94a3b8);
+            if (MATERIALS.sidewalk) MATERIALS.sidewalk.color.setHex(0xcbd5e1);
+            if (MATERIALS.lawn) MATERIALS.lawn.color.setHex(0x86efac);
+            if (MATERIALS.treeFoliage) MATERIALS.treeFoliage.color.setHex(0x22c55e);
+            if (MATERIALS.treeFoliageLight) MATERIALS.treeFoliageLight.color.setHex(0x4ade80);
         }
     }
 
@@ -126,19 +142,16 @@ function updateFloorButtonsAvailability() {
 }
 
 function setBuildingFilter(bFilter, shouldAnimateCam = true) {
-    // Если кликнули по уже активному корпусу — переключаем на просмотр всех корпусов ('both')
     if (STATE.buildingFilter === bFilter && bFilter !== 'both') {
         bFilter = 'both';
     }
 
     STATE.buildingFilter = bFilter;
 
-    // Обновляем визуальное состояние чипсов выбора корпуса
     document.querySelectorAll('.bldg-chip').forEach(b => {
         b.classList.toggle('active', b.dataset.bldg === bFilter);
     });
 
-    // Ограничиваем этажи доступными для выбранного корпуса
     updateFloorButtonsAvailability();
     const maxAllowed = BUILDING_MAX_FLOORS[bFilter] || 7;
     if (STATE.mode !== 'all' && STATE.mode !== 'sideBySide' && STATE.mode !== 'slice') {
@@ -148,8 +161,8 @@ function setBuildingFilter(bFilter, shouldAnimateCam = true) {
         }
     }
 
-    // Центрируем камеру на выбранном корпусе
     if (shouldAnimateCam && camera && controls) {
+        if (typeof resetControlsMomentum === 'function') resetControlsMomentum();
         const cx = getActiveCenterX();
         const cz = getActiveCenterZ();
         const isMobile = window.innerWidth < 768;
@@ -191,10 +204,14 @@ function updateFloorInfo() {
 function setMode(newMode, shouldSave = true) {
     STATE.mode = newMode;
 
-    // Обновляем правый селектор этажей
     document.querySelectorAll('.floor-btn').forEach(btn => {
         btn.classList.toggle('active', btn.dataset.floor === newMode);
     });
+
+    // Скрываем контекстный попап кабинета, если переключили на другой этаж
+    if (currentPopupRoom && String(currentPopupRoom.floor) !== String(newMode)) {
+        hideRoomContextPopup();
+    }
 
     updateFloorInfo();
     recalcTargetPositions();
@@ -238,15 +255,36 @@ function updateExplodeButtonStyle() {
 
     if (STATE.exploded && (STATE.mode === 'all' || STATE.mode === 'slice') && STATE.explodeGap > 0.2) {
         btnExplode.classList.add('explode-btn-active');
-        btnExplode.innerHTML = '<span class="flex items-center justify-center gap-1.5"><svg class="w-3.5 h-3.5 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" /></svg> Собрать этажи</span>';
     } else {
         btnExplode.classList.remove('explode-btn-active');
-        btnExplode.innerHTML = '<span class="flex items-center justify-center gap-1.5"><svg class="w-3.5 h-3.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" /></svg> Разнести этажи</span>';
     }
 }
 
 function toggle2DView() {
     setViewMode(!STATE.is2D);
+}
+
+function setTerritoryMode(enabled, shouldSave = true) {
+    STATE.showTerritory = !!enabled;
+    const btnTerritory = document.getElementById('btn-toggle-territory');
+    if (btnTerritory) {
+        btnTerritory.classList.toggle('mode-active', STATE.showTerritory);
+        btnTerritory.title = STATE.showTerritory
+            ? 'Прилегающая территория: включена (нажмите, чтобы скрыть)'
+            : 'Прилегающая территория: выключена (нажмите, чтобы показать)';
+    }
+    const tTerritory = document.getElementById('toggle-territory');
+    if (tTerritory) {
+        tTerritory.checked = STATE.showTerritory;
+    }
+    if (typeof updateTerritoryVisibility === 'function') {
+        updateTerritoryVisibility();
+    }
+    if (shouldSave) saveSettings();
+}
+
+function toggleTerritoryView() {
+    setTerritoryMode(!STATE.showTerritory, true);
 }
 
 function updateCameraViewButtons(activeId) {
@@ -265,7 +303,7 @@ function updateWallHeightButtons(height) {
     document.getElementById('btn-wall-max')?.classList.toggle('active', Math.abs(h - 2.40) < 0.08);
 }
 
-function setViewMode(is2D) {
+function setViewMode(is2D, shouldAnimateCam = true) {
     STATE.is2D = is2D;
     const btn2D = document.getElementById('btn-toggle-2d');
     if (btn2D) {
@@ -276,30 +314,35 @@ function setViewMode(is2D) {
 
     updateCameraViewButtons(is2D ? 'btn-view-top' : 'btn-view-3d');
 
+    // Автоматическая адаптация высоты стен под режим 2D (0.35 м для чтения карты) и 3D (1.50 м для объёма)
+    const targetWallH = is2D ? BASE_WALL_HEIGHT : 1.50;
+    if (Math.abs(STATE.wallHeight - targetWallH) > 0.02) {
+        setWallHeight(targetWallH, false);
+    }
+
     if (typeof apply2DControls === 'function') {
         apply2DControls(is2D);
     }
 
-    const cx = controls ? controls.target.x : getActiveCenterX();
-    const cz = controls ? controls.target.z : getActiveCenterZ();
-    const isMobile = window.innerWidth < 768;
-    const isBoth = STATE.buildingFilter === 'both';
-    const distY = isMobile ? (isBoth ? 54 : 42) : (isBoth ? 68 : 46);
-    const offsetZ = isMobile ? (isBoth ? 18 : 14) : 22;
+    if (shouldAnimateCam && camera && controls) {
+        if (typeof resetControlsMomentum === 'function') resetControlsMomentum();
+        const cx = controls ? controls.target.x : getActiveCenterX();
+        const cz = controls ? controls.target.z : getActiveCenterZ();
+        const isMobile = window.innerWidth < 768;
+        const isBoth = STATE.buildingFilter === 'both';
+        const distY = isMobile ? (isBoth ? 54 : 42) : (isBoth ? 68 : 46);
+        const offsetZ = isMobile ? (isBoth ? 18 : 14) : 22;
 
-    if (is2D) {
-        if (controls) {
-            controls.target.set(cx, 0, cz);
+        STATE.targetControlsCenter = new THREE.Vector3(cx, 0, cz);
+        if (is2D) {
+            STATE.targetCamPos = new THREE.Vector3(cx, distY, cz + offsetZ);
+        } else {
+            const maxF = STATE.mode === 'slice' ? STATE.sliceMaxFloor : (STATE.mode === 'all' ? 7 : 1);
+            const midY = ((STATE.mode === 'all' || STATE.mode === 'slice') && STATE.exploded)
+                ? (STATE.wallHeight + STATE.explodeGap) * (maxF / 2)
+                : (STATE.wallHeight * 0.45 * maxF);
+            STATE.targetCamPos = new THREE.Vector3(cx - 24, 52 + midY, cz + 52);
         }
-        // Вид сверху прямо на карту строго с юга на север
-        STATE.targetCamPos = new THREE.Vector3(cx, distY, cz + offsetZ);
-    } else {
-        // Перспективный 3D ракурс под углом
-        const maxF = STATE.mode === 'slice' ? STATE.sliceMaxFloor : (STATE.mode === 'all' ? 7 : 1);
-        const midY = ((STATE.mode === 'all' || STATE.mode === 'slice') && STATE.exploded)
-            ? (STATE.wallHeight + STATE.explodeGap) * (maxF / 2)
-            : (STATE.wallHeight * 0.45 * maxF);
-        STATE.targetCamPos = new THREE.Vector3(cx - 24, 52 + midY, cz + 52);
     }
 
     if (typeof updateFloorsInteriorVisibility === 'function') {
@@ -314,6 +357,7 @@ function setViewMode(is2D) {
 }
 
 function resetToNorth() {
+    if (typeof resetControlsMomentum === 'function') resetControlsMomentum();
     const cx = getActiveCenterX();
     const cz = getActiveCenterZ();
     const isMobile = window.innerWidth < 768;
@@ -331,7 +375,7 @@ function resetToNorth() {
     if (typeof requestRender === 'function') requestRender(45);
 }
 
-function setWallHeight(newHeight) {
+function setWallHeight(newHeight, shouldSave = true) {
     newHeight = Math.max(0.15, Math.min(3.5, parseFloat(newHeight)));
     STATE.wallHeight = newHeight;
 
@@ -345,7 +389,7 @@ function setWallHeight(newHeight) {
     if (typeof updateWallHeights === 'function') {
         updateWallHeights();
     }
-    saveSettings();
+    if (shouldSave) saveSettings();
 }
 
 function setLabelScale(scale) {
@@ -367,35 +411,107 @@ function setLabelScale(scale) {
 }
 
 // Выбор кабинета (при клике на карте или в поиске)
-function selectRoom(roomInfo) {
+function selectRoom(roomInfo, shouldFly = true) {
     if (!roomInfo) return;
 
     // Включаем нужный этаж
-    setMode(String(roomInfo.floor));
+    if (String(roomInfo.floor) !== String(STATE.mode)) {
+        setMode(String(roomInfo.floor));
+    }
 
     // Обновляем текст в поисковом виджете шапки
-    const cleanName = roomInfo.text ? roomInfo.text.replace('\n', ' ') : 'Кабинет';
-    const isNum = /^\d/.test(cleanName) || /^[2-4]-\d/.test(cleanName); const title = isNum ? `Кабинет ${cleanName}` : cleanName;
+    const cleanName = roomInfo.text ? roomInfo.text.replace(/\n/g, ' ').trim() : 'Кабинет';
+    const isNum = /^\d/.test(cleanName) || /^[2-4]-\d/.test(cleanName);
+    const title = isNum ? `Кабинет ${cleanName}` : cleanName;
     const widgetText = document.getElementById('search-widget-text');
     if (widgetText) {
         widgetText.textContent = `${title} (${roomInfo.floor} эт.)`;
     }
     updateInfoCard(title, `Корпус ${roomInfo.building} • ${roomInfo.floor} этаж`);
 
-    // Центрируем камеру на кабинете
-    const targetY = STATE.is2D ? 38 : 28;
-    const camZOffset = STATE.is2D ? 14 : 30;
-    const camXOffset = STATE.is2D ? 0 : -14;
+    if (shouldFly && camera && controls) {
+        if (typeof resetControlsMomentum === 'function') resetControlsMomentum();
+        const targetY = STATE.is2D ? 38 : 28;
+        const camZOffset = STATE.is2D ? 14 : 30;
+        const camXOffset = STATE.is2D ? 0 : -14;
 
-    STATE.targetControlsCenter = new THREE.Vector3(roomInfo.x, 0, roomInfo.z);
-    STATE.targetCamPos = new THREE.Vector3(roomInfo.x + camXOffset, targetY, roomInfo.z + camZOffset);
+        STATE.targetControlsCenter = new THREE.Vector3(roomInfo.x, 0, roomInfo.z);
+        STATE.targetCamPos = new THREE.Vector3(roomInfo.x + camXOffset, targetY, roomInfo.z + camZOffset);
+    }
 
-    // Тактильный отклик на телефоне
     if (navigator.vibrate) {
-        navigator.vibrate(15);
+        navigator.vibrate(12);
     }
 
     if (typeof requestRender === 'function') requestRender(60);
+}
+
+// Форматирование короткого бейджа и заголовка кабинета для поиска (без переполнения)
+function formatSearchRoomBadgeAndTitle(item) {
+    const rawOrig = (item.rawText || item.text || '').trim();
+    const lines = rawOrig.split('\n').map(s => s.trim()).filter(Boolean);
+    const firstLine = lines[0] || '';
+    const secondLine = lines.slice(1).join(' ');
+    const b = item.building;
+    const f = item.floor;
+
+    let codeNum = firstLine;
+    let subtitle = secondLine;
+
+    // Специальные залы и помещения
+    if (b === 4 && f === 1 && /столов/i.test(rawOrig)) {
+        codeNum = '102';
+        subtitle = 'Столовая';
+    } else if (b === 1 && f === 1 && /гардероб/i.test(rawOrig)) {
+        codeNum = '102';
+        subtitle = 'Гардероб';
+    } else if (b === 2 && f === 1 && /библиот/i.test(rawOrig)) {
+        codeNum = '104';
+        subtitle = 'Библиотека';
+    } else if (b === 4 && f === 2 && /актов/i.test(rawOrig)) {
+        codeNum = '204';
+        subtitle = 'Актовый зал';
+    } else if (b === 4 && f === 2 && /спорт/i.test(rawOrig)) {
+        codeNum = '206';
+        subtitle = 'Спортивный зал';
+    } else if (b === 2 && f === 3 && /спорт/i.test(rawOrig)) {
+        codeNum = '308';
+        subtitle = 'Спортивный зал';
+    } else if (b === 2 && f === 3 && /конференц/i.test(rawOrig)) {
+        codeNum = '312';
+        subtitle = 'Конференц-зал';
+    }
+
+    // Если код начинается с цифры (или 2-105)
+    const strippedCode = codeNum.replace(/^[2-4]-/, '');
+    if (/^\d+[а-яa-z]?$/i.test(strippedCode)) {
+        const fullCode = b === 1 ? strippedCode : `${b}-${strippedCode}`;
+        const displayTitle = subtitle ? `Кабинет ${fullCode} — ${subtitle}` : `Кабинет ${fullCode}`;
+        return { codeLabel: fullCode, displayTitle };
+    }
+
+    // Иначе это текстовое помещение (С/У, ЛК№1, Лифтовой холл, Служеб. пом. и т.д.)
+    const fullText = rawOrig.replace(/\n/g, ' ').trim();
+    if (/^с\/у$/i.test(fullText)) {
+        return { codeLabel: 'С/У', displayTitle: 'Санузел (туалет)' };
+    }
+    if (/^лк\s*№?\s*(\d+)/i.test(fullText)) {
+        const m = fullText.match(/^лк\s*№?\s*(\d+)/i);
+        const lkCode = `ЛК№${m[1]}`;
+        return { codeLabel: lkCode, displayTitle: `Лестница ${lkCode}` };
+    }
+    if (/лифт/i.test(fullText)) {
+        return { codeLabel: 'Лифт', displayTitle: 'Лифтовой холл' };
+    }
+    if (/служеб/i.test(fullText)) {
+        return { codeLabel: 'Служ.', displayTitle: 'Служебное помещение' };
+    }
+    if (/переход/i.test(fullText)) {
+        return { codeLabel: 'Перех.', displayTitle: fullText };
+    }
+
+    const shortBadge = fullText.length > 6 ? fullText.slice(0, 5) + '…' : fullText;
+    return { codeLabel: shortBadge, displayTitle: fullText };
 }
 
 // Поиск кабинетов
@@ -408,13 +524,18 @@ function setupSearch() {
     const btnCloseSearch = document.getElementById('btn-close-search');
 
     function openSearch() {
+        hideRoomContextPopup();
         searchModal?.classList.add('active');
         searchBackdrop?.classList.add('active');
-        setTimeout(() => searchInput?.focus(), 150);
         renderSearchResults(searchInput ? searchInput.value : '');
+        setTimeout(() => {
+            searchInput?.focus({ preventScroll: true });
+            if (typeof updateVisualViewportVars === 'function') updateVisualViewportVars();
+        }, 80);
     }
 
     function closeSearch() {
+        searchInput?.blur();
         searchModal?.classList.remove('active');
         searchBackdrop?.classList.remove('active');
     }
@@ -444,7 +565,6 @@ function setupSearch() {
             return;
         }
 
-        // Поддержка поиска с указанием корпуса (например: 2-102, 2/102, 2:102, к2-102, 2к 102, 2к102, корпус 2 102)
         let targetBldg = null;
         let targetRoomQuery = query;
 
@@ -464,10 +584,15 @@ function setupSearch() {
         }
 
         const filtered = ROOMS_REGISTRY.filter(r => {
+            const rawOrig = (r.rawText || r.text || '').toLowerCase();
+            // Скрываем чисто архитектурные подписи («Второй свет», «Витраж», «Переход...»), если пользователь не ищет их специально
+            if (!query && (/второй свет|витраж|переход/i.test(rawOrig))) {
+                return false;
+            }
             if (!query) return true;
 
             const roomText = r.text.toLowerCase();
-            const cleanText = r.text.replace('\n', ' ').toLowerCase();
+            const cleanText = rawOrig.replace(/\n/g, ' ').toLowerCase();
             const bldg = r.building;
             let alias = '';
             if (bldg === 4 && r.floor === 1 && (cleanText.includes('102') || cleanText.includes('столов'))) alias = 'столовая буфет обед еда 102';
@@ -477,11 +602,12 @@ function setupSearch() {
             if (bldg === 2 && r.floor === 1 && (cleanText.includes('104') || cleanText.includes('библиот'))) alias = 'библиотека книги читальный зал 104';
             if (bldg === 2 && r.floor === 3 && (cleanText.includes('308') || cleanText.includes('спорт'))) alias = 'спортзал спортивный зал спорт 308';
             if (bldg === 2 && r.floor === 3 && (cleanText.includes('312') || cleanText.includes('конференц'))) alias = 'конференц-зал конференц зал собрания 312';
+            if (/^с\/у$/i.test(cleanText)) alias = 'туалет санузел уборная wc с/у';
 
             if (targetBldg !== null) {
                 if (bldg !== targetBldg) return false;
                 if (!targetRoomQuery) return true;
-                return cleanText.includes(targetRoomQuery) || alias.includes(targetRoomQuery);
+                return cleanText.includes(targetRoomQuery) || roomText.includes(targetRoomQuery) || alias.includes(targetRoomQuery);
             }
 
             const bldgCombos = [
@@ -504,7 +630,6 @@ function setupSearch() {
                    `этаж ${r.floor}`.includes(query);
         });
 
-        // Сортировка: точные совпадения корпуса и номера кабинета всегда вверху
         filtered.sort((a, b) => {
             const aText = a.text.toLowerCase();
             const bText = b.text.toLowerCase();
@@ -531,27 +656,18 @@ function setupSearch() {
         displayItems.forEach(item => {
             const bldgLabel = `Корпус ${item.building}`;
             const floorLabel = `${item.floor} этаж`;
-            const raw = item.text || '';
-            const displayTitle = raw.includes('\n') ? raw.replace('\n', ' — ') : (raw.match(/^\d/) ? `Кабинет ${raw}` : raw);
-            let codeNum = raw.includes('\n') ? raw.split('\n')[0] : raw;
-            if (item.building === 4 && item.floor === 1 && raw === 'Столовая') codeNum = '102';
-            else if (item.building === 1 && item.floor === 1 && raw === 'Гардероб') codeNum = '102';
-            else if (item.building === 2 && item.floor === 1 && raw === 'Библиотека') codeNum = '104';
-            else if (item.building === 4 && item.floor === 2 && raw === 'Актовый зал') codeNum = '204';
-            else if (item.building === 4 && item.floor === 2 && raw === 'Спортивный зал') codeNum = '206';
-            else if (item.building === 2 && item.floor === 3 && raw === 'Спортивный зал') codeNum = '308';
-            else if (item.building === 2 && item.floor === 3 && raw === 'Конференц-зал') codeNum = '312';
-            const codeLabel = item.building === 1 ? codeNum : ((codeNum.startsWith("2-") || codeNum.startsWith("3-") || codeNum.startsWith("4-")) ? codeNum : `${item.building}-${codeNum}`);
+            const { codeLabel, displayTitle } = formatSearchRoomBadgeAndTitle(item);
+            const dataText = (item.text || '').replace(/\n/g, ' ');
             html += `
-                <button class="room-search-item flex items-center justify-between p-2.5 rounded-xl hover:bg-slate-800/80 border border-transparent hover:border-slate-700/60 transition text-left w-full group"
-                        data-floor="${item.floor}" data-bldg="${item.building}" data-x="${item.x}" data-z="${item.z}" data-text="${raw.replace('\n', ' ')}">
-                    <div class="flex items-center gap-2.5 min-w-0">
-                        <div class="w-12 h-8 rounded-lg bg-sky-950/70 border border-sky-800/60 flex items-center justify-center font-black text-sky-300 text-xs tracking-tight flex-shrink-0">
+                <button class="room-search-item flex items-center justify-between gap-2 p-2.5 rounded-xl hover:bg-slate-800/80 border border-transparent hover:border-slate-700/60 transition text-left w-full group overflow-hidden"
+                        data-floor="${item.floor}" data-bldg="${item.building}" data-x="${item.x}" data-z="${item.z}" data-text="${dataText}">
+                    <div class="flex items-center gap-2.5 min-w-0 flex-1 overflow-hidden">
+                        <div class="room-search-badge min-w-[3.25rem] max-w-[4.75rem] px-2 h-8 rounded-lg border flex items-center justify-center font-extrabold text-xs tracking-tight flex-shrink-0 overflow-hidden text-ellipsis whitespace-nowrap">
                             ${codeLabel}
                         </div>
-                        <div class="min-w-0">
-                            <div class="font-bold text-slate-200 text-xs truncate group-hover:text-sky-300 transition">${displayTitle}</div>
-                            <div class="text-[10px] text-slate-400">${bldgLabel} • ${floorLabel}</div>
+                        <div class="min-w-0 flex-1 overflow-hidden">
+                            <div class="font-bold text-slate-200 text-xs truncate group-hover:text-sky-400 transition">${displayTitle}</div>
+                            <div class="text-[10px] text-slate-400 truncate">${bldgLabel} • ${floorLabel}</div>
                         </div>
                     </div>
                     <svg class="w-4 h-4 text-slate-500 group-hover:text-sky-400 transition flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -574,37 +690,40 @@ function setupSearch() {
                     setBuildingFilter(String(b), false);
                 }
                 const roomInfo = { floor: f, building: b, x: x, z: z, text: t };
-                selectRoom(roomInfo);
+                selectRoom(roomInfo, true);
                 if (typeof showRoomContextPopup === 'function') {
-                    const cx = window.innerWidth / 2;
-                    const cy = Math.max(120, window.innerHeight * 0.38);
-                    showRoomContextPopup(roomInfo, cx, cy);
+                    showRoomContextPopup(roomInfo, window.innerWidth / 2, window.innerHeight * 0.42, false);
                 }
             });
         });
     }
 }
 
-// Настройка шторки параметров (Settings Drawer)
+// Адаптация модальных окон под экранную клавиатуру мобильных устройств (VisualViewport API)
+function updateVisualViewportVars() {
+    if (typeof window === 'undefined') return;
+    const vv = window.visualViewport;
+    const vvh = vv ? vv.height : window.innerHeight;
+    const vvo = vv ? vv.offsetTop : 0;
+    document.documentElement.style.setProperty('--vvh', `${Math.round(vvh)}px`);
+    document.documentElement.style.setProperty('--vvo', `${Math.round(vvo)}px`);
+    if (window.scrollY !== 0 || window.scrollX !== 0) {
+        window.scrollTo(0, 0);
+    }
+}
+window.updateVisualViewportVars = updateVisualViewportVars;
+
+function setupVisualViewportHandler() {
+    updateVisualViewportVars();
+    if (window.visualViewport) {
+        window.visualViewport.addEventListener('resize', updateVisualViewportVars, { passive: true });
+        window.visualViewport.addEventListener('scroll', updateVisualViewportVars, { passive: true });
+    }
+    window.addEventListener('resize', updateVisualViewportVars, { passive: true });
+}
+
 function setupSettingsDrawer() {
-    const drawer = document.getElementById('settings-drawer');
-    const backdrop = document.getElementById('settings-backdrop');
-    const btnOpen = document.getElementById('btn-open-settings');
-    const btnClose = document.getElementById('btn-close-settings');
-
-    function openDrawer() {
-        drawer?.classList.add('active');
-        backdrop?.classList.add('active');
-    }
-
-    function closeDrawer() {
-        drawer?.classList.remove('active');
-        backdrop?.classList.remove('active');
-    }
-
-    btnOpen?.addEventListener('click', openDrawer);
-    btnClose?.addEventListener('click', closeDrawer);
-    backdrop?.addEventListener('click', closeDrawer);
+    // Шторка настроек убрана из основного UI; оставляем безопасную заглушку
 }
 
 function saveSettings() {
@@ -642,25 +761,15 @@ function restoreSavedSettings() {
         const raw = localStorage.getItem(SETTINGS_KEY);
         if (!raw) return;
         const s = JSON.parse(raw);
-        if (typeof s.preset === 'string') STATE.preset = s.preset;
-        if (typeof s.showShadows === 'boolean') STATE.showShadows = s.showShadows;
-        if (typeof s.wallHeight === 'number' && !isNaN(s.wallHeight) && s.wallHeight >= 0.15 && s.wallHeight <= 4.0) {
-            STATE.wallHeight = s.wallHeight;
-        }
-        if (typeof s.labelScale === 'number' && !isNaN(s.labelScale)) {
-            STATE.labelScale = s.labelScale;
-        }
         if (typeof s.is2D === 'boolean') STATE.is2D = s.is2D;
-        if (typeof s.showDoors === 'boolean') STATE.showDoors = s.showDoors;
-        if (typeof s.showLabels === 'boolean') STATE.showLabels = s.showLabels;
-        if (typeof s.showRoof === 'boolean') STATE.showRoof = s.showRoof;
+        STATE.wallHeight = STATE.is2D ? BASE_WALL_HEIGHT : 1.50;
+        STATE.showDoors = true;
+        STATE.showLabels = true;
+        STATE.showEdges = true;
+        STATE.showRoof = false;
         if (typeof s.showTerritory === 'boolean') STATE.showTerritory = s.showTerritory;
-        if (typeof s.showEdges === 'boolean') STATE.showEdges = s.showEdges;
         if (typeof s.buildingFilter === 'string') STATE.buildingFilter = s.buildingFilter;
-        if (typeof s.mode === 'string') STATE.mode = s.mode;
-        if (typeof s.sliceMaxFloor === 'number') STATE.sliceMaxFloor = s.sliceMaxFloor;
-        if (typeof s.explodeGap === 'number') STATE.explodeGap = s.explodeGap;
-        if (typeof s.exploded === 'boolean') STATE.exploded = s.exploded;
+        if (typeof s.mode === 'string' && /^[1-7]$/.test(s.mode)) STATE.mode = s.mode;
         if (s.theme === 'dark' || s.theme === 'light') STATE.theme = s.theme;
     } catch (e) {
         console.warn('LocalStorage load error:', e);
@@ -674,9 +783,9 @@ function resetSettingsToDefault() {
 
     STATE.preset = 'balance';
     STATE.showShadows = false;
+    STATE.is2D = true;
     STATE.wallHeight = BASE_WALL_HEIGHT;
     STATE.labelScale = 1.0;
-    STATE.is2D = true;
     STATE.slabOpacity = 1.0;
     STATE.showDoors = true;
     STATE.showLabels = true;
@@ -692,30 +801,11 @@ function resetSettingsToDefault() {
     STATE.explodeGap = 0.0;
     STATE.exploded = false;
 
-    // Сброс значений слайдеров и чекбоксов
-    const sliderHeight = document.getElementById('slider-wall-height');
-    const valHeight = document.getElementById('wall-height-val');
-    if (sliderHeight) sliderHeight.value = BASE_WALL_HEIGHT;
-    if (valHeight) valHeight.textContent = BASE_WALL_HEIGHT.toFixed(2) + ' м';
-
-    const tShadows = document.getElementById('toggle-shadows');
-    if (tShadows) tShadows.checked = false;
-    const tDoors = document.getElementById('toggle-doors');
-    if (tDoors) tDoors.checked = true;
-    const tLabels = document.getElementById('toggle-labels');
-    if (tLabels) tLabels.checked = true;
-    const tEdges = document.getElementById('toggle-edges');
-    if (tEdges) tEdges.checked = true;
-    const tRoof = document.getElementById('toggle-roof');
-    if (tRoof) tRoof.checked = false;
-    const tTerritory = document.getElementById('toggle-territory');
-    if (tTerritory) tTerritory.checked = STATE.showTerritory;
-
     setBuildingFilter('both', false);
     setMode('1', false);
-    setViewMode(true);
+    setViewMode(true, false);
+    setTerritoryMode(STATE.showTerritory, false);
     setLabelScale(1.0);
-    setWallHeight(BASE_WALL_HEIGHT);
 
     if (typeof updateWallHeights === 'function') updateWallHeights();
     if (typeof updateEdgesVisibility === 'function') updateEdgesVisibility();
@@ -728,12 +818,12 @@ function resetSettingsToDefault() {
 }
 
 function setupUI() {
-    // 1. Поиск кабинетов и шторка параметров
+    setupVisualViewportHandler();
     setupSearch();
     setupSettingsDrawer();
     setupRoomContextPopup();
 
-    // 2. Селектор этажей (кнопки 1–7 и Все)
+    // Селектор этажей (кнопки 1–7)
     document.querySelectorAll('.floor-btn').forEach(btn => {
         btn.addEventListener('click', () => {
             const f = btn.dataset.floor;
@@ -741,7 +831,7 @@ function setupUI() {
         });
     });
 
-    // 3. Выбор корпуса (чипсы в шапке)
+    // Выбор корпуса (чипсы в шапке)
     document.querySelectorAll('.bldg-chip').forEach(chip => {
         chip.addEventListener('click', () => {
             const b = chip.dataset.bldg;
@@ -749,7 +839,8 @@ function setupUI() {
         });
     });
 
-    // 4. Плавающие кнопки карты: 2D/3D, зум
+    // Плавающие кнопки карты: Территория, 2D/3D, Зум
+    document.getElementById('btn-toggle-territory')?.addEventListener('click', toggleTerritoryView);
     document.getElementById('btn-toggle-2d')?.addEventListener('click', toggle2DView);
     document.getElementById('btn-zoom-in')?.addEventListener('click', () => {
         if (typeof zoomIn === 'function') zoomIn();
@@ -758,115 +849,6 @@ function setupUI() {
         if (typeof zoomOut === 'function') zoomOut();
     });
     document.getElementById('btn-center-view')?.addEventListener('click', resetToNorth);
-
-    // 5. Высота стен
-    const sliderHeight = document.getElementById('slider-wall-height');
-    const valHeight = document.getElementById('wall-height-val');
-    if (sliderHeight) sliderHeight.value = STATE.wallHeight;
-    if (valHeight) valHeight.textContent = STATE.wallHeight.toFixed(2) + ' м';
-
-    sliderHeight?.addEventListener('input', e => {
-        setWallHeight(e.target.value);
-    });
-
-    document.getElementById('btn-wall-min')?.addEventListener('click', () => setWallHeight(0.35));
-    document.getElementById('btn-wall-mid')?.addEventListener('click', () => setWallHeight(1.20));
-    document.getElementById('btn-wall-max')?.addEventListener('click', () => setWallHeight(2.40));
-
-    // 6. Размер номеров кабинетов
-    document.getElementById('btn-labelsize-normal')?.addEventListener('click', () => setLabelScale(0.8));
-    document.getElementById('btn-labelsize-large')?.addEventListener('click', () => setLabelScale(1.0));
-    document.getElementById('btn-labelsize-xl')?.addEventListener('click', () => setLabelScale(1.35));
-
-    // 7. Ракурсы в шторке
-    document.getElementById('btn-view-top')?.addEventListener('click', () => setViewMode(true));
-    document.getElementById('btn-view-3d')?.addEventListener('click', () => setViewMode(false));
-    document.getElementById('btn-view-side')?.addEventListener('click', () => {
-        setMode('sideBySide');
-        updateCameraViewButtons('btn-view-side');
-    });
-    document.getElementById('btn-view-305')?.addEventListener('click', () => {
-        STATE.targetCamPos = new THREE.Vector3(36.0, 36.0, -2.0);
-        STATE.targetControlsCenter = new THREE.Vector3(36.0, 3.5, -28.0);
-        updateCameraViewButtons('btn-view-305');
-        if (typeof requestRender === 'function') requestRender(40);
-    });
-
-    // 8. Срез и разнос этажей
-    const sliderSlice = document.getElementById('slider-slice');
-    sliderSlice?.addEventListener('input', e => {
-        setSliceFloor(parseInt(e.target.value, 10));
-    });
-
-    const sliderExplode = document.getElementById('slider-explode');
-    const valExplode = document.getElementById('explode-val');
-    if (sliderExplode) sliderExplode.value = STATE.explodeGap || 0;
-    if (valExplode) valExplode.textContent = (STATE.explodeGap || 0).toFixed(1) + ' м';
-
-    sliderExplode?.addEventListener('input', e => {
-        const v = parseFloat(e.target.value);
-        STATE.explodeGap = v;
-        STATE.exploded = v > 0.1;
-        if (valExplode) valExplode.textContent = v.toFixed(1) + ' м';
-        recalcTargetPositions();
-        saveSettings();
-    });
-
-    // 9. Переключатели слоёв
-    const tLabels = document.getElementById('toggle-labels');
-    if (tLabels) tLabels.checked = STATE.showLabels;
-    tLabels?.addEventListener('change', e => {
-        STATE.showLabels = e.target.checked;
-        if (typeof updateLabelsVisibility === 'function') updateLabelsVisibility();
-        saveSettings();
-    });
-
-    const tDoors = document.getElementById('toggle-doors');
-    if (tDoors) tDoors.checked = STATE.showDoors;
-    tDoors?.addEventListener('change', e => {
-        STATE.showDoors = e.target.checked;
-        if (typeof updateWallHeights === 'function') updateWallHeights();
-        saveSettings();
-    });
-
-    const tEdges = document.getElementById('toggle-edges');
-    if (tEdges) tEdges.checked = STATE.showEdges;
-    tEdges?.addEventListener('change', e => {
-        STATE.showEdges = e.target.checked;
-        if (typeof updateEdgesVisibility === 'function') updateEdgesVisibility();
-        saveSettings();
-    });
-
-    const tShadows = document.getElementById('toggle-shadows');
-    if (tShadows) tShadows.checked = STATE.showShadows;
-    tShadows?.addEventListener('change', e => {
-        STATE.showShadows = e.target.checked;
-        if (renderer && renderer.shadowMap) {
-            renderer.shadowMap.enabled = e.target.checked;
-            renderer.shadowMap.needsUpdate = true;
-        }
-        if (typeof requestRender === 'function') requestRender(25);
-        saveSettings();
-    });
-
-    const tTerritory = document.getElementById('toggle-territory');
-    if (tTerritory) tTerritory.checked = STATE.showTerritory;
-    tTerritory?.addEventListener('change', e => {
-        STATE.showTerritory = e.target.checked;
-        if (typeof updateTerritoryVisibility === 'function') updateTerritoryVisibility();
-        saveSettings();
-    });
-
-    const tRoof = document.getElementById('toggle-roof');
-    if (tRoof) tRoof.checked = STATE.showRoof;
-    tRoof?.addEventListener('change', e => {
-        STATE.showRoof = e.target.checked;
-        if (typeof updateRoofsVisibility === 'function') updateRoofsVisibility();
-        saveSettings();
-    });
-
-    // 10. Кнопка сброса настроек
-    document.getElementById('btn-reset-settings')?.addEventListener('click', resetSettingsToDefault);
 
     // Горячая клавиша H — скрыть интерфейс
     window.addEventListener('keydown', e => {
@@ -885,11 +867,11 @@ function setupUI() {
         setTheme(nextTheme, true);
     });
 
-    // Инициализация активных состояний
+    // Инициализация активных состояний без лишнего перелёта камеры при старте
     setBuildingFilter(STATE.buildingFilter || 'both', false);
     setMode(STATE.mode || '1', false);
-    setWallHeight(STATE.wallHeight || 0.35);
-    setViewMode(STATE.is2D);
+    setViewMode(STATE.is2D, false);
+    setTerritoryMode(STATE.showTerritory, false);
     setLabelScale(STATE.labelScale || 1.0);
     setTheme(STATE.theme || 'light', false);
 }
@@ -897,10 +879,53 @@ function setupUI() {
 
 // ==========================================
 // КОНТЕКСТНЫЙ ПОПАП КАБИНЕТА (ОТСЮДА / СЮДА)
+// С ПРИВЯЗКОЙ К 3D-КООРДИНАТАМ КАБИНЕТА
 // ==========================================
 let currentPopupRoom = null;
+const _popupProjVec = new THREE.Vector3();
 
-function showRoomContextPopup(roomInfo, clientX, clientY) {
+function updateRoomContextPopupScreenPos(viewW, viewH) {
+    if (!currentPopupRoom || !camera) return;
+    const popup = document.getElementById('room-context-popup');
+    if (!popup || popup.classList.contains('hidden')) return;
+
+    const w = viewW || window.innerWidth;
+    const h = viewH || window.innerHeight;
+    const fg = (typeof floorGroups !== 'undefined' && floorGroups[currentPopupRoom.floor])
+        ? floorGroups[currentPopupRoom.floor]
+        : null;
+    if (fg && !fg.visible) {
+        hideRoomContextPopup();
+        return;
+    }
+
+    const wx = (fg ? fg.position.x : 0) + currentPopupRoom.x;
+    const wy = (fg ? fg.position.y : 0) + 0.15;
+    const wz = (fg ? fg.position.z : 0) + currentPopupRoom.z;
+
+    _popupProjVec.set(wx, wy, wz).project(camera);
+    if (_popupProjVec.z > 1.0) return;
+
+    const sx = (_popupProjVec.x * 0.5 + 0.5) * w;
+    const sy = (-_popupProjVec.y * 0.5 + 0.5) * h;
+
+    const pad = 12;
+    const popW = popup.offsetWidth || 206;
+    const popH = popup.offsetHeight || 78;
+    let left = Math.round(sx - popW / 2);
+    let top = Math.round(sy - popH - 18);
+
+    if (left < pad) left = pad;
+    if (left + popW > w - pad) left = w - pad - popW;
+    if (top < 62) top = Math.round(sy + 20);
+    if (top + popH > h - pad) top = h - pad - popH;
+
+    popup.style.left = `${left}px`;
+    popup.style.top = `${top}px`;
+}
+window.updateRoomContextPopupScreenPos = updateRoomContextPopupScreenPos;
+
+function showRoomContextPopup(roomInfo, clientX, clientY, shouldSelectAndFly = true) {
     if (!roomInfo) return;
     currentPopupRoom = roomInfo;
 
@@ -909,30 +934,19 @@ function showRoomContextPopup(roomInfo, clientX, clientY) {
     if (!popup) return;
 
     if (nameEl) {
-        const cleanName = roomInfo.text ? roomInfo.text.replace('\n', ' ') : 'Кабинет';
-        const isNum = /^\d/.test(cleanName) || /^[2-4]-\d/.test(cleanName); const title = isNum ? `Кабинет ${cleanName}` : cleanName;
+        const cleanName = roomInfo.text ? roomInfo.text.replace(/\n/g, ' ').trim() : 'Кабинет';
+        const isNum = /^\d/.test(cleanName) || /^[2-4]-\d/.test(cleanName);
+        const title = isNum ? `Кабинет ${cleanName}` : cleanName;
         nameEl.textContent = `${title} (${roomInfo.floor} эт.)`;
     }
 
-    // Позиционируем аккуратно в пределах экрана
-    const pad = 16;
-    const popW = 210;
-    const popH = 80;
-    let left = clientX - popW / 2;
-    let top = clientY - popH - 14;
-
-    if (left < pad) left = pad;
-    if (left + popW > window.innerWidth - pad) left = window.innerWidth - pad - popW;
-    if (top < 60) top = clientY + 20;
-    if (top + popH > window.innerHeight - pad) top = window.innerHeight - pad - popH;
-
-    popup.style.left = `${left}px`;
-    popup.style.top = `${top}px`;
     popup.classList.remove('hidden');
 
-    if (typeof selectRoom === 'function') {
-        selectRoom(roomInfo);
+    if (shouldSelectAndFly && typeof selectRoom === 'function') {
+        selectRoom(roomInfo, true);
     }
+
+    updateRoomContextPopupScreenPos(window.innerWidth, window.innerHeight);
 }
 
 function hideRoomContextPopup() {
@@ -956,17 +970,16 @@ function setupRoomContextPopup() {
 
         const f = parseInt(r.floor, 10);
         const b = parseInt(r.building, 10);
-        const clean = r.text ? r.text.replace('\n', ' ') : 'Кабинет';
+        const clean = r.text ? r.text.replace(/\n/g, ' ').trim() : 'Кабинет';
 
-        // Ищем точный узел кабинета по координатам плашки надписи
-        for (const [nid, node] of g.nodes.entries()) {
+        for (const [, node] of g.nodes.entries()) {
             if (node.floor === f && node.bldg === b && node.type === 'room') {
                 if (Math.hypot(node.x - r.x, node.z - r.z) < 0.25) {
                     return node;
                 }
             }
         }
-        for (const [nid, node] of g.nodes.entries()) {
+        for (const [, node] of g.nodes.entries()) {
             if (node.floor === f && node.bldg === b && node.type === 'room') {
                 if (node.label === clean) return node;
             }
@@ -988,19 +1001,14 @@ function setupRoomContextPopup() {
                     NAV_STATE.startPoint = roomNode;
                     const inputA = document.getElementById('nav-input-start');
                     if (inputA) {
-                        inputA.value = `${roomNode.label || r.text.replace('\n', ' ')} (К-${r.building}, ${r.floor} эт.)`;
+                        inputA.value = `${roomNode.label || r.text.replace(/\n/g, ' ')} (К-${r.building}, ${r.floor} эт.)`;
                         inputA.removeAttribute('data-is-default');
                         const btnClearA = document.getElementById('btn-clear-start');
                         if (btnClearA) btnClearA.classList.remove('hidden');
                     }
 
-                    // Открываем модалку для выбора второй точки (в стиле Google Maps)
                     if (typeof openNavigatorModal === 'function') {
                         openNavigatorModal();
-                        const inputB = document.getElementById('nav-input-dest');
-                        if (inputB) {
-                            setTimeout(() => inputB.focus(), 150);
-                        }
                     }
                 }
             }
@@ -1020,12 +1028,11 @@ function setupRoomContextPopup() {
                     NAV_STATE.destPoint = roomNode;
                     const inputB = document.getElementById('nav-input-dest');
                     if (inputB) {
-                        inputB.value = `${roomNode.label || r.text.replace('\n', ' ')} (К-${r.building}, ${r.floor} эт.)`;
+                        inputB.value = `${roomNode.label || r.text.replace(/\n/g, ' ')} (К-${r.building}, ${r.floor} эт.)`;
                         const btnClearB = document.getElementById('btn-clear-dest');
                         if (btnClearB) btnClearB.classList.remove('hidden');
                     }
 
-                    // Если точка отправления ещё не задана, по умолчанию ставим Главный вход
                     const g = NAV_STATE.graph;
                     if (!NAV_STATE.startPoint && g) {
                         const entrance = g.getNode('b1_f1_entrance_main');
@@ -1052,3 +1059,5 @@ function setupRoomContextPopup() {
 
 window.showRoomContextPopup = showRoomContextPopup;
 window.hideRoomContextPopup = hideRoomContextPopup;
+window.setTerritoryMode = setTerritoryMode;
+window.toggleTerritoryView = toggleTerritoryView;

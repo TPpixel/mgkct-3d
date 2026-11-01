@@ -3629,6 +3629,9 @@
 
     function focusCameraOnSegment(node) {
         if (!node || typeof THREE === 'undefined') return;
+        if (typeof resetControlsMomentum === 'function') {
+            resetControlsMomentum();
+        }
 
         const targetY = (STATE && STATE.is2D) ? 38 : 28;
         const camZOffset = (STATE && STATE.is2D) ? 14 : 30;
@@ -3637,20 +3640,25 @@
         STATE.targetControlsCenter = new THREE.Vector3(node.x, 0, node.z);
         STATE.targetCamPos = new THREE.Vector3(node.x + camXOffset, targetY, node.z + camZOffset);
 
-        if (typeof requestRender === 'function') requestRender(40);
+        if (typeof requestRender === 'function') requestRender(45);
     }
 
     // ------------------------------------------------------------------------
     // ОБРАБОТКА КЛИКОВ ПО КАРТЕ ДЛЯ ВЫБОРА ТОЧЕК МАРШРУТА
     // ------------------------------------------------------------------------
-    function handleNavigatorMapClick(event) {
+    function handleNavigatorMapClick(event, preHitRoom = null) {
         if (!NAV_STATE.pickingMode) return false;
+
+        if (preHitRoom) {
+            onLocationPicked(preHitRoom);
+            return true;
+        }
 
         // Если есть бейдж кабинета под курсором
         if (Array.isArray(window.renderedScreenBadges) && window.renderedScreenBadges.length > 0) {
             const cx = event.clientX;
             const cy = event.clientY;
-            const hitMargin = 12;
+            const hitMargin = 14;
 
             for (let i = window.renderedScreenBadges.length - 1; i >= 0; i--) {
                 const b = window.renderedScreenBadges[i];
@@ -3662,7 +3670,7 @@
             }
         }
 
-        return false;
+        return true;
     }
 
     function onLocationPicked(roomInfo) {
@@ -3788,6 +3796,8 @@
     }
 
     function openNavigatorModal() {
+        if (typeof hideRoomContextPopup === 'function') hideRoomContextPopup();
+        if (typeof updateVisualViewportVars === 'function') updateVisualViewportVars();
         setDefaultStartPoint();
         const modal = document.getElementById('navigator-modal');
         const backdrop = document.getElementById('navigator-backdrop');
@@ -3801,8 +3811,9 @@
             modal.style.pointerEvents = 'auto';
             backdrop.style.pointerEvents = 'auto';
             const inputDest = document.getElementById('nav-input-dest');
-            if (inputDest && (!NAV_STATE.destPoint || !inputDest.value)) {
-                setTimeout(() => inputDest.focus(), 150);
+            const isDesktop = (typeof window !== 'undefined' && window.innerWidth >= 640);
+            if (isDesktop && inputDest && (!NAV_STATE.destPoint || !inputDest.value)) {
+                setTimeout(() => inputDest.focus({ preventScroll: true }), 120);
             }
         }
     }
@@ -3968,13 +3979,13 @@
             dropdown.innerHTML = '';
             matches.forEach(item => {
                 const row = document.createElement('div');
-                row.className = 'px-3 py-2 hover:bg-slate-800/80 cursor-pointer flex items-center justify-between text-xs text-slate-200 border-b border-slate-800/50 last:border-none transition';
+                row.className = 'px-3 py-2 hover:bg-slate-800/80 cursor-pointer flex items-center justify-between gap-2 text-xs text-slate-200 border-b border-slate-800/50 last:border-none transition overflow-hidden';
                 row.innerHTML = `
-                    <div class="flex items-center gap-2">
-                        <span class="w-2 h-2 rounded-full ${item.type === 'entrance' ? 'bg-amber-400' : 'bg-sky-400'}"></span>
-                        <span class="font-semibold">${formatNavNodeName(item.label, item.bldg)}</span>
+                    <div class="flex items-center gap-2 min-w-0 flex-1 overflow-hidden">
+                        <span class="w-2 h-2 rounded-full flex-shrink-0 ${item.type === 'entrance' ? 'bg-amber-400' : 'bg-sky-400'}"></span>
+                        <span class="font-semibold truncate">${formatNavNodeName(item.label, item.bldg)}</span>
                     </div>
-                    <span class="text-[10px] text-slate-400">Корпус ${item.bldg}, ${item.floor} эт.</span>
+                    <span class="text-[10px] text-slate-400 flex-shrink-0 whitespace-nowrap">Корпус ${item.bldg}, ${item.floor} эт.</span>
                 `;
                 row.onclick = () => {
                     input.value = `${item.label} (К-${item.bldg}, ${item.floor} эт.)`;

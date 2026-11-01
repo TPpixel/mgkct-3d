@@ -139,8 +139,8 @@
             // Общие плашки ядра и лестниц
             addRoomLabel3D(targetGroup, floorNum, 'С/У', 6.2, -2.8, true);
             addRoomLabel3D(targetGroup, floorNum, 'С/У', 5.6, 1.3, true);
-            addRoomLabel3D(targetGroup, floorNum, 'ЛК№1', 9.4, -1.9, true);
-            addRoomLabel3D(targetGroup, floorNum, 'ЛК№2', 9.4, 1.9, true);
+            addRoomLabel3D(targetGroup, floorNum, 'ЛК№1', 9.8, -1.9, true, false, 1, 0.85);
+            addRoomLabel3D(targetGroup, floorNum, 'ЛК№2', 9.8, 1.9, true, false, 1, 0.85);
             addRoomLabel3D(targetGroup, floorNum, 'Лифтовой\nхолл', 1.8, 1.5, false, true);
         }
 
@@ -860,12 +860,12 @@
             addRoomLabel3D(targetGroup, 1, 'С/У', 9.3, -13.2, true);
             addRoomLabel3D(targetGroup, 1, 'С/У', 9.3, -7.0, true);
             addRoomLabel3D(targetGroup, 1, '107', 13.6, -10.2);
-            addRoomLabel3D(targetGroup, 1, '104', 7.6, -2.4, true);
+            addRoomLabel3D(targetGroup, 1, '104', 7.6, -2.4, true, false, 1, 0.90);
             addRoomLabel3D(targetGroup, 1, '103', 5.6, -2.4, true);
             addRoomLabel3D(targetGroup, 1, '103', 1.8, 1.8);
             addRoomLabel3D(targetGroup, 1, '101', 3.7, 6.7, true);
-            addRoomLabel3D(targetGroup, 1, 'ЛК№1', 9.4, -1.9, true);
-            addRoomLabel3D(targetGroup, 1, 'ЛК№2', 9.4, 1.9, true);
+            addRoomLabel3D(targetGroup, 1, 'ЛК№1', 9.8, -1.9, true, false, 1, 0.85);
+            addRoomLabel3D(targetGroup, 1, 'ЛК№2', 9.8, 1.9, true, false, 1, 0.85);
             flushWalls(targetGroup);
         }
 

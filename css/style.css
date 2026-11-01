@@ -4,15 +4,16 @@
    ========================================== */
 
 :root {
-    --bg-dark: #090b0e;
-    --panel-bg: #0f1217;
-    --panel-border: #232936;
-    --panel-border-hover: #374256;
+    --vvh: 100dvh;
+    --vvo: 0px;
+    --bg-dark: #0b0f17;
+    --panel-bg: rgba(17, 24, 39, 0.90);
+    --panel-border: rgba(51, 65, 85, 0.75);
+    --panel-border-hover: #475569;
     --accent-primary: #0284c7;
     --accent-sky: #0284c7;
     --accent-sky-light: #38bdf8;
-    --accent-dark: #090b0e;
-    --text-main: #cbd5e1;
+    --text-main: #f1f5f9;
     --text-muted: #94a3b8;
 }
 
@@ -27,9 +28,9 @@ html, body {
     width: 100%;
     height: 100%;
     overflow: hidden;
-    background-color: #090b0e;
+    background-color: #eef2f6;
     font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    color: #cbd5e1;
+    color: #0f172a;
     user-select: none;
     -webkit-user-select: none;
     -webkit-font-smoothing: antialiased;
@@ -60,12 +61,14 @@ html, body {
     image-rendering: crisp-edges;
 }
 
-/* Stealth Dark панели */
+/* Базовые стеклянные панели */
 .glass-panel {
-    background: #0f1217;
-    border: 1px solid #232936;
-    border-radius: 8px;
-    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.8);
+    background: rgba(17, 24, 39, 0.90);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    border: 1px solid rgba(51, 65, 85, 0.75);
+    border-radius: 14px;
+    box-shadow: 0 16px 36px -4px rgba(0, 0, 0, 0.6);
 }
 
 /* Стилизация скроллбара */
@@ -77,11 +80,11 @@ html, body {
     background: transparent;
 }
 .custom-scroll::-webkit-scrollbar-thumb {
-    background: rgba(148, 163, 184, 0.3);
+    background: rgba(148, 163, 184, 0.35);
     border-radius: 999px;
 }
 .custom-scroll::-webkit-scrollbar-thumb:hover {
-    background: rgba(148, 163, 184, 0.5);
+    background: rgba(148, 163, 184, 0.55);
 }
 
 .no-scrollbar::-webkit-scrollbar {
@@ -105,19 +108,16 @@ html, body {
 /* Селектор этажей (Floor switcher как в картах 2GIS / Google Maps) */
 .floor-switcher-bar {
     position: fixed;
-    right: 14px;
-    top: 50%;
+    right: 12px;
+    top: 46%;
     transform: translateY(-50%);
     z-index: 30;
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 4px;
-    padding: 6px 4px;
-    background: #0f1217;
-    border: 1px solid #232936;
-    border-radius: 8px;
-    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.8);
+    padding: 6px 5px;
+    border-radius: 14px;
 }
 
 .floor-btn {
@@ -126,74 +126,84 @@ html, body {
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 5px;
+    border-radius: 9px;
     font-size: 12px;
     font-weight: 700;
-    font-family: ui-monospace, SFMono-Regular, monospace;
+    font-family: 'Inter', system-ui, sans-serif;
     color: #94a3b8;
-    background: #131720;
-    border: 1px solid #252e3d;
+    background: #1e293b;
+    border: 1px solid #334155;
     transition: all 0.16s ease;
     cursor: pointer;
 }
 
 .floor-btn:hover {
-    background: #1c2230;
-    color: #f1f5f9;
+    background: #283548;
+    color: #f8fafc;
 }
 
 .floor-btn.active {
     background: #0284c7 !important;
     color: #ffffff !important;
     border-color: #38bdf8 !important;
-    box-shadow: 0 2px 10px rgba(2, 132, 199, 0.35) !important;
-    transform: scale(1.05);
+    box-shadow: 0 3px 10px rgba(2, 132, 199, 0.35) !important;
 }
 
 .floor-btn.disabled {
-    opacity: 0.22;
+    opacity: 0.25;
     pointer-events: none;
 }
 
-/* Плавающие действия карты (2D/3D, компас, зум) */
+/* Плавающие действия карты (Территория, 2D/3D, зум на ПК) */
 .map-fab-bar {
     position: fixed;
-    right: 14px;
+    right: 12px;
     bottom: 24px;
     z-index: 30;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 6px;
+    gap: 8px;
 }
 
-/* На мобильных устройствах поднимаем кнопки зума выше плавающего поиска */
+/* На мобильных устройствах поднимаем кнопки выше плавающего поиска и скрываем зум */
 @media (max-width: 639px) {
     .map-fab-bar {
-        bottom: calc(max(12px, env(safe-area-inset-bottom, 12px)) + 66px);
+        bottom: calc(max(12px, env(safe-area-inset-bottom, 12px)) + 64px);
+    }
+    .zoom-controls-group {
+        display: none !important;
+    }
+}
+
+@media (pointer: coarse) {
+    .zoom-controls-group {
+        display: none !important;
     }
 }
 
 .map-fab-btn {
-    width: 38px;
-    height: 38px;
+    width: 42px;
+    height: 42px;
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 6px;
+    border-radius: 12px;
     color: #cbd5e1;
-    background: #0f1217;
-    border: 1px solid #232936;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+    background: rgba(17, 24, 39, 0.90);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(51, 65, 85, 0.75);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
     cursor: pointer;
     font-size: 12px;
-    font-weight: 700;
+    font-weight: 800;
     transition: all 0.16s ease;
 }
 
 .map-fab-btn:hover {
-    background: #1a202c;
-    border-color: #3b4559;
+    background: #1e293b;
+    border-color: #475569;
     color: #ffffff;
 }
 
@@ -205,19 +215,19 @@ html, body {
     background: #0284c7 !important;
     color: #ffffff !important;
     border-color: #38bdf8 !important;
+    box-shadow: 0 4px 14px rgba(2, 132, 199, 0.4) !important;
 }
 
 /* Чипсы выбора корпусов */
 .bldg-chip {
-    padding: 5px 12px;
-    border-radius: 6px;
+    padding: 6px 12px;
+    border-radius: 10px;
     font-size: 11px;
     font-weight: 700;
-    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
     white-space: nowrap;
-    color: #94a3b8;
-    background: #131720;
-    border: 1px solid #252e3d;
+    color: #cbd5e1;
+    background: #1e293b;
+    border: 1px solid #334155;
     transition: all 0.15s ease;
     cursor: pointer;
     display: inline-flex;
@@ -226,102 +236,28 @@ html, body {
 }
 
 .bldg-chip:hover {
-    background: #1c2230;
-    color: #e2e8f0;
+    background: #283548;
+    color: #ffffff;
 }
 
 .bldg-chip.active {
     background: #0284c7 !important;
     color: #ffffff !important;
     border-color: #38bdf8 !important;
-    box-shadow: 0 2px 10px rgba(2, 132, 199, 0.3) !important;
+    box-shadow: 0 2px 10px rgba(2, 132, 199, 0.32) !important;
 }
 
-/* Ползунки Range */
-input[type="range"] {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 100%;
-    height: 6px;
-    background: rgba(51, 65, 85, 0.65);
-    border-radius: 999px;
-    outline: none;
-    transition: background 0.2s ease;
-}
-
-input[type="range"]:hover {
-    background: rgba(71, 85, 105, 0.85);
-}
-
-input[type="range"]::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 18px;
-    height: 18px;
-    border-radius: 50%;
-    background: #38bdf8;
-    border: 2px solid #0f172a;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
-    cursor: pointer;
-    transition: transform 0.12s ease;
-}
-
-input[type="range"]::-webkit-slider-thumb:hover {
-    transform: scale(1.2);
-}
-
-/* Переключатели Switch */
-.switch-input {
-    position: absolute;
-    opacity: 0;
-    width: 0;
-    height: 0;
-    pointer-events: none;
-}
-
-.switch-track {
-    width: 36px;
-    height: 20px;
-    background-color: rgba(51, 65, 85, 0.8);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 999px;
-    position: relative;
-    transition: background-color 0.2s ease, border-color 0.2s ease;
-    flex-shrink: 0;
-}
-
-.switch-thumb {
-    position: absolute;
-    top: 2px;
-    left: 2px;
-    width: 14px;
-    height: 14px;
-    background-color: #94a3b8;
-    border-radius: 50%;
-    transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.2s ease;
-}
-
-.switch-input:checked + .switch-track {
-    background-color: #0284c7;
-    border-color: rgba(255, 255, 255, 0.3);
-}
-
-.switch-input:checked + .switch-track .switch-thumb {
-    transform: translateX(16px);
-    background-color: #ffffff;
-}
-
-/* Модальные окна и шторки */
+/* Фон перекрытия модальных окон */
 .drawer-backdrop {
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 0.65);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
+    background: rgba(15, 23, 42, 0.45);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
     z-index: 40;
     opacity: 0;
     visibility: hidden;
-    transition: opacity 0.25s ease, visibility 0.25s ease;
+    transition: opacity 0.22s ease, visibility 0.22s ease;
 }
 
 .drawer-backdrop.active {
@@ -329,49 +265,11 @@ input[type="range"]::-webkit-slider-thumb:hover {
     visibility: visible;
 }
 
-.side-drawer {
-    position: fixed;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    width: 360px;
-    max-width: 90vw;
-    z-index: 50;
-    background: rgba(18, 22, 29, 0.96);
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
-    border-left: 1px solid rgba(255, 255, 255, 0.12);
-    box-shadow: -15px 0 45px rgba(0, 0, 0, 0.7);
-    transform: translateX(100%);
-    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-    display: flex;
-    flex-direction: column;
-}
+/* ============================================================================
+   ПОИСКОВОЕ ОКНО И НАВИГАТОР (ЗАЩИТА ОТ ПЕРЕКРЫТИЯ ЭКРАННОЙ КЛАВИАТУРОЙ)
+   ============================================================================ */
 
-.side-drawer.active {
-    transform: translateX(0);
-}
-
-@media (max-width: 640px) {
-    .side-drawer {
-        top: auto;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        width: 100vw;
-        max-width: 100vw;
-        max-height: 82vh;
-        border-left: none;
-        border-top: 1px solid rgba(255, 255, 255, 0.15);
-        border-radius: 24px 24px 0 0;
-        transform: translateY(100%);
-    }
-    .side-drawer.active {
-        transform: translateY(0);
-    }
-}
-
-/* Поисковое окно: адаптивное (на телефоне снизу как bottom sheet, на ПК сверху под строкой поиска) */
+/* На ПК: сверху под строкой поиска */
 .search-modal {
     position: fixed;
     top: 66px;
@@ -379,37 +277,46 @@ input[type="range"]::-webkit-slider-thumb:hover {
     bottom: auto;
     width: 440px;
     max-width: calc(100vw - 32px);
-    max-height: 76vh;
+    max-height: min(520px, calc(var(--vvh, 100dvh) - 84px));
     z-index: 50;
     opacity: 0;
     visibility: hidden;
+    pointer-events: none;
     transform: translateY(-8px);
-    transition: opacity 0.22s cubic-bezier(0.16, 1, 0.3, 1), transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.22s ease;
+    transition: opacity 0.2s cubic-bezier(0.16, 1, 0.3, 1), transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.2s ease;
     border-radius: 20px;
 }
 
 .search-modal.active {
     opacity: 1;
     visibility: visible;
+    pointer-events: auto;
     transform: translateY(0);
 }
 
-/* На смартфонах (мобильный вид): снизу экрана как bottom sheet */
+.search-results-list {
+    max-height: 300px;
+}
+
+/* На смартфонах: закрепляем окно поиска ВВЕРХУ экрана над клавиатурой,
+   чтобы при открытии клавиатуры поле ввода и результаты всегда были на виду! */
 @media (max-width: 639px) {
     .search-modal {
-        top: auto;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        width: 100%;
-        max-width: 100%;
-        max-height: 84vh;
-        border-radius: 24px 24px 0 0;
-        border-bottom: none;
-        transform: translateY(100%);
+        top: calc(var(--vvo, 0px) + max(8px, env(safe-area-inset-top, 8px))) !important;
+        bottom: auto !important;
+        left: 8px !important;
+        right: 8px !important;
+        width: calc(100vw - 16px) !important;
+        max-width: calc(100vw - 16px) !important;
+        max-height: calc(var(--vvh, 100dvh) - max(16px, env(safe-area-inset-top, 16px))) !important;
+        border-radius: 20px !important;
+        transform: translateY(-12px);
     }
     .search-modal.active {
         transform: translateY(0);
+    }
+    .search-results-list {
+        max-height: calc(var(--vvh, 100dvh) - 168px) !important;
     }
 }
 
@@ -418,8 +325,6 @@ input[type="range"]::-webkit-slider-thumb:hover {
     transition: transform 0.25s ease, opacity 0.25s ease;
 }
 
-/* На мобильных устройствах при открытой карточке маршрута скрываем нижнюю панель поиска,
-   чтобы она не перекрывала карточку снизу. На десктопе строка поиска сверху и остаётся всегда видимой */
 @media (max-width: 639px) {
     #bottom-search-bar.route-active {
         opacity: 0;
@@ -429,14 +334,7 @@ input[type="range"]::-webkit-slider-thumb:hover {
     }
 }
 
-/* Пульсирующая подсветка найденного кабинета */
-@keyframes markerPulse {
-    0% { transform: scale(0.9); opacity: 0.9; }
-    50% { transform: scale(1.4); opacity: 0.3; }
-    100% { transform: scale(0.9); opacity: 0.9; }
-}
-
-/* Скрытие UI */
+/* Скрытие UI по клавише H */
 body.ui-hidden .ui-overlay {
     opacity: 0 !important;
     visibility: hidden !important;
@@ -444,85 +342,142 @@ body.ui-hidden .ui-overlay {
     transform: scale(0.97);
 }
 
-/* Safe area padding для современных смартфонов (iPhone notch) */
-.safe-top {
-    padding-top: max(12px, env(safe-area-inset-top));
-}
-.safe-bottom {
-    padding-bottom: max(12px, env(safe-area-inset-bottom));
-}
-
 /* ==========================================
    СВЕТЛАЯ И ТЁМНАЯ ТЕМЫ (LIGHT / DARK MODES)
    ========================================== */
 
-/* 1. Тёмная тема (Dark Mode по умолчанию / по системе) */
+/* 1. Тёмная тема (Глубокий графитово-синий сланец) */
 body[data-theme="dark"] {
-    background-color: #11141a;
-    color: #e2e8f0;
+    background-color: #0b0f17;
+    color: #f1f5f9;
 }
+
 body[data-theme="dark"] .glass-panel {
-    background: #181f2a;
-    border-color: #2a3444;
-    color: #e2e8f0;
-    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.7);
+    background: rgba(17, 24, 39, 0.90);
+    border-color: rgba(51, 65, 85, 0.78);
+    color: #f1f5f9;
+    box-shadow: 0 16px 36px -4px rgba(0, 0, 0, 0.68);
 }
+
+body[data-theme="dark"] .floor-switcher-label {
+    color: #94a3b8;
+}
+
 body[data-theme="dark"] .bldg-chip,
 body[data-theme="dark"] .floor-btn,
 body[data-theme="dark"] .map-fab-btn,
-body[data-theme="dark"] .search-tag-chip {
-    background: #1a222e;
-    border-color: #2b3749;
-    color: #94a3b8;
+body[data-theme="dark"] .search-tag-chip,
+body[data-theme="dark"] .theme-toggle-btn,
+body[data-theme="dark"] .nav-swap-btn,
+body[data-theme="dark"] .nav-pick-btn,
+body[data-theme="dark"] .nav-quick-chip {
+    background: #1e293b;
+    border: 1px solid #334155;
+    color: #cbd5e1;
 }
+
 body[data-theme="dark"] .bldg-chip:hover,
 body[data-theme="dark"] .floor-btn:hover,
-body[data-theme="dark"] .map-fab-btn:hover {
-    background: #242f40;
-    color: #f1f5f9;
+body[data-theme="dark"] .map-fab-btn:hover,
+body[data-theme="dark"] .search-tag-chip:hover,
+body[data-theme="dark"] .theme-toggle-btn:hover,
+body[data-theme="dark"] .nav-swap-btn:hover,
+body[data-theme="dark"] .nav-pick-btn:hover,
+body[data-theme="dark"] .nav-quick-chip:hover {
+    background: #283548;
+    border-color: #475569;
+    color: #ffffff;
 }
+
 body[data-theme="dark"] .bldg-chip.active,
 body[data-theme="dark"] .floor-btn.active,
 body[data-theme="dark"] .map-fab-btn.mode-active {
     background: #0284c7 !important;
     color: #ffffff !important;
     border-color: #38bdf8 !important;
-    box-shadow: 0 2px 14px rgba(14, 165, 233, 0.45) !important;
+    box-shadow: 0 4px 14px rgba(14, 165, 233, 0.40) !important;
 }
 
-/* 2. Светлая тема (Light Mode — мягкие тона, не бьющие по глазам) */
+body[data-theme="dark"] .zoom-divider {
+    background-color: rgba(51, 65, 85, 0.7);
+}
+
+body[data-theme="dark"] #btn-open-search {
+    background: #0f172a;
+    border: 1px solid #334155;
+    color: #cbd5e1;
+}
+body[data-theme="dark"] #btn-open-search:hover {
+    background: #1e293b;
+    border-color: #475569;
+}
+body[data-theme="dark"] #search-widget-text {
+    color: #cbd5e1;
+}
+
+/* 2. Светлая тема (Воздушная современная картографическая палитра) */
 body[data-theme="light"] {
-    background-color: #e8edf2;
+    background-color: #eef2f6;
     color: #0f172a;
 }
+
 body[data-theme="light"] .glass-panel {
-    background: #f4f6f9;
-    border-color: #cbd5e1;
+    background: rgba(255, 255, 255, 0.92);
+    border-color: rgba(203, 213, 225, 0.90);
     color: #0f172a;
-    box-shadow: 0 12px 30px rgba(15, 23, 42, 0.10);
+    box-shadow: 0 10px 30px -5px rgba(15, 23, 42, 0.09), 0 4px 12px -2px rgba(15, 23, 42, 0.04);
 }
+
+body[data-theme="light"] .floor-switcher-label {
+    color: #64748b;
+}
+
 body[data-theme="light"] .bldg-chip,
 body[data-theme="light"] .floor-btn,
 body[data-theme="light"] .map-fab-btn,
-body[data-theme="light"] .search-tag-chip {
-    background: #e2e8f0;
-    border-color: #cbd5e1;
+body[data-theme="light"] .search-tag-chip,
+body[data-theme="light"] .theme-toggle-btn,
+body[data-theme="light"] .nav-swap-btn,
+body[data-theme="light"] .nav-pick-btn,
+body[data-theme="light"] .nav-quick-chip {
+    background: #f1f5f9;
+    border: 1px solid #e2e8f0;
+    color: #334155;
+}
+
+body[data-theme="light"] .map-fab-btn {
+    background: rgba(255, 255, 255, 0.94);
+    border-color: rgba(203, 213, 225, 0.95);
+    box-shadow: 0 6px 20px rgba(15, 23, 42, 0.08);
     color: #1e293b;
 }
+
 body[data-theme="light"] .bldg-chip:hover,
 body[data-theme="light"] .floor-btn:hover,
-body[data-theme="light"] .map-fab-btn:hover {
-    background: #cbd5e1;
+body[data-theme="light"] .map-fab-btn:hover,
+body[data-theme="light"] .search-tag-chip:hover,
+body[data-theme="light"] .theme-toggle-btn:hover,
+body[data-theme="light"] .nav-swap-btn:hover,
+body[data-theme="light"] .nav-pick-btn:hover,
+body[data-theme="light"] .nav-quick-chip:hover {
+    background: #e2e8f0;
+    border-color: #cbd5e1;
     color: #0f172a;
 }
+
 body[data-theme="light"] .bldg-chip.active,
 body[data-theme="light"] .floor-btn.active,
 body[data-theme="light"] .map-fab-btn.mode-active {
     background: #0284c7 !important;
     color: #ffffff !important;
     border-color: #0284c7 !important;
-    box-shadow: 0 2px 10px rgba(2, 132, 199, 0.35) !important;
+    box-shadow: 0 4px 12px rgba(2, 132, 199, 0.30) !important;
 }
+
+body[data-theme="light"] .zoom-divider {
+    background-color: #e2e8f0;
+}
+
 body[data-theme="light"] .text-slate-100,
 body[data-theme="light"] .text-slate-200,
 body[data-theme="light"] .text-slate-300 {
@@ -530,7 +485,7 @@ body[data-theme="light"] .text-slate-300 {
 }
 body[data-theme="light"] .text-slate-400,
 body[data-theme="light"] .text-slate-500 {
-    color: #475569 !important;
+    color: #64748b !important;
 }
 body[data-theme="light"] .bg-slate-800,
 body[data-theme="light"] .bg-slate-800\/40,
@@ -538,7 +493,7 @@ body[data-theme="light"] .bg-slate-800\/80,
 body[data-theme="light"] .bg-slate-800\/90,
 body[data-theme="light"] .bg-slate-900\/60,
 body[data-theme="light"] .bg-slate-900\/90 {
-    background-color: #e2e8f0 !important;
+    background-color: #f1f5f9 !important;
 }
 body[data-theme="light"] .border-slate-700,
 body[data-theme="light"] .border-slate-700\/40,
@@ -546,233 +501,88 @@ body[data-theme="light"] .border-slate-700\/50,
 body[data-theme="light"] .border-slate-700\/60,
 body[data-theme="light"] .border-slate-700\/80,
 body[data-theme="light"] .border-slate-700\/90 {
-    border-color: #cbd5e1 !important;
+    border-color: #e2e8f0 !important;
 }
 body[data-theme="light"] input[type="text"] {
-    background-color: #ffffff !important;
+    background-color: #f8fafc !important;
     color: #0f172a !important;
     border-color: #cbd5e1 !important;
 }
+body[data-theme="light"] input[type="text"]:focus {
+    background-color: #ffffff !important;
+    border-color: #0284c7 !important;
+}
 body[data-theme="light"] input[type="text"]::placeholder {
-    color: #64748b !important;
+    color: #94a3b8 !important;
 }
 
-/* Большой виджет поиска в шапке */
+/* Виджет поиска на главной панели */
 #btn-open-search {
     cursor: pointer;
 }
-body[data-theme="dark"] #btn-open-search {
-    background: #111620;
-    border-color: #242f40;
-}
-body[data-theme="dark"] #btn-open-search:hover {
-    border-color: #384860;
-    background: #151c28;
-}
 body[data-theme="light"] #btn-open-search {
+    background: #f1f5f9;
+    border: 1px solid #e2e8f0;
+    color: #334155;
+}
+body[data-theme="light"] #btn-open-search:hover {
     background: #e2e8f0;
     border-color: #cbd5e1;
 }
-body[data-theme="light"] #btn-open-search:hover {
-    border-color: #94a3b8;
-    background: #d8e0ea;
-}
-body[data-theme="light"] #btn-open-search span {
+body[data-theme="light"] #search-widget-text {
     color: #475569;
 }
 
-/* Унифицированный акцентный цвет (Sky Blue) для контролов и бейджей */
-body[data-theme="light"] #btn-toggle-2d {
+/* Акцентные цвета для кнопок 2D/3D и территории */
+body[data-theme="light"] #btn-toggle-2d,
+body[data-theme="light"] #btn-toggle-territory {
     color: #0284c7;
 }
-body[data-theme="dark"] #btn-toggle-2d {
+body[data-theme="dark"] #btn-toggle-2d,
+body[data-theme="dark"] #btn-toggle-territory {
     color: #38bdf8;
 }
 body[data-theme="light"] #btn-toggle-2d.mode-active,
-body[data-theme="dark"] #btn-toggle-2d.mode-active {
+body[data-theme="dark"] #btn-toggle-2d.mode-active,
+body[data-theme="light"] #btn-toggle-territory.mode-active,
+body[data-theme="dark"] #btn-toggle-territory.mode-active {
     color: #ffffff !important;
 }
 
-body[data-theme="light"] input[type="range"]::-webkit-slider-thumb {
-    background: #0284c7;
-    border: 2px solid #ffffff;
-}
-body[data-theme="dark"] input[type="range"]::-webkit-slider-thumb {
-    background: #38bdf8;
-    border: 2px solid #0f172a;
-}
-
+/* Элементы списка результатов поиска */
 body[data-theme="light"] .room-search-item:hover {
-    background-color: #e2e8f0 !important;
-}
-body[data-theme="light"] .room-search-item .bg-sky-950\/70 {
-    background-color: rgba(2, 132, 199, 0.12) !important;
-    border-color: rgba(2, 132, 199, 0.35) !important;
-    color: #0284c7 !important;
-}
-
-/* ==========================================
-   АДАПТАЦИЯ БОКОВОЙ ШТОРКИ ФИЛЬТРОВ И НАСТРОЕК
-   ========================================== */
-
-/* Общие стили кнопок пресетов в шторке */
-.view-preset-btn,
-.wall-preset-btn,
-.labelsize-btn {
-    border: 1px solid transparent;
-    transition: all 0.15s ease;
-    cursor: pointer;
-}
-
-/* 1. Светлая тема для шторки */
-body[data-theme="light"] .side-drawer {
-    background: #ffffff !important;
-    border-left: 1px solid #cbd5e1 !important;
-    box-shadow: -12px 0 36px rgba(15, 23, 42, 0.12) !important;
-    color: #0f172a !important;
-}
-body[data-theme="light"] .side-drawer .border-slate-700\/60 {
-    border-color: #e2e8f0 !important;
-}
-body[data-theme="light"] .side-drawer .bg-slate-800\/40 {
-    background-color: #f8fafc !important;
-    border-color: #e2e8f0 !important;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04) !important;
-}
-body[data-theme="light"] .side-drawer h2 {
-    color: #0f172a !important;
-}
-body[data-theme="light"] .side-drawer span {
-    color: #334155 !important;
-}
-body[data-theme="light"] #wall-height-val,
-body[data-theme="light"] #slice-val,
-body[data-theme="light"] #explode-val {
-    background-color: #f0f9ff !important;
-    border-color: #bae6fd !important;
-    color: #0284c7 !important;
-}
-body[data-theme="light"] .view-preset-btn,
-body[data-theme="light"] .wall-preset-btn,
-body[data-theme="light"] .labelsize-btn {
-    background-color: #ffffff !important;
-    color: #334155 !important;
-    border-color: #cbd5e1 !important;
-}
-body[data-theme="light"] .view-preset-btn:hover,
-body[data-theme="light"] .wall-preset-btn:hover,
-body[data-theme="light"] .labelsize-btn:hover {
     background-color: #f1f5f9 !important;
-    color: #0f172a !important;
+    border-color: #e2e8f0 !important;
 }
-body[data-theme="light"] .view-preset-btn.active,
-body[data-theme="light"] .wall-preset-btn.active,
-body[data-theme="light"] .labelsize-btn.active {
-    background-color: #0284c7 !important;
-    color: #ffffff !important;
-    border-color: #0284c7 !important;
-    box-shadow: 0 2px 8px rgba(2, 132, 199, 0.35) !important;
-    font-weight: 700;
+body[data-theme="light"] .room-search-badge {
+    background-color: #e0f2fe !important;
+    border-color: #bae6fd !important;
+    color: #0369a1 !important;
 }
-body[data-theme="light"] #btn-reset-settings {
-    background-color: #fff1f2 !important;
-    color: #e11d48 !important;
-    border-color: #fecdd3 !important;
+body[data-theme="dark"] .room-search-badge {
+    background-color: rgba(12, 74, 110, 0.55);
+    border-color: rgba(14, 116, 144, 0.65);
+    color: #38bdf8;
 }
-body[data-theme="light"] #btn-reset-settings:hover {
-    background-color: #ffe4e6 !important;
-}
-body[data-theme="light"] #btn-close-settings {
-    color: #64748b !important;
-}
-body[data-theme="light"] #btn-close-settings:hover {
-    color: #0f172a !important;
-}
-body[data-theme="light"] .switch-track {
-    background-color: #cbd5e1;
-    border-color: #94a3b8;
-}
-body[data-theme="light"] .switch-input:checked + .switch-track {
-    background-color: #0284c7 !important;
-    border-color: #0284c7 !important;
-}
-
-/* 2. Тёмная тема для шторки */
-body[data-theme="dark"] .side-drawer {
-    background: #11151e !important;
-    border-left: 1px solid #232b38 !important;
-    box-shadow: -15px 0 45px rgba(0, 0, 0, 0.8) !important;
-    color: #f1f5f9 !important;
-}
-body[data-theme="dark"] .side-drawer .border-slate-700\/60 {
-    border-color: #273344 !important;
-}
-body[data-theme="dark"] .side-drawer .bg-slate-800\/40 {
-    background-color: #171d27 !important;
-    border-color: #273344 !important;
-}
-body[data-theme="dark"] .side-drawer h2 {
-    color: #f1f5f9 !important;
-}
-body[data-theme="dark"] .side-drawer span {
-    color: #cbd5e1 !important;
-}
-body[data-theme="dark"] #wall-height-val,
-body[data-theme="dark"] #slice-val,
-body[data-theme="dark"] #explode-val {
-    background-color: rgba(2, 132, 199, 0.20) !important;
-    border-color: rgba(56, 189, 248, 0.40) !important;
-    color: #38bdf8 !important;
-}
-body[data-theme="dark"] .view-preset-btn,
-body[data-theme="dark"] .wall-preset-btn,
-body[data-theme="dark"] .labelsize-btn {
-    background-color: #1a222e !important;
-    color: #94a3b8 !important;
-    border-color: #2b3749 !important;
-}
-body[data-theme="dark"] .view-preset-btn:hover,
-body[data-theme="dark"] .wall-preset-btn:hover,
-body[data-theme="dark"] .labelsize-btn:hover {
-    background-color: #242f40 !important;
-    color: #f1f5f9 !important;
-}
-body[data-theme="dark"] .view-preset-btn.active,
-body[data-theme="dark"] .wall-preset-btn.active,
-body[data-theme="dark"] .labelsize-btn.active {
-    background-color: #0284c7 !important;
-    color: #ffffff !important;
-    border-color: #38bdf8 !important;
-    box-shadow: 0 2px 12px rgba(14, 165, 233, 0.45) !important;
-    font-weight: 700;
-}
-body[data-theme="dark"] #btn-reset-settings {
-    background-color: rgba(225, 29, 72, 0.15) !important;
-    color: #fda4af !important;
-    border-color: rgba(225, 29, 72, 0.30) !important;
-}
-body[data-theme="dark"] #btn-reset-settings:hover {
-    background-color: rgba(225, 29, 72, 0.25) !important;
-}
-
 
 /* ============================================================================
    СТИЛИ НАВИГАТОРА И МАРШРУТИЗАЦИИ (NAVIGATOR & ROUTING STYLES)
    ============================================================================ */
 
-/* Модальное окно навигатора */
+/* Модальное окно навигатора: на десктопе по центру, на телефоне сверху над клавиатурой */
 #navigator-modal {
     position: fixed;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%) scale(0.96);
-    width: calc(100vw - 20px);
-    max-width: 480px;
+    width: calc(100vw - 24px);
+    max-width: 460px;
+    max-height: calc(var(--vvh, 100dvh) - 24px);
     z-index: 60;
     opacity: 0;
     visibility: hidden;
     pointer-events: none;
-    transition: opacity 0.22s cubic-bezier(0.16, 1, 0.3, 1), transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.22s ease;
+    transition: opacity 0.2s cubic-bezier(0.16, 1, 0.3, 1), transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.2s ease;
     border-radius: 20px;
 }
 
@@ -784,12 +594,30 @@ body[data-theme="dark"] #btn-reset-settings:hover {
     transform: translate(-50%, -50%) scale(1) !important;
 }
 
+@media (max-width: 639px) {
+    #navigator-modal {
+        top: calc(var(--vvo, 0px) + max(8px, env(safe-area-inset-top, 8px))) !important;
+        left: 8px !important;
+        right: 8px !important;
+        bottom: auto !important;
+        width: calc(100vw - 16px) !important;
+        max-width: calc(100vw - 16px) !important;
+        max-height: calc(var(--vvh, 100dvh) - max(16px, env(safe-area-inset-top, 16px))) !important;
+        transform: translateY(-10px) scale(0.98) !important;
+        overflow-y: visible;
+    }
+    #navigator-modal.open,
+    #navigator-modal.active {
+        transform: translateY(0) scale(1) !important;
+    }
+}
+
 #navigator-backdrop {
     position: fixed;
     inset: 0;
-    background: rgba(4, 7, 12, 0.65);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
+    background: rgba(15, 23, 42, 0.45);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
     z-index: 55;
     opacity: 0;
     visibility: hidden;
@@ -802,6 +630,24 @@ body[data-theme="dark"] #btn-reset-settings:hover {
     opacity: 1 !important;
     visibility: visible !important;
     pointer-events: auto !important;
+}
+
+/* Выпадающие списки автодополнения в навигаторе */
+.nav-autocomplete-dropdown {
+    background: #111827;
+    border: 1px solid #334155;
+}
+body[data-theme="light"] .nav-autocomplete-dropdown {
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    box-shadow: 0 12px 28px rgba(15, 23, 42, 0.14);
+}
+body[data-theme="light"] .nav-autocomplete-dropdown > div {
+    border-color: #f1f5f9 !important;
+    color: #0f172a !important;
+}
+body[data-theme="light"] .nav-autocomplete-dropdown > div:hover {
+    background: #f1f5f9 !important;
 }
 
 /* Переключатель лифтов (Toggle Switch) */
@@ -855,69 +701,25 @@ body[data-theme="dark"] #btn-reset-settings:hover {
     background-color: #ffffff;
 }
 
-/* Плавающий баннер выбора на карте */
-#nav-pick-banner {
-    animation: bounceSubtle 2.5s infinite ease-in-out;
-}
-
-@keyframes bounceSubtle {
-    0%, 100% { transform: translate(-50%, 0); }
-    50% { transform: translate(-50%, -5px); }
-}
-
 /* Карточка активного маршрута */
 #navigator-route-card {
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
 }
 
 /* Всплывающий контекстный виджет кабинета */
 #room-context-popup {
-    animation: popupIn 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: opacity 0.14s ease;
 }
 
-@keyframes popupIn {
-    from {
-        opacity: 0;
-        transform: scale(0.92) translateY(6px);
-    }
-    to {
-        opacity: 1;
-        transform: scale(1) translateY(0);
-    }
-}
-
-/* Адаптация темы для навигатора */
+/* Светлая тема для элементов навигатора */
 body[data-theme="light"] #navigator-modal,
 body[data-theme="light"] #navigator-route-card,
 body[data-theme="light"] #room-context-popup {
-    background: rgba(255, 255, 255, 0.94);
-    border-color: #cbd5e1;
-    color: #1e293b;
-    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.15);
-}
-
-body[data-theme="light"] #nav-input-start,
-body[data-theme="light"] #nav-input-dest {
-    background: #f1f5f9;
-    border-color: #cbd5e1;
+    background: rgba(255, 255, 255, 0.95);
+    border-color: rgba(203, 213, 225, 0.95);
     color: #0f172a;
-}
-
-body[data-theme="light"] #nav-input-start::placeholder,
-body[data-theme="light"] #nav-input-dest::placeholder {
-    color: #94a3b8;
-}
-
-body[data-theme="light"] #nav-dropdown-start,
-body[data-theme="light"] #nav-dropdown-dest {
-    background: #ffffff;
-    border-color: #cbd5e1;
-}
-
-body[data-theme="light"] #nav-dropdown-start div:hover,
-body[data-theme="light"] #nav-dropdown-dest div:hover {
-    background: #f8fafc;
+    box-shadow: 0 14px 36px rgba(15, 23, 42, 0.14);
 }
 
 body[data-theme="light"] #nav-card-title {
@@ -936,53 +738,13 @@ body[data-theme="light"] #popup-room-name {
     color: #0f172a;
 }
 
-body[data-theme="light"] .nav-quick-chip {
-    background: #f1f5f9;
-    color: #334155;
-    border-color: #cbd5e1;
-}
-
-body[data-theme="light"] .nav-quick-chip:hover {
-    background: #e2e8f0;
-}
-
-
-/* Переключатель лифтов (активный режим) */
-#btn-toggle-elevators.active {
-    background-color: #0284c7 !important;
-    color: #ffffff !important;
-    border-color: #38bdf8 !important;
-    box-shadow: 0 0 12px rgba(2, 132, 199, 0.4);
-}
-
-/* Кнопка быстрого перехода к туалету */
-#btn-quick-toilet:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
-}
-
-/* Кнопки очистки инпутов */
-#btn-clear-start:hover,
-#btn-clear-dest:hover {
-    background: rgba(255, 255, 255, 0.1);
-}
-
-body[data-theme="light"] #btn-toggle-elevators {
-    background: #f1f5f9;
-    border-color: #cbd5e1;
-    color: #334155;
-}
-
-body[data-theme="light"] #btn-toggle-elevators.active {
-    background-color: #0284c7 !important;
-    color: #ffffff !important;
-    border-color: #0284c7 !important;
-}
-
 body[data-theme="light"] #btn-quick-toilet {
-    background: #ede9fe;
-    color: #5b21b6;
-    border-color: #c4b5fd;
+    background: #f0f9ff;
+    color: #0369a1;
+    border-color: #bae6fd;
+}
+body[data-theme="light"] #btn-quick-toilet:hover {
+    background: #e0f2fe;
 }
 
 body[data-theme="light"] #btn-clear-start,
@@ -996,24 +758,15 @@ body[data-theme="light"] #btn-clear-dest:hover {
     color: #0f172a;
 }
 
-/* Кнопка-переключатель лифтов в светлой теме (белая, как поля ввода) */
+/* Кнопка-переключатель лифтов в светлой теме */
 body[data-theme="light"] #elevators-switch-label {
-    background-color: #ffffff !important;
-    border-color: #cbd5e1 !important;
+    background-color: #f8fafc !important;
+    border-color: #e2e8f0 !important;
     color: #0f172a !important;
 }
 
 body[data-theme="light"] #elevators-switch-label:hover {
     border-color: #0284c7 !important;
-}
-
-body[data-theme="light"] #elevators-switch-label span.text-slate-100,
-body[data-theme="light"] #elevators-switch-label span.text-slate-200 {
-    color: #0f172a !important;
-}
-
-body[data-theme="light"] #elevators-switch-label span.text-slate-400 {
-    color: #64748b !important;
 }
 
 body[data-theme="light"] #elevators-switch-label .switch-slider {
@@ -1025,4 +778,3 @@ body[data-theme="light"] #elevators-switch-label input:checked + .switch-slider 
     background-color: #0284c7;
     border-color: #0284c7;
 }
-
