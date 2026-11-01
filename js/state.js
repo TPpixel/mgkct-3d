@@ -78,6 +78,8 @@ const B4_LK1_X1 = 38.8, B4_LK1_X2 = 42.4, B4_LK1_Z1 = -31.2, B4_LK1_Z2 = -24.4;
 
 // Режим минимализма (1 = включен: контурная дорога по умолчанию, 3D территория скрыта; 0 = выключен: 3D территория видна сразу)
 const ROAD_3D_MINIMALISM = 1;
+// Осевая пунктирная разметка на минималистичной дороге (1 = включена, 0 = отключена)
+const ROAD_SHOW_CENTERLINE = 1;
 
 const STATE = {
     theme: localStorage.getItem('mgkct_theme') || 'light',
@@ -95,6 +97,7 @@ const STATE = {
     smartLabelOcclusion: true,
     showRoof: false,
     showTerritory: (ROAD_3D_MINIMALISM === 0), // 3D прилегающая территория по умолчанию (false если минимализм = 1)
+    showRoadCenterline: (ROAD_SHOW_CENTERLINE === 1), // Осевая пунктирная линия дороги
     showStairAxes: false,
     showGuides: false,
     showGrid: false,

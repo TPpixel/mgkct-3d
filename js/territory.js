@@ -869,17 +869,23 @@ function buildRingRoadAroundCollege(group) {
     addEdge(eastRoadX2, mainRoadZ1, mainXEnd, mainRoadZ1);
     addEdge(mainXStart, mainRoadZ2, mainXEnd, mainRoadZ2);
 
-    // 3. НЕЯРКАЯ ОСЕВАЯ РАЗМЕТКА ПОЛОС ДВИЖЕНИЯ ПО ЦЕНТРУ ПРОЕЗДОВ
-    addCenterDashes(mainXStart + 2.0, 33.5, mainXEnd - 2.0, 33.5, 3.0, 2.5);
-    addCenterDashes(74.5, mainRoadZ1, 74.5, northRoadZ1 + 2.5, 3.0, 2.5);
-    addCenterDashes(northWestEnd + 2.0, -69.0, eastRoadX1 - 1.0, -69.0, 3.0, 2.5);
-    addCenterDashes(innerXEast + 1.0, -20.7, eastRoadX1 - 1.0, -20.7, 2.5, 2.0);
-    addCenterDashes(20.0, northRoadZ2 + 1.0, 20.0, -20.7, 2.5, 2.0);
+    // 3. ОСЕВАЯ ПУНКТИРНАЯ РАЗМЕТКА ПОЛОС (УПРАВЛЯЕТСЯ ФЛАГОМ ROAD_SHOW_CENTERLINE)
+    const showCenterline = (typeof STATE !== 'undefined' && typeof STATE.showRoadCenterline === 'boolean')
+        ? STATE.showRoadCenterline
+        : (typeof ROAD_SHOW_CENTERLINE !== 'undefined' ? ROAD_SHOW_CENTERLINE === 1 : true);
 
-    if (dashSegments.length > 0) {
-        const centerGeom = new THREE.BufferGeometry().setFromPoints(dashSegments);
-        const centerLines = new THREE.LineSegments(centerGeom, roadCenterLineMat);
-        targetGroup.add(centerLines);
+    if (showCenterline) {
+        addCenterDashes(mainXStart + 2.0, 33.5, mainXEnd - 2.0, 33.5, 3.0, 2.5);
+        addCenterDashes(74.5, mainRoadZ1, 74.5, northRoadZ1 + 2.5, 3.0, 2.5);
+        addCenterDashes(northWestEnd + 2.0, -69.0, eastRoadX1 - 1.0, -69.0, 3.0, 2.5);
+        addCenterDashes(innerXEast + 1.0, -20.7, eastRoadX1 - 1.0, -20.7, 2.5, 2.0);
+        addCenterDashes(20.0, northRoadZ2 + 1.0, 20.0, -20.7, 2.5, 2.0);
+
+        if (dashSegments.length > 0) {
+            const centerGeom = new THREE.BufferGeometry().setFromPoints(dashSegments);
+            const centerLines = new THREE.LineSegments(centerGeom, roadCenterLineMat);
+            targetGroup.add(centerLines);
+        }
     }
 }
 
