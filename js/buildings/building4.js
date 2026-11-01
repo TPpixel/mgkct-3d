@@ -77,50 +77,49 @@
         // Открытое уличное крыльцо для 1-го этажа Корпуса 4 (без боковых стен)
         function buildB4ExteriorPorch(targetGroup, x1, z1, x2, z2, stepDir = 'south') {
             addFloorRect(targetGroup, x1, z1, x2, z2, true);
+
             const steps = 5;
+            const cx = (x1 + x2) / 2;
+            const cz = (z1 + z2) / 2;
+
             if (stepDir === 'south') {
                 const w = Math.abs(x2 - x1);
-                const cx = (x1 + x2) / 2;
                 const sDepth = 1.25 / steps;
                 for (let i = 0; i < steps; i++) {
                     const sz = z2 + (i + 0.5) * sDepth;
-                    const heightRatio = 0.03 + ((steps - i) / steps) * 0.12;
-                    const geom = new THREE.BoxGeometry(w, 1, sDepth * 0.94);
-                    registerDynamicStairStep(targetGroup, geom, cx, sz, heightRatio, -0.14, true);
+                    const ratio = (i + 1) / (steps + 1);
+                    const yTop = 0.008 - ratio * 0.056;
+                    addOutdoorPorchStep(targetGroup, w, sDepth * 1.01, cx, sz, yTop, -0.16);
                 }
             } else if (stepDir === 'east') {
                 const d = Math.abs(z2 - z1);
-                const cz = (z1 + z2) / 2;
                 const sWidth = 1.35 / steps;
                 for (let i = 0; i < steps; i++) {
                     const sx = x2 + (i + 0.5) * sWidth;
-                    const heightRatio = 0.03 + ((steps - i) / steps) * 0.12;
-                    const geom = new THREE.BoxGeometry(sWidth * 0.94, 1, d);
-                    registerDynamicStairStep(targetGroup, geom, sx, cz, heightRatio, -0.14, true);
+                    const ratio = (i + 1) / (steps + 1);
+                    const yTop = 0.008 - ratio * 0.056;
+                    addOutdoorPorchStep(targetGroup, sWidth * 1.01, d, sx, cz, yTop, -0.16);
                 }
             } else if (stepDir === 'west') {
                 const d = Math.abs(z2 - z1);
-                const cz = (z1 + z2) / 2;
                 const sWidth = 1.35 / steps;
                 for (let i = 0; i < steps; i++) {
                     const sx = x1 - (i + 0.5) * sWidth;
-                    const heightRatio = 0.03 + ((steps - i) / steps) * 0.12;
-                    const geom = new THREE.BoxGeometry(sWidth * 0.94, 1, d);
-                    registerDynamicStairStep(targetGroup, geom, sx, cz, heightRatio, -0.14, true);
+                    const ratio = (i + 1) / (steps + 1);
+                    const yTop = 0.008 - ratio * 0.056;
+                    addOutdoorPorchStep(targetGroup, sWidth * 1.01, d, sx, cz, yTop, -0.16);
                 }
             } else if (stepDir === 'north') {
                 const w = Math.abs(x2 - x1);
-                const cx = (x1 + x2) / 2;
                 const sDepth = 1.25 / steps;
                 for (let i = 0; i < steps; i++) {
                     const sz = z1 - (i + 0.5) * sDepth;
-                    const heightRatio = 0.03 + ((steps - i) / steps) * 0.12;
-                    const geom = new THREE.BoxGeometry(w, 1, sDepth * 0.94);
-                    registerDynamicStairStep(targetGroup, geom, cx, sz, heightRatio, -0.14, true);
+                    const ratio = (i + 1) / (steps + 1);
+                    const yTop = 0.008 - ratio * 0.056;
+                    addOutdoorPorchStep(targetGroup, w, sDepth * 1.01, cx, sz, yTop, -0.16);
                 }
             }
         }
-
         /**
          * КОРПУС 4 — ЭТАЖ 1 (СТРОГО ПО ЧЕРТЕЖУ БТИ planning_zip/Корпус 4/1.jpg):
          * 1) Шахта ЛК №2 (X [27.8..34.4], Z [-49.8..-45.4]) с северным крыльцом, боковым выходом в тамбур (X = 34.4)

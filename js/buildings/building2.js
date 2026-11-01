@@ -82,21 +82,25 @@
                 return;
             }
 
-            const zLandingNorth = B2_Z_TOP - (B2_Z_TOP - zNorth) * 0.42;
+            // Наружное крыльцо выхода из ЛК №3 во двор:
+            // Площадка перед дверью (глубина 1.0 м от стены B2_Z_TOP = -13.8)
+            const zLandingNorth = -14.8;
             addFloorRect(targetGroup, x1, zLandingNorth, x2, B2_Z_TOP, true);
 
-            const steps = 6;
-            const totalStepsDepth = Math.abs(zLandingNorth - zNorth);
+            // Ступени спускаются на север строго до края бордюра дороги (бордюр на Z = -16.3)!
+            const zStepsEnd = -16.2;
+            const steps = 5;
+            const totalStepsDepth = Math.abs(zLandingNorth - zStepsEnd);
             const sDepth = totalStepsDepth / steps;
 
             for (let i = 0; i < steps; i++) {
-                const sz = zNorth + (i + 0.5) * sDepth;
-                const heightRatio = 0.03 + ((i + 1) / steps) * 0.12;
-                const geom = new THREE.BoxGeometry(w, 1, sDepth * 0.95);
-                registerDynamicStairStep(targetGroup, geom, cx, sz, heightRatio, -0.14, true);
+                // i = 0 (верхняя ступень у площадки) -> i = 4 (нижняя ступень у бордюра)
+                const sz = zLandingNorth - (i + 0.5) * sDepth;
+                const ratio = (i + 1) / (steps + 1);
+                const yTop = 0.008 - ratio * 0.056;
+                addOutdoorPorchStep(targetGroup, w, sDepth * 1.01, cx, sz, yTop, -0.16);
             }
         }
-
         /**
          * КОРПУС 2 — ЭТАЖ 1
          * Точное соответствие чертежу 1-го этажа:
@@ -115,7 +119,7 @@
             // Площадка у выходов ЛК №2
             buildB2ExteriorPorch(targetGroup, B2_LK2_X1, B2_LK2_X2, -15.4, false);
             // Наружное уличное крыльцо выхода из ЛК №3 во двор (X [20.4..22.6], Z [-17.0..-13.8])
-            buildB2ExteriorPorch(targetGroup, B2_X_START, 22.6, -17.0, true);
+            buildB2ExteriorPorch(targetGroup, B2_X_START, 22.6, -16.2, true);
 
             // --- ВНЕШНИЙ ПЕРИМЕТР СТЕН 1-ГО ЭТАЖА ---
             // Западная стена (стык с переходом в Корпус 1)
