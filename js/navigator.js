@@ -244,7 +244,7 @@
         g.addNode("b1_f5_sc_5.6", 5, 1, 5.6, 6, "corridor", "К1 Эт.5 Юж. коридор");
         g.addNode("b1_f5_sc_9.4", 5, 1, 9.4, 6, "corridor", "К1 Эт.5 Юж. коридор");
         g.addNode("b1_f5_sc_10.5", 5, 1, 10.5, 6, "corridor", "К1 Эт.5 Юж. коридор");
-        g.addNode("b1_f5_stair_lk1", 5, 1, 9.4, -1.9, "stair", "К1 ЛК№1 (Эт.5)");
+        g.addNode("b1_f5_stair_lk1", 5, 1, 9.4, -2.0, "stair", "К1 ЛК№1 (Эт.5)");
         g.addNode("b1_f5_stair_lk2", 5, 1, 9.4, 1.9, "stair", "К1 ЛК№2 (Эт.5)");
         g.addNode("b1_f5_elev", 5, 1, 1.8, 1.5, "elevator", "К1 Лифты (Эт.5)");
         g.addNode("b1_f6_nc_-6.0", 6, 1, -6, -5, "corridor", "К1 Эт.6 Сев. коридор");
@@ -267,7 +267,7 @@
         g.addNode("b1_f6_sc_5.6", 6, 1, 5.6, 6, "corridor", "К1 Эт.6 Юж. коридор");
         g.addNode("b1_f6_sc_9.4", 6, 1, 9.4, 6, "corridor", "К1 Эт.6 Юж. коридор");
         g.addNode("b1_f6_sc_10.5", 6, 1, 10.5, 6, "corridor", "К1 Эт.6 Юж. коридор");
-        g.addNode("b1_f6_stair_lk1", 6, 1, 9.4, -1.9, "stair", "К1 ЛК№1 (Эт.6)");
+        g.addNode("b1_f6_stair_lk1", 6, 1, 9.4, -2.0, "stair", "К1 ЛК№1 (Эт.6)");
         g.addNode("b1_f6_stair_lk2", 6, 1, 9.4, 1.9, "stair", "К1 ЛК№2 (Эт.6)");
         g.addNode("b1_f6_elev", 6, 1, 1.8, 1.5, "elevator", "К1 Лифты (Эт.6)");
         g.addNode("b1_f7_nc_-6.0", 7, 1, -6, -5, "corridor", "К1 Эт.7 Сев. коридор");
@@ -290,7 +290,7 @@
         g.addNode("b1_f7_sc_5.6", 7, 1, 5.6, 6, "corridor", "К1 Эт.7 Юж. коридор");
         g.addNode("b1_f7_sc_9.4", 7, 1, 9.4, 6, "corridor", "К1 Эт.7 Юж. коридор");
         g.addNode("b1_f7_sc_10.5", 7, 1, 10.5, 6, "corridor", "К1 Эт.7 Юж. коридор");
-        g.addNode("b1_f7_stair_lk1", 7, 1, 9.4, -1.9, "stair", "К1 ЛК№1 (Эт.7)");
+        g.addNode("b1_f7_stair_lk1", 7, 1, 9.4, -2.0, "stair", "К1 ЛК№1 (Эт.7)");
         g.addNode("b1_f7_stair_lk2", 7, 1, 9.4, 1.9, "stair", "К1 ЛК№2 (Эт.7)");
         g.addNode("b1_f7_elev", 7, 1, 1.8, 1.5, "elevator", "К1 Лифты (Эт.7)");
         g.addNode("room_1_5_56", 5, 1, 6.2, -2.8, "room", "С/У");
@@ -459,7 +459,7 @@
         g.addNode("b1_f3_sc_5.6", 3, 1, 5.6, 6, "corridor", "К1 Эт.3 Юж. коридор");
         g.addNode("b1_f3_sc_9.4", 3, 1, 9.4, 6, "corridor", "К1 Эт.3 Юж. коридор");
         g.addNode("b1_f3_sc_10.5", 3, 1, 10.5, 6, "corridor", "К1 Эт.3 Юж. коридор");
-        g.addNode("b1_f3_stair_lk1", 3, 1, 9.4, -1.9, "stair", "К1 ЛК№1 (Эт.3)");
+        g.addNode("b1_f3_stair_lk1", 3, 1, 9.4, -2.0, "stair", "К1 ЛК№1 (Эт.3)");
         g.addNode("b1_f3_stair_lk2", 3, 1, 9.4, 1.9, "stair", "К1 ЛК№2 (Эт.3)");
         g.addNode("b1_f3_elev", 3, 1, 1.8, 1.5, "elevator", "К1 Лифты (Эт.3)");
         g.addNode("b2_f3_c_22.6", 3, 2, 24.4, -5.8, "corridor", "К2 Эт.3 Коридор");
@@ -618,7 +618,7 @@
         g.addNode("b1_f4_sc_5.6", 4, 1, 5.6, 6, "corridor", "К1 Эт.4 Юж. коридор");
         g.addNode("b1_f4_sc_9.4", 4, 1, 9.4, 6, "corridor", "К1 Эт.4 Юж. коридор");
         g.addNode("b1_f4_sc_10.5", 4, 1, 10.5, 6, "corridor", "К1 Эт.4 Юж. коридор");
-        g.addNode("b1_f4_stair_lk1", 4, 1, 9.4, -1.9, "stair", "К1 ЛК№1 (Эт.4)");
+        g.addNode("b1_f4_stair_lk1", 4, 1, 9.4, -2.0, "stair", "К1 ЛК№1 (Эт.4)");
         g.addNode("b1_f4_stair_lk2", 4, 1, 9.4, 1.9, "stair", "К1 ЛК№2 (Эт.4)");
         g.addNode("b1_f4_elev", 4, 1, 1.8, 1.5, "elevator", "К1 Лифты (Эт.4)");
         g.addNode("room_1_4_44", 4, 1, 6.2, -2.8, "room", "С/У");
@@ -686,7 +686,7 @@
         g.addNode("b1_f2_sc_5.6", 2, 1, 5.6, 6, "corridor", "К1 Эт.2 Юж. коридор");
         g.addNode("b1_f2_sc_9.4", 2, 1, 9.4, 6, "corridor", "К1 Эт.2 Юж. коридор");
         g.addNode("b1_f2_sc_10.5", 2, 1, 10.5, 6, "corridor", "К1 Эт.2 Юж. коридор");
-        g.addNode("b1_f2_stair_lk1", 2, 1, 9.4, -1.9, "stair", "К1 ЛК№1 (Эт.2)");
+        g.addNode("b1_f2_stair_lk1", 2, 1, 9.4, -2.0, "stair", "К1 ЛК№1 (Эт.2)");
         g.addNode("b1_f2_stair_lk2", 2, 1, 9.4, 1.9, "stair", "К1 ЛК№2 (Эт.2)");
         g.addNode("b1_f2_elev", 2, 1, 1.8, 1.5, "elevator", "К1 Лифты (Эт.2)");
         g.addNode("b1_f2_room_206_corr_door", 2, 1, -5.8, 1.1, "door", "Дверь блока 206");
@@ -954,10 +954,10 @@
         g.addNode("b1_f1_sc_0.0", 1, 1, -0.5, 6, "corridor", "К1 Эт.1 Юж. коридор");
         g.addNode("b1_f1_sc_1.8", 1, 1, 0, 9.8, "corridor", "К1 Эт.1 Юж. коридор");
         g.addNode("b1_f1_sc_3.5", 1, 1, 3.5, 9.8, "corridor", "К1 Эт.1 Юж. коридор");
-        g.addNode("b1_f1_stair_lk1", 1, 1, 9.4, -1.9, "stair", "К1 ЛК№1 (Эт.1)");
+        g.addNode("b1_f1_stair_lk1", 1, 1, 9.4, -2.0, "stair", "К1 ЛК№1 (Эт.1)");
         g.addNode("b1_f1_stair_lk2", 1, 1, 9.4, 1.9, "stair", "К1 ЛК№2 (Эт.1)");
         g.addNode("b1_f1_elev", 1, 1, 1.8, 1.5, "elevator", "К1 Лифты (Эт.1)");
-        g.addNode("b1_f1_entrance_main", 1, 1, 10.5, 10.4, "entrance", "Главный вход (Корпус 1)");
+        g.addNode("b1_f1_entrance_main", 1, 1, 10.5, 10.4, "entrance", "Главный вход 2 (Корпус 1)");
         g.addNode("b1_f1_porch_walk_1", 1, 1, 9.5, 9.8, "corridor", "Крыльцо у главного входа");
         g.addNode("b1_f1_porch_doors", 1, 1, 8.6, 9.8, "door", "Двери главного входа");
         g.addNode("b1_f1_vestibule", 1, 1, 6.2, 9.8, "corridor", "Тамбур главного входа");
@@ -987,7 +987,7 @@
         g.addNode("b3_f1_stair_north", 1, 3, 4.1, -46, "stair", "К3 Северная ЛК (Эт.1)");
         g.addNode("b3_f1_stair_north_wp", 1, 3, 1.5, -46.9, "stair", "Марш ЛК№1");
         g.addNode("b3_f1_entrance_north", 1, 3, -1.6, -46.1, "entrance", "Вход К3 (Северный)");
-        g.addNode("b3_f1_entrance_west", 1, 3, -1.6, -37.1, "entrance", "Вход К3 (Западный)");
+        g.addNode("b3_f1_entrance_west", 1, 3, -1.6, -37.1, "entrance", "Главный вход (Корпус 3)");
         g.addNode("b3_f1_vest_north", 1, 3, 5.9, -56.2, "corridor", "Тамбур К3 Эт.1");
         g.addNode("b3_f1_door_vest_south", 1, 3, 5.9, -55, "door", "Дверь тамбура К3 Эт.1");
         g.addNode("b3_f1_d_corr_east_exit", 1, 3, 7.2, -29.1, "door", "Дверь к восточному выходу");
@@ -2676,7 +2676,7 @@
 
         let startP = fromPoint;
         if (!startP) {
-            startP = g.getNode('b1_f1_entrance_main');
+            startP = g.getNode('b3_f1_entrance_west') || g.getNode('b1_f1_entrance_main');
         }
         if (!startP) return null;
 
@@ -2732,12 +2732,12 @@
 
     function setDefaultStartPoint() {
         if (!NAV_STATE.graph) NAV_STATE.graph = buildCollegeNavGraph();
-        const entrance = NAV_STATE.graph.getNode('b1_f1_entrance_main');
+        const entrance = NAV_STATE.graph.getNode('b3_f1_entrance_west') || NAV_STATE.graph.getNode('b1_f1_entrance_main');
         if (entrance && !NAV_STATE.startPoint) {
             NAV_STATE.startPoint = entrance;
             const inputA = document.getElementById('nav-input-start');
             if (inputA && !inputA.value) {
-                inputA.value = 'Главный вход (Корпус 1)';
+                inputA.value = 'Главный вход (Корпус 3)';
                 inputA.setAttribute('data-is-default', 'true');
                 const btnClearA = document.getElementById('btn-clear-start');
                 if (btnClearA) btnClearA.classList.remove('hidden');
@@ -3900,6 +3900,8 @@
             const g = NAV_STATE.graph;
 
             const ROOM_ALIASES = {
+                'b3_f1_entrance_west': 'главный вход основной вход вход к3 корпус 3',
+                'b1_f1_entrance_main': 'главный вход 2 второй вход старый вход к1 корпус 1',
                 'room_4_1_182': '104 4-104 гардероб раздевалка',
                 'room_4_1_183': '103 4-103 гардероб раздевалка',
                 'room_4_1_186': '1 4-1 туалет санузел',
@@ -3977,6 +3979,13 @@
             }
 
             dropdown.innerHTML = '';
+            matches.sort((a, b) => {
+                if (query === 'главный вход') {
+                    if (a.id === 'b3_f1_entrance_west') return -1;
+                    if (b.id === 'b3_f1_entrance_west') return 1;
+                }
+                return 0;
+            });
             matches.forEach(item => {
                 const row = document.createElement('div');
                 row.className = 'px-3 py-2 hover:bg-slate-800/80 cursor-pointer flex items-center justify-between gap-2 text-xs text-slate-200 border-b border-slate-800/50 last:border-none transition overflow-hidden';
@@ -4255,19 +4264,27 @@
 
                 // Находим целевой узел
                 const g = NAV_STATE.graph;
-                const q = targetText.toLowerCase();
+                const q = targetText.toLowerCase().trim();
                 let targetNode = null;
-                for (const node of g.nodes.values()) {
-                    if (node.type === 'room' || node.type === 'entrance') {
-                        const lbl = (node.label || '').toLowerCase();
-                        const isMatch = lbl.includes(q) ||
-                            (q === 'столовая' && ((node.bldg === 4 && node.floor === 1 && lbl.includes('102')) || lbl.includes('столов'))) ||
-                            (q === 'спортзал' && ((node.bldg === 4 && node.floor === 2 && lbl.includes('206')) || lbl.includes('спортзал'))) ||
-                            (q === 'актовый зал' && ((node.bldg === 4 && node.floor === 2 && lbl.includes('204')) || lbl.includes('актовый'))) ||
-                            (q === 'главный вход' && node.id === 'b1_f1_entrance_main');
-                        if (isMatch) {
-                            targetNode = node;
-                            break;
+
+                // Точное соответствие для главного входа (Корпус 3) и входа 2 (Корпус 1)
+                if (q === 'главный вход') {
+                    targetNode = g.getNode('b3_f1_entrance_west');
+                } else if (q === 'главный вход 2') {
+                    targetNode = g.getNode('b1_f1_entrance_main');
+                } else {
+                    for (const node of g.nodes.values()) {
+                        if (node.type === 'room' || node.type === 'entrance') {
+                            const lbl = (node.label || '').toLowerCase();
+                            const isMatch =
+                                (q === 'столовая' && ((node.bldg === 4 && node.floor === 1 && lbl.includes('102')) || lbl.includes('столов'))) ||
+                                (q === 'спортзал' && ((node.bldg === 4 && node.floor === 2 && lbl.includes('206')) || lbl.includes('спортзал'))) ||
+                                (q === 'актовый зал' && ((node.bldg === 4 && node.floor === 2 && lbl.includes('204')) || lbl.includes('актовый'))) ||
+                                (lbl.includes(q) && !(q === 'главный вход' && node.id === 'b1_f1_entrance_main'));
+                            if (isMatch) {
+                                targetNode = node;
+                                break;
+                            }
                         }
                     }
                 }
@@ -4278,11 +4295,11 @@
 
                     // Если точка отправления не выбрана, ставим Главный вход
                     if (!NAV_STATE.startPoint) {
-                        const mainEntrance = g.getNode('b1_f1_entrance_main');
+                        const mainEntrance = g.getNode('b3_f1_entrance_west') || g.getNode('b1_f1_entrance_main');
                         if (mainEntrance) {
                             NAV_STATE.startPoint = mainEntrance;
                             const inputA = document.getElementById('nav-input-start');
-                            if (inputA) inputA.value = 'Главный вход (Корпус 1)';
+                            if (inputA) inputA.value = 'Главный вход (Корпус 3)';
                         }
                     }
 
@@ -4324,26 +4341,39 @@
                         let toNode = null;
 
                         if (urlFrom) {
-                            for (const n of g.nodes.values()) {
-                                if ((n.type === 'room' || n.type === 'entrance') && n.label.toLowerCase().includes(urlFrom.toLowerCase())) {
-                                    fromNode = n;
-                                    break;
+                            const q = urlFrom.toLowerCase().trim();
+                            if (q === 'главный вход') {
+                                fromNode = g.getNode('b3_f1_entrance_west');
+                            } else if (q === 'главный вход 2') {
+                                fromNode = g.getNode('b1_f1_entrance_main');
+                            } else {
+                                for (const n of g.nodes.values()) {
+                                    if ((n.type === 'room' || n.type === 'entrance') && n.label.toLowerCase().includes(q)) {
+                                        fromNode = n;
+                                        break;
+                                    }
                                 }
                             }
                         }
                         if (urlTo) {
-                            for (const n of g.nodes.values()) {
-                                if ((n.type === 'room' || n.type === 'entrance') && n.label.toLowerCase().includes(urlTo.toLowerCase())) {
-                                    toNode = n;
-                                    break;
+                            const q = urlTo.toLowerCase().trim();
+                            if (q === 'главный вход') {
+                                toNode = g.getNode('b3_f1_entrance_west');
+                            } else if (q === 'главный вход 2') {
+                                toNode = g.getNode('b1_f1_entrance_main');
+                            } else {
+                                for (const n of g.nodes.values()) {
+                                    if ((n.type === 'room' || n.type === 'entrance') && n.label.toLowerCase().includes(q)) {
+                                        toNode = n;
+                                        break;
+                                    }
                                 }
                             }
                         }
-
                         if (fromNode && toNode) {
                             buildRoute(fromNode, toNode);
                         } else if (toNode) {
-                            const entrance = g.getNode('b1_f1_entrance_main');
+                            const entrance = g.getNode('b3_f1_entrance_west') || g.getNode('b1_f1_entrance_main');
                             if (entrance) buildRoute(entrance, toNode);
                         }
                     }, 500);
