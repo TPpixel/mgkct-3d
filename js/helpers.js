@@ -1209,6 +1209,49 @@ function buildElevatorShaftCross(targetGroup, x1, z1, x2, z2) {
     targetGroup.add(crossLine);
 }
 
+
+function addOutdoorPorchStep(targetGroup, geomOrW, dOrCx, cxOrCz, czOrYTop, yTopOrYBottom, maybeYBottom) {
+    let geom, cx, cz, yTop, yBottom;
+    if (geomOrW && typeof geomOrW === 'object' && geomOrW.isBufferGeometry) {
+        geom = geomOrW;
+        cx = dOrCx;
+        cz = cxOrCz;
+        yTop = czOrYTop;
+        yBottom = yTopOrYBottom !== undefined ? yTopOrYBottom : -0.16;
+    } else {
+        const w = geomOrW;
+        const d = dOrCx;
+        cx = cxOrCz;
+        cz = czOrYTop;
+        yTop = yTopOrYBottom;
+        yBottom = maybeYBottom !== undefined ? maybeYBottom : -0.16;
+        const stepH = Math.max(0.02, yTop - yBottom);
+        geom = new THREE.BoxGeometry(w, stepH, d);
+    }
+
+    const stepH = Math.max(0.02, yTop - yBottom);
+    const mesh = new THREE.Mesh(geom, MATERIALS.coreSlab);
+    if (geomOrW && typeof geomOrW === 'object' && geomOrW.isBufferGeometry) {
+        mesh.scale.y = stepH;
+    }
+    mesh.position.set(cx, (yTop + yBottom) / 2, cz);
+    mesh.castShadow = true;
+    mesh.receiveShadow = true;
+    mesh.userData.isInterior = false;
+    mesh.userData.isExterior = true;
+    mesh.userData.isStair = true;
+
+    const edges = new THREE.EdgesGeometry(geom);
+    const edgeLine = new THREE.LineSegments(edges, MATERIALS.edgeMain);
+    edgeLine.userData.isInterior = false;
+    edgeLine.userData.isExterior = true;
+    edgeLine.userData.isStair = true;
+    mesh.add(edgeLine);
+
+    targetGroup.add(mesh);
+}
+window.addOutdoorPorchStep = addOutdoorPorchStep;
+
 function registerDynamicStairStep(targetGroup, geom, sx, cz, heightRatio, yOffset = 0, isExterior = false) {
     const mesh = new THREE.Mesh(geom, MATERIALS.stair);
     const stepH = Math.max(0.06, STATE.wallHeight * heightRatio);
@@ -1230,7 +1273,9 @@ function registerDynamicStairStep(targetGroup, geom, sx, cz, heightRatio, yOffse
     mesh.add(edgeLine);
     targetGroup.add(mesh);
 
-    stairMeshes.push({ mesh, heightRatio, yOffset });
+    if (!effectiveIsExterior) {
+        stairMeshes.push({ mesh, heightRatio, yOffset });
+    }
 }
 
 function buildStaircaseUnit(targetGroup, zTop, zBottom, zMid, isUpperStaircase) {

@@ -13,6 +13,7 @@ const bldg4FloorGroups = {};
 let alignmentGuidesGroup;
 let stairValidationGroup;
 let territoryGroup;
+let roadNetworkGroup;
 
 // Списки элементов для динамического обновления
 const wallMeshes = [];
@@ -75,6 +76,11 @@ const B4_LK2_X1 = 27.8, B4_LK2_X2 = 32.4, B4_LK2_Z1 = -49.8, B4_LK2_Z2 = -46.8;
 const B4_LK3_X1 = 61.4, B4_LK3_X2 = 69.0, B4_LK3_Z1 = -49.8, B4_LK3_Z2 = -45.4;
 const B4_LK1_X1 = 38.8, B4_LK1_X2 = 42.4, B4_LK1_Z1 = -31.2, B4_LK1_Z2 = -24.4;
 
+// Режим минимализма (1 = включен: контурная дорога по умолчанию, 3D территория скрыта; 0 = выключен: 3D территория видна сразу)
+const ROAD_3D_MINIMALISM = 1;
+// Осевая пунктирная разметка на минималистичной дороге (1 = включена, 0 = отключена)
+const ROAD_SHOW_CENTERLINE = 1;
+
 const STATE = {
     theme: localStorage.getItem('mgkct_theme') || 'light',
     buildingFilter: 'both',    // 'both' | '1' | '2' | '3' | '4'
@@ -90,7 +96,8 @@ const STATE = {
     showLabels: true,
     smartLabelOcclusion: true,
     showRoof: false,
-    showTerritory: false,
+    showTerritory: (ROAD_3D_MINIMALISM === 0), // 3D прилегающая территория по умолчанию (false если минимализм = 1)
+    showRoadCenterline: (ROAD_SHOW_CENTERLINE === 1), // Осевая пунктирная линия дороги
     showStairAxes: false,
     showGuides: false,
     showGrid: false,
@@ -119,6 +126,7 @@ window.bldg2FloorGroups = bldg2FloorGroups;
 window.bldg3FloorGroups = bldg3FloorGroups;
 window.bldg4FloorGroups = bldg4FloorGroups;
 window.territoryGroup = territoryGroup;
+window.roadNetworkGroup = roadNetworkGroup;
 window.wallMeshes = wallMeshes;
 window.wallEdges = wallEdges;
 window.doorMeshes = doorMeshes;

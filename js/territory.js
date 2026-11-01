@@ -723,3 +723,170 @@ function addBusStopSign(group, x, z) {
 }
 
 window.buildTerritory = buildTerritory;
+
+
+function buildRingRoadAroundCollege(group) {
+    const targetGroup = group || window.roadNetworkGroup || (typeof roadNetworkGroup !== 'undefined' ? roadNetworkGroup : null);
+    if (!targetGroup) return;
+    while (targetGroup.children.length > 0) {
+        targetGroup.remove(targetGroup.children[0]);
+    }
+    const isDark = (typeof STATE !== 'undefined' && STATE.theme === 'dark');
+
+    // Материалы для минималистичной дорожной сети
+    const minimalRoadSurfaceMat = (typeof MATERIALS !== 'undefined' && MATERIALS.minimalRoadSurface) ? MATERIALS.minimalRoadSurface : new THREE.MeshStandardMaterial({
+        color: isDark ? 0x181e28 : 0xc8d1dc,
+        roughness: 0.95,
+        metalness: 0.02,
+        polygonOffset: true,
+        polygonOffsetFactor: 2,
+        polygonOffsetUnits: 2
+    });
+
+    const roadLineMat = (typeof MATERIALS !== 'undefined' && MATERIALS.roadContourLine) ? MATERIALS.roadContourLine : new THREE.LineBasicMaterial({
+        color: isDark ? 0x94a3b8 : 0x334155, // Высококонтрастный контур (Slate-700 / Slate-400)
+        linewidth: 1
+    });
+
+    const roadCenterLineMat = (typeof MATERIALS !== 'undefined' && MATERIALS.roadCenterLine) ? MATERIALS.roadCenterLine : new THREE.LineBasicMaterial({
+        color: isDark ? 0x475569 : 0x64748b, // Неяркая осевая разметка полос
+        linewidth: 1
+    });
+
+    const ySurface = 0.002;
+    const yLine = 0.006;
+    const yCenter = 0.008;
+
+    // Вспомогательная функция для плоской минималистичной заливки полотна дороги
+    function addRoadRibbon(x1, z1, x2, z2) {
+        const xMin = Math.min(x1, x2);
+        const xMax = Math.max(x1, x2);
+        const zMin = Math.min(z1, z2);
+        const zMax = Math.max(z1, z2);
+        const w = xMax - xMin;
+        const d = zMax - zMin;
+        const geom = new THREE.PlaneGeometry(w, d);
+        const mesh = new THREE.Mesh(geom, minimalRoadSurfaceMat);
+        mesh.rotation.x = -Math.PI / 2;
+        mesh.position.set((xMin + xMax) / 2, ySurface, (zMin + zMax) / 2);
+        mesh.receiveShadow = false;
+        targetGroup.add(mesh);
+    }
+
+    // Вспомогательная функция для кромочных контурных линий
+    function addEdge(x1, z1, x2, z2) {
+        const geom = new THREE.BufferGeometry().setFromPoints([
+            new THREE.Vector3(x1, yLine, z1),
+            new THREE.Vector3(x2, yLine, z2)
+        ]);
+        const line = new THREE.Line(geom, roadLineMat);
+        targetGroup.add(line);
+    }
+
+    // Накопление точек для осевой пунктирной разметки в один draw call
+    const dashSegments = [];
+    function addCenterDashes(x1, z1, x2, z2, dashLen = 3.0, gapLen = 2.5) {
+        const dx = x2 - x1;
+        const dz = z2 - z1;
+        const totalLen = Math.hypot(dx, dz);
+        if (totalLen < 0.5) return;
+        const ux = dx / totalLen;
+        const uz = dz / totalLen;
+        let dist = 0;
+        while (dist < totalLen) {
+            const segLen = Math.min(dashLen, totalLen - dist);
+            dashSegments.push(
+                new THREE.Vector3(x1 + ux * dist, yCenter, z1 + uz * dist),
+                new THREE.Vector3(x1 + ux * (dist + segLen), yCenter, z1 + uz * (dist + segLen))
+            );
+            dist += dashLen + gapLen;
+        }
+    }
+
+    // ----------------------------------------------------
+    // КОЛЬЦЕВЫЕ ПРОЕЗДЫ ВОКРУГ КОРПУСОВ КОЛЛЕДЖА
+    // ----------------------------------------------------
+    // Внутренний проезд между корпусами 2, 3 и 4:
+    const innerXWest = 17.5;
+    const innerXEast = 22.5;
+    const innerZSouth = -18.2;
+    const innerZNorth = -23.2;
+
+    // Внешний восточный объезд (вдоль Корпуса 2 и 4 к северу):
+    const eastRoadX1 = 72.0;
+    const eastRoadX2 = 77.0;
+
+    // Северный объезд сзади Корпуса 3 и Корпуса 4:
+    const northRoadZ1 = -71.5;
+    const northRoadZ2 = -66.5;
+    const northWestEnd = -18.0;
+
+    // Главная южная дорога (перед корпусами):
+    const mainRoadZ1 = 28.5;
+    const mainRoadZ2 = 38.5;
+    const mainXStart = -35.0;
+    const mainXEnd = 88.0;
+
+    // 1. ПОЛОТНО ДОРОГИ (ПЛОСКАЯ МИНИМАЛИСТИЧНАЯ ЗАЛИВКА ПРОЕЗЖЕЙ ЧАСТИ)
+    // Главная южная дорога
+    addRoadRibbon(mainXStart, mainRoadZ1, mainXEnd, mainRoadZ2);
+    // Восточный проезд
+    addRoadRibbon(eastRoadX1, northRoadZ1, eastRoadX2, mainRoadZ1);
+    // Северный объезд
+    addRoadRibbon(northWestEnd, northRoadZ1, eastRoadX1, northRoadZ2);
+    // Внутренний проезд (горизонтальный участок между К2 и К4)
+    addRoadRibbon(innerXEast, innerZNorth, eastRoadX1, innerZSouth);
+    // Внутренний проезд (вертикальный участок между К3 и К4)
+    addRoadRibbon(innerXWest, northRoadZ2, innerXEast, innerZSouth);
+
+    // 2. ВЫРАЗИТЕЛЬНЫЕ КОНТУРНЫЕ ЛИНИИ КРОМОК ДОРОЖНОГО ПОЛОТНА
+    // Внутренний двор:
+    // Контур со стороны Корпуса 4
+    addEdge(innerXEast, northRoadZ2, innerXEast, innerZNorth);
+    addEdge(innerXEast, innerZNorth, eastRoadX1, innerZNorth);
+    // Контур со стороны Корпуса 3 и 2
+    addEdge(innerXWest, northRoadZ2, innerXWest, innerZSouth);
+    addEdge(innerXWest, innerZSouth, eastRoadX1, innerZSouth);
+    // Южный тупиковый поворот между К2 и К3
+    addEdge(innerXWest, innerZSouth, innerXEast, innerZSouth);
+
+    // Восточный проезд:
+    // Внешняя (восточная) кромка
+    addEdge(eastRoadX2, mainRoadZ1, eastRoadX2, northRoadZ1);
+    // Внутренняя (западная) кромка с разрывом на въезд во внутренний двор
+    addEdge(eastRoadX1, mainRoadZ1, eastRoadX1, innerZSouth);
+    addEdge(eastRoadX1, innerZNorth, eastRoadX1, northRoadZ2);
+
+    // Северный объезд:
+    // Внешняя северная кромка
+    addEdge(northWestEnd, northRoadZ1, eastRoadX2, northRoadZ1);
+    // Внутренняя южная кромка с разрывом на выезд из внутреннего двора
+    addEdge(northWestEnd, northRoadZ2, innerXWest, northRoadZ2);
+    addEdge(innerXEast, northRoadZ2, eastRoadX1, northRoadZ2);
+
+    // Главная южная дорога:
+    addEdge(mainXStart, mainRoadZ1, eastRoadX1, mainRoadZ1);
+    addEdge(eastRoadX2, mainRoadZ1, mainXEnd, mainRoadZ1);
+    addEdge(mainXStart, mainRoadZ2, mainXEnd, mainRoadZ2);
+
+    // 3. ОСЕВАЯ ПУНКТИРНАЯ РАЗМЕТКА ПОЛОС (УПРАВЛЯЕТСЯ ФЛАГОМ ROAD_SHOW_CENTERLINE)
+    const showCenterline = (typeof STATE !== 'undefined' && typeof STATE.showRoadCenterline === 'boolean')
+        ? STATE.showRoadCenterline
+        : (typeof ROAD_SHOW_CENTERLINE !== 'undefined' ? ROAD_SHOW_CENTERLINE === 1 : true);
+
+    if (showCenterline) {
+        addCenterDashes(mainXStart + 2.0, 33.5, mainXEnd - 2.0, 33.5, 3.0, 2.5);
+        addCenterDashes(74.5, mainRoadZ1, 74.5, northRoadZ1 + 2.5, 3.0, 2.5);
+        addCenterDashes(northWestEnd + 2.0, -69.0, eastRoadX1 - 1.0, -69.0, 3.0, 2.5);
+        addCenterDashes(innerXEast + 1.0, -20.7, eastRoadX1 - 1.0, -20.7, 2.5, 2.0);
+        addCenterDashes(20.0, northRoadZ2 + 1.0, 20.0, -20.7, 2.5, 2.0);
+
+        if (dashSegments.length > 0) {
+            const centerGeom = new THREE.BufferGeometry().setFromPoints(dashSegments);
+            const centerLines = new THREE.LineSegments(centerGeom, roadCenterLineMat);
+            targetGroup.add(centerLines);
+        }
+    }
+}
+
+window.buildRingRoadAroundCollege = buildRingRoadAroundCollege;
