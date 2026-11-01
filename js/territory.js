@@ -139,9 +139,20 @@ function buildBusStop(group) {
     bayMesh.receiveShadow = true;
     group.add(bayMesh);
 
-    // Плавные скошенные заезды в карман (tapers) без наложения
-    addBeveledBayCorners(group, -10.0, xBayStart, zRoadNorth, zPocketEdge);
-    addBeveledBayCorners(group, xBayEnd, 40.5, zPocketEdge, zRoadNorth);
+    // Плавные скошенные заезды в карман (tapers) с заполнением асфальтом без дыр в газоне
+    addAsphaltTriangle(group, [
+        [-10.0, zRoadNorth],
+        [xBayStart, zPocketEdge],
+        [xBayStart, zRoadNorth]
+    ], MATERIALS.asphaltRoad);
+    addCurbSegment(group, -10.0, zRoadNorth, xBayStart, zPocketEdge);
+
+    addAsphaltTriangle(group, [
+        [xBayEnd, zPocketEdge],
+        [40.5, zRoadNorth],
+        [xBayEnd, zRoadNorth]
+    ], MATERIALS.asphaltRoad);
+    addCurbSegment(group, xBayEnd, zPocketEdge, 40.5, zRoadNorth);
 
     // Желтая зигзагообразная разметка 1.17 строго внутри кармана
     addBusStopYellowZigzag(group, xBayStart + 1.0, xBayEnd - 1.0, zRoadNorth - 0.4, zPocketEdge + 0.4);
@@ -259,110 +270,152 @@ function buildLargeShelter(group, cx, cz) {
 }
 
 // ----------------------------------------------------
-// 4. СЕТЬ ПОДЪЕЗДНЫХ ДОРОГ (ЧИСТАЯ ГЕОМЕТРИЯ БЕЗ АРТЕФАКТОВ)
+// 4. СЕТЬ ПОДЪЕЗДНЫХ ДОРОГ (ТОЧНО ПОДОГНАНА ПОД КООРДИНАТЫ СХЕМЫ КОЛЬЦЕВОЙ ДОРОГИ)
 // ----------------------------------------------------
 function buildDrivewaysAndInnerRoads(group) {
+    // Координаты восточного проезда подогнаны 1-в-1 под схему buildRingRoadAroundCollege:
     const roadX1 = 72.0;
-    const roadX2 = 77.5;
-    const roadW = roadX2 - roadX1; // 5.5 м
-    const roadMidX = (roadX1 + roadX2) / 2; // 74.75
+    const roadX2 = 77.0;
+    const roadW = roadX2 - roadX1; // 5.0 м
+    const roadMidX = (roadX1 + roadX2) / 2; // 74.5
 
-    // 1) ВЪЕЗД С ГЛАВНОЙ ДОРОГИ (Z: 28.2..22.0) — БЕЗ ШЛАГБАУМА В НАЧАЛЕ!
-    const entryGeom = new THREE.BoxGeometry(roadW, 0.14, 6.2);
+    // 1) ВЪЕЗД С ГЛАВНОЙ ДОРОГИ (Z: 28.2..24.5) С АСФАЛЬТОВЫМИ РАСШИРЕНИЯМИ (FLARES) И БОРДЮРАМИ
+    const entryZStart = 24.5;
+    const entryZEnd = 28.2;
+    const entryLen = entryZEnd - entryZStart; // 3.7 м
+    const entryGeom = new THREE.BoxGeometry(roadW, 0.14, entryLen);
     const entryMesh = new THREE.Mesh(entryGeom, MATERIALS.asphaltDriveway);
-    entryMesh.position.set(roadMidX, -0.05, 25.1);
+    entryMesh.position.set(roadMidX, -0.05, (entryZStart + entryZEnd) / 2);
     entryMesh.receiveShadow = true;
     group.add(entryMesh);
 
-    // Закругления бордюров на въезде
+    // Закругления бордюров и клинья асфальта под ними
+    addAsphaltTriangle(group, [
+        [70.0, 28.2],
+        [roadX1, 24.5],
+        [roadX1, 28.2]
+    ], MATERIALS.asphaltDriveway);
     addCurbSegment(group, 70.0, 28.2, roadX1, 24.5);
+
+    addAsphaltTriangle(group, [
+        [roadX2, 24.5],
+        [80.0, 28.2],
+        [roadX2, 28.2]
+    ], MATERIALS.asphaltDriveway);
     addCurbSegment(group, roadX2, 24.5, 80.0, 28.2);
 
     // 2) ВОСТОЧНЫЙ ПРОЕЗД (Вдоль Корпуса 2 и Корпуса 4)
-    // Идет на север до Z = -70.0 (северная дорога)
-    const northRoadZ = -70.0;
-    const northRoadW = 5.5;
-    const eastLen = 22.0 - (northRoadZ - northRoadW / 2); // от 22.0 до -72.75
-    const eastZMid = (22.0 + (northRoadZ - northRoadW / 2)) / 2;
+    // Северная дорога на Z: -71.5..-66.5 (центр -69.0)
+    const northRoadZ1 = -71.5;
+    const northRoadZ2 = -66.5;
+    const northRoadW = 5.0;
+    const northRoadZMid = -69.0;
+
+    // Внутренний проезд между К2 и К4 по схеме: Z: -23.2..-18.2 (центр -20.7)
+    const innerZSouth = -18.2;
+    const innerZNorth = -23.2;
+    const innerRoadW = 5.0;
+    const innerXWest = 17.5;
+    const innerXEast = 22.5;
+
+    const eastLen = entryZStart - northRoadZ1; // от 24.5 до -71.5 (96.0 м)
+    const eastZMid = (entryZStart + northRoadZ1) / 2;
     const eastGeom = new THREE.BoxGeometry(roadW, 0.14, eastLen);
-    const eastMesh = new THREE.Mesh(eastGeom, MATERIALS.asphaltDriveway);
+    const eastMesh = new THREE.Mesh(entryGeom ? eastGeom : null, MATERIALS.asphaltDriveway);
     eastMesh.position.set(roadMidX, -0.05, eastZMid);
     eastMesh.receiveShadow = true;
     group.add(eastMesh);
 
-    // Восточный внешний бордюр вдоль всего восточного проезда
-    addCurbSegment(group, roadX2, 24.5, roadX2, northRoadZ - northRoadW / 2);
+    // Внешний восточный бордюр
+    addCurbSegment(group, roadX2, entryZStart, roadX2, northRoadZ1);
 
-    // Западный бордюр восточного проезда (с разрывом на въезд между К2 и К4)
-    const midRoadZ = -18.8;
-    const midRoadW = 5.0;
-    addCurbSegment(group, roadX1, 24.5, roadX1, midRoadZ + midRoadW / 2);
-    addCurbSegment(group, roadX1, midRoadZ - midRoadW / 2, roadX1, northRoadZ + northRoadW / 2);
+    // Внутренний западный бордюр восточного проезда (с разрывом на въезд между К2 и К4)
+    addCurbSegment(group, roadX1, entryZStart, roadX1, innerZSouth);
+    addCurbSegment(group, roadX1, innerZNorth, roadX1, northRoadZ2);
 
-    // 3) ВНУТРЕННИЙ ПРОЕЗД МЕЖДУ КОРПУСОМ 2 И КОРПУСОМ 4 (ПОД ПЕРЕХОДОМ 2-ГО ЭТАЖА!)
-    // Идет от восточного проезда X = 72.0 на запад до вертикального проезда X = 21.0
-    // Ось Z = -18.8 (Корпус 2: Z = -13.8, Корпус 4: Z = -27.4, ЛК1 Z = -24.4, Переход К2-К4 на X: 36.2..38.8)
-    const innerRoadX = 21.0;
-    const innerRoadW = 5.0;
+    // 3) ВНУТРЕННИЙ ПРОЕЗД МЕЖДУ КОРПУСОМ 2 И КОРПУСОМ 4 (СТРОГО ПО КООРДИНАТАМ СХЕМЫ)
+    // Разрыв под надземным переходом 2-го этажа К4 ↔ К2 (X [36.0..38.8], Z [-27.4..-13.8])
+    const midZMid = (innerZNorth + innerZSouth) / 2; // -20.7
+    const midLen1 = 36.0 - innerXEast; // от 22.5 до 36.0 (13.5 м)
+    const midGeom1 = new THREE.BoxGeometry(midLen1, 0.14, innerRoadW);
+    const midMesh1 = new THREE.Mesh(midGeom1, MATERIALS.asphaltDriveway);
+    midMesh1.position.set((innerXEast + 36.0) / 2, -0.05, midZMid);
+    midMesh1.receiveShadow = true;
+    group.add(midMesh1);
 
-    const midXStart = innerRoadX - innerRoadW / 2; // 18.5
-    const midXEnd = roadX1; // 72.0
-    const midLen = midXEnd - midXStart;
+    const midLen2 = roadX1 - 38.8; // от 38.8 до 72.0 (33.2 м)
+    const midGeom2 = new THREE.BoxGeometry(midLen2, 0.14, innerRoadW);
+    const midMesh2 = new THREE.Mesh(midGeom2, MATERIALS.asphaltDriveway);
+    midMesh2.position.set((38.8 + roadX1) / 2, -0.05, midZMid);
+    midMesh2.receiveShadow = true;
+    group.add(midMesh2);
 
-    const midGeom = new THREE.BoxGeometry(midLen, 0.14, midRoadW);
-    const midMesh = new THREE.Mesh(midGeom, MATERIALS.asphaltDriveway);
-    midMesh.position.set((midXStart + midXEnd) / 2, -0.05, midRoadZ);
-    midMesh.receiveShadow = true;
-    group.add(midMesh);
+    // Полотно проезда под переходом К4 ↔ К2 (утоплено на грунте, чтобы плита перехода 2-го этажа не пересекалась)
+    const midUnderGeom = new THREE.BoxGeometry(38.8 - 36.0, 0.10, innerRoadW);
+    const midUnderMesh = new THREE.Mesh(midUnderGeom, MATERIALS.asphaltDriveway);
+    midUnderMesh.position.set((36.0 + 38.8) / 2, -0.14, midZMid);
+    midUnderMesh.receiveShadow = true;
+    group.add(midUnderMesh);
 
-    // Бордюры проезда между К2 и К4:
-    // Южный бордюр (от К2 до угла)
-    addCurbSegment(group, innerRoadX + innerRoadW / 2, midRoadZ + midRoadW / 2, midXEnd, midRoadZ + midRoadW / 2);
-    // Северный бордюр (вдоль К4 до угла)
-    addCurbSegment(group, innerRoadX + innerRoadW / 2, midRoadZ - midRoadW / 2, midXEnd, midRoadZ - midRoadW / 2);
+    // Бордюры горизонтального проезда с разрывом под переходом К4 ↔ К2
+    addCurbSegment(group, innerXEast, innerZSouth, 36.0, innerZSouth);
+    addCurbSegment(group, innerXEast, innerZNorth, 36.0, innerZNorth);
+    addCurbSegment(group, 38.8, innerZSouth, roadX1, innerZSouth);
+    addCurbSegment(group, 38.8, innerZNorth, roadX1, innerZNorth);
 
-    // 4) ВНУТРЕННИЙ ПРОЕЗД МЕЖДУ КОРПУСОМ 3 И КОРПУСОМ 4 (ПОД ПЕРЕХОДОМ 2-ГО ЭТАЖА!)
-    // Поворачивает на север по оси X = 21.0
-    // Идет от Z = midRoadZ + midRoadW / 2 (-16.3) до северной дороги Z = northRoadZ + northRoadW / 2 (-67.25)
-    // Корпус 3: X = 14.0, Корпус 4: X = 32.4 (ЛК2 X = 27.8). Переход К3-К4 на Z: -46.8..-44.2!
-    const innerZStart = midRoadZ + midRoadW / 2; // -16.3
-    const innerZEnd = northRoadZ + northRoadW / 2; // -67.25
-    const innerLen = Math.abs(innerZEnd - innerZStart);
+    // 4) ВНУТРЕННИЙ ПРОЕЗД МЕЖДУ КОРПУСОМ 3 И КОРПУСОМ 4 (СТРОГО ПО КООРДИНАТАМ СХЕМЫ)
+    // Разрыв под надземным переходом 2-го этажа К3 ↔ К4 (X [15.6..32.4], Z [-46.8..-44.0])
+    const vertXMid = (innerXWest + innerXEast) / 2; // 20.0
+    // Северный участок (от северной дороги до перехода Z = -46.8)
+    const vertLen1 = Math.abs(-46.8 - northRoadZ2); // от -66.5 до -46.8 (19.7 м)
+    const vertGeom1 = new THREE.BoxGeometry(innerRoadW, 0.14, vertLen1);
+    const vertMesh1 = new THREE.Mesh(vertGeom1, MATERIALS.asphaltDriveway);
+    vertMesh1.position.set(vertXMid, -0.05, (northRoadZ2 + -46.8) / 2);
+    vertMesh1.receiveShadow = true;
+    group.add(vertMesh1);
 
-    const innerGeom = new THREE.BoxGeometry(innerRoadW, 0.14, innerLen);
-    const innerMesh = new THREE.Mesh(innerGeom, MATERIALS.asphaltDriveway);
-    innerMesh.position.set(innerRoadX, -0.05, (innerZStart + innerZEnd) / 2);
-    innerMesh.receiveShadow = true;
-    group.add(innerMesh);
+    // Южный участок (от перехода Z = -44.0 до внутреннего проезда Z = -18.2)
+    const vertLen2 = Math.abs(innerZSouth - -44.0); // от -44.0 до -18.2 (25.8 м)
+    const vertGeom2 = new THREE.BoxGeometry(innerRoadW, 0.14, vertLen2);
+    const vertMesh2 = new THREE.Mesh(vertGeom2, MATERIALS.asphaltDriveway);
+    vertMesh2.position.set(vertXMid, -0.05, (-44.0 + innerZSouth) / 2);
+    vertMesh2.receiveShadow = true;
+    group.add(vertMesh2);
 
-    // Бордюры вертикального проезда (чистые, без захода на пересекающиеся дороги!):
-    // Западный бордюр (вдоль К3)
-    addCurbSegment(group, innerRoadX - innerRoadW / 2, midRoadZ - midRoadW / 2, innerRoadX - innerRoadW / 2, northRoadZ + northRoadW / 2);
-    // Восточный бордюр (вдоль К4)
-    addCurbSegment(group, innerRoadX + innerRoadW / 2, midRoadZ - midRoadW / 2, innerRoadX + innerRoadW / 2, northRoadZ + northRoadW / 2);
+    // Полотно проезда под переходом К3 ↔ К4 (утоплено на грунте, чтобы плита перехода 2-го этажа не пересекалась)
+    const vertUnderGeom = new THREE.BoxGeometry(innerRoadW, 0.10, Math.abs(-44.0 - -46.8));
+    const vertUnderMesh = new THREE.Mesh(vertUnderGeom, MATERIALS.asphaltDriveway);
+    vertUnderMesh.position.set(vertXMid, -0.14, (-46.8 + -44.0) / 2);
+    vertUnderMesh.receiveShadow = true;
+    group.add(vertUnderMesh);
 
-    // Южный тупиковый бордюр поворота между К2 и К3
-    addCurbSegment(group, innerRoadX - innerRoadW / 2, innerZStart, innerRoadX + innerRoadW / 2, innerZStart);
+    // Бордюры вертикального проезда с разрывом под переходом К3 ↔ К4
+    addCurbSegment(group, innerXWest, northRoadZ2, innerXWest, -46.8);
+    addCurbSegment(group, innerXEast, northRoadZ2, innerXEast, -46.8);
+    addCurbSegment(group, innerXWest, -44.0, innerXWest, innerZSouth);
+    addCurbSegment(group, innerXEast, -44.0, innerXEast, innerZNorth);
+    // Южный тупиковый поворот между К2 и К3
+    addCurbSegment(group, innerXWest, innerZSouth, innerXEast, innerZSouth);
 
-    // 5) СЕВЕРНЫЙ ПРОЕЗД С ПРАВИЛЬНЫМ ОТСТУПОМ ОТ КОРПУСОВ 3 И 4!
-    // Северные торцы К3 и К4 заканчиваются на Z = -61.6.
-    // Проезд размещен на оси Z = -70.0 (южная кромка Z = -67.25 — отступ более 5.6 м от стен зданий!).
-    // Дорога абсолютно свободна от корпусов и идет от X = -20.0 (к гаражу) до X = 77.5 (восточный проезд)
-    const northXStart = -20.0;
-    const northXEnd = roadX2; // 77.5
-    const northLen = northXEnd - northXStart;
+    // 5) СЕВЕРНЫЙ ПРОЕЗД (СТРОГО ПО КООРДИНАТАМ СХЕМЫ)
+    // X: от northWestEnd (-18.0) до roadX2 (77.0), Z: от northRoadZ1 (-71.5) до northRoadZ2 (-66.5)
+    const northWestEnd = -18.0;
+    const northLen = roadX2 - northWestEnd; // 95.0 м
+    const northXMid = (northWestEnd + roadX2) / 2; // 29.5
 
     const northGeom = new THREE.BoxGeometry(northLen, 0.14, northRoadW);
     const northMesh = new THREE.Mesh(northGeom, MATERIALS.asphaltDriveway);
-    northMesh.position.set((northXStart + northXEnd) / 2, -0.05, northRoadZ);
+    northMesh.position.set(northXMid, -0.05, northRoadZMid);
     northMesh.receiveShadow = true;
     group.add(northMesh);
 
     // Северный бордюр (внешний)
-    addCurbSegment(group, northXStart, northRoadZ - northRoadW / 2, northXEnd, northRoadZ - northRoadW / 2);
-    // Южный бордюр (с разрывом на въезд между К3 и К4)
-    addCurbSegment(group, northXStart, northRoadZ + northRoadW / 2, innerRoadX - innerRoadW / 2, northRoadZ + northRoadW / 2);
-    addCurbSegment(group, innerRoadX + innerRoadW / 2, northRoadZ + northRoadW / 2, roadX1, northRoadZ + northRoadW / 2);
+    addCurbSegment(group, northWestEnd, northRoadZ1, roadX2, northRoadZ1);
+    // Южный бордюр с разрывом на выезд из внутреннего двора
+    addCurbSegment(group, northWestEnd, northRoadZ2, innerXWest, northRoadZ2);
+    addCurbSegment(group, innerXEast, northRoadZ2, roadX1, northRoadZ2);
+    // Западный торцевой бордюр
+    addCurbSegment(group, northWestEnd, northRoadZ1, northWestEnd, northRoadZ2);
 }
 
 // ----------------------------------------------------
@@ -379,11 +432,12 @@ function buildForecourtAndPlaza(group) {
     group.add(plaza1Mesh);
 
     // 2) Широкий пешеходный променад перед Корпусом 2 (южнее газона К2):
-    // X: 20.4..72.0, Z: 17.0..25.4
+    // X: 20.4..72.0, Z: 17.0..24.5 (точно стыкуется с бордюром въезда Z=24.5 без выступающих углов!)
     const promLen = 72.0 - 20.4;
-    const promGeom = new THREE.BoxGeometry(promLen, 0.16, 8.4);
+    const promDepth = 24.5 - 17.0; // 7.5 м
+    const promGeom = new THREE.BoxGeometry(promLen, 0.16, promDepth);
     const promMesh = new THREE.Mesh(promGeom, MATERIALS.sidewalk);
-    promMesh.position.set((20.4 + 72.0) / 2, -0.02, (17.0 + 25.4) / 2);
+    promMesh.position.set((20.4 + 72.0) / 2, -0.02, (17.0 + 24.5) / 2);
     promMesh.receiveShadow = true;
     group.add(promMesh);
 
@@ -445,16 +499,42 @@ function buildLandscaping(group) {
 // 7. УЛИЧНАЯ ИНФРАСТРУКТУРА, СВЕТИЛЬНИКИ, ШЛАГБАУМЫ
 // ----------------------------------------------------
 function buildStreetFurniture(group) {
-    // Лаконичные фонари только вдоль северной кромки главной дороги
-    const lampXs = [-35, -5, 25, 65];
-    lampXs.forEach(lx => {
-        addStreetLamp(group, lx, 27.2, 0);
-    });
+    // Опоры освещения размещены СТРОГО на тротуарах и газонах за бордюрами (ноль столбов на проезжей части!)
+    // 1) Фонари на тротуаре вдоль дороги (вне кармана остановки: бордюр на Z=28.2, фонарь на Z=27.0)
+    addStreetLamp(group, -35.0, 27.0, Math.PI / 2);
+    addStreetLamp(group, 52.0, 27.0, Math.PI / 2);
+    addStreetLamp(group, 66.0, 27.0, Math.PI / 2);
+
+    // 2) Фонари посадочной платформы остановки (бордюр кармана на Z=25.4, фонари на задней кромке платформы Z=22.0)
+    addStreetLamp(group, 0.0, 22.0, Math.PI / 2);
+    addStreetLamp(group, 24.0, 22.0, Math.PI / 2);
 }
 
 // ----------------------------------------------------
 // ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ГЕОМЕТРИИ
 // ----------------------------------------------------
+
+function addAsphaltTriangle(group, points, material = MATERIALS.asphaltRoad, yTop = 0.02, depth = 0.14) {
+    if (!points || points.length < 3) return null;
+    const shape = new THREE.Shape();
+    shape.moveTo(points[0][0], points[0][1]);
+    for (let i = 1; i < points.length; i++) {
+        shape.lineTo(points[i][0], points[i][1]);
+    }
+    shape.closePath();
+
+    const geom = new THREE.ExtrudeGeometry(shape, {
+        depth: depth,
+        bevelEnabled: false
+    });
+    geom.rotateX(Math.PI / 2);
+
+    const mesh = new THREE.Mesh(geom, material);
+    mesh.position.set(0, yTop, 0);
+    mesh.receiveShadow = true;
+    group.add(mesh);
+    return mesh;
+}
 
 function addCurbSegment(group, x1, z1, x2, z2) {
     const dx = x2 - x1;
@@ -828,19 +908,25 @@ function buildRingRoadAroundCollege(group) {
     addRoadRibbon(eastRoadX1, northRoadZ1, eastRoadX2, mainRoadZ1);
     // Северный объезд
     addRoadRibbon(northWestEnd, northRoadZ1, eastRoadX1, northRoadZ2);
-    // Внутренний проезд (горизонтальный участок между К2 и К4)
-    addRoadRibbon(innerXEast, innerZNorth, eastRoadX1, innerZSouth);
-    // Внутренний проезд (вертикальный участок между К3 и К4)
-    addRoadRibbon(innerXWest, northRoadZ2, innerXEast, innerZSouth);
+    // Внутренний проезд (горизонтальный участок между К2 и К4 с разрывом под переходом К4 ↔ К2)
+    addRoadRibbon(innerXEast, innerZNorth, 36.0, innerZSouth);
+    addRoadRibbon(38.8, innerZNorth, eastRoadX1, innerZSouth);
+    // Внутренний проезд (вертикальный участок между К3 и К4 с разрывом под переходом К3 ↔ К4)
+    addRoadRibbon(innerXWest, northRoadZ2, innerXEast, -46.8);
+    addRoadRibbon(innerXWest, -44.0, innerXEast, innerZSouth);
 
     // 2. ВЫРАЗИТЕЛЬНЫЕ КОНТУРНЫЕ ЛИНИИ КРОМОК ДОРОЖНОГО ПОЛОТНА
     // Внутренний двор:
-    // Контур со стороны Корпуса 4
-    addEdge(innerXEast, northRoadZ2, innerXEast, innerZNorth);
-    addEdge(innerXEast, innerZNorth, eastRoadX1, innerZNorth);
-    // Контур со стороны Корпуса 3 и 2
-    addEdge(innerXWest, northRoadZ2, innerXWest, innerZSouth);
-    addEdge(innerXWest, innerZSouth, eastRoadX1, innerZSouth);
+    // Контур со стороны Корпуса 4 с разрывами под переходом К3 ↔ К4 и К4 ↔ К2
+    addEdge(innerXEast, northRoadZ2, innerXEast, -46.8);
+    addEdge(innerXEast, -44.0, innerXEast, innerZNorth);
+    addEdge(innerXEast, innerZNorth, 36.0, innerZNorth);
+    addEdge(38.8, innerZNorth, eastRoadX1, innerZNorth);
+    // Контур со стороны Корпуса 3 и 2 с разрывами под переходом К3 ↔ К4 и К4 ↔ К2
+    addEdge(innerXWest, northRoadZ2, innerXWest, -46.8);
+    addEdge(innerXWest, -44.0, innerXWest, innerZSouth);
+    addEdge(innerXWest, innerZSouth, 36.0, innerZSouth);
+    addEdge(38.8, innerZSouth, eastRoadX1, innerZSouth);
     // Южный тупиковый поворот между К2 и К3
     addEdge(innerXWest, innerZSouth, innerXEast, innerZSouth);
 
@@ -872,8 +958,11 @@ function buildRingRoadAroundCollege(group) {
         addCenterDashes(mainXStart + 2.0, 33.5, mainXEnd - 2.0, 33.5, 3.0, 2.5);
         addCenterDashes(74.5, mainRoadZ1, 74.5, northRoadZ1 + 2.5, 3.0, 2.5);
         addCenterDashes(northWestEnd + 2.0, -69.0, eastRoadX1 - 1.0, -69.0, 3.0, 2.5);
-        addCenterDashes(innerXEast + 1.0, -20.7, eastRoadX1 - 1.0, -20.7, 2.5, 2.0);
-        addCenterDashes(20.0, northRoadZ2 + 1.0, 20.0, -20.7, 2.5, 2.0);
+        // Разметка с разрывом под переходами
+        addCenterDashes(innerXEast + 1.0, -20.7, 36.0, -20.7, 2.5, 2.0);
+        addCenterDashes(38.8, -20.7, eastRoadX1 - 1.0, -20.7, 2.5, 2.0);
+        addCenterDashes(20.0, northRoadZ2 + 1.0, 20.0, -46.8, 2.5, 2.0);
+        addCenterDashes(20.0, -44.0, 20.0, -20.7, 2.5, 2.0);
 
         if (dashSegments.length > 0) {
             const centerGeom = new THREE.BufferGeometry().setFromPoints(dashSegments);
