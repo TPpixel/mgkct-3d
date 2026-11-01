@@ -13,6 +13,7 @@ const bldg4FloorGroups = {};
 let alignmentGuidesGroup;
 let stairValidationGroup;
 let territoryGroup;
+let roadNetworkGroup;
 
 // Списки элементов для динамического обновления
 const wallMeshes = [];
@@ -119,6 +120,7 @@ window.bldg2FloorGroups = bldg2FloorGroups;
 window.bldg3FloorGroups = bldg3FloorGroups;
 window.bldg4FloorGroups = bldg4FloorGroups;
 window.territoryGroup = territoryGroup;
+window.roadNetworkGroup = roadNetworkGroup;
 window.wallMeshes = wallMeshes;
 window.wallEdges = wallEdges;
 window.doorMeshes = doorMeshes;

@@ -98,6 +98,9 @@ function init() {
     territoryGroup = new THREE.Group();
     scene.add(territoryGroup);
 
+    roadNetworkGroup = new THREE.Group();
+    scene.add(roadNetworkGroup);
+
     // Сборка Корпуса 1 (Этажи 1–7)
     buildFloor1(bldg1FloorGroups[1]);
     buildFloor2(bldg1FloorGroups[2]);
@@ -128,6 +131,7 @@ function init() {
 
     buildRoofs();
     buildTerritory();
+    if (typeof buildRingRoadAroundCollege === 'function') buildRingRoadAroundCollege(roadNetworkGroup);
     buildAlignmentGuides();
     buildStairValidationAxes();
 

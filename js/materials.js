@@ -80,6 +80,11 @@ const MATERIALS = {
         linewidth: 1
     }),
 
+    roadContourLine: new THREE.LineBasicMaterial({
+        color: 0x64748b, // slate-500 для светлой темы по умолчанию
+        linewidth: 1
+    }),
+
     // Материалы прилегающей территории и благоустройства
     asphaltRoad: new THREE.MeshStandardMaterial({
         color: 0x23272f,

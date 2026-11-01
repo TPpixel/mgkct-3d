@@ -723,3 +723,89 @@ function addBusStopSign(group, x, z) {
 }
 
 window.buildTerritory = buildTerritory;
+
+
+function buildRingRoadAroundCollege(group) {
+    const targetGroup = group || window.roadNetworkGroup || (typeof roadNetworkGroup !== 'undefined' ? roadNetworkGroup : null);
+    if (!targetGroup) return;
+    while (targetGroup.children.length > 0) {
+        targetGroup.remove(targetGroup.children[0]);
+    }
+    const isDark = (typeof STATE !== 'undefined' && STATE.theme === 'dark');
+
+    // Тонкие аккуратные серые контуры дороги (стиль Edges / Чертежа, БЕЗ заливки и БЕЗ пунктира)
+    const roadLineMat = (typeof MATERIALS !== 'undefined' && MATERIALS.roadContourLine) ? MATERIALS.roadContourLine : new THREE.LineBasicMaterial({
+        color: isDark ? 0x94a3b8 : 0x64748b, // Slate-500
+        linewidth: 1
+    });
+
+    const y = 0.02; // на уровне земли
+
+    function addEdge(x1, z1, x2, z2) {
+        const geom = new THREE.BufferGeometry().setFromPoints([
+            new THREE.Vector3(x1, y, z1),
+            new THREE.Vector3(x2, y, z2)
+        ]);
+        const line = new THREE.Line(geom, roadLineMat);
+        targetGroup.add(line);
+    }
+
+    // ----------------------------------------------------
+    // КОЛЬЦЕВЫЕ КОНТУРЫ ПРОЕЗДОВ ВОКРУГ КОРПУСОВ КОЛЛЕДЖА
+    // ----------------------------------------------------
+    // Внутренний проезд между корпусами 2, 3 и 4:
+    const innerXWest = 17.5;
+    const innerXEast = 22.5;
+    const innerZSouth = -18.2;
+    const innerZNorth = -23.2;
+
+    // Внешний восточный объезд (вдоль Корпуса 2 и 4 к северу):
+    const eastRoadX1 = 72.0;
+    const eastRoadX2 = 77.0;
+
+    // Северный объезд сзади Корпуса 3 и Корпуса 4:
+    const northRoadZ1 = -71.5;
+    const northRoadZ2 = -66.5;
+    const northWestEnd = -18.0;
+
+    // Главная южная дорога (перед корпусами):
+    const mainRoadZ1 = 28.5;
+    const mainRoadZ2 = 38.5;
+    const mainXStart = -35.0;
+    const mainXEnd = 88.0;
+
+    // --- ЛИНИИ КОНТУРОВ ДОРОЖНОГО КОЛЬЦА ---
+
+    // 1. Внутренний двор между корпусами:
+    // Контур со стороны Корпуса 4
+    addEdge(innerXEast, northRoadZ2, innerXEast, innerZNorth);
+    addEdge(innerXEast, innerZNorth, eastRoadX1, innerZNorth);
+    // Контур со стороны Корпуса 3 и 2
+    addEdge(innerXWest, northRoadZ2, innerXWest, innerZSouth);
+    addEdge(innerXWest, innerZSouth, eastRoadX1, innerZSouth);
+
+    // 2. Восточный проезд (соединяет юг и север вдоль К2 и К4):
+    // Внешняя (восточная) кромка
+    addEdge(eastRoadX2, mainRoadZ1, eastRoadX2, northRoadZ1);
+    // Внутренняя (западная) кромка с разрывом на въезд во внутренний двор
+    addEdge(eastRoadX1, mainRoadZ1, eastRoadX1, innerZSouth);
+    addEdge(eastRoadX1, innerZNorth, eastRoadX1, northRoadZ2);
+
+    // 3. Северный объезд (сзади К3 и К4):
+    // Внешняя северная кромка
+    addEdge(northWestEnd, northRoadZ1, eastRoadX2, northRoadZ1);
+    // Внутренняя южная кромка с разрывом на выезд из внутреннего двора
+    addEdge(northWestEnd, northRoadZ2, innerXWest, northRoadZ2);
+    addEdge(innerXEast, northRoadZ2, eastRoadX1, northRoadZ2);
+
+    // 4. Главная южная дорога:
+    addEdge(mainXStart, mainRoadZ1, eastRoadX1 - 2.0, mainRoadZ1);
+    addEdge(eastRoadX2 + 2.0, mainRoadZ1, mainXEnd, mainRoadZ1);
+    addEdge(mainXStart, mainRoadZ2, mainXEnd, mainRoadZ2);
+    // Сопряжение въезда с главной дороги на восточный проезд
+    addEdge(eastRoadX1 - 2.0, mainRoadZ1, eastRoadX1, mainRoadZ1 - 3.0);
+    addEdge(eastRoadX2 + 2.0, mainRoadZ1, eastRoadX2, mainRoadZ1 - 3.0);
+}
+
+
+window.buildRingRoadAroundCollege = buildRingRoadAroundCollege;
