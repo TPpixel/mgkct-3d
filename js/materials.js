@@ -80,11 +80,24 @@ const MATERIALS = {
         linewidth: 1
     }),
 
+    // Минималистичная дорога по умолчанию (заливка полотна, контрастный контур, осевая линия)
+    minimalRoadSurface: new THREE.MeshStandardMaterial({
+        color: isInitialDark ? 0x181e28 : 0xc8d1dc,
+        roughness: 0.95,
+        metalness: 0.02,
+        polygonOffset: true,
+        polygonOffsetFactor: 2,
+        polygonOffsetUnits: 2
+    }),
     roadContourLine: new THREE.LineBasicMaterial({
-        color: 0x64748b, // slate-500 для светлой темы по умолчанию
+        color: isInitialDark ? 0x94a3b8 : 0x334155, // Высококонтрастный контур кромки полотна
         linewidth: 1
     }),
-
+    roadCenterLine: new THREE.LineBasicMaterial({
+        color: isInitialDark ? 0x475569 : 0x64748b, // Неяркая осевая разметка полос
+        linewidth: 1
+    }),
+    
     // Материалы прилегающей территории и благоустройства
     asphaltRoad: new THREE.MeshStandardMaterial({
         color: 0x23272f,

@@ -34,7 +34,9 @@ function setTheme(themeName, shouldSave = true) {
             if (MATERIALS.roof) MATERIALS.roof.color.setHex(0x1a222e);          // крыша здания
             if (MATERIALS.edgeRoof) MATERIALS.edgeRoof.color.setHex(0x374355);  // контур крыши
             if (MATERIALS.guideLine) MATERIALS.guideLine.color.setHex(0x475569);// направляющие
+            if (MATERIALS.minimalRoadSurface) MATERIALS.minimalRoadSurface.color.setHex(0x181e28);
             if (MATERIALS.roadContourLine) MATERIALS.roadContourLine.color.setHex(0x94a3b8);
+            if (MATERIALS.roadCenterLine) MATERIALS.roadCenterLine.color.setHex(0x475569);
         } else {
             // СВЕТЛАЯ ТЕМА:
             if (MATERIALS.slab) MATERIALS.slab.color.setHex(0xd2d8e0);          // спокойный матовый светлый камень
@@ -48,7 +50,9 @@ function setTheme(themeName, shouldSave = true) {
             if (MATERIALS.roof) MATERIALS.roof.color.setHex(0x94a3b8);          // крыша
             if (MATERIALS.edgeRoof) MATERIALS.edgeRoof.color.setHex(0x334155);  // контур крыши
             if (MATERIALS.guideLine) MATERIALS.guideLine.color.setHex(0x94a3b8);// направляющие
-            if (MATERIALS.roadContourLine) MATERIALS.roadContourLine.color.setHex(0x64748b);
+            if (MATERIALS.minimalRoadSurface) MATERIALS.minimalRoadSurface.color.setHex(0xc8d1dc);
+            if (MATERIALS.roadContourLine) MATERIALS.roadContourLine.color.setHex(0x334155);
+            if (MATERIALS.roadCenterLine) MATERIALS.roadCenterLine.color.setHex(0x64748b);
         }
     }
 
