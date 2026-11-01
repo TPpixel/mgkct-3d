@@ -351,8 +351,6 @@
             // Расширенная южная часть коридора вокруг марша ступеней (X = 4.2 слева и X = 7.6 справа, Z [-19.8..-14.0])
             addWallLine(targetGroup, 4.2, -19.8, 4.2, B3_Z_SOUTH, [], INNER_T);
             addWallLine(targetGroup, 7.6, -19.8, 7.6, B3_Z_SOUTH, [], INNER_T);
-            addWallLine(targetGroup, 4.2, -15.2, 4.6, -15.2, [], INNER_T);
-            addWallLine(targetGroup, 7.2, -15.2, 7.6, -15.2, [], INNER_T);
 
             // Уступы стен коридора на Z = -19.8 (переход от расширенной части X [4.2..7.6] к основному коридору X [4.6..7.2])
             addWallLine(targetGroup, 4.2, -19.8, B3_X_CORR_W, -19.8, [], INNER_T);
