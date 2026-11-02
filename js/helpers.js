@@ -1040,13 +1040,14 @@ function addMiteredChamferWall(targetGroup, x1, z1, x2, z2, thickness = 0.18, is
         bevelEnabled: false
     });
     geom.rotateX(Math.PI / 2);
+    geom.translate(0, 0.5, 0);
 
     const mat = isDoor ? MATERIALS.doorThin : MATERIALS.wall;
     const mesh = new THREE.Mesh(geom, mat);
 
     const h = STATE.wallHeight;
     mesh.scale.set(1, h + WALL_SINK, 1);
-    mesh.position.set(0, h, 0);
+    mesh.position.set(0, (h - WALL_SINK) / 2, 0);
     mesh.castShadow = true;
     mesh.receiveShadow = true;
 

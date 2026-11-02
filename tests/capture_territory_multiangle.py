@@ -93,10 +93,10 @@ TERRITORY_TARGETS = {
     },
     "tree_spruce": {
         "label": "Ель обыкновенная (Picea abies) ярусная коническая",
-        "center": [80.8, 2.8, 12.0],
+        "center": [80.8, 2.8, 22.0],
         "bbox": [3.2, 5.2, 3.2],
         "azimuth_deg": 90.0,
-        "detail_focus": [80.8, 0.95, 12.0],
+        "detail_focus": [80.8, 0.95, 22.0],
         "is_tree": True,
     },
     "forecourt_paving": {

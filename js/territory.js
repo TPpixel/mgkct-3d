@@ -122,7 +122,7 @@ function buildMainRoad(group) {
     roadMesh.receiveShadow = true;
     group.add(roadMesh);
 
-    // Южный бордюр и широкий южный тротуар (вся южная сторона — мощение тротуара, без зелени)
+    // Южный бордюр и широкий южный тротуар
     addCurbSegment(group, xStart, zSouth, xEnd, zSouth);
     const southWalkGeom = new THREE.BoxGeometry(roadLen, 0.16, 12.0);
     const southWalkMesh = new THREE.Mesh(southWalkGeom, MATERIALS.sidewalk);
@@ -130,11 +130,35 @@ function buildMainRoad(group) {
     southWalkMesh.receiveShadow = true;
     group.add(southWalkMesh);
 
-    // Местоположение пешеходного перехода «Зебра» (сдвинут ещё правее/восточнее: X: 54.0..58.0)
+    // Местоположение пешеходного перехода «Зебра» (X: 54.0..58.0)
     const zX1 = 54.0;
     const zX2 = 58.0;
 
-    // --- ДОРОЖНАЯ РАЗМЕТКА 4-ПОЛОСНОЙ ДОРОГИ (КОНСОЛИДИРОВАННЫЙ ВЫЗОВ В 1 DRAW CALL) ---
+    // Габариты центрального разделительного островка безопасности со спутника:
+    const islandHalfW = 0.90; // общая ширина островка 1.8 м
+    const zIslandNorth = zCenter - islandHalfW; // 34.6
+    const zIslandSouth = zCenter + islandHalfW; // 36.4
+
+    // Островок безопасности посередине проезжей части в створе перехода
+    const islandPlatGeom = new THREE.BoxGeometry(zX2 - zX1, 0.16, islandHalfW * 2);
+    const islandPlatMesh = new THREE.Mesh(islandPlatGeom, MATERIALS.sidewalk);
+    islandPlatMesh.position.set((zX1 + zX2) / 2, -0.02, zCenter);
+    islandPlatMesh.receiveShadow = true;
+    group.add(islandPlatMesh);
+
+    // Бордюры островка безопасности с востока и запада
+    addCurbSegment(group, zX1, zIslandNorth, zX1, zIslandSouth);
+    addCurbSegment(group, zX2, zIslandNorth, zX2, zIslandSouth);
+
+    // Тактильная плитка на островке безопасности
+    addTactileWarningStrip(group, zX1, zX2, zIslandNorth + 0.05, zIslandNorth + 0.45);
+    addTactileWarningStrip(group, zX1, zX2, zIslandSouth - 0.45, zIslandSouth - 0.05);
+
+    // Тактильная предупреждающая плитка у тротуаров
+    addTactileWarningStrip(group, zX1 - 0.2, zX2 + 0.2, zNorth - 0.65, zNorth - 0.15);
+    addTactileWarningStrip(group, zX1 - 0.2, zX2 + 0.2, zSouth + 0.15, zSouth + 0.65);
+
+    // --- ДОРОЖНАЯ РАЗМЕТКА 4-ПОЛОСНОЙ ДОРОГИ С ОСТРОВКАМИ БЕЗОПАСНОСТИ СО СПУТНИКА ---
     const whiteMarkingGeoms = [];
     function collectStripe(x1, z1, x2, z2, width = 0.15) {
         const g = createRoadStripeQuadGeometry(x1, z1, x2, z2, width, 0.025);
@@ -150,19 +174,81 @@ function buildMainRoad(group) {
         }
     }
 
-    // 1) Осевая двойная сплошная линия (разметка 1.3) по центру Z = 35.5
-    collectStripe(xStart, zCenter - 0.10, zX1, zCenter - 0.10, 0.12);
-    collectStripe(xStart, zCenter + 0.10, zX1, zCenter + 0.10, 0.12);
-    collectStripe(zX2, zCenter - 0.10, xEnd, zCenter - 0.10, 0.12);
-    collectStripe(zX2, zCenter + 0.10, xEnd, zCenter + 0.10, 0.12);
+    // 1) Осевая двойная сплошная линия (разметка 1.3)
+    // До западного островка: от xStart до X = 41.0
+    collectStripe(xStart, zCenter - 0.10, 41.0, zCenter - 0.10, 0.12);
+    collectStripe(xStart, zCenter + 0.10, 41.0, zCenter + 0.10, 0.12);
+    // После восточного островка: от X = 71.0 до xEnd
+    collectStripe(71.0, zCenter - 0.10, xEnd, zCenter - 0.10, 0.12);
+    collectStripe(71.0, zCenter + 0.10, xEnd, zCenter + 0.10, 0.12);
 
-    // 2) Прерывистые полосы между 1-й и 2-й полосами (разметка 1.5)
-    collectDashes(xStart, zX1, 31.85, 3.0, 3.0, 0.15);
-    collectDashes(zX2, xEnd, 31.85, 3.0, 3.0, 0.15);
-    collectDashes(xStart, zX1, 39.15, 3.0, 3.0, 0.15);
-    collectDashes(zX2, xEnd, 39.15, 3.0, 3.0, 0.15);
+    // 2) Западный направляющий островок с шевронами (разметка 1.16.1): X: 41.0..53.6
+    // Боковые контуры островка (разметка 1.1, ширина 0.15м)
+    collectStripe(41.0, zCenter - 0.10, 52.0, zIslandNorth, 0.15);
+    collectStripe(52.0, zIslandNorth, zX1 - 0.4, zIslandNorth, 0.15);
+    collectStripe(41.0, zCenter + 0.10, 52.0, zIslandSouth, 0.15);
+    collectStripe(52.0, zIslandSouth, zX1 - 0.4, zIslandSouth, 0.15);
+    // Торцевая линия перед переходом
+    collectStripe(zX1 - 0.4, zIslandNorth, zX1 - 0.4, zIslandSouth, 0.20);
 
-    // 3) Краевые сплошные линии (разметка 1.1)
+    // Шевронная штриховка внутри западного островка (под 45 градусов)
+    const chevronStep = 1.35;
+    for (let cx = 42.5; cx <= 52.0; cx += chevronStep) {
+        const tRatio = (cx - 41.0) / (52.0 - 41.0);
+        const curHalfW = 0.10 + tRatio * (islandHalfW - 0.10);
+        const x1 = cx - curHalfW * 0.7;
+        const z1 = zCenter - curHalfW + 0.08;
+        const x2 = cx + curHalfW * 0.7;
+        const z2 = zCenter + curHalfW - 0.08;
+        collectStripe(x1, z1, x2, z2, 0.25);
+    }
+
+    // 3) Восточный направляющий островок с шевронами (разметка 1.16.1): X: 58.4..71.0
+    // Торцевая линия за переходом
+    collectStripe(zX2 + 0.4, zIslandNorth, zX2 + 0.4, zIslandSouth, 0.20);
+    // Боковые контуры островка
+    collectStripe(zX2 + 0.4, zIslandNorth, 60.0, zIslandNorth, 0.15);
+    collectStripe(60.0, zIslandNorth, 71.0, zCenter - 0.10, 0.15);
+    collectStripe(zX2 + 0.4, zIslandSouth, 60.0, zIslandSouth, 0.15);
+    collectStripe(60.0, zIslandSouth, 71.0, zCenter + 0.10, 0.15);
+
+    // Шевронная штриховка внутри восточного островка
+    for (let cx = 60.0; cx <= 69.5; cx += chevronStep) {
+        const tRatio = 1.0 - (cx - 60.0) / (71.0 - 60.0);
+        const curHalfW = 0.10 + tRatio * (islandHalfW - 0.10);
+        const x1 = cx - curHalfW * 0.7;
+        const z1 = zCenter - curHalfW + 0.08;
+        const x2 = cx + curHalfW * 0.7;
+        const z2 = zCenter + curHalfW - 0.08;
+        collectStripe(x1, z1, x2, z2, 0.25);
+    }
+
+    // 4) Две секции «Зебры» 1.14.1 через островок безопасности
+    const stripeThickZ = 0.50;
+    const stripeGapZ = 0.50;
+    const stepZ = stripeThickZ + stripeGapZ;
+
+    // Северная секция: от zNorth + 0.35 до zIslandNorth - 0.15
+    let curZ = zNorth + 0.35 + stripeThickZ / 2;
+    while (curZ <= zIslandNorth - 0.15 - stripeThickZ / 2) {
+        collectStripe(zX1, curZ, zX2, curZ, stripeThickZ);
+        curZ += stepZ;
+    }
+
+    // Южная секция: от zIslandSouth + 0.25 до zSouth - 0.25
+    curZ = zIslandSouth + 0.25 + stripeThickZ / 2;
+    while (curZ <= zSouth - 0.25 - stripeThickZ / 2) {
+        collectStripe(zX1, curZ, zX2, curZ, stripeThickZ);
+        curZ += stepZ;
+    }
+
+    // 5) Прерывистые полосы между 1-й и 2-й полосами (разметка 1.5)
+    collectDashes(xStart, 50.0, 31.85, 3.0, 3.0, 0.15);
+    collectDashes(62.0, xEnd, 31.85, 3.0, 3.0, 0.15);
+    collectDashes(xStart, 50.0, 39.15, 3.0, 3.0, 0.15);
+    collectDashes(62.0, xEnd, 39.15, 3.0, 3.0, 0.15);
+
+    // 6) Краевые сплошные линии (разметка 1.1)
     collectStripe(xStart, zSouth - 0.45, zX1, zSouth - 0.45, 0.15);
     collectStripe(zX2, zSouth - 0.45, xEnd, zSouth - 0.45, 0.15);
     collectStripe(xStart, zNorth + 0.45, -10.0, zNorth + 0.45, 0.15);
@@ -170,23 +256,13 @@ function buildMainRoad(group) {
     collectStripe(zX2, zNorth + 0.45, 71.0, zNorth + 0.45, 0.15);
     collectStripe(79.0, zNorth + 0.45, xEnd, zNorth + 0.45, 0.15);
 
-    // 4) Пешеходный переход («Зебра» 1.14.1)
-    const stripeThickZ = 0.50;
-    const stripeGapZ = 0.50;
-    const stepZ = stripeThickZ + stripeGapZ;
-    const zMin = zNorth + 0.2;
-    const zMax = zSouth - 0.2;
-    let curZ = zMin + stripeThickZ / 2;
-    while (curZ <= zMax - stripeThickZ / 2) {
-        collectStripe(zX1, curZ, zX2, curZ, stripeThickZ);
-        curZ += stepZ;
-    }
+    // 7) Поперечные стоп-линии (разметка 1.12)
+    // Южное направление (движение на восток): перед переходом
+    collectStripe(52.0, zIslandSouth + 0.1, 52.0, zSouth - 0.4, 0.40);
+    // Северное направление (движение на запад): перед переходом
+    collectStripe(60.0, zNorth + 0.4, 60.0, zIslandNorth - 0.1, 0.40);
 
-    // 5) Поперечные стоп-линии (разметка 1.12)
-    collectStripe(zX1 - 2.0, 35.65, zX1 - 2.0, 42.35, 0.40);
-    collectStripe(zX2 + 2.0, 28.65, zX2 + 2.0, 35.35, 0.40);
-
-    // Сливаем всю белую разметку дороги в 1 Mesh (освобождает ~12-14 draw calls)
+    // Сливаем всю белую разметку дороги в 1 Mesh (1 draw call)
     if (whiteMarkingGeoms.length > 0) {
         const mergedWhiteMarkings = mergeBufferGeometriesVanilla(whiteMarkingGeoms);
         const roadMarkingMesh = new THREE.Mesh(mergedWhiteMarkings, MATERIALS.roadMarkingWhite);
@@ -194,23 +270,17 @@ function buildMainRoad(group) {
         group.add(roadMarkingMesh);
     }
 
-    // Тактильная предупреждающая плитка у съездов к переходу
-    addTactileWarningStrip(group, zX1 - 0.2, zX2 + 0.2, zMin - 0.65, zMin - 0.15);
-    addTactileWarningStrip(group, zX1 - 0.2, zX2 + 0.2, zMax + 0.15, zMax + 0.65);
-
-    // Знаки «Пешеходный переход» 5.19.1 и 5.19.2 (ориентированы навстречу транспортным потокам вдоль оси X)
-    // Pedestrian crosswalk: Traffic light on LEFT, road sign on RIGHT
-    // Edge 1 (North curb): Road sign at left/west, traffic light at right/east
+    // Знаки «Пешеходный переход» 5.19.1 и 5.19.2 + светофоры
     addPedestrianCrossingSign(group, zX1 - 0.5, zNorth - 0.5, Math.PI / 2);
     addPedestrianTrafficLight(group, zX2 + 0.8, zNorth - 0.6, Math.PI / 2, 0, -Math.PI / 2);
-    // Edge 2 (South curb): Traffic light at left/west, road sign at right/east
+    // Центральный светофор на островке безопасности
+    addPedestrianTrafficLight(group, zX1 - 0.2, zCenter, Math.PI / 2, 0, -Math.PI / 2);
+    addPedestrianTrafficLight(group, zX2 + 0.2, zCenter, -Math.PI / 2, Math.PI, Math.PI / 2);
+    // Южный тротуар
     addPedestrianTrafficLight(group, zX1 - 0.8, zSouth + 0.7, -Math.PI / 2, Math.PI, Math.PI / 2);
     addPedestrianCrossingSign(group, zX2 + 0.5, zSouth + 0.6, -Math.PI / 2);
 }
 
-// ----------------------------------------------------
-// 3. АВТОБУСНАЯ ОСТАНОВКА (БОЛЬШОЙ КАРМАН, ПАРАПЕТ, ПАВИЛЬОН)
-// ----------------------------------------------------
 function addCurbCornerPiece(group, x, z, angleIn, angleOut) {
     const r = 0.09;
     const geom = new THREE.CylinderGeometry(r, r, 0.18, 16);
@@ -761,10 +831,11 @@ function buildDrivewaysAndInnerRoads(group) {
     const northRoadW = 5.0;
     const northRoadZMid = -69.0;
 
-    const innerZSouth = -16.6;
-    const innerZNorth = -24.6;
-    const innerXWest = 13.6;
-    const innerXEast = 27.5;
+    const innerZSouth = -18.2;
+    const innerZNorth = -23.2;
+    const innerRoadW = 5.0;
+    const innerXWest = 17.5;
+    const innerXEast = 22.5;
 
     const eastLen = entryZStart - northRoadZ1;
     const eastZMid = (entryZStart + northRoadZ1) / 2;
@@ -772,38 +843,35 @@ function buildDrivewaysAndInnerRoads(group) {
     eastGeom.translate(roadMidX, -0.05, eastZMid);
     drivewayGeoms.push(eastGeom);
 
+    // Внешний восточный бордюр
     addCurbSegment(group, roadX2, entryZStart, roadX2, northRoadZ1);
 
-    // 3) АСФАЛЬТИРОВАННЫЙ ВНУТРЕННИЙ ДВОР (Центральное каре между К1, К2, К3, К4)
-    // Центральный двор
-    const courtyardW = innerXEast - innerXWest; // 13.9 м
-    const courtyardD = Math.abs(-14.0 - (-45.6)); // 31.6 м
-    const courtGeom = new THREE.BoxGeometry(courtyardW, 0.14, courtyardD);
-    courtGeom.translate((innerXWest + innerXEast) / 2, -0.05, (-14.0 + -45.6) / 2);
-    drivewayGeoms.push(courtGeom);
+    // Внутренний западный бордюр восточного проезда
+    addCurbSegment(group, roadX1, entryZStart, roadX1, innerZSouth);
+    addCurbSegment(group, roadX1, innerZNorth, roadX1, northRoadZ2);
 
-    // Хозяйственный проезд и площадка под переходом К2-К4
-    const k2k4W = roadX1 - 20.4; // 51.6 м
-    const k2k4D = Math.abs(innerZSouth - innerZNorth); // 8.0 м
-    const k2k4Geom = new THREE.BoxGeometry(k2k4W, 0.14, k2k4D);
-    k2k4Geom.translate((20.4 + roadX1) / 2, -0.05, (innerZSouth + innerZNorth) / 2);
-    drivewayGeoms.push(k2k4Geom);
+    // 3) ВНУТРЕННИЙ ПРОЕЗД МЕЖДУ КОРПУСОМ 2 И КОРПУСОМ 4 (ширина 5.0 м)
+    const midZMid = (innerZNorth + innerZSouth) / 2;
+    const midLen = roadX1 - innerXEast;
+    const midGeom = new THREE.BoxGeometry(midLen, 0.14, innerRoadW);
+    midGeom.translate((innerXEast + roadX1) / 2, -0.05, midZMid);
+    drivewayGeoms.push(midGeom);
 
-    // Пожарный проезд между К3 и К4 к северному объезду
-    const northPassW = innerXEast - innerXWest;
-    const northPassD = Math.abs(-45.6 - northRoadZ2);
-    const northPassGeom = new THREE.BoxGeometry(northPassW, 0.14, northPassD);
-    northPassGeom.translate((innerXWest + innerXEast) / 2, -0.05, (-45.6 + northRoadZ2) / 2);
-    drivewayGeoms.push(northPassGeom);
+    addCurbSegment(group, innerXEast, innerZSouth, roadX1, innerZSouth);
+    addCurbSegment(group, innerXEast, innerZNorth, roadX1, innerZNorth);
 
-    // Отмостка/асфальт к северному цоколю Корпуса 1
-    const b1NorthW = 16.0 - (-10.0);
-    const b1NorthD = Math.abs(-14.0 - (-16.6));
-    const b1NorthGeom = new THREE.BoxGeometry(b1NorthW, 0.14, b1NorthD);
-    b1NorthGeom.translate((-10.0 + 16.0) / 2, -0.05, (-14.0 + -16.6) / 2);
-    drivewayGeoms.push(b1NorthGeom);
+    // 4) ВНУТРЕННИЙ ПРОЕЗД МЕЖДУ КОРПУСОМ 3 И КОРПУСОМ 4 (ширина 5.0 м)
+    const vertXMid = (innerXWest + innerXEast) / 2;
+    const vertLen = Math.abs(innerZSouth - northRoadZ2);
+    const vertGeom = new THREE.BoxGeometry(innerRoadW, 0.14, vertLen);
+    vertGeom.translate(vertXMid, -0.05, (northRoadZ2 + innerZSouth) / 2);
+    drivewayGeoms.push(vertGeom);
 
-    // 4) СЕВЕРНЫЙ ПРОЕЗД
+    addCurbSegment(group, innerXWest, northRoadZ2, innerXWest, innerZSouth);
+    addCurbSegment(group, innerXEast, northRoadZ2, innerXEast, innerZNorth);
+    addCurbSegment(group, innerXWest, innerZSouth, innerXEast, innerZSouth);
+
+    // 5) СЕВЕРНЫЙ ПРОЕЗД (ширина 5.0 м)
     const northWestEnd = -18.0;
     const northLen = roadX2 - northWestEnd;
     const northXMid = (northWestEnd + roadX2) / 2;
@@ -811,7 +879,7 @@ function buildDrivewaysAndInnerRoads(group) {
     northGeom.translate(northXMid, -0.05, northRoadZMid);
     drivewayGeoms.push(northGeom);
 
-    // 5) ВОСТОЧНАЯ ПАРКОВКА (к востоку от въезда)
+    // 6) ВОСТОЧНАЯ ПАРКОВКА (к востоку от въезда)
     const parkW = 89.0 - 77.0; // 12.0 м
     const parkD = 20.0 - 4.0;   // 16.0 м
     const parkGeom = new THREE.BoxGeometry(parkW, 0.14, parkD);
@@ -840,7 +908,7 @@ function buildDrivewaysAndInnerRoads(group) {
         group.add(parkMarkingMesh);
     }
 
-    // Сливаем все участки асфальта сети проездов и двора в 1 Mesh
+    // Сливаем все участки асфальта в 1 Mesh
     if (drivewayGeoms.length > 0) {
         const mergedDriveway = mergeBufferGeometriesVanilla(drivewayGeoms);
         const drivewayMesh = new THREE.Mesh(mergedDriveway, MATERIALS.asphaltDriveway);
@@ -861,7 +929,7 @@ function buildDrivewaysAndInnerRoads(group) {
 function buildForecourtDualTonePaving(group) {
     const paveGeoms = [];
 
-    // 1) Парадный променад от автобусной остановки к главному входу Корпуса 1:
+    // 1) Парадный променад от автобусной остановки к парадному входу:
     // X: от -10.0 до 20.4, Z: от 17.0 до 21.6 (в стык с посадочной площадкой остановки)
     const promW = 20.4 - (-10.0); // 30.4 м
     const promD = 21.6 - 17.0;    // 4.6 м
@@ -869,37 +937,37 @@ function buildForecourtDualTonePaving(group) {
     promGeom.translate((-10.0 + 20.4) / 2, -0.02, (17.0 + 21.6) / 2);
     paveGeoms.push(promGeom);
 
-    // 2) Парадная площадь перед крыльцом Корпуса 1:
-    // X: -14.0..16.5, Z: 6.0..17.0
-    const plazaW = 16.5 - (-14.0); // 30.5 м
-    const plazaD = 17.0 - 6.0;     // 11.0 м
+    // 2) Парадная площадка перед южным фасадом Корпуса 1:
+    // Южная стена входа и каб. 101 находится на Z = 12.2!
+    // Мощение площади лежит СТРОГО СНАРУЖИ СТЕНЫ: Z от 12.2 до 17.0!
+    // X: от -8.6 до 20.4 (до западной границы газона К2)
+    const plazaW = 20.4 - (-8.6); // 29.0 м
+    const plazaD = 17.0 - 12.2;   // 4.8 м
     const plazaGeom = new THREE.BoxGeometry(plazaW, 0.16, plazaD);
-    plazaGeom.translate((-14.0 + 16.5) / 2, -0.02, (6.0 + 17.0) / 2);
+    plazaGeom.translate((-8.6 + 20.4) / 2, -0.02, (12.2 + 17.0) / 2);
     paveGeoms.push(plazaGeom);
 
     // 3) Пешеходная дорожка вокруг газона Корпуса 2:
-    // Южная дорожка (вдоль проезда и газона к восточному въезду):
+    // Южная дорожка (вдоль проезда и газона к восточному въезду, южнее газона Z: 17.0..21.6):
     const b2SouthWalk = new THREE.BoxGeometry(72.0 - 20.4, 0.16, 21.6 - 17.0);
     b2SouthWalk.translate((20.4 + 72.0) / 2, -0.02, (17.0 + 21.6) / 2);
     paveGeoms.push(b2SouthWalk);
 
-    // Западная дорожка газона К2 (между площадью и газоном К2):
-    const b2WestWalk = new THREE.BoxGeometry(20.4 - 16.5, 0.16, 17.0 - 3.5);
-    b2WestWalk.translate((16.5 + 20.4) / 2, -0.02, (3.5 + 17.0) / 2);
+    // Западная дорожка газона К2 (между площадью и газоном К2, строго западнее стены К2 X=20.4):
+    const b2WestWalk = new THREE.BoxGeometry(20.4 - 17.0, 0.16, 17.0 - 3.5);
+    b2WestWalk.translate((17.0 + 20.4) / 2, -0.02, (3.5 + 17.0) / 2);
     paveGeoms.push(b2WestWalk);
 
-    // Северная дорожка вдоль цоколя Корпуса 2:
-    const b2NorthWalk = new THREE.BoxGeometry(68.0 - 20.4, 0.16, 3.5 - 0.5);
-    b2NorthWalk.translate((20.4 + 68.0) / 2, -0.02, (0.5 + 3.5) / 2);
-    paveGeoms.push(b2NorthWalk);
+    // ВНИМАНИЕ: дорожка вдоль северного края газона (внутрь К2) ПОЛНОСТЬЮ УДАЛЕНА!
+    // Внутри комнат 2-108, 2-106, 2-110 чистовой белый пол здания!
 
-    // 4) Пешеходный тротуар к Корпусу 3 (вдоль западного фасада и входной группы):
-    // Тротуар вдоль западного фасада К3:
+    // 4) Западная пешеходная зона к Корпусу 3:
+    // Тротуар вдоль западного фасада К3 (фасад К3 на X = -1.8, тротуар строго снаружи при X: -5.0..-1.8):
     const b3WestWalk = new THREE.BoxGeometry(3.2, 0.16, Math.abs(-14.0 - (-62.0)));
     b3WestWalk.translate((-5.0 + -1.8) / 2, -0.02, (-14.0 + -62.0) / 2);
     paveGeoms.push(b3WestWalk);
 
-    // Соединение парадной площади с западным тротуаром Корпуса 3:
+    // Соединение перед входом (строго южнее южного фасада Z=14.0):
     const b3ConnWalk = new THREE.BoxGeometry(Math.abs(-1.8 - (-18.0)), 0.16, 21.6 - 14.0);
     b3ConnWalk.translate((-18.0 + -1.8) / 2, -0.02, (14.0 + 21.6) / 2);
     paveGeoms.push(b3ConnWalk);
@@ -1532,7 +1600,6 @@ function buildLandscaping(group) {
     // Z=12.0: Ель обыкновенная [цель теста tree_spruce]
     const drivewayTrees = [
         { x: 80.8, z:  22.0, type: 'spruce', scale: 1.20, seed: 1 },
-        { x: 80.8, z:  12.0, type: 'spruce', scale: 1.30, seed: 2 }, // Target tree_spruce
         { x: 80.8, z:   2.0, type: 'linden', scale: 1.22, seed: 3 },
         { x: 80.8, z:  -8.0, type: 'spruce', scale: 1.18, seed: 4 },
         { x: 80.8, z: -18.0, type: 'spruce', scale: 1.35, seed: 5 },
@@ -2751,14 +2818,10 @@ function buildRingRoadAroundCollege(group) {
     addRoadRibbon(eastRoadX1, northRoadZ1, eastRoadX2, mainRoadZ1);
     // Северный объезд
     addRoadRibbon(northWestEnd, northRoadZ1, eastRoadX2, northRoadZ2);
-    // Центральный внутренний двор (между К1, К2, К3, К4)
-    addRoadRibbon(13.6, -45.6, 27.5, -14.0);
-    // Хозяйственный проезд под переходом К2-К4
-    addRoadRibbon(20.4, -24.6, eastRoadX1, -16.6);
-    // Пожарный проезд между К3 и К4
-    addRoadRibbon(13.6, northRoadZ2, 27.5, -45.6);
-    // Отмостка северного цоколя К1
-    addRoadRibbon(-10.0, -16.6, 16.0, -14.0);
+    // Внутренний проезд (горизонтальный участок между К2 и К4)
+    addRoadRibbon(innerXEast, innerZNorth, eastRoadX1, innerZSouth);
+    // Внутренний проезд (вертикальный участок между К3 и К4)
+    addRoadRibbon(innerXWest, northRoadZ2, innerXEast, innerZSouth);
     // Восточная гостевая парковка
     addRoadRibbon(77.0, 4.0, 89.0, 20.0);
 
@@ -3025,29 +3088,24 @@ function buildPerimeterFence(group) {
         const numPosts = Math.max(1, Math.round(totalDist / postSpan));
         const actualSpan = totalDist / numPosts;
 
-        // Столбы
         for (let i = 0; i <= numPosts; i++) {
             const px = x1 + dirX * (i * actualSpan);
             const pz = z1 + dirZ * (i * actualSpan);
 
-            // Опорный фланец
             const baseGeom = new THREE.BoxGeometry(baseW, baseH, baseW);
             baseGeom.translate(px, baseH / 2, pz);
             fenceGeoms.push(baseGeom);
 
-            // Опорная стойка
             const postGeom = new THREE.BoxGeometry(postW, postH, postW);
             postGeom.translate(px, postH / 2, pz);
             fenceGeoms.push(postGeom);
 
-            // Пирамидальный защитный оголовок
             const capGeom = new THREE.ConeGeometry(postW * 0.75, 0.05, 4);
             capGeom.rotateY(Math.PI / 4);
             capGeom.translate(px, postH + 0.025, pz);
             fenceGeoms.push(capGeom);
         }
 
-        // Горизонтальные лаги
         const railTop = new THREE.BoxGeometry(railW, railH, totalDist);
         railTop.rotateY(angleY);
         railTop.translate((x1 + x2) / 2, 1.70, (z1 + z2) / 2);
@@ -3058,7 +3116,6 @@ function buildPerimeterFence(group) {
         railBot.translate((x1 + x2) / 2, 0.40, (z1 + z2) / 2);
         fenceGeoms.push(railBot);
 
-        // Вертикальные ламели (штакетник)
         const numPickets = Math.floor(totalDist / picketStep);
         for (let p = 1; p < numPickets; p++) {
             const distFromStart = p * picketStep;
@@ -3076,26 +3133,25 @@ function buildPerimeterFence(group) {
     }
 
     // Линии забора вокруг кампуса МГКЦТ:
-    // 1. Северная граница (позади корпусов 3 и 4):
-    // 1. Северный забор: от запада Корпуса 3 вдоль Корпуса 4 с воротами (X: 40.0..46.0):
-    addFenceLine(-5.0, -63.5, 40.0, -63.5);
-    addFenceLine(46.0, -63.5, 72.0, -63.5);
+    // 1. Северный забор: с проездом для пожарного выезда (X: 17.5..22.5) и БЕЗ дырки на 40..46:
+    addFenceLine(-5.0, -63.5, 17.5, -63.5);
+    // Проезд/ворота пожарного выезда: X: 17.5 .. 22.5
+    addFenceLine(22.5, -63.5, 72.0, -63.5);
 
     // 2. Западный забор вдоль Корпуса 3 и переход к Корпусу 1:
     addFenceLine(-5.0, -63.5, -5.0, -14.0);
     addFenceLine(-5.0, -14.0, -10.0, -14.0);
 
-    // 3. Западный забор вокруг Корпуса 1:
-    // West fence section along Building 1 removed per user request (media_1793640907092_775817ea.png)
+    // 3. Восточный забор вдоль Корпусов 4 и 2 (с проездом во внутренний двор под переходом Z: -24.0..-17.0):
+    addFenceLine(72.0, -63.5, 72.0, -24.0);
+    // Проезд во внутренний двор под переходом: Z: -24.0 .. -17.0
+    addFenceLine(72.0, -17.0, 72.0, 3.5);
 
-    // 4. Восточный забор вдоль Корпусов 4 и 2:
-    // East fence along Buildings 4 and 2 down to B2 south facade corner:
-    addFenceLine(72.0, -63.5, 72.0, 3.5);
-    // Corner turn to Building 2 east wall removed per user request
+    // 4. Поворот забора от угла Корпуса 2 (каб. 2-110) к восточной дороге (желтая линия пользователя):
+    addFenceLine(68.0, 3.5, 72.0, 3.5);
 
-    // 5. Южный фасадный забор:
-    addFenceLine(-26.0, 18.0, -8.0, 18.0);
-    // South front fence along lawn removed per user request (redrawn to B2 wall at Z=3.5)
+    // 5. Забор перед входом убран (красный овал пользователя)
+
     if (fenceGeoms.length > 0) {
         const mergedFence = mergeBufferGeometriesVanilla(fenceGeoms);
         const fenceMesh = new THREE.Mesh(mergedFence, MATERIALS.perimeterFence);
