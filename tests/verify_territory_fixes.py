@@ -50,24 +50,24 @@ flare_start = (72.0, 24.5)
 assert prom_corner == flare_start, "Promenade sidewalk corner must match flare start point!"
 print("  [OK] Promenade sidewalk corner meets curb at (72.0, 24.5) with ZERO overshoot")
 
-print("\n=== 4. VERIFYING SKYWALK UNDERPASS GAPS (NO ROAD/CURBS OVER 2ND FLOOR CORRIDORS) ===")
-# Читаем territory.js и проверяем, что ни один бордюр и ни один отрезок дороги не пересекают переходы
+print("\n=== 4. VERIFYING GROUND ROAD CONTINUITY & SKYWALK ELEVATION ISOLATION ===")
 territory_js = open("js/territory.js", "r", encoding="utf-8").read()
+main_js = open("js/main.js", "r", encoding="utf-8").read()
 
-# Проверяем бордюры у перехода К3 ↔ К4 (Z: -46.8..-44.0)
-assert "addCurbSegment(group, innerXWest, northRoadZ2, innerXWest, -46.8)" in territory_js, "Бордюр должен останавливаться на Z=-46.8"
-assert "addCurbSegment(group, innerXWest, -44.0, innerXWest, innerZSouth)" in territory_js, "Бордюр должен возобновляться на Z=-44.0"
-# Проверяем бордюры у перехода К4 ↔ К2 (X: 36.0..38.8)
-assert "addCurbSegment(group, innerXEast, innerZSouth, 36.0, innerZSouth)" in territory_js, "Бордюр должен останавливаться на X=36.0"
-assert "addCurbSegment(group, 38.8, innerZSouth, roadX1, innerZSouth)" in territory_js, "Бордюр должен возобновляться на X=38.8"
+# Проверяем сплошное и непрерывное полотно проездов на 1 этаже (ноль дыр на грунте!)
+assert "addCurbSegment(group, innerXWest, northRoadZ2, innerXWest, innerZSouth)" in territory_js, "Бордюр К3-К4 должен быть сплошным на грунте"
+assert "addCurbSegment(group, innerXEast, innerZSouth, roadX1, innerZSouth)" in territory_js, "Бордюр К4-К2 должен быть сплошным на грунте"
 
-# Проверяем схему кольцевой дороги в buildRingRoadAroundCollege
-assert "addRoadRibbon(innerXWest, northRoadZ2, innerXEast, -46.8)" in territory_js
-assert "addRoadRibbon(innerXWest, -44.0, innerXEast, innerZSouth)" in territory_js
-assert "addRoadRibbon(innerXEast, innerZNorth, 36.0, innerZSouth)" in territory_js
-assert "addRoadRibbon(38.8, innerZNorth, eastRoadX1, innerZSouth)" in territory_js
+# Проверяем схему кольцевой дороги в buildRingRoadAroundCollege (сплошная непрерывная линия)
+assert "addRoadRibbon(innerXWest, northRoadZ2, innerXEast, innerZSouth)" in territory_js, "Полотно К3-К4 должно быть непрерывным"
+assert "addRoadRibbon(innerXEast, innerZNorth, eastRoadX1, innerZSouth)" in territory_js, "Полотно К4-К2 должно быть непрерывным"
 
-print("  [OK] Все проезды и бордюры имеют строгие разрывы под переходами К3-К4 и К4-К2")
-print("  [OK] Надземные переходы 2-го этажа полностью изолированы от проезжей части")
+# Проверяем синхронизацию высотной отметки территории (groundElevationY), исключающей пересечение с переходами 2-го этажа
+assert "groundElevationY = isSingleFloorMode ? -((parseInt(STATE.mode, 10) || 1) - 1) * BASE_FLOOR_STEP : 0" in main_js
+assert "territoryGroup.position.y = groundElevationY" in main_js
+assert "roadNetworkGroup.position.y = groundElevationY" in main_js
+
+print("  [OK] Проезды и бордюры на грунте (1 этаж) являются 100% непрерывными без дыр и разрывов")
+print("  [OK] Переходы 2-го этажа изолированы высотной синхронизацией территории (-2.65 м относительно 2 этажа)")
 
 print("\nALL TERRITORY VERIFICATIONS PASSED SUCCESSFULLY!")

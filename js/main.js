@@ -776,6 +776,16 @@ function recalcTargetPositions() {
         }
     }
 
+    // Синхронизируем высотную отметку прилегающей территории и дорог
+    const isSingleFloorMode = (STATE.mode !== 'all' && STATE.mode !== 'slice' && STATE.mode !== 'sideBySide');
+    const groundElevationY = isSingleFloorMode ? -((parseInt(STATE.mode, 10) || 1) - 1) * BASE_FLOOR_STEP : 0;
+    if (typeof territoryGroup !== 'undefined' && territoryGroup) {
+        territoryGroup.position.y = groundElevationY;
+    }
+    if (typeof roadNetworkGroup !== 'undefined' && roadNetworkGroup) {
+        roadNetworkGroup.position.y = groundElevationY;
+    }
+
     // Применяем умную оптимизацию видимости внутренностей
     updateFloorsInteriorVisibility();
     updateLabelsVisibility();
