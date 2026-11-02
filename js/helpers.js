@@ -63,52 +63,65 @@ function addFloorRect(targetGroup, x1, z1, x2, z2, isCore = false) {
 
 }
 
-// ==========================================
-// АДАПТИВНЫЙ БЕЛЫЙ ПОДСТИЛАЮЩИЙ ПОЛ (BACKING FLOOR)
-// Располагается строго под плитами перекрытия каждого этажа (Y = -0.16..-0.20),
-// исключая просвечивание травы или щелей между отдельными комнатами на любом этаже!
-// ==========================================
-function addFloorBackingSlab(targetGroup, x1, z1, x2, z2) {
+
+function addFloorRightTriangle(targetGroup, xA, zA, xB, zB, xC, zC, isBacking = false) {
     if (!targetGroup) return null;
-    const w = Math.abs(x2 - x1);
-    const d = Math.abs(z2 - z1);
-    const cx = (x1 + x2) / 2;
-    const cz = (z1 + z2) / 2;
-    const thickness = 0.04;
-    const geom = new THREE.BoxGeometry(w, thickness, d);
-    const mesh = new THREE.Mesh(geom, MATERIALS.slab);
-    mesh.position.set(cx, -0.16 - thickness / 2, cz);
-    mesh.receiveShadow = false;
-    mesh.userData.isFloorBacking = true;
-    mesh.userData.isInterior = false;
-    mesh.userData.isExterior = true;
-    targetGroup.add(mesh);
-    return mesh;
-}
+    const geom = new THREE.BufferGeometry();
+    const thickness = isBacking ? 0.15 : 0.16;
+    const yTop = isBacking ? -0.005 : 0.0;
+    const yBottom = yTop - thickness;
 
-function addFloorBackingPolygon(targetGroup, points) {
-    if (!targetGroup || !points || points.length < 3) return null;
-    const shape = new THREE.Shape();
-    shape.moveTo(points[0][0], points[0][1]);
-    for (let i = 1; i < points.length; i++) {
-        shape.lineTo(points[i][0], points[i][1]);
+    // Треугольная призма в плоскости XZ с нормалями строго наружу и вверх (+Y)
+    const vertices = new Float32Array([
+        // Верхняя грань (нормаль +Y)
+        xA, yTop, zA,
+        xB, yTop, zB,
+        xC, yTop, zC,
+
+        // Нижняя грань (нормаль -Y)
+        xC, yBottom, zC,
+        xB, yBottom, zB,
+        xA, yBottom, zA,
+
+        // Боковая грань 1 (AB)
+        xA, yBottom, zA,
+        xB, yBottom, zB,
+        xB, yTop, zB,
+        xA, yBottom, zA,
+        xB, yTop, zB,
+        xA, yTop, zA,
+
+        // Боковая грань 2 (BC)
+        xB, yBottom, zB,
+        xC, yBottom, zC,
+        xC, yTop, zC,
+        xB, yBottom, zB,
+        xC, yTop, zC,
+        xB, yTop, zB,
+
+        // Боковая грань 3 (CA)
+        xC, yBottom, zC,
+        xA, yBottom, zA,
+        xA, yTop, zA,
+        xC, yBottom, zC,
+        xA, yTop, zA,
+        xC, yTop, zC
+    ]);
+
+    geom.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
+    geom.computeVertexNormals();
+
+    const mat = MATERIALS.slab;
+    const mesh = new THREE.Mesh(geom, mat);
+    mesh.receiveShadow = !isBacking;
+    mesh.userData.isFloorBacking = isBacking;
+    mesh.userData.isFloorSlab = !isBacking;
+    mesh.userData.isExterior = !isBacking;
+    mesh.userData.isInterior = isBacking;
+    targetGroup.add(mesh);
+    if (!isBacking) {
+        slabMeshes.push(mesh);
     }
-    shape.closePath();
-
-    const thickness = 0.04;
-    const geom = new THREE.ExtrudeGeometry(shape, {
-        depth: thickness,
-        bevelEnabled: false
-    });
-    geom.rotateX(Math.PI / 2);
-
-    const mesh = new THREE.Mesh(geom, MATERIALS.slab);
-    mesh.position.set(0, -0.16, 0);
-    mesh.receiveShadow = false;
-    mesh.userData.isFloorBacking = true;
-    mesh.userData.isInterior = false;
-    mesh.userData.isExterior = true;
-    targetGroup.add(mesh);
     return mesh;
 }
 
@@ -137,57 +150,6 @@ function addFloorPolygon(targetGroup, points, isCore = false) {
     mesh.userData.isExterior = true;
     targetGroup.add(mesh);
     slabMeshes.push(mesh);
-
-
-}
-
-// ==========================================
-// АДАПТИВНЫЙ БЕЛЫЙ ПОДСТИЛАЮЩИЙ ПОЛ (BACKING FLOOR)
-// Располагается строго под плитами перекрытия каждого этажа (Y = -0.16..-0.20),
-// исключая просвечивание травы или щелей между отдельными комнатами на любом этаже!
-// ==========================================
-function addFloorBackingSlab(targetGroup, x1, z1, x2, z2) {
-    if (!targetGroup) return null;
-    const w = Math.abs(x2 - x1);
-    const d = Math.abs(z2 - z1);
-    const cx = (x1 + x2) / 2;
-    const cz = (z1 + z2) / 2;
-    const thickness = 0.04;
-    const geom = new THREE.BoxGeometry(w, thickness, d);
-    const mesh = new THREE.Mesh(geom, MATERIALS.slab);
-    mesh.position.set(cx, -0.16 - thickness / 2, cz);
-    mesh.receiveShadow = false;
-    mesh.userData.isFloorBacking = true;
-    mesh.userData.isInterior = false;
-    mesh.userData.isExterior = true;
-    targetGroup.add(mesh);
-    return mesh;
-}
-
-function addFloorBackingPolygon(targetGroup, points) {
-    if (!targetGroup || !points || points.length < 3) return null;
-    const shape = new THREE.Shape();
-    shape.moveTo(points[0][0], points[0][1]);
-    for (let i = 1; i < points.length; i++) {
-        shape.lineTo(points[i][0], points[i][1]);
-    }
-    shape.closePath();
-
-    const thickness = 0.04;
-    const geom = new THREE.ExtrudeGeometry(shape, {
-        depth: thickness,
-        bevelEnabled: false
-    });
-    geom.rotateX(Math.PI / 2);
-
-    const mesh = new THREE.Mesh(geom, MATERIALS.slab);
-    mesh.position.set(0, -0.16, 0);
-    mesh.receiveShadow = false;
-    mesh.userData.isFloorBacking = true;
-    mesh.userData.isInterior = false;
-    mesh.userData.isExterior = true;
-    targetGroup.add(mesh);
-    return mesh;
 }
 
 // Реестр групп с отложенным построением стен для бесшовного совмещения стыков (Junction Solver)
@@ -684,40 +646,44 @@ function createResolvedWallEdgesGeometry(seg, wallBoxes) {
         }
 
         // Торец West: X = c1, normal (-1, 0), local X = -hw
-        const cutsW = new Set([fixed - ht, fixed + ht]);
-        for (let k = 0; k < wallBoxes.length; k++) {
-            const b = wallBoxes[k];
-            if (b.id === seg.id) continue;
-            if (b.minX - 0.005 <= c1 && c1 <= b.maxX + 0.005) {
-                if ((fixed - ht) < b.minZ && b.minZ < (fixed + ht)) cutsW.add(b.minZ);
-                if ((fixed - ht) < b.maxZ && b.maxZ < (fixed + ht)) cutsW.add(b.maxZ);
+        if (!seg.omitStartCap) {
+            const cutsW = new Set([fixed - ht, fixed + ht]);
+            for (let k = 0; k < wallBoxes.length; k++) {
+                const b = wallBoxes[k];
+                if (b.id === seg.id) continue;
+                if (b.minX - 0.005 <= c1 && c1 <= b.maxX + 0.005) {
+                    if ((fixed - ht) < b.minZ && b.minZ < (fixed + ht)) cutsW.add(b.minZ);
+                    if ((fixed - ht) < b.maxZ && b.maxZ < (fixed + ht)) cutsW.add(b.maxZ);
+                }
             }
-        }
-        const sortedW = Array.from(cutsW).sort((a, b) => a - b);
-        for (let i = 0; i < sortedW.length - 1; i++) {
-            const za = sortedW[i], zb = sortedW[i + 1];
-            if (zb - za < 0.005) continue;
-            if (!isInsideOtherWall(c1 - delta, (za + zb) / 2)) {
-                visibleLocalSegments.push([-hw, za - fixed, -hw, zb - fixed]);
+            const sortedW = Array.from(cutsW).sort((a, b) => a - b);
+            for (let i = 0; i < sortedW.length - 1; i++) {
+                const za = sortedW[i], zb = sortedW[i + 1];
+                if (zb - za < 0.005) continue;
+                if (!isInsideOtherWall(c1 - delta, (za + zb) / 2)) {
+                    visibleLocalSegments.push([-hw, za - fixed, -hw, zb - fixed]);
+                }
             }
         }
 
         // Торец East: X = c2, normal (+1, 0), local X = +hw
-        const cutsE = new Set([fixed - ht, fixed + ht]);
-        for (let k = 0; k < wallBoxes.length; k++) {
-            const b = wallBoxes[k];
-            if (b.id === seg.id) continue;
-            if (b.minX - 0.005 <= c2 && c2 <= b.maxX + 0.005) {
-                if ((fixed - ht) < b.minZ && b.minZ < (fixed + ht)) cutsE.add(b.minZ);
-                if ((fixed - ht) < b.maxZ && b.maxZ < (fixed + ht)) cutsE.add(b.maxZ);
+        if (!seg.omitEndCap) {
+            const cutsE = new Set([fixed - ht, fixed + ht]);
+            for (let k = 0; k < wallBoxes.length; k++) {
+                const b = wallBoxes[k];
+                if (b.id === seg.id) continue;
+                if (b.minX - 0.005 <= c2 && c2 <= b.maxX + 0.005) {
+                    if ((fixed - ht) < b.minZ && b.minZ < (fixed + ht)) cutsE.add(b.minZ);
+                    if ((fixed - ht) < b.maxZ && b.maxZ < (fixed + ht)) cutsE.add(b.maxZ);
+                }
             }
-        }
-        const sortedE = Array.from(cutsE).sort((a, b) => a - b);
-        for (let i = 0; i < sortedE.length - 1; i++) {
-            const za = sortedE[i], zb = sortedE[i + 1];
-            if (zb - za < 0.005) continue;
-            if (!isInsideOtherWall(c2 + delta, (za + zb) / 2)) {
-                visibleLocalSegments.push([hw, za - fixed, hw, zb - fixed]);
+            const sortedE = Array.from(cutsE).sort((a, b) => a - b);
+            for (let i = 0; i < sortedE.length - 1; i++) {
+                const za = sortedE[i], zb = sortedE[i + 1];
+                if (zb - za < 0.005) continue;
+                if (!isInsideOtherWall(c2 + delta, (za + zb) / 2)) {
+                    visibleLocalSegments.push([hw, za - fixed, hw, zb - fixed]);
+                }
             }
         }
     } else {
@@ -766,40 +732,44 @@ function createResolvedWallEdgesGeometry(seg, wallBoxes) {
         }
 
         // Торец North: world Z = c1, normal (0, -1), local X = -hw
-        const cutsN = new Set([fixed - ht, fixed + ht]);
-        for (let k = 0; k < wallBoxes.length; k++) {
-            const b = wallBoxes[k];
-            if (b.id === seg.id) continue;
-            if (b.minZ - 0.005 <= c1 && c1 <= b.maxZ + 0.005) {
-                if ((fixed - ht) < b.minX && b.minX < (fixed + ht)) cutsN.add(b.minX);
-                if ((fixed - ht) < b.maxX && b.maxX < (fixed + ht)) cutsN.add(b.maxX);
+        if (!seg.omitStartCap) {
+            const cutsN = new Set([fixed - ht, fixed + ht]);
+            for (let k = 0; k < wallBoxes.length; k++) {
+                const b = wallBoxes[k];
+                if (b.id === seg.id) continue;
+                if (b.minZ - 0.005 <= c1 && c1 <= b.maxZ + 0.005) {
+                    if ((fixed - ht) < b.minX && b.minX < (fixed + ht)) cutsN.add(b.minX);
+                    if ((fixed - ht) < b.maxX && b.maxX < (fixed + ht)) cutsN.add(b.maxX);
+                }
             }
-        }
-        const sortedN = Array.from(cutsN).sort((a, b) => a - b);
-        for (let i = 0; i < sortedN.length - 1; i++) {
-            const xa = sortedN[i], xb = sortedN[i + 1];
-            if (xb - xa < 0.005) continue;
-            if (!isInsideOtherWall((xa + xb) / 2, c1 - delta)) {
-                visibleLocalSegments.push([-hw, fixed - xa, -hw, fixed - xb]);
+            const sortedN = Array.from(cutsN).sort((a, b) => a - b);
+            for (let i = 0; i < sortedN.length - 1; i++) {
+                const xa = sortedN[i], xb = sortedN[i + 1];
+                if (xb - xa < 0.005) continue;
+                if (!isInsideOtherWall((xa + xb) / 2, c1 - delta)) {
+                    visibleLocalSegments.push([-hw, fixed - xa, -hw, fixed - xb]);
+                }
             }
         }
 
         // Торец South: world Z = c2, normal (0, +1), local X = +hw
-        const cutsS = new Set([fixed - ht, fixed + ht]);
-        for (let k = 0; k < wallBoxes.length; k++) {
-            const b = wallBoxes[k];
-            if (b.id === seg.id) continue;
-            if (b.minZ - 0.005 <= c2 && c2 <= b.maxZ + 0.005) {
-                if ((fixed - ht) < b.minX && b.minX < (fixed + ht)) cutsS.add(b.minX);
-                if ((fixed - ht) < b.maxX && b.maxX < (fixed + ht)) cutsS.add(b.maxX);
+        if (!seg.omitEndCap) {
+            const cutsS = new Set([fixed - ht, fixed + ht]);
+            for (let k = 0; k < wallBoxes.length; k++) {
+                const b = wallBoxes[k];
+                if (b.id === seg.id) continue;
+                if (b.minZ - 0.005 <= c2 && c2 <= b.maxZ + 0.005) {
+                    if ((fixed - ht) < b.minX && b.minX < (fixed + ht)) cutsS.add(b.minX);
+                    if ((fixed - ht) < b.maxX && b.maxX < (fixed + ht)) cutsS.add(b.maxX);
+                }
             }
-        }
-        const sortedS = Array.from(cutsS).sort((a, b) => a - b);
-        for (let i = 0; i < sortedS.length - 1; i++) {
-            const xa = sortedS[i], xb = sortedS[i + 1];
-            if (xb - xa < 0.005) continue;
-            if (!isInsideOtherWall((xa + xb) / 2, c2 + delta)) {
-                visibleLocalSegments.push([hw, fixed - xa, hw, fixed - xb]);
+            const sortedS = Array.from(cutsS).sort((a, b) => a - b);
+            for (let i = 0; i < sortedS.length - 1; i++) {
+                const xa = sortedS[i], xb = sortedS[i + 1];
+                if (xb - xa < 0.005) continue;
+                if (!isInsideOtherWall((xa + xb) / 2, c2 + delta)) {
+                    visibleLocalSegments.push([hw, fixed - xa, hw, fixed - xb]);
+                }
             }
         }
     }
@@ -850,6 +820,11 @@ function flushWalls(targetGroup) {
 
     // Сбор всех прямоугольных боксов стен этажа для точной резолюции бесшовных контурных рёбер
     const wallBoxes = [];
+    if (targetGroup._pendingChamferBoxes) {
+        for (let i = 0; i < targetGroup._pendingChamferBoxes.length; i++) {
+            wallBoxes.push(targetGroup._pendingChamferBoxes[i]);
+        }
+    }
     for (let i = 0; i < solvedSegments.length; i++) {
         const s = solvedSegments[i];
         if (s.isDoor) continue;
@@ -998,21 +973,21 @@ function addMiteredChamferWall(targetGroup, x1, z1, x2, z2, thickness = 0.18, is
     const dx = x2 - x1;
     const dz = z2 - z1;
     const half = thickness / 2;
-    const m = half * (Math.SQRT2 - 1);
-
     let V1, V2, V3, V4;
     if (dx > 0 && dz > 0) {
         // Юго-западный скос (Корпус 1): от вертикальной стены X=x1 к горизонтальной стене Z=z2
-        V1 = [x1 - half, z1 + m];
-        V2 = [x2 - m, z2 + half];
-        V3 = [x2 + m, z2 - half];
-        V4 = [x1 + half, z1 - m];
+        // Ортогональные плоские срезы на стыках без зазоров и выступов
+        V1 = [x1 - half, z1];
+        V2 = [x2, z2 + half];
+        V3 = [x2, z2 - half];
+        V4 = [x1 + half, z1];
     } else if (dx > 0 && dz < 0) {
         // Скос у кабинета 205 (Корпус 1 Этаж 2): от горизонтальной стены Z=z1 к вертикальной стене X=x2
-        V1 = [x1 + m, z1 + half];
-        V2 = [x2 + half, z2 + m];
-        V3 = [x2 - half, z2 - m];
-        V4 = [x1 - m, z1 - half];
+        // Ортогональные плоские срезы на стыках без зазоров и выступов
+        V1 = [x1, z1 + half];
+        V2 = [x2 + half, z2];
+        V3 = [x2 - half, z2];
+        V4 = [x1, z1 - half];
     } else {
         const L = Math.hypot(dx, dz) || 1;
         const nx = -dz / L;
@@ -1025,6 +1000,21 @@ function addMiteredChamferWall(targetGroup, x1, z1, x2, z2, thickness = 0.18, is
 
     registerMiterJoint(targetGroup, x1, z1, thickness);
     registerMiterJoint(targetGroup, x2, z2, thickness);
+
+    // Регистрация бокса скошенной стены для резолюции видимых ребер (подавление поперечных торцевых швов)
+    if (!targetGroup._pendingChamferBoxes) {
+        targetGroup._pendingChamferBoxes = [];
+    }
+    targetGroup._pendingChamferBoxes.push({
+        id: 'chamfer_' + Math.round(x1 * 100) + '_' + Math.round(z1 * 100),
+        isChamfer: true,
+        x1, z1, x2, z2,
+        minX: Math.min(x1, x2) - half,
+        maxX: Math.max(x1, x2) + half,
+        minZ: Math.min(z1, z2) - half,
+        maxZ: Math.max(z1, z2) + half,
+        thickness
+    });
 
     if (!isDoor && targetGroup && targetGroup.userData && targetGroup.userData.floor && typeof WALLS_REGISTRY !== 'undefined' && Array.isArray(WALLS_REGISTRY)) {
         WALLS_REGISTRY.push({
@@ -1859,3 +1849,85 @@ function addRoofRect(targetGroup, x1, z1, x2, z2, buildingNum = 1) {
 }
 
 window.addRoomLabel = addRoomLabel3D;
+
+
+// ==========================================
+// VANILLA THREE.JS BUFFER GEOMETRY MERGER
+// ==========================================
+function mergeBufferGeometriesVanilla(geometries) {
+    if (!geometries || geometries.length === 0) return null;
+
+    let totalPositions = 0;
+    let totalNormals = 0;
+    let totalUvs = 0;
+    let totalIndices = 0;
+
+    const validGeoms = [];
+    for (let i = 0; i < geometries.length; i++) {
+        let geom = geometries[i];
+        if (!geom || !geom.attributes || !geom.attributes.position) continue;
+        validGeoms.push(geom);
+
+        totalPositions += geom.attributes.position.array.length;
+        if (geom.attributes.normal) totalNormals += geom.attributes.normal.array.length;
+        if (geom.attributes.uv) totalUvs += geom.attributes.uv.array.length;
+        if (geom.index) totalIndices += geom.index.array.length;
+        else totalIndices += geom.attributes.position.count;
+    }
+
+    if (validGeoms.length === 0) return null;
+
+    const mergedPositions = new Float32Array(totalPositions);
+    const mergedNormals = totalNormals > 0 ? new Float32Array(totalPositions) : null;
+    const mergedUvs = totalUvs > 0 ? new Float32Array((totalPositions / 3) * 2) : null;
+    const mergedIndices = totalIndices <= 65535 ? new Uint16Array(totalIndices) : new Uint32Array(totalIndices);
+
+    let posOffset = 0;
+    let normOffset = 0;
+    let uvOffset = 0;
+    let indexOffset = 0;
+    let vertexBase = 0;
+
+    for (let i = 0; i < validGeoms.length; i++) {
+        const geom = validGeoms[i];
+        const posArray = geom.attributes.position.array;
+        mergedPositions.set(posArray, posOffset);
+
+        if (mergedNormals && geom.attributes.normal) {
+            mergedNormals.set(geom.attributes.normal.array, normOffset);
+        }
+
+        if (mergedUvs && geom.attributes.uv) {
+            mergedUvs.set(geom.attributes.uv.array, uvOffset);
+        }
+
+        const count = geom.attributes.position.count;
+        if (geom.index) {
+            const idxArray = geom.index.array;
+            for (let j = 0; j < idxArray.length; j++) {
+                mergedIndices[indexOffset + j] = idxArray[j] + vertexBase;
+            }
+            indexOffset += idxArray.length;
+        } else {
+            for (let j = 0; j < count; j++) {
+                mergedIndices[indexOffset + j] = j + vertexBase;
+            }
+            indexOffset += count;
+        }
+
+        posOffset += posArray.length;
+        if (mergedNormals) normOffset += posArray.length;
+        if (mergedUvs) uvOffset += count * 2;
+        vertexBase += count;
+    }
+
+    const mergedGeom = new THREE.BufferGeometry();
+    mergedGeom.setAttribute('position', new THREE.BufferAttribute(mergedPositions, 3));
+    if (mergedNormals) mergedGeom.setAttribute('normal', new THREE.BufferAttribute(mergedNormals, 3));
+    if (mergedUvs) mergedGeom.setAttribute('uv', new THREE.BufferAttribute(mergedUvs, 2));
+    mergedGeom.setIndex(new THREE.BufferAttribute(mergedIndices, 1));
+
+    return mergedGeom;
+}
+
+window.mergeBufferGeometriesVanilla = mergeBufferGeometriesVanilla;

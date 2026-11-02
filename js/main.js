@@ -150,6 +150,9 @@ function init() {
     setupUI();
     try {
         const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.has('territory') && typeof setTerritoryMode === 'function') {
+            setTerritoryMode(urlParams.get('territory') !== '0', false);
+        }
         if (urlParams.has('floor') && typeof setMode === 'function') {
             setMode(urlParams.get('floor'), false);
         }
@@ -693,6 +696,11 @@ function updateFloorsInteriorVisibility() {
                 } else {
                     child.visible = true;
                 }
+                return;
+            }
+            // Адаптивная белая подложка пола (активна на видимом этаже, включая спутниковый вид)
+            if (child.userData.isFloorBacking === true) {
+                child.visible = showInterior;
                 return;
             }
 
