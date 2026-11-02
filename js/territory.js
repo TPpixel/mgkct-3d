@@ -541,31 +541,48 @@ function buildLargeShelter(group, cx, cz) {
     addSpiderFitting(shelterGroup, w / 2 - 0.15, 1.85, 0, true);
 
     // ----------------------------------------------------
-    // 5. ПОДСВЕЧИВАЕМЫЙ СИТИЛАЙТ РАСПИСАНИЯ ДВИЖЕНИЯ АВТОБУСОВ
+    // 5. ИНФОРМАЦИОННЫЕ ТАБЛИЧКИ РАСПИСАНИЙ МИНСКТРАНС (3 СТЕНДА)
     // ----------------------------------------------------
-    const vitrineW = 0.92;
-    const vitrineH = 1.60;
-    const vitrineD = 0.14;
-    const vitrineZ = -d / 2 + 0.22;
+    // Стенд 1 (X = -0.80): Троллейбусы 19, 19п (горизонтальная эмалированная табличка 1.6:1)
+    // Стенд 2 (X =  0.00): Троллейбусы 27, 27п, 82, 82п
+    // Стенд 3 (X = +0.80): Автобусы 40, 107 (строго между колоннами X=±1.30 без пересечений)
+    const boardW = 0.76;
+    const boardH = 0.475;
+    const boardD = 0.015;
+    const boardZ = -d / 2 + 0.17;
+    const boardY = 1.45;
 
-    const vitrineBoxGeom = new THREE.BoxGeometry(vitrineW, vitrineH, vitrineD);
-    const vitrineBox = new THREE.Mesh(vitrineBoxGeom, frameMat);
-    vitrineBox.position.set(0, 1.35, vitrineZ);
-    vitrineBox.castShadow = true;
-    shelterGroup.add(vitrineBox);
+    const boardBackGeom = new THREE.BoxGeometry(boardW, boardH, boardD);
+    const boardFaceGeom = new THREE.PlaneGeometry(boardW - 0.02, boardH - 0.02);
+    const coverGlassGeom = new THREE.PlaneGeometry(boardW - 0.015, boardH - 0.015);
 
-    // Лицевая подсвечиваемая панель с расписанием МГКЦТ
-    const vitrineFaceGeom = new THREE.PlaneGeometry(vitrineW - 0.08, vitrineH - 0.08);
-    const timetableMat = MATERIALS.busTimetable || MATERIALS.signWhite;
-    const vitrineFace = new THREE.Mesh(vitrineFaceGeom, timetableMat);
-    vitrineFace.position.set(0, 1.35, vitrineZ + vitrineD / 2 + 0.002);
-    shelterGroup.add(vitrineFace);
+    const boardsConfig = [
+        { x: -0.80, mat: MATERIALS.trolleybusTimetable1 || MATERIALS.busTimetable },
+        { x:  0.00, mat: MATERIALS.trolleybusTimetable2 || MATERIALS.busTimetable },
+        { x:  0.80, mat: MATERIALS.busTimetable }
+    ];
 
-    // Защитное стекло постера
-    const coverGlassGeom = new THREE.PlaneGeometry(vitrineW - 0.06, vitrineH - 0.06);
-    const coverGlass = new THREE.Mesh(coverGlassGeom, glassMat);
-    coverGlass.position.set(0, 1.35, vitrineZ + vitrineD / 2 + 0.005);
-    shelterGroup.add(coverGlass);
+    let vitrineBox = null;
+    let vitrineFace = null;
+    let coverGlass = null;
+
+    boardsConfig.forEach(cfg => {
+        const box = new THREE.Mesh(boardBackGeom, frameMat);
+        box.position.set(cfg.x, boardY, boardZ);
+        box.castShadow = true;
+        shelterGroup.add(box);
+        if (cfg.x === 0.00) vitrineBox = box;
+
+        const face = new THREE.Mesh(boardFaceGeom, cfg.mat);
+        face.position.set(cfg.x, boardY, boardZ + boardD / 2 + 0.001);
+        shelterGroup.add(face);
+        if (cfg.x === 0.00) vitrineFace = face;
+
+        const cover = new THREE.Mesh(coverGlassGeom, glassMat);
+        cover.position.set(cfg.x, boardY, boardZ + boardD / 2 + 0.003);
+        shelterGroup.add(cover);
+        if (cfg.x === 0.00) coverGlass = cover;
+    });
 
     // ----------------------------------------------------
     // 6. ЭРГОНОМИЧНЫЕ СКАМЬИ С ДЕРЕВЯННЫМИ ЛАМЕЛЯМИ И ПОДЛОКОТНИКАМИ
