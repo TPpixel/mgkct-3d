@@ -1,0 +1,41 @@
+name: CI & Branch Validation
+
+on:
+  pull_request:
+    branches: [main, dev]
+  push:
+    branches: [main, dev]
+
+jobs:
+  validate-branch:
+    name: Verify Source Branch
+    if: github.event_name == 'pull_request' && github.base_ref == 'main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check that PR to main originates from dev
+        run: |
+          echo "Base branch: ${{ github.base_ref }}"
+          echo "Head branch: ${{ github.head_ref }}"
+          if [ "${{ github.head_ref }}" != "dev" ]; then
+            echo "::error::Direct PRs to 'main' are prohibited. Pull requests targeting 'main' must originate from the 'dev' branch."
+            exit 1
+          fi
+          echo "Verified: PR to main originates from dev."
+
+  test:
+    name: Architecture & Navigation Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Validate Floor Architecture & Geometry
+        run: node .agents/skills/map-architecture-sync/scripts/validate_floor.js
+
+      - name: Validate Campus Navigation Graph
+        run: node tests/validate_campus_navigation.js
