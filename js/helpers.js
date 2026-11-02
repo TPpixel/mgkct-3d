@@ -1,3 +1,15 @@
+const _registeredMiterJoints = [];
+
+function registerMiterJoint(targetGroup, x, z, thickness) {
+    if (!targetGroup) return;
+    _registeredMiterJoints.push({
+        group: targetGroup,
+        x,
+        z,
+        thickness
+    });
+}
+
 // Кэш геометрий Three.js для переиспользования буферов WebGL и ускорения инициализации
 const _boxGeomCache = new Map();
 const _edgesGeomCache = new Map();
@@ -48,12 +60,56 @@ function addFloorRect(targetGroup, x1, z1, x2, z2, isCore = false) {
     targetGroup.add(mesh);
     slabMeshes.push(mesh);
 
-    const edges = new THREE.EdgesGeometry(geom);
-    const line = new THREE.LineSegments(edges, MATERIALS.edgeMain);
-    line.userData.isFloorSlab = true;
-    line.userData.isInterior = false;
-    line.userData.isExterior = true;
-    mesh.add(line);
+
+}
+
+// ==========================================
+// АДАПТИВНЫЙ БЕЛЫЙ ПОДСТИЛАЮЩИЙ ПОЛ (BACKING FLOOR)
+// Располагается строго под плитами перекрытия каждого этажа (Y = -0.16..-0.20),
+// исключая просвечивание травы или щелей между отдельными комнатами на любом этаже!
+// ==========================================
+function addFloorBackingSlab(targetGroup, x1, z1, x2, z2) {
+    if (!targetGroup) return null;
+    const w = Math.abs(x2 - x1);
+    const d = Math.abs(z2 - z1);
+    const cx = (x1 + x2) / 2;
+    const cz = (z1 + z2) / 2;
+    const thickness = 0.04;
+    const geom = new THREE.BoxGeometry(w, thickness, d);
+    const mesh = new THREE.Mesh(geom, MATERIALS.slab);
+    mesh.position.set(cx, -0.16 - thickness / 2, cz);
+    mesh.receiveShadow = false;
+    mesh.userData.isFloorBacking = true;
+    mesh.userData.isInterior = false;
+    mesh.userData.isExterior = true;
+    targetGroup.add(mesh);
+    return mesh;
+}
+
+function addFloorBackingPolygon(targetGroup, points) {
+    if (!targetGroup || !points || points.length < 3) return null;
+    const shape = new THREE.Shape();
+    shape.moveTo(points[0][0], points[0][1]);
+    for (let i = 1; i < points.length; i++) {
+        shape.lineTo(points[i][0], points[i][1]);
+    }
+    shape.closePath();
+
+    const thickness = 0.04;
+    const geom = new THREE.ExtrudeGeometry(shape, {
+        depth: thickness,
+        bevelEnabled: false
+    });
+    geom.rotateX(Math.PI / 2);
+
+    const mesh = new THREE.Mesh(geom, MATERIALS.slab);
+    mesh.position.set(0, -0.16, 0);
+    mesh.receiveShadow = false;
+    mesh.userData.isFloorBacking = true;
+    mesh.userData.isInterior = false;
+    mesh.userData.isExterior = true;
+    targetGroup.add(mesh);
+    return mesh;
 }
 
 function addFloorPolygon(targetGroup, points, isCore = false) {
@@ -82,12 +138,56 @@ function addFloorPolygon(targetGroup, points, isCore = false) {
     targetGroup.add(mesh);
     slabMeshes.push(mesh);
 
-    const edges = new THREE.EdgesGeometry(geom);
-    const line = new THREE.LineSegments(edges, MATERIALS.edgeMain);
-    line.userData.isFloorSlab = true;
-    line.userData.isInterior = false;
-    line.userData.isExterior = true;
-    mesh.add(line);
+
+}
+
+// ==========================================
+// АДАПТИВНЫЙ БЕЛЫЙ ПОДСТИЛАЮЩИЙ ПОЛ (BACKING FLOOR)
+// Располагается строго под плитами перекрытия каждого этажа (Y = -0.16..-0.20),
+// исключая просвечивание травы или щелей между отдельными комнатами на любом этаже!
+// ==========================================
+function addFloorBackingSlab(targetGroup, x1, z1, x2, z2) {
+    if (!targetGroup) return null;
+    const w = Math.abs(x2 - x1);
+    const d = Math.abs(z2 - z1);
+    const cx = (x1 + x2) / 2;
+    const cz = (z1 + z2) / 2;
+    const thickness = 0.04;
+    const geom = new THREE.BoxGeometry(w, thickness, d);
+    const mesh = new THREE.Mesh(geom, MATERIALS.slab);
+    mesh.position.set(cx, -0.16 - thickness / 2, cz);
+    mesh.receiveShadow = false;
+    mesh.userData.isFloorBacking = true;
+    mesh.userData.isInterior = false;
+    mesh.userData.isExterior = true;
+    targetGroup.add(mesh);
+    return mesh;
+}
+
+function addFloorBackingPolygon(targetGroup, points) {
+    if (!targetGroup || !points || points.length < 3) return null;
+    const shape = new THREE.Shape();
+    shape.moveTo(points[0][0], points[0][1]);
+    for (let i = 1; i < points.length; i++) {
+        shape.lineTo(points[i][0], points[i][1]);
+    }
+    shape.closePath();
+
+    const thickness = 0.04;
+    const geom = new THREE.ExtrudeGeometry(shape, {
+        depth: thickness,
+        bevelEnabled: false
+    });
+    geom.rotateX(Math.PI / 2);
+
+    const mesh = new THREE.Mesh(geom, MATERIALS.slab);
+    mesh.position.set(0, -0.16, 0);
+    mesh.receiveShadow = false;
+    mesh.userData.isFloorBacking = true;
+    mesh.userData.isInterior = false;
+    mesh.userData.isExterior = true;
+    targetGroup.add(mesh);
+    return mesh;
 }
 
 // Реестр групп с отложенным построением стен для бесшовного совмещения стыков (Junction Solver)
@@ -244,6 +344,35 @@ function solveCampusJunctions(targetGroup, pendingLines) {
         omitStartCap: false,
         omitEndCap: false
     }));
+
+    // Бесшовное сопряжение ортогональных стен с диагональными скосами (Miter Joints)
+    for (const w of solved) {
+        if (w.isHorizontal) {
+            const z0 = w.fixedCoord;
+            for (const mj of _registeredMiterJoints) {
+                if (mj.group === targetGroup && Math.abs(mj.z - z0) < 0.14) {
+                    if (Math.abs(mj.x - w.origC1) < 0.14) {
+                        w.omitStartCap = true;
+                    }
+                    if (Math.abs(mj.x - w.origC2) < 0.14) {
+                        w.omitEndCap = true;
+                    }
+                }
+            }
+        } else {
+            const x0 = w.fixedCoord;
+            for (const mj of _registeredMiterJoints) {
+                if (mj.group === targetGroup && Math.abs(mj.x - x0) < 0.14) {
+                    if (Math.abs(mj.z - w.origC1) < 0.14) {
+                        w.omitStartCap = true;
+                    }
+                    if (Math.abs(mj.z - w.origC2) < 0.14) {
+                        w.omitEndCap = true;
+                    }
+                }
+            }
+        }
+    }
 
     // Интеллектуальная подрезка дверных полотен на стыках со смежными стенами
     const solvedDoors = doors.map(d => ({
@@ -475,8 +604,10 @@ function solveCampusJunctions(targetGroup, pendingLines) {
         }
     }
 
+    // Исключаем микроскопические осколки стен (< 4 см), остающиеся при наложении дверных коробок
+    const validWalls = solved.filter(w => (w.c2 - w.c1) > 0.04);
     const validDoors = solvedDoors.filter(d => (d.c2 - d.c1) > 0.05);
-    return [...solved, ...validDoors];
+    return [...validWalls, ...validDoors];
 }
 
 // Построение геометрии видимых рёбер стен без паразитных швов на Т-стыках и углах (Seamless Junction Solver)
@@ -809,6 +940,9 @@ function addArbitraryWallSegment(targetGroup, x1, z1, x2, z2, thickness = 0.18, 
     const len = Math.hypot(dx, dz);
     if (len <= 0.01) return;
 
+    registerMiterJoint(targetGroup, x1, z1, thickness);
+    registerMiterJoint(targetGroup, x2, z2, thickness);
+
     if (!isDoor && targetGroup && targetGroup.userData && targetGroup.userData.floor && typeof WALLS_REGISTRY !== 'undefined' && Array.isArray(WALLS_REGISTRY)) {
         WALLS_REGISTRY.push({
             floor: targetGroup.userData.floor,
@@ -847,6 +981,108 @@ function addArbitraryWallSegment(targetGroup, x1, z1, x2, z2, thickness = 0.18, 
     edgeLine.userData.isInterior = mesh.userData.isInterior;
     edgeLine.userData.isDoor = isDoor;
     mesh.add(edgeLine);
+
+    if (isDoor) {
+        doorMeshes.push(mesh);
+        doorEdges.push(edgeLine);
+    } else {
+        wallMeshes.push(mesh);
+        wallEdges.push(edgeLine);
+    }
+}
+
+// Построение стен со скошенными углами (45 градусов) с идеальным бесшовным усредненным стыком (Miter Joint)
+// Исключает торчащие углы (шипы) и внутренние поперечные швы на стыках с ортогональными стенами!
+function addMiteredChamferWall(targetGroup, x1, z1, x2, z2, thickness = 0.18, isExterior = false, isDoor = false) {
+    if (!targetGroup) return;
+    const dx = x2 - x1;
+    const dz = z2 - z1;
+    const half = thickness / 2;
+    const m = half * (Math.SQRT2 - 1);
+
+    let V1, V2, V3, V4;
+    if (dx > 0 && dz > 0) {
+        // Юго-западный скос (Корпус 1): от вертикальной стены X=x1 к горизонтальной стене Z=z2
+        V1 = [x1 - half, z1 + m];
+        V2 = [x2 - m, z2 + half];
+        V3 = [x2 + m, z2 - half];
+        V4 = [x1 + half, z1 - m];
+    } else if (dx > 0 && dz < 0) {
+        // Скос у кабинета 205 (Корпус 1 Этаж 2): от горизонтальной стены Z=z1 к вертикальной стене X=x2
+        V1 = [x1 + m, z1 + half];
+        V2 = [x2 + half, z2 + m];
+        V3 = [x2 - half, z2 - m];
+        V4 = [x1 - m, z1 - half];
+    } else {
+        const L = Math.hypot(dx, dz) || 1;
+        const nx = -dz / L;
+        const nz = dx / L;
+        V1 = [x1 + half * nx, z1 + half * nz];
+        V2 = [x2 + half * nx, z2 + half * nz];
+        V3 = [x2 - half * nx, z2 - half * nz];
+        V4 = [x1 - half * nx, z1 - half * nz];
+    }
+
+    registerMiterJoint(targetGroup, x1, z1, thickness);
+    registerMiterJoint(targetGroup, x2, z2, thickness);
+
+    if (!isDoor && targetGroup && targetGroup.userData && targetGroup.userData.floor && typeof WALLS_REGISTRY !== 'undefined' && Array.isArray(WALLS_REGISTRY)) {
+        WALLS_REGISTRY.push({
+            floor: targetGroup.userData.floor,
+            building: targetGroup.userData.building,
+            x1: x1,
+            z1: z1,
+            x2: x2,
+            z2: z2,
+            thickness: thickness
+        });
+    }
+
+    const shape = new THREE.Shape();
+    shape.moveTo(V1[0], V1[1]);
+    shape.lineTo(V2[0], V2[1]);
+    shape.lineTo(V3[0], V3[1]);
+    shape.lineTo(V4[0], V4[1]);
+    shape.closePath();
+
+    const geom = new THREE.ExtrudeGeometry(shape, {
+        depth: 1,
+        bevelEnabled: false
+    });
+    geom.rotateX(Math.PI / 2);
+
+    const mat = isDoor ? MATERIALS.doorThin : MATERIALS.wall;
+    const mesh = new THREE.Mesh(geom, mat);
+
+    const h = STATE.wallHeight;
+    mesh.scale.set(1, h + WALL_SINK, 1);
+    mesh.position.set(0, h, 0);
+    mesh.castShadow = true;
+    mesh.receiveShadow = true;
+
+    const effectiveExterior = isExterior || (thickness >= 0.20);
+    mesh.userData.isExterior = effectiveExterior;
+    mesh.userData.isInterior = !effectiveExterior && (isDoor || (thickness < 0.20));
+    mesh.userData.isDoor = isDoor;
+    mesh.userData.isMiteredChamfer = true;
+    targetGroup.add(mesh);
+
+    // Бесшовные контурные ребра: только наружный и внутренний фасад (ноль поперечных швов на стыках!)
+    const yTop = h;
+    const yBot = -WALL_SINK;
+    const edgePoints = [
+        new THREE.Vector3(V1[0], yTop, V1[1]), new THREE.Vector3(V2[0], yTop, V2[1]),
+        new THREE.Vector3(V3[0], yTop, V3[1]), new THREE.Vector3(V4[0], yTop, V4[1]),
+        new THREE.Vector3(V1[0], yBot, V1[1]), new THREE.Vector3(V2[0], yBot, V2[1]),
+        new THREE.Vector3(V3[0], yBot, V3[1]), new THREE.Vector3(V4[0], yBot, V4[1])
+    ];
+    const edgeGeom = new THREE.BufferGeometry().setFromPoints(edgePoints);
+    const edgeLine = new THREE.LineSegments(edgeGeom, isDoor ? MATERIALS.edgeDoor : MATERIALS.edgeMain);
+    edgeLine.userData.isExterior = effectiveExterior;
+    edgeLine.userData.isInterior = mesh.userData.isInterior;
+    edgeLine.userData.isDoor = isDoor;
+    edgeLine.userData.isMiteredChamfer = true;
+    targetGroup.add(edgeLine);
 
     if (isDoor) {
         doorMeshes.push(mesh);
@@ -916,6 +1152,9 @@ function createWallSegment(targetGroup, c1, c2, fixedCoord, isHorizontal, angle,
         wallEdges.push(edgeLine);
     }
 }
+
+// Построение стен со скошенными углами (45 градусов) с идеальным бесшовным усредненным стыком (Miter Joint)
+
 
 function addSquareColumn(targetGroup, cx, cz, size = 0.28, isExterior = false) {
     const geom = getCachedBoxGeometry(size, 1, size);
