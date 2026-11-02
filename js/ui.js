@@ -55,11 +55,10 @@ function setTheme(themeName, shouldSave = true) {
             if (MATERIALS.forecourtPaverDark) MATERIALS.forecourtPaverDark.color.setHex(0x161e2a);
             if (MATERIALS.campusBenchWood) MATERIALS.campusBenchWood.color.setHex(0x9a3412);
         } else {
-            // СВЕТЛАЯ ТЕМА:
-            if (MATERIALS.slab) MATERIALS.slab.color.setHex(0xf8fafc);
-            if (MATERIALS.coreSlab) MATERIALS.coreSlab.color.setHex(0xeef2f6);
-            if (MATERIALS.wall) MATERIALS.wall.color.setHex(0xffffff);
-            if (MATERIALS.stair) MATERIALS.stair.color.setHex(0xcbd5e1);
+            // Светлая тема:
+            if (typeof updateBuildingColors === 'function') {
+                updateBuildingColors();
+            }
             if (MATERIALS.elevatorCar) MATERIALS.elevatorCar.color.setHex(0xcbd5e1);
             if (MATERIALS.doorThin) MATERIALS.doorThin.color.setHex(0x94a3b8);
             if (MATERIALS.edgeMain) MATERIALS.edgeMain.color.setHex(0x475569);
@@ -67,7 +66,7 @@ function setTheme(themeName, shouldSave = true) {
             if (MATERIALS.roof) MATERIALS.roof.color.setHex(0x94a3b8);
             if (MATERIALS.edgeRoof) MATERIALS.edgeRoof.color.setHex(0x475569);
             if (MATERIALS.guideLine) MATERIALS.guideLine.color.setHex(0x94a3b8);
-            if (MATERIALS.minimalRoadSurface) MATERIALS.minimalRoadSurface.color.setHex(0x475569);
+            if (MATERIALS.minimalRoadSurface) MATERIALS.minimalRoadSurface.color.setHex(0xc8d1dc);
             if (MATERIALS.roadContourLine) MATERIALS.roadContourLine.color.setHex(0x334155);
             if (MATERIALS.roadCenterLine) MATERIALS.roadCenterLine.color.setHex(0x94a3b8);
             // Прилегающая территория в светлой теме
@@ -297,6 +296,9 @@ function setTerritoryMode(enabled, shouldSave = true) {
     }
     if (typeof updateTerritoryVisibility === 'function') {
         updateTerritoryVisibility();
+    }
+    if (typeof updateBuildingColors === 'function') {
+        updateBuildingColors();
     }
     if (shouldSave) saveSettings();
 }
@@ -861,6 +863,105 @@ function setupSettingsDrawer() {
     // Шторка настроек убрана из основного UI; оставляем безопасную заглушку
 }
 
+
+
+// ==========================================
+// Переключатель архитектурных палитр здания (только для спутникового вида)
+// ==========================================
+function updateBuildingColors() {
+    if (typeof MATERIALS === 'undefined') return;
+    if (STATE.theme === 'dark') return;
+
+    if (STATE.showTerritory) {
+        // Спутниковый вид: выразительные, насыщенные, не белые цвета
+        const pIdx = STATE.buildingPaletteIndex || 0;
+        const p = (typeof COLLEGE_COLOR_PALETTES !== 'undefined' && COLLEGE_COLOR_PALETTES[pIdx]) 
+            ? COLLEGE_COLOR_PALETTES[pIdx] 
+            : (typeof COLLEGE_COLOR_PALETTES !== 'undefined' ? COLLEGE_COLOR_PALETTES[0] : null);
+        if (p) {
+            if (MATERIALS.slab) MATERIALS.slab.color.setHex(p.slab);
+            if (MATERIALS.coreSlab) MATERIALS.coreSlab.color.setHex(p.coreSlab);
+            if (MATERIALS.wall) MATERIALS.wall.color.setHex(p.wall);
+            if (MATERIALS.stair) MATERIALS.stair.color.setHex(p.stair);
+        }
+    } else {
+        // Обычный чертёжный вид: классический чистый белый
+        if (MATERIALS.slab) MATERIALS.slab.color.setHex(0xf8fafc);
+        if (MATERIALS.coreSlab) MATERIALS.coreSlab.color.setHex(0xeef2f6);
+        if (MATERIALS.wall) MATERIALS.wall.color.setHex(0xffffff);
+        if (MATERIALS.stair) MATERIALS.stair.color.setHex(0xcbd5e1);
+    }
+}
+
+function showPaletteToast(palette, curNum, totalNum) {
+    let toast = document.getElementById('palette-toast');
+    if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'palette-toast';
+        toast.className = 'fixed bottom-20 left-1/2 -translate-x-1/2 z-50 pointer-events-none transition-all duration-300 opacity-0 translate-y-3';
+        document.body.appendChild(toast);
+    }
+    const hexFloor = '#' + palette.slab.toString(16).padStart(6, '0');
+    const hexWall = '#' + palette.wall.toString(16).padStart(6, '0');
+    const hexStair = '#' + palette.stair.toString(16).padStart(6, '0');
+    toast.innerHTML = '<div class="px-4 py-2.5 rounded-2xl bg-slate-900/90 backdrop-blur-md border border-slate-700/80 shadow-2xl flex items-center space-x-3 text-slate-100">' +
+        '<div class="flex items-center -space-x-1.5 flex-shrink-0">' +
+            '<div class="w-5 h-5 rounded-full border border-white/30 shadow-inner" style="background-color: ' + hexFloor + '" title="Пол"></div>' +
+            '<div class="w-5 h-5 rounded-full border border-white/30 shadow-inner" style="background-color: ' + hexWall + '" title="Стены"></div>' +
+            '<div class="w-5 h-5 rounded-full border border-white/30 shadow-inner" style="background-color: ' + hexStair + '" title="Лестницы"></div>' +
+        '</div>' +
+        '<div class="flex flex-col">' +
+            '<div class="flex items-center space-x-2">' +
+                '<span class="text-xs font-semibold text-white tracking-wide">' + palette.name + '</span>' +
+                '<span class="text-[10px] font-mono text-amber-400 bg-amber-500/10 px-1.5 py-0.5 rounded-full">' + curNum + '/' + totalNum + '</span>' +
+            '</div>' +
+            '<span class="text-[11px] text-slate-400 max-w-xs leading-tight">' + palette.desc + '</span>' +
+        '</div>' +
+    '</div>';
+    requestAnimationFrame(() => {
+        toast.classList.remove('opacity-0', 'translate-y-3');
+        toast.classList.add('opacity-100', 'translate-y-0');
+    });
+    if (toast._timer) clearTimeout(toast._timer);
+    toast._timer = setTimeout(() => {
+        toast.classList.remove('opacity-100', 'translate-y-0');
+        toast.classList.add('opacity-0', 'translate-y-3');
+    }, 2800);
+}
+
+function applyCollegePalette(paletteIndex, shouldSave = true, showNotification = true) {
+    if (typeof COLLEGE_COLOR_PALETTES === 'undefined') return;
+    const idx = (paletteIndex >= 0 && paletteIndex < COLLEGE_COLOR_PALETTES.length) ? paletteIndex : 0;
+    STATE.buildingPaletteIndex = idx;
+    const p = COLLEGE_COLOR_PALETTES[idx];
+
+    // При выборе палитры включаем спутниковый вид, если он был выключен:
+    if (!STATE.showTerritory) {
+        setTerritoryMode(true, true);
+    } else {
+        updateBuildingColors();
+    }
+
+    if (shouldSave) {
+        saveSettings();
+    }
+
+    if (showNotification) {
+        showPaletteToast(p, idx + 1, COLLEGE_COLOR_PALETTES.length);
+    }
+}
+
+function cycleCollegePalette() {
+    const curIdx = STATE.buildingPaletteIndex || 0;
+    const nextIdx = (curIdx + 1) % COLLEGE_COLOR_PALETTES.length;
+    applyCollegePalette(nextIdx, true, true);
+}
+
+window.updateBuildingColors = updateBuildingColors;
+window.showPaletteToast = showPaletteToast;
+window.applyCollegePalette = applyCollegePalette;
+window.cycleCollegePalette = cycleCollegePalette;
+
 function saveSettings() {
     try {
         const payload = {
@@ -883,7 +984,8 @@ function saveSettings() {
             sliceMaxFloor: STATE.sliceMaxFloor,
             explodeGap: STATE.explodeGap,
             exploded: STATE.exploded,
-            theme: STATE.theme
+            theme: STATE.theme,
+            buildingPaletteIndex: STATE.buildingPaletteIndex ?? 0
         };
         localStorage.setItem(SETTINGS_KEY, JSON.stringify(payload));
     } catch (e) {
@@ -906,6 +1008,7 @@ function restoreSavedSettings() {
         if (typeof s.buildingFilter === 'string') STATE.buildingFilter = s.buildingFilter;
         if (typeof s.mode === 'string' && /^[1-7]$/.test(s.mode)) STATE.mode = s.mode;
         if (s.theme === 'dark' || s.theme === 'light') STATE.theme = s.theme;
+        if (typeof s.buildingPaletteIndex === 'number') STATE.buildingPaletteIndex = s.buildingPaletteIndex;
     } catch (e) {
         console.warn('LocalStorage load error:', e);
     }
@@ -977,6 +1080,7 @@ function setupUI() {
     // Плавающие кнопки карты: Территория, 2D/3D, Зум
     document.getElementById('btn-toggle-territory')?.addEventListener('click', toggleTerritoryView);
     document.getElementById('btn-toggle-2d')?.addEventListener('click', toggle2DView);
+    document.getElementById('btn-toggle-palette')?.addEventListener('click', cycleCollegePalette);
     document.getElementById('btn-zoom-in')?.addEventListener('click', () => {
         if (typeof zoomIn === 'function') zoomIn();
     });
@@ -992,6 +1096,9 @@ function setupUI() {
         }
         if (e.code === 'KeyH' || e.key === 'h' || e.key === 'H' || e.key === 'р' || e.key === 'Р') {
             document.body.classList.toggle('ui-hidden');
+        }
+        if (e.code === 'KeyP' || e.key === 'p' || e.key === 'P' || e.key === 'з' || e.key === 'З') {
+            cycleCollegePalette();
         }
     });
 
@@ -1009,6 +1116,7 @@ function setupUI() {
     setTerritoryMode(STATE.showTerritory, false);
     setLabelScale(STATE.labelScale || 1.0);
     setTheme(STATE.theme || 'light', false);
+    applyCollegePalette(STATE.buildingPaletteIndex ?? 0, false, false);
 }
 
 
