@@ -6,8 +6,15 @@
             const OUTER_T = 0.24;
             const INNER_T = 0.18;
 
+            // Адаптивный белый подстилающий пол 2–7 этажей Корпуса 1 (полное монолитное основание)
+            addFloorBackingSlab(targetGroup, -10.1, -14.1, 16.1, -3.9);
+            addFloorBackingSlab(targetGroup, -14.1, -4.1, 16.1, 14.1);
+            if (hasRightExtension) {
+                addFloorBackingSlab(targetGroup, 16.0, -9.6, 20.5, -2.1);
+            }
+
             // 1. Плиты перекрытия базового контура
-            addFloorRect(targetGroup, -10.0, -14.0, 16.0, -4.0, false);
+            addFloorRect(targetGroup, -10.0, -14.0, 16.0, -3.98, false);
             addFloorRect(targetGroup, -14.0, -4.0, -5.8, 14.0, false);
             addFloorRect(targetGroup, -5.8, -4.0, 16.0, 4.0, false);
             addFloorRect(targetGroup, -5.8, 4.0, 12.5, 14.0, false);
@@ -17,8 +24,8 @@
                 addFloorRect(targetGroup, 16.0, -9.5, 20.4, -2.2, false);
             }
 
-            // Выделенная тонировка центрального ядра и лестниц
-            addFloorRect(targetGroup, -1.2, -4.0, 8.6, 4.0, true);
+            // Выделенная тонировка центрального ядра и лестниц (слева от лифта X=-1.23 для бесшовного стыка в проеме)
+            addFloorRect(targetGroup, -1.23, -4.0, 8.63, 4.0, true);
             addFloorRect(targetGroup, 8.6, -4.0, 16.0, 3.8, true);
 
             // 2. Внешний периметр стен
@@ -508,10 +515,10 @@
             ], INNER_T);
 
             addWallLine(targetGroup, -14.0, 11.2, -11.2, 11.2, [], INNER_T);
-            addWallLine(targetGroup, -9.5, 7.2, -9.5, 8.2, [], INNER_T);
-            addArbitraryWallSegment(targetGroup, -9.5, 8.2, -9.5, 9.2, 0.06, true);
-            addWallLine(targetGroup, -9.5, 9.2, -9.5, 9.5, [], INNER_T);
-            addArbitraryWallSegment(targetGroup, -11.2, 11.2, -9.5, 9.5, INNER_T, false);
+            addWallLine(targetGroup, -9.5, 7.2, -9.5, 9.5, [
+                { from: 8.2, to: 9.2, type: 'door' }
+            ], INNER_T);
+            addMiteredChamferWall(targetGroup, -11.2, 11.2, -9.5, 9.5, INNER_T, false, false);
 
             addWallLine(targetGroup, -5.8, 7.2, 12.5, 7.2, [
                 { from: -4.6, to: -3.4, type: 'door' },
@@ -593,10 +600,21 @@
             // ==========================================
             // 1. ПЛИТЫ ПЕРЕКРЫТИЯ 1 ЭТАЖА (СТРОГО В ТЕПЛОМ КОНТУРЕ)
             // ==========================================
-            // Северный блок (102, 106, 105, С/У, 107)
-            addFloorRect(targetGroup, -10.0, -14.0, 16.0, -4.0, false);
+            // Адаптивный белый подстилающий пол 1-го этажа (Y = -0.16..-0.20, исключает любые просветы травы)
+            addFloorBackingPolygon(targetGroup, [
+                [-12.3, -4.1],
+                [8.7, -4.1],
+                [8.7, 12.3],
+                [-8.5, 12.3],
+                [-12.3, 8.5]
+            ]);
+            addFloorBackingSlab(targetGroup, -10.1, -14.1, 16.1, -3.9);
+            addFloorBackingSlab(targetGroup, 8.5, -4.1, 20.5, 12.3);
 
-            // Основной теплый контур 1-го этажа со скошенным юго-западным углом (без уличной плиты под столбами)
+            // Северный блок (102 гардероб, 106, 105, С/У, 107: Z [-14.0..-3.98] для надежного бесшовного стыка с коридором)
+            addFloorRect(targetGroup, -10.0, -14.0, 16.0, -3.98, false);
+
+            // Основной теплый контур 1-го этажа со скошенным юго-западным углом
             addFloorPolygon(targetGroup, [
                 [-12.2, -4.0],
                 [8.6, -4.0],
@@ -608,12 +626,12 @@
             // Правый выступ (переход на востоке)
             addFloorRect(targetGroup, 16.0, -9.5, 20.4, -2.2, false);
 
-            // Центральное ядро (лифты, 103, 104, холл 103, 101, предбанник)
-            addFloorRect(targetGroup, -1.2, -4.0, 8.6, 8.6, true);
+            // Центральное ядро (лифты, 103, 104, холл 103, консьерж 101, предбанник: с плотным перекрытием под стенами и проемами)
+            addFloorRect(targetGroup, -1.23, -4.0, 8.63, 8.63, true);
             // Лестничные клетки ЛК№1 и ЛК№2
             addFloorRect(targetGroup, 8.6, -4.0, 16.0, 3.8, true);
 
-            // Площадка крыльца перед входом и ЛК№2 (строго в габаритах крыльца, без наружного выступа за парапет)
+            // Площадка крыльца перед входом и ЛК№2
             addFloorRect(targetGroup, 8.6, 3.8, 11.8, 12.2, true);
 
             // ==========================================
@@ -636,9 +654,9 @@
             addWallLine(targetGroup, -10.0, -14.0, -10.0, -4.0, [], OUTER_T);
             addWallLine(targetGroup, -12.2, -4.0, -10.0, -4.0, [], OUTER_T);
 
-            // Утопленная стена, скошенный угол и внешняя стена до площадки входа (X = 8.6, Z = 12.2)
+            // Утопленная стена, скошенный угол (идеальный бесшовный усредненный стык Miter) и внешняя стена до площадки входа
             addWallLine(targetGroup, -12.2, -4.0, -12.2, 8.6, [], OUTER_T);
-            addArbitraryWallSegment(targetGroup, -12.2, 8.6, -8.6, 12.2, OUTER_T, false, true);
+            addMiteredChamferWall(targetGroup, -12.2, 8.6, -8.6, 12.2, OUTER_T, true, false);
             addWallLine(targetGroup, -8.6, 12.2, 8.6, 12.2, [], OUTER_T);
 
             // Восточная стена северного крыла и правый тамбур-выступ
