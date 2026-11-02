@@ -114,6 +114,8 @@
             const OUTER_T = 0.24;
             const INNER_T = 0.18;
 
+            // Адаптивная белая подложка под Корпус 2 (Этаж 1)
+            addFloorBackingSlab(targetGroup, B2_X_START - 0.2, B2_Z_TOP - 0.2, B2_X_END + 0.2, B2_Z_BOT + 0.2);
             addFloorRect(targetGroup, B2_X_START, B2_Z_TOP, B2_X_END, B2_Z_BOT, false);
 
             // Площадка у выходов ЛК №2
@@ -189,7 +191,7 @@
             addWallLine(targetGroup, 48.0, B2_Z_TOP, 48.0, B2_Z_CORR_TOP, [], INNER_T);
             addWallLine(targetGroup, 51.2, B2_Z_CORR_TOP - 0.35, 58.2, B2_Z_CORR_TOP - 0.35, [], 0.35, true);
             addWallLine(targetGroup, 58.2, B2_Z_TOP, 58.2, B2_Z_CORR_TOP, [
-                { from: -8.6, to: -7.4, type: 'door' } // Смежная дверь между 109 и 111 у коридора
+                { from: -9.4, to: -8.2, type: 'door' } // Смежная дверь между 109 и 111 (строго по БТИ 1.jpg, выше короба)
             ], INNER_T);
             addWallLine(targetGroup, 61.2, B2_Z_TOP, 61.2, B2_Z_CORR_TOP, [], INNER_T);
 
@@ -268,6 +270,8 @@
             const OUTER_T = 0.24;
             const INNER_T = 0.18;
 
+            // Адаптивная белая подложка под Корпус 2 (Этаж 2)
+            addFloorBackingSlab(targetGroup, B2_X_START - 0.2, B2_Z_TOP - 0.2, B2_X_END + 0.2, B2_Z_BOT + 0.2);
             addFloorRect(targetGroup, B2_X_START, B2_Z_TOP, B2_X_END, B2_Z_BOT, false);
 
             // Западная внешняя стена (стык с переходом в Корпус 1) — НЕ ТРОГАЕМ!
@@ -404,6 +408,8 @@
             const OUTER_T = 0.24;
             const INNER_T = 0.18;
 
+            // Адаптивная белая подложка под Корпус 2 (Этаж 3)
+            addFloorBackingSlab(targetGroup, B2_X_START - 0.2, B2_Z_TOP - 0.2, B2_X_END + 0.2, B2_Z_BOT + 0.2);
             addFloorRect(targetGroup, B2_X_START, B2_Z_TOP, B2_X_END, B2_Z_BOT, false);
 
             // Глухой внешний периметр 3-го этажа (без переходов)

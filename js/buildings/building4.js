@@ -133,6 +133,9 @@
             const OUTER_T = 0.24;
             const INNER_T = 0.18;
 
+            // Адаптивная белая подложка под Корпус 4 (Этаж 1)
+            addFloorBackingSlab(targetGroup, 27.6, -61.6, 69.0, -24.4);
+
             // --- 1. ПЛИТЫ ПЕРЕКРЫТИЯ 1-ГО ЭТАЖА (СТРОГО ПО ЭТАЛОННОМУ ЧЕРТЕЖУ БТИ 1.JPG) ---
             // Большой зал столовой 102 (X [45.0..66.0], Z [-45.4..-27.4])
             addFloorRect(targetGroup, 45.0, -45.4, 66.0, -27.4, false);
@@ -500,6 +503,11 @@
             const OUTER_T = 0.24;
             const INNER_T = 0.18;
 
+            // Адаптивная белая подложка под Корпус 4 (Этаж 2) и переходы
+            addFloorBackingSlab(targetGroup, 27.6, -61.6, 69.0, -27.0);
+            addFloorBackingSlab(targetGroup, 13.5, -46.9, 32.5, -43.9);
+            addFloorBackingSlab(targetGroup, 35.9, -27.5, 38.9, -13.7);
+
             // 1. Плиты перекрытия 2-го этажа Корпуса 4 (единый контур до X = 66.0):
             addFloorRect(targetGroup, B4_X_WEST, B4_Z_NORTH, B4_X_S_GYM, B4_Z_MID_N, false);
             addFloorRect(targetGroup, B4_X_WEST, B4_Z_MID_N, B4_X_S_HALL, B4_Z_SOUTH, false);
@@ -777,6 +785,9 @@
         function buildBuilding4Floor3(targetGroup) {
             const OUTER_T = 0.24;
             const INNER_T = 0.18;
+
+            // Адаптивная белая подложка под Корпус 4 (Этаж 3)
+            addFloorBackingSlab(targetGroup, 27.6, -61.6, 69.0, -27.0);
 
             // --- 1. ПЛИТЫ ПЕРЕКРЫТИЯ 3-ГО ЭТАЖА ---
             // Центральная продольная полоса (301, 303, 302, служебный узел у ЛК №3): X [39.4..66.0], Z [-49.8..-43.6]
