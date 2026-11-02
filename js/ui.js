@@ -42,9 +42,18 @@ function setTheme(themeName, shouldSave = true) {
             if (MATERIALS.asphaltDriveway) MATERIALS.asphaltDriveway.color.setHex(0x232a36);
             if (MATERIALS.curb) MATERIALS.curb.color.setHex(0x333d4d);
             if (MATERIALS.sidewalk) MATERIALS.sidewalk.color.setHex(0x2c3545);
-            if (MATERIALS.lawn) MATERIALS.lawn.color.setHex(0x1d3528);
+            if (MATERIALS.lawn) MATERIALS.lawn.color.setHex(0x142817);
             if (MATERIALS.treeFoliage) MATERIALS.treeFoliage.color.setHex(0x1e4620);
             if (MATERIALS.treeFoliageLight) MATERIALS.treeFoliageLight.color.setHex(0x2d5a27);
+            if (MATERIALS.birchFoliage) MATERIALS.birchFoliage.color.setHex(0x2e541b);
+            if (MATERIALS.lindenFoliage) MATERIALS.lindenFoliage.color.setHex(0x224a1f);
+            if (MATERIALS.spruceNeedle) MATERIALS.spruceNeedle.color.setHex(0x183a1d);
+            if (MATERIALS.hedgeFoliage) MATERIALS.hedgeFoliage.color.setHex(0x1e3a24);
+            if (MATERIALS.soilMulch) MATERIALS.soilMulch.color.setHex(0x1f140e);
+            if (MATERIALS.steleGranite) MATERIALS.steleGranite.color.setHex(0x1f2937);
+            if (MATERIALS.forecourtPaverLight) MATERIALS.forecourtPaverLight.color.setHex(0x222d3d);
+            if (MATERIALS.forecourtPaverDark) MATERIALS.forecourtPaverDark.color.setHex(0x161e2a);
+            if (MATERIALS.campusBenchWood) MATERIALS.campusBenchWood.color.setHex(0x9a3412);
         } else {
             // СВЕТЛАЯ ТЕМА:
             if (MATERIALS.slab) MATERIALS.slab.color.setHex(0xf8fafc);
@@ -66,9 +75,18 @@ function setTheme(themeName, shouldSave = true) {
             if (MATERIALS.asphaltDriveway) MATERIALS.asphaltDriveway.color.setHex(0x64748b);
             if (MATERIALS.curb) MATERIALS.curb.color.setHex(0x94a3b8);
             if (MATERIALS.sidewalk) MATERIALS.sidewalk.color.setHex(0xcbd5e1);
-            if (MATERIALS.lawn) MATERIALS.lawn.color.setHex(0x86efac);
+            if (MATERIALS.lawn) MATERIALS.lawn.color.setHex(0x27532b);
             if (MATERIALS.treeFoliage) MATERIALS.treeFoliage.color.setHex(0x22c55e);
             if (MATERIALS.treeFoliageLight) MATERIALS.treeFoliageLight.color.setHex(0x4ade80);
+            if (MATERIALS.birchFoliage) MATERIALS.birchFoliage.color.setHex(0x529432);
+            if (MATERIALS.lindenFoliage) MATERIALS.lindenFoliage.color.setHex(0x2e6f2b);
+            if (MATERIALS.spruceNeedle) MATERIALS.spruceNeedle.color.setHex(0x184223);
+            if (MATERIALS.hedgeFoliage) MATERIALS.hedgeFoliage.color.setHex(0x275e2c);
+            if (MATERIALS.soilMulch) MATERIALS.soilMulch.color.setHex(0x2a1d17);
+            if (MATERIALS.steleGranite) MATERIALS.steleGranite.color.setHex(0x475569);
+            if (MATERIALS.forecourtPaverLight) MATERIALS.forecourtPaverLight.color.setHex(0xf1f5f9);
+            if (MATERIALS.forecourtPaverDark) MATERIALS.forecourtPaverDark.color.setHex(0x64748b);
+            if (MATERIALS.campusBenchWood) MATERIALS.campusBenchWood.color.setHex(0xb45309);
         }
     }
 
