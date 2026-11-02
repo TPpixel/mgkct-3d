@@ -622,7 +622,7 @@ function createSpruceNeedleTexture() { return createMinimalTexture('#184223', 25
 function createHedgeFoliageTexture() { return createMinimalTexture('#275e2c', 256, 256); }
 function createHedgeBumpTexture() { return createMinimalTexture('#808080', 256, 256); }
 function createSoilMulchTexture() { return createMinimalTexture('#2a1d17', 256, 256); }
-function createLawnTexture() { return createMinimalTexture('#27532b', 256, 256); }
+function createLawnTexture() { return createMinimalTexture('#387a3e', 256, 256); }
 function createCollegeSteleLogoTexture() { return createMinimalTexture('#0284c7', 256, 256); }
 function createWoodPlankTexture() { return createMinimalTexture('#b45309', 256, 256); }
 function createWoodPlankBumpMap() { return createMinimalTexture('#808080', 256, 256); }
@@ -713,43 +713,43 @@ const MATERIALS = {
 
     // 2. Дороги и территория (минималистичные и 3D)
     minimalRoadSurface: new THREE.MeshStandardMaterial({
-        color: isInitialDark ? 0x131b26 : 0xdce4ee,
-        roughness: 0.95,
-        metalness: 0.02,
+        color: isInitialDark ? 0x1e293b : 0x475569,
+        roughness: 0.90,
+        metalness: 0.04,
         polygonOffset: true,
         polygonOffsetFactor: 2,
         polygonOffsetUnits: 2
     }),
     roadContourLine: new THREE.LineBasicMaterial({
-        color: isInitialDark ? 0x475569 : 0x64748b,
+        color: isInitialDark ? 0x94a3b8 : 0x334155,
         linewidth: 1
     }),
     roadCenterLine: new THREE.LineBasicMaterial({
-        color: isInitialDark ? 0x334155 : 0x94a3b8,
+        color: isInitialDark ? 0x475569 : 0x94a3b8,
         linewidth: 1
     }),
     asphaltRoad: new THREE.MeshStandardMaterial({
-        color: isInitialDark ? 0x1c222d : 0x475569,
-        roughness: 0.92,
+        color: isInitialDark ? 0x18202c : 0x334155,
+        roughness: 0.90,
         metalness: 0.04
     }),
     asphaltDriveway: new THREE.MeshStandardMaterial({
-        color: isInitialDark ? 0x232a36 : 0x64748b,
-        roughness: 0.90,
-        metalness: 0.05
+        color: isInitialDark ? 0x1e293b : 0x475569,
+        roughness: 0.88,
+        metalness: 0.04
     }),
     curb: new THREE.MeshStandardMaterial({
-        color: isInitialDark ? 0x333d4d : 0x94a3b8,
+        color: isInitialDark ? 0x475569 : 0x64748b,
         roughness: 0.85,
         metalness: 0.05
     }),
     sidewalk: new THREE.MeshStandardMaterial({
-        color: isInitialDark ? 0x2c3545 : 0xcbd5e1,
-        roughness: 0.90,
-        metalness: 0.04
+        color: isInitialDark ? 0x2d3748 : 0x94a3b8,
+        roughness: 0.85,
+        metalness: 0.03
     }),
     lawn: new THREE.MeshStandardMaterial({
-        color: isInitialDark ? 0x142817 : 0x27532b,
+        color: isInitialDark ? 0x16331a : 0x387a3e,
         roughness: 0.95,
         metalness: 0.0
     }),

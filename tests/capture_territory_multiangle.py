@@ -106,6 +106,13 @@ TERRITORY_TARGETS = {
         "azimuth_deg": 0.0,
         "detail_focus": [0.0, 0.06, 18.0],
     },
+    "campus_full": {
+        "label": "Полный обзор кампуса колледжа",
+        "center": [25.0, 0.0, -25.0],
+        "bbox": [120.0, 1.0, 120.0],
+        "azimuth_deg": 0.0,
+        "detail_focus": [25.0, 0.0, -25.0],
+    },
     "campus_bench": {
         "label": "Эргономичная парковая скамья на променаде",
         "center": [24.0, 0.52, 17.8],

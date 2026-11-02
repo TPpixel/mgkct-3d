@@ -34,15 +34,15 @@ function setTheme(themeName, shouldSave = true) {
             if (MATERIALS.roof) MATERIALS.roof.color.setHex(0x1e293b);
             if (MATERIALS.edgeRoof) MATERIALS.edgeRoof.color.setHex(0x475569);
             if (MATERIALS.guideLine) MATERIALS.guideLine.color.setHex(0x475569);
-            if (MATERIALS.minimalRoadSurface) MATERIALS.minimalRoadSurface.color.setHex(0x131b26);
-            if (MATERIALS.roadContourLine) MATERIALS.roadContourLine.color.setHex(0x475569);
-            if (MATERIALS.roadCenterLine) MATERIALS.roadCenterLine.color.setHex(0x334155);
+            if (MATERIALS.minimalRoadSurface) MATERIALS.minimalRoadSurface.color.setHex(0x1e293b);
+            if (MATERIALS.roadContourLine) MATERIALS.roadContourLine.color.setHex(0x94a3b8);
+            if (MATERIALS.roadCenterLine) MATERIALS.roadCenterLine.color.setHex(0x475569);
             // Прилегающая территория в тёмной теме
-            if (MATERIALS.asphaltRoad) MATERIALS.asphaltRoad.color.setHex(0x1c222d);
-            if (MATERIALS.asphaltDriveway) MATERIALS.asphaltDriveway.color.setHex(0x232a36);
-            if (MATERIALS.curb) MATERIALS.curb.color.setHex(0x333d4d);
-            if (MATERIALS.sidewalk) MATERIALS.sidewalk.color.setHex(0x2c3545);
-            if (MATERIALS.lawn) MATERIALS.lawn.color.setHex(0x142817);
+            if (MATERIALS.asphaltRoad) MATERIALS.asphaltRoad.color.setHex(0x18202c);
+            if (MATERIALS.asphaltDriveway) MATERIALS.asphaltDriveway.color.setHex(0x1e293b);
+            if (MATERIALS.curb) MATERIALS.curb.color.setHex(0x475569);
+            if (MATERIALS.sidewalk) MATERIALS.sidewalk.color.setHex(0x2d3748);
+            if (MATERIALS.lawn) MATERIALS.lawn.color.setHex(0x16331a);
             if (MATERIALS.treeFoliage) MATERIALS.treeFoliage.color.setHex(0x1e4620);
             if (MATERIALS.treeFoliageLight) MATERIALS.treeFoliageLight.color.setHex(0x2d5a27);
             if (MATERIALS.birchFoliage) MATERIALS.birchFoliage.color.setHex(0x2e541b);
@@ -67,15 +67,15 @@ function setTheme(themeName, shouldSave = true) {
             if (MATERIALS.roof) MATERIALS.roof.color.setHex(0x94a3b8);
             if (MATERIALS.edgeRoof) MATERIALS.edgeRoof.color.setHex(0x475569);
             if (MATERIALS.guideLine) MATERIALS.guideLine.color.setHex(0x94a3b8);
-            if (MATERIALS.minimalRoadSurface) MATERIALS.minimalRoadSurface.color.setHex(0xdce4ee);
-            if (MATERIALS.roadContourLine) MATERIALS.roadContourLine.color.setHex(0x64748b);
+            if (MATERIALS.minimalRoadSurface) MATERIALS.minimalRoadSurface.color.setHex(0x475569);
+            if (MATERIALS.roadContourLine) MATERIALS.roadContourLine.color.setHex(0x334155);
             if (MATERIALS.roadCenterLine) MATERIALS.roadCenterLine.color.setHex(0x94a3b8);
             // Прилегающая территория в светлой теме
-            if (MATERIALS.asphaltRoad) MATERIALS.asphaltRoad.color.setHex(0x475569);
-            if (MATERIALS.asphaltDriveway) MATERIALS.asphaltDriveway.color.setHex(0x64748b);
-            if (MATERIALS.curb) MATERIALS.curb.color.setHex(0x94a3b8);
-            if (MATERIALS.sidewalk) MATERIALS.sidewalk.color.setHex(0xcbd5e1);
-            if (MATERIALS.lawn) MATERIALS.lawn.color.setHex(0x27532b);
+            if (MATERIALS.asphaltRoad) MATERIALS.asphaltRoad.color.setHex(0x334155);
+            if (MATERIALS.asphaltDriveway) MATERIALS.asphaltDriveway.color.setHex(0x475569);
+            if (MATERIALS.curb) MATERIALS.curb.color.setHex(0x64748b);
+            if (MATERIALS.sidewalk) MATERIALS.sidewalk.color.setHex(0x94a3b8);
+            if (MATERIALS.lawn) MATERIALS.lawn.color.setHex(0x387a3e);
             if (MATERIALS.treeFoliage) MATERIALS.treeFoliage.color.setHex(0x22c55e);
             if (MATERIALS.treeFoliageLight) MATERIALS.treeFoliageLight.color.setHex(0x4ade80);
             if (MATERIALS.birchFoliage) MATERIALS.birchFoliage.color.setHex(0x529432);
