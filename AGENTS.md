@@ -195,6 +195,10 @@ node tests/validate_campus_navigation.js
 
 ## 7. Guidelines for AI Agents
 
+> [!CRITICAL]
+> **ОБЯЗАТЕЛЬНОСТЬ ИСПОЛЬЗОВАНИЯ РУКОВОДСТВА (AGENTS.MD)**:
+> ИИ-ассистент (AI Agent) **ОБЯЗАН ВСЕГДА** строго следовать правилам, архитектурным соглашениям и инструкциям из настоящего документа `AGENTS.md` при выполнении любых задач в проекте, **КРОМЕ ТЕХ СЛУЧАЕВ, КОГДА РАЗРАБОТЧИК В СВОЁМ ЗАПРОСЕ ЯВНО И НАПРЯМУЮ НЕ ТРЕБУЕТ ОБРАТНОГО**.
+
 1. **No Auto-Commit Policy**:
    - Never execute `git commit` autonomously. Only stage/edit files and leave them in the working tree for user review. Only commit if the user explicitly instructs you to do so (e.g., "commit changes").
 2. **Preserve Code Comments**:
