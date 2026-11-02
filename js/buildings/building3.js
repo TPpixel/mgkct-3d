@@ -98,6 +98,9 @@
             const OUTER_T = 0.24;
             const INNER_T = 0.18;
 
+            // Адаптивная белая подложка под Корпус 3 (Этаж 1)
+            addFloorBackingSlab(targetGroup, B3_X_WEST - 0.2, B3_Z_NORTH - 0.2, B3_X_EAST + 0.2, B3_Z_SOUTH + 0.2);
+
             // Основная плита перекрытия 1-го этажа Корпуса 3
             addFloorRect(targetGroup, B3_X_WEST, B3_Z_NORTH, B3_X_EAST, B3_Z_SOUTH, false);
 
@@ -119,7 +122,7 @@
             // Западная внешняя стена X = -1.6 (два двустворчатых выхода на крыльца)
             addWallLine(targetGroup, B3_X_WEST, B3_Z_NORTH, B3_X_WEST, B3_Z_SOUTH, [
                 { from: -47.0, to: -45.2, type: 'door' }, // Двустворчатый выход из ЛК №1 на крыльцо
-                { from: -37.7, to: -36.5, type: 'door' }  // Двустворчатый выход из помещения под 108 на крыльцо
+                { from: -37.2, to: -35.8, type: 'door' }
             ], OUTER_T);
 
             // Восточная внешняя стена X = 14.0 (выход во двор между 105 и 102, и наружный выход из 112 на крыльцо по БТИ)
@@ -185,11 +188,7 @@
             addWallLine(targetGroup, 0.8, -36.4, 5.2, -36.4, [], INNER_T);       // Южная стена 109 вдоль бокового прохода (Z = -36.4)
             addWallLine(targetGroup, 0.8, -39.6, 0.8, -36.4, [], INNER_T);       // Западная стена 109 до угла бокового прохода
             addWallLine(targetGroup, B3_X_WEST, -37.8, 0.8, -37.8, [
-                { from: -0.9, to: 0.3, type: 'door' }                            // Дверь из комнаты под 108 в комнату 108
-            ], INNER_T);
-            // Перемычка под кабинетом 108 (Z = -36.4) с дверью в боковой проход у угла 109
-            addWallLine(targetGroup, B3_X_WEST, -36.4, 0.8, -36.4, [
-                { from: 0.0, to: 0.75, type: 'door' }
+                { from: -0.8, to: 0.2, type: 'door' }
             ], INNER_T);
 
             // Сегмент 2 западной стены коридора: от бокового прохода (Z = -35.0) до зала 103 (Z = -26.8)
@@ -313,6 +312,9 @@
         function buildBuilding3Floor2(targetGroup) {
             const OUTER_T = 0.24;
             const INNER_T = 0.18;
+
+            // Адаптивная белая подложка под Корпус 3 (Этаж 2)
+            addFloorBackingSlab(targetGroup, B3_X_WEST - 0.2, B3_Z_NORTH - 0.2, 15.8, B3_Z_SOUTH + 0.2);
 
             // 1. Основная плита перекрытия 2-го этажа Корпуса 3
             addFloorRect(targetGroup, B3_X_WEST, B3_Z_NORTH, B3_X_EAST, B3_Z_SOUTH, false);
