@@ -269,6 +269,12 @@ function init() {
             renderScreenSpaceLabels();
         }
     }
+
+    // Отложенная загрузка детальных табличек расписаний в фоновом режиме (Zero main-thread blocking)
+    if (typeof loadTimetableTexturesAsync === 'function') {
+        loadTimetableTexturesAsync();
+    }
+
     animate();
 }
 

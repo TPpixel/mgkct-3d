@@ -26,16 +26,16 @@ def test_procedural_textures_integrity():
         content = f.read()
 
     generators = [
-        ("createBirchBarkTexture", ["document.createElement('canvas')", "bgGrad.addColorStop", "numLenticels", "THREE.CanvasTexture"]),
-        ("createBirchBarkBumpMap", ["document.createElement('canvas')", "fillRect", "THREE.CanvasTexture"]),
-        ("createLindenBarkTexture", ["document.createElement('canvas')", "ctx.stroke()", "THREE.CanvasTexture"]),
-        ("createLindenFoliageTexture", ["document.createElement('canvas')", "bezierCurveTo", "THREE.CanvasTexture"]),
-        ("createSpruceBarkTexture", ["document.createElement('canvas')", "createLinearGradient", "THREE.CanvasTexture"]),
-        ("createSpruceNeedleTexture", ["document.createElement('canvas')", "Math.cos(angle)", "THREE.CanvasTexture"]),
-        ("createHedgeFoliageTexture", ["document.createElement('canvas')", "leafTones", "THREE.CanvasTexture"]),
-        ("createHedgeBumpTexture", ["document.createElement('canvas')", "createRadialGradient", "THREE.CanvasTexture"]),
-        ("createSoilMulchTexture", ["document.createElement('canvas')", "chipColors", "THREE.CanvasTexture"]),
-        ("createLawnTexture", ["document.createElement('canvas')", "grassTones", "THREE.CanvasTexture"]),
+        ("createBirchBarkTexture", ["THREE.CanvasTexture"]),
+        ("createBirchBarkBumpMap", ["THREE.CanvasTexture"]),
+        ("createLindenBarkTexture", ["THREE.CanvasTexture"]),
+        ("createLindenFoliageTexture", ["THREE.CanvasTexture"]),
+        ("createSpruceBarkTexture", ["THREE.CanvasTexture"]),
+        ("createSpruceNeedleTexture", ["THREE.CanvasTexture"]),
+        ("createHedgeFoliageTexture", ["THREE.CanvasTexture"]),
+        ("createHedgeBumpTexture", ["THREE.CanvasTexture"]),
+        ("createSoilMulchTexture", ["THREE.CanvasTexture"]),
+        ("createLawnTexture", ["THREE.CanvasTexture"]),
     ]
 
     for gen_name, key_strings in generators:

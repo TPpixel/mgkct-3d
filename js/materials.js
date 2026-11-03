@@ -19,6 +19,15 @@ function createMinimalTexture(colorHex = '#ffffff', w = 256, h = 256) {
     return tex;
 }
 
+// Легковесный плейсхолдер расписаний для мгновенного старта (0 мс задержки при начальной загрузке страницы)
+let _timetablePlaceholderTex = null;
+function getTimetablePlaceholderTexture() {
+    if (!_timetablePlaceholderTex) {
+        _timetablePlaceholderTex = createMinimalTexture('#ffffff', 64, 64);
+    }
+    return _timetablePlaceholderTex;
+}
+
 // Генераторы текстур для совместимости со сторонними интерфейсами и тестами
 function createGlassFritTexture() { return createMinimalTexture('#d8e8f0', 256, 256); }
 
@@ -873,19 +882,19 @@ const MATERIALS = {
     }),
     busTimetable: new THREE.MeshStandardMaterial({
         color: 0xffffff,
-        map: createBusTimetableTexture(),
+        map: getTimetablePlaceholderTexture(),
         roughness: 0.25,
         metalness: 0.05
     }),
     trolleybusTimetable1: new THREE.MeshStandardMaterial({
         color: 0xffffff,
-        map: createTrolleybusTimetable1Texture(),
+        map: getTimetablePlaceholderTexture(),
         roughness: 0.25,
         metalness: 0.05
     }),
     trolleybusTimetable2: new THREE.MeshStandardMaterial({
         color: 0xffffff,
-        map: createTrolleybusTimetable2Texture(),
+        map: getTimetablePlaceholderTexture(),
         roughness: 0.25,
         metalness: 0.05
     }),
@@ -1190,3 +1199,52 @@ window.createPaverTileBumpMap = createPaverTileBumpMap;
 window.createTrafficBackplateTexture = createTrafficBackplateTexture;
 window.createPedestrianTrafficLensTexture = createPedestrianTrafficLensTexture;
 window.createPedestrianButtonPlateTexture = createPedestrianButtonPlateTexture;
+
+// ============================================================================
+// АСИНХРОННЫЙ ОТЛОЖЕННЫЙ ЗАГРУЗЧИК ВЫСОКОДЕТАЛИЗИРОВАННЫХ ТАБЛИЧЕК РАСПИСАНИЙ
+// Оптимизация: генерация тяжелых Canvas 2D вынесена в requestIdleCallback / таймер,
+// исключая блокировку главного потока при начальном парсинге и рендеринге 3D-сцены.
+// ============================================================================
+let _timetablesLoaded = false;
+function loadTimetableTexturesAsync() {
+    if (_timetablesLoaded) return;
+    _timetablesLoaded = true;
+
+    const doLoad = () => {
+        try {
+            const texBus = createBusTimetableTexture();
+            const texTrolley1 = createTrolleybusTimetable1Texture();
+            const texTrolley2 = createTrolleybusTimetable2Texture();
+
+            if (MATERIALS.busTimetable) {
+                MATERIALS.busTimetable.map = texBus;
+                MATERIALS.busTimetable.needsUpdate = true;
+            }
+            if (MATERIALS.trolleybusTimetable1) {
+                MATERIALS.trolleybusTimetable1.map = texTrolley1;
+                MATERIALS.trolleybusTimetable1.needsUpdate = true;
+            }
+            if (MATERIALS.trolleybusTimetable2) {
+                MATERIALS.trolleybusTimetable2.map = texTrolley2;
+                MATERIALS.trolleybusTimetable2.needsUpdate = true;
+            }
+            if (typeof requestRender === 'function') {
+                requestRender(15);
+            }
+        } catch (e) {
+            console.warn('Async timetable texture generation:', e);
+        }
+    };
+
+    if (typeof window !== 'undefined') {
+        if ('requestIdleCallback' in window) {
+            window.requestIdleCallback(doLoad, { timeout: 2000 });
+        } else {
+            setTimeout(doLoad, 600);
+        }
+    } else {
+        doLoad();
+    }
+}
+
+window.loadTimetableTexturesAsync = loadTimetableTexturesAsync;
