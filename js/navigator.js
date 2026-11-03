@@ -2661,6 +2661,18 @@
         g.addEdge("b4_f2_stair_lk2", "b4_f3_stair_lk2", 5.5);
         g.addEdge("b4_f1_stair_lk3", "b4_f2_stair_lk3", 5.5);
         g.addEdge("b4_f2_stair_lk3", "b4_f3_stair_lk3", 5.5);
+        
+        // --- Корпус 5 (Хозяйственное строение, заезд с восточной дороги) ---
+        g.addNode("b5_f1_interior", 1, 5, 11.0, -68.7, "corridor", "Корпус 5");
+        g.addNode("b5_f1_gate", 1, 5, 14.0, -68.7, "door", "Въезд Корпус 5");
+        g.addNode("outdoor_b5_apron", 1, 0, 16.5, -68.7, "corridor", "Подъезд к К5");
+        g.addNode("outdoor_b5_junc", 1, 0, 19.0, -68.7, "corridor", "Проезд к К5");
+
+        g.addEdge("outdoor_node_86645", "outdoor_b5_junc", 23.5);
+        g.addEdge("outdoor_b5_junc", "outdoor_b5_apron", 2.5);
+        g.addEdge("outdoor_b5_apron", "b5_f1_gate", 2.5);
+        g.addEdge("b5_f1_gate", "b5_f1_interior", 3.0);
+
         return g;
     }
 

@@ -10,6 +10,7 @@ const bldg1FloorGroups = {};
 const bldg2FloorGroups = {};
 const bldg3FloorGroups = {};
 const bldg4FloorGroups = {};
+const bldg5FloorGroups = {};
 let alignmentGuidesGroup;
 let stairValidationGroup;
 let territoryGroup;
@@ -130,6 +131,7 @@ window.bldg1FloorGroups = bldg1FloorGroups;
 window.bldg2FloorGroups = bldg2FloorGroups;
 window.bldg3FloorGroups = bldg3FloorGroups;
 window.bldg4FloorGroups = bldg4FloorGroups;
+window.bldg5FloorGroups = bldg5FloorGroups;
 window.territoryGroup = territoryGroup;
 window.roadNetworkGroup = roadNetworkGroup;
 window.wallMeshes = wallMeshes;
@@ -175,6 +177,7 @@ function getActiveCenterX() {
     if (STATE.buildingFilter === '2') return 44.2;
     if (STATE.buildingFilter === '3') return 5.9;
     if (STATE.buildingFilter === '4') return 48.5;
+    if (STATE.buildingFilter === '5') return 6.0;
     return 16.0;
 }
 
@@ -183,5 +186,6 @@ function getActiveCenterZ() {
     if (STATE.buildingFilter === '2') return -5.1;
     if (STATE.buildingFilter === '3') return -40.2;
     if (STATE.buildingFilter === '4') return -44.5;
+    if (STATE.buildingFilter === '5') return -68.75;
     return -18.0;
 }

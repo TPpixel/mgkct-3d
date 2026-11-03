@@ -867,11 +867,6 @@ function buildDrivewaysAndInnerRoads(group) {
     northGeom.translate(northXMid, -0.05, northRoadZMid);
     drivewayGeoms.push(northGeom);
 
-    // Подъездной асфальтовый карман к Корпусу 5 перед воротами (X [-4.5..17.5], Z [-66.0..-63.0])
-    const b5ApronGeom = new THREE.BoxGeometry(17.5 - (-4.5), 0.14, 3.0);
-    b5ApronGeom.translate((-4.5 + 17.5) / 2, -0.05, (-66.0 + -63.0) / 2);
-    drivewayGeoms.push(b5ApronGeom);
-
     // 6) ПРОДОЛЖЕНИЕ ВОСТОЧНОГО ПРОЕЗДА НА СЕВЕР ЗА КОЛЛЕДЖ ДО КРАЯ КАРТЫ (Z = -96.5):
     const mapNorthZ = -96.5;
     const northDriveLen = Math.abs(northRoadZ1 - mapNorthZ);

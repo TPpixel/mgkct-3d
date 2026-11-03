@@ -723,7 +723,9 @@ class CampusValidator:
             # Building 3: Floors 1 to 2
             (3, 1), (3, 2),
             # Building 4: Floors 1 to 3
-            (4, 1), (4, 2), (4, 3)
+            (4, 1), (4, 2), (4, 3),
+            # Building 5: Floor 1
+            (5, 1)
         ]
 
         def is_arch_exclusion(r):

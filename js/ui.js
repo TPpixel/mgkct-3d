@@ -111,7 +111,8 @@ const BUILDING_MAX_FLOORS = {
     '1': 7,
     '2': 3,
     '3': 2,
-    '4': 3
+    '4': 3,
+    '5': 1
 };
 
 const BUILDING_NAMES = {
@@ -119,7 +120,8 @@ const BUILDING_NAMES = {
     '1': 'Корпус 1',
     '2': 'Корпус 2',
     '3': 'Корпус 3',
-    '4': 'Корпус 4'
+    '4': 'Корпус 4',
+    '5': 'Корпус 5 (Хозкорпус)'
 };
 
 function updateTopFloorBadge() {

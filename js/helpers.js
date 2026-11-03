@@ -1178,7 +1178,7 @@ function formatRoomDisplayName(text, buildingNum) {
     const b = parseInt(buildingNum, 10);
     const raw = String(text).trim();
     if (b <= 1 || isNaN(b)) return raw;
-    if (raw.startsWith('2-') || raw.startsWith('3-') || raw.startsWith('4-')) return raw;
+    if (raw.startsWith('2-') || raw.startsWith('3-') || raw.startsWith('4-') || raw.startsWith('5-')) return raw;
     if (/^\d+[а-яa-z]?$/i.test(raw)) {
         return b + '-' + raw;
     }

@@ -83,10 +83,13 @@ function init() {
         bldg3FloorGroups[f].userData = { building: 3, floor: f };
         bldg4FloorGroups[f] = new THREE.Group();
         bldg4FloorGroups[f].userData = { building: 4, floor: f };
+        bldg5FloorGroups[f] = new THREE.Group();
+        bldg5FloorGroups[f].userData = { building: 5, floor: f };
         floorGroups[f].add(bldg1FloorGroups[f]);
         floorGroups[f].add(bldg2FloorGroups[f]);
         floorGroups[f].add(bldg3FloorGroups[f]);
         floorGroups[f].add(bldg4FloorGroups[f]);
+        floorGroups[f].add(bldg5FloorGroups[f]);
         scene.add(floorGroups[f]);
     }
     alignmentGuidesGroup = new THREE.Group();
@@ -123,6 +126,7 @@ function init() {
     buildBuilding4Floor1(bldg4FloorGroups[1]);
     buildBuilding4Floor2(bldg4FloorGroups[2]);
     buildBuilding4Floor3(bldg4FloorGroups[3]);
+    if (typeof buildBuilding5Floor1 === 'function') buildBuilding5Floor1(bldg5FloorGroups[1]);
 
     // Построение стен со сопряжением стыков (устранение взаимного проникновения)
     if (typeof flushAllPendingWalls === 'function') {
@@ -385,6 +389,9 @@ function buildRoofs() {
     addRoofRect(bldg3FloorGroups[2], B3_X_EAST, -47.6, 15.6, -44.0, 3);
 
     // Корпус 4: Кровля 3-го этажа + сквозные лестничные шахты + переходы 2-го этажа
+    if (typeof bldg5FloorGroups !== 'undefined' && bldg5FloorGroups[1]) {
+        addRoofRect(bldg5FloorGroups[1], -1.6, -71.5, 14.0, -66.0, 5);
+    }
     addRoofRect(bldg4FloorGroups[3], B4_X_WEST, B4_Z_NORTH, B4_X_EAST, B4_Z_SOUTH, 4);
     addRoofRect(bldg4FloorGroups[3], B4_LK2_X1, B4_LK2_Z1, B4_LK2_X2, B4_LK2_Z2, 4);
     addRoofRect(bldg4FloorGroups[3], B4_LK3_X1, B4_LK3_Z1, B4_LK3_X2, B4_LK3_Z2, 4);
@@ -749,12 +756,16 @@ function recalcTargetPositions() {
     const showB2 = STATE.buildingFilter === 'both' || STATE.buildingFilter === '2';
     const showB3 = STATE.buildingFilter === 'both' || STATE.buildingFilter === '3';
     const showB4 = STATE.buildingFilter === 'both' || STATE.buildingFilter === '4';
+    const showB5 = STATE.buildingFilter === 'both' || STATE.buildingFilter === '5';
 
     for (let f = 1; f <= 7; f++) {
         bldg1FloorGroups[f].visible = showB1;
         bldg2FloorGroups[f].visible = showB2 && (f <= 3);
         bldg3FloorGroups[f].visible = showB3 && (f <= 2);
         bldg4FloorGroups[f].visible = showB4 && (f <= 3);
+        if (typeof bldg5FloorGroups !== 'undefined' && bldg5FloorGroups[f]) {
+            bldg5FloorGroups[f].visible = showB5 && (f <= 1);
+        }
     }
 
     if (STATE.mode === 'all' || STATE.mode === 'slice') {
