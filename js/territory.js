@@ -856,16 +856,21 @@ function buildDrivewaysAndInnerRoads(group) {
     addCurbSegment(group, innerXWest, northRoadZ2, innerXWest, innerZSouth);
     addCurbSegment(group, innerXEast, northRoadZ2, innerXEast, innerZNorth);
     addCurbSegment(group, innerXWest, innerZSouth, innerXEast, innerZSouth);
+    addCurbSegment(group, 16.5, northRoadZ1, roadX1, northRoadZ1);
 
     // 5) СЕВЕРНЫЙ ПРОЕЗД (ширина 5.0 м)
     // Продолжен до западного края карты (X = -45.0) без тупиков:
-    const northWestEnd = -18.0;
-    const mapWestX = -25.0;
-    const northLen = roadX2 - mapWestX;
-    const northXMid = (mapWestX + roadX2) / 2;
+    const northWestEnd = 16.5;
+    const northLen = roadX2 - northWestEnd;
+    const northXMid = (northWestEnd + roadX2) / 2;
     const northGeom = new THREE.BoxGeometry(northLen, 0.14, northRoadW);
     northGeom.translate(northXMid, -0.05, northRoadZMid);
     drivewayGeoms.push(northGeom);
+
+    // Подъездной асфальтовый карман к Корпусу 5 перед воротами (X [-4.5..17.5], Z [-66.0..-63.0])
+    const b5ApronGeom = new THREE.BoxGeometry(17.5 - (-4.5), 0.14, 3.0);
+    b5ApronGeom.translate((-4.5 + 17.5) / 2, -0.05, (-66.0 + -63.0) / 2);
+    drivewayGeoms.push(b5ApronGeom);
 
     // 6) ПРОДОЛЖЕНИЕ ВОСТОЧНОГО ПРОЕЗДА НА СЕВЕР ЗА КОЛЛЕДЖ ДО КРАЯ КАРТЫ (Z = -96.5):
     const mapNorthZ = -96.5;
@@ -923,8 +928,8 @@ function buildDrivewaysAndInnerRoads(group) {
 
     // Внешние бордюры северного объезда (до края карты X = -45.0, БЕЗ тупика)
     // Останавливается на западной кромке восточного проезда (X = roadX1 = 72.0), не перерезая дорогу!
-    addCurbSegment(group, mapWestX, northRoadZ1, roadX1, northRoadZ1);
-    addCurbSegment(group, mapWestX, northRoadZ2, innerXWest, northRoadZ2);
+    // Бордюры северного проезда (от Корпуса 5 до восточного проезда)
+    addCurbSegment(group, 16.5, northRoadZ1, roadX1, northRoadZ1);
     addCurbSegment(group, innerXEast, northRoadZ2, roadX1, northRoadZ2);
 }
 
@@ -2923,7 +2928,7 @@ function buildRingRoadAroundCollege(group) {
     // Восточный проезд (продлен на север за колледж до -96.5)
     addRoadRibbon(eastRoadX1, -96.5, eastRoadX2, mainRoadZ1);
     // Северный объезд (продлен на запад до -45.0)
-    addRoadRibbon(-5.0, northRoadZ1, eastRoadX2, northRoadZ2);
+    addRoadRibbon(16.5, northRoadZ1, eastRoadX2, northRoadZ2);
     // Внутренний проезд (горизонтальный участок между К2 и К4)
     addRoadRibbon(innerXEast, innerZNorth, eastRoadX1, innerZSouth);
     // Внутренний проезд (вертикальный участок между К3 и К4)
@@ -3248,22 +3253,22 @@ function buildPerimeterFence(group) {
 
     // Линии забора вокруг кампуса МГКЦТ:
     // 1. Северный забор: с проездом для пожарного выезда (X: 17.5..22.5) и БЕЗ дырки на 40..46:
-    addFenceLine(-5.0, -63.5, 17.5, -63.5);
-    // Проезд/ворота пожарного выезда: X: 17.5 .. 22.5
-    addFenceLine(22.5, -63.5, 72.0, -63.5);
+        // Новый периметральный забор (красная разметка):
+    // 1. Западный забор вдоль Корпуса 3 и Корпуса 5 (X = -5.0, Z от -14.0 до -72.0)
+        // Новый периметральный забор (красная разметка):
+    // 1. Западный забор вдоль Корпуса 3 и Корпуса 5 (X = -5.0, Z от -14.0 до -72.0)
+    addFenceLine(-5.0, -72.0, -5.0, -14.0);
 
-    // 2. Западный забор вдоль Корпуса 3:
-    addFenceLine(-5.0, -63.5, -5.0, -14.0);
+    // 2. Северный забор вдоль северной границы участка (Z = -72.0, X от -5.0 до 72.0)
+    addFenceLine(-5.0, -72.0, 72.0, -72.0);
 
-    // 3. Восточный забор вдоль Корпусов 4 и 2 (с проездом во внутренний двор под переходом Z: -24.0..-17.0):
-    addFenceLine(72.0, -63.5, 72.0, -24.0);
-    // Проезд во внутренний двор под переходом: Z: -24.0 .. -17.0
+    // 3. Восточный забор вдоль Корпуса 4 и 2 (X = 72.0, к югу от северного проезда Z = -66.5 до ворот Z = -24.0)
+    addFenceLine(72.0, -66.5, 72.0, -24.0);
+    // Ворота въезда на служебную парковку: Z: -24.0 .. -17.0
     addFenceLine(72.0, -17.0, 72.0, 3.5);
 
-    // 4. Поворот забора от угла Корпуса 2 (каб. 2-110) к восточной дороге (желтая линия пользователя):
+    // 4. Юго-восточный угловой забор у Корпуса 2
     addFenceLine(68.0, 3.5, 72.0, 3.5);
-
-    // 5. Забор перед входом убран (красный овал пользователя)
 
     if (fenceGeoms.length > 0) {
         const mergedFence = mergeBufferGeometriesVanilla(fenceGeoms);
@@ -3275,18 +3280,4 @@ function buildPerimeterFence(group) {
 }
 
 window.addPedestrianTrafficLight = addPedestrianTrafficLight;
-window.buildPerimeterFence = buildPerimeterFence;    // 1. Северный забор:
-    addFenceLine(-5.0, -63.5, 17.5, -63.5);
-    addFenceLine(22.5, -63.5, 72.0, -63.5);
-
-    // 2. Западный забор вдоль Корпуса 3 (X = -5.0, расстояние до левого края карты 20.0 м):
-    addFenceLine(-5.0, -63.5, -5.0, -14.0);
-
-    // 3. Восточный забор вдоль Корпусов 4 и 2 (X = 72.0, расстояние до правого края карты 20.0 м):
-    addFenceLine(72.0, -63.5, 72.0, -24.0);
-    addFenceLine(72.0, -17.0, 72.0, 3.5);
-
-    // 4. Южный торец Корпуса 2:
-    addFenceLine(68.0, 3.5, 72.0, 3.5);
-
-    
+window.buildPerimeterFence = buildPerimeterFence;
