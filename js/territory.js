@@ -805,11 +805,11 @@ function buildDrivewaysAndInnerRoads(group) {
 
     const t2 = createAsphaltTriangleGeometry([
         [roadX2, 24.5],
-        [80.0, 28.2],
+        [79.0, 28.2],
         [roadX2, 28.2]
     ], 0.02, 0.14);
     if (t2) drivewayGeoms.push(t2);
-    addCurbSegment(group, roadX2, 24.5, 80.0, 28.2);
+    addCurbSegment(group, roadX2, 24.5, 79.0, 28.2);
 
     // 2) ВОСТОЧНЫЙ ПРОЕЗД (Вдоль Корпуса 2 и Корпуса 4)
     const northRoadZ1 = -71.5;
@@ -1017,14 +1017,11 @@ function buildForecourtDualTonePaving(group) {
     westPromWalk.translate((mapWestX + -10.0) / 2, -0.02, (17.0 + 21.6) / 2);
     paveGeoms.push(westPromWalk);
 
-    // 6) Восточный тротуар променада со скосом въезда (ЕДИНЫЙ МОНОЛИТНЫЙ ПОЛИГОН БЕЗ ШВОВ):
-    // Точки контура: [77.0, 20.0] -> [mapEastX, 20.0] -> [mapEastX, 24.5] -> [80.0, 24.5] -> [80.0, 28.2] -> [77.0, 24.5]
+    // 6) Восточный тротуар променада (строго до Z=24.5, к югу от Z=24.5 до дороги — зеленый газон):
     const eastPromWalk = createPavementPolygonGeometry([
         [roadX2, 20.0],
         [mapEastX, 20.0],
         [mapEastX, 24.5],
-        [80.0, 24.5],
-        [80.0, 28.2],
         [roadX2, 24.5]
     ], -0.02, 0.16);
     if (eastPromWalk) paveGeoms.push(eastPromWalk);
@@ -1068,12 +1065,13 @@ function buildForecourtDualTonePaving(group) {
     addCurbSegment(group, 72.0, 17.0, 72.0, 24.5);
     addCurbSegment(group, 40.5, 28.2, 54.0, 28.2);
     addCurbSegment(group, 58.0, 28.2, 70.0, 28.2);
+    addCurbSegment(group, 79.0, 28.2, mapEastX, 28.2);
 
     // Угловые замковые элементы бордюров на стыках скосов въезда (закрывают вырезы и щели на углах):
     addCurbCornerPiece(group, 70.0, 28.2, 0, 0);
     addCurbCornerPiece(group, 72.0, 24.5, 0, 0);
     addCurbCornerPiece(group, 77.0, 24.5, 0, 0);
-    addCurbCornerPiece(group, 80.0, 28.2, 0, 0);
+    addCurbCornerPiece(group, 79.0, 28.2, 0, 0);
 }
 
 function buildForecourtAndPlaza(group) {
@@ -1682,7 +1680,7 @@ function buildLandscaping(group) {
     // Аллея елей европейских (Picea abies), перемежаемых липами
     // Свободно размещены на газонах вне нового восточного ответвления дороги (Z: 20.0..24.5)
     const drivewayTrees = [
-        { x: 80.8, z:  27.0, type: 'spruce', scale: 1.20, seed: 1 },
+        { x: 82.5, z:  27.0, type: 'spruce', scale: 1.20, seed: 1 },
         { x: 80.8, z:  14.0, type: 'spruce', scale: 1.22, seed: 2 },
         { x: 80.8, z:   2.0, type: 'linden', scale: 1.22, seed: 3 },
         { x: 80.8, z:  -8.0, type: 'spruce', scale: 1.18, seed: 4 },

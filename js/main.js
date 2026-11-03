@@ -785,14 +785,12 @@ function recalcTargetPositions() {
         }
     }
 
-    // Синхронизируем высотную отметку прилегающей территории и дорог
-    const isSingleFloorMode = (STATE.mode !== 'all' && STATE.mode !== 'slice' && STATE.mode !== 'sideBySide');
-    const groundElevationY = isSingleFloorMode ? -((parseInt(STATE.mode, 10) || 1) - 1) * BASE_FLOOR_STEP : 0;
+    // Земля и корпуса всегда зафиксированы на постоянной высоте (земля на архитектурной отметке под плитами)
     if (typeof territoryGroup !== 'undefined' && territoryGroup) {
-        territoryGroup.position.y = groundElevationY;
+        territoryGroup.position.y = -0.22;
     }
     if (typeof roadNetworkGroup !== 'undefined' && roadNetworkGroup) {
-        roadNetworkGroup.position.y = groundElevationY;
+        roadNetworkGroup.position.y = -0.22;
     }
 
     // Применяем умную оптимизацию видимости внутренностей

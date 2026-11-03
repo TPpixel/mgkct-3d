@@ -27,7 +27,7 @@ print("\n=== 2. VERIFYING TAPER AND FLARE GEOMETRY ===")
 west_taper = [(-10.0, 28.2), (-6.0, 25.4), (-6.0, 28.2)]
 east_taper = [(38.0, 25.4), (40.5, 28.2), (38.0, 28.2)]
 west_flare = [(70.0, 28.2), (72.0, 24.5), (72.0, 28.2)]
-east_flare = [(77.0, 24.5), (80.0, 28.2), (77.0, 28.2)]
+east_flare = [(77.0, 24.5), (79.0, 28.2), (77.0, 28.2)]
 
 def triangle_area(pts):
     (x1, z1), (x2, z2), (x3, z3) = pts

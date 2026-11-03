@@ -702,7 +702,10 @@ const MATERIALS = {
         roughness: 0.90,
         metalness: 0.02,
         transparent: false,
-        opacity: 1.0
+        opacity: 1.0,
+        polygonOffset: true,
+        polygonOffsetFactor: -1,
+        polygonOffsetUnits: -1
     }),
     coreSlab: new THREE.MeshStandardMaterial({
         color: isInitialDark ? 0x121a26 : COLLEGE_COLOR_PALETTES[0].coreSlab,

@@ -147,8 +147,8 @@ def main():
                 "setup": """
                     STATE.showTerritory = true;
                     if (typeof territoryGroup !== 'undefined') territoryGroup.visible = true;
-                    camera.position.set(76.0, 15.0, 26.0);
-                    controls.target.set(76.0, 0.0, 26.0);
+                    camera.position.set(74.5, 14.0, 26.35);
+                    controls.target.set(74.5, 0.0, 26.35);
                     controls.update();
                     requestRender(10);
                 """
