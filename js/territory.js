@@ -594,11 +594,7 @@ function buildLargeShelter(group, cx, cz) {
     sideRight.position.set(w / 2 - 0.15, glassH / 2 + 0.12, 0);
     shelterGroup.add(sideRight);
 
-    // 2-точечные спайдеры на боковых стеклах
-    addSpiderFitting(shelterGroup, -w / 2 + 0.15, 0.75, 0, true);
-    addSpiderFitting(shelterGroup, -w / 2 + 0.15, 1.85, 0, true);
-    addSpiderFitting(shelterGroup, w / 2 - 0.15, 0.75, 0, true);
-    addSpiderFitting(shelterGroup, w / 2 - 0.15, 1.85, 0, true);
+    // Боковые стекла без выступающих круглых спайдеров
 
     // ----------------------------------------------------
     // 5. ИНФОРМАЦИОННЫЕ ТАБЛИЧКИ РАСПИСАНИЙ МИНСКТРАНС (3 СТЕНДА)
