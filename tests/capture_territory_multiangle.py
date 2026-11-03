@@ -40,6 +40,20 @@ REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 
 # 15 Canonical Territory Targets Catalog
 TERRITORY_TARGETS = {
+    "bus_stop_side_glass": {
+        "label": "Боковое стекло автобусного павильона (без круглых спайдеров)",
+        "center": [15.75, 1.35, 23.4],
+        "bbox": [1.2, 2.4, 2.2],
+        "azimuth_deg": 90.0,
+        "detail_focus": [15.75, 1.35, 23.4],
+    },
+    "driveway_lawn_junction": {
+        "label": "Примыкание въезда к дороге (скос заменен газоном)",
+        "center": [75.5, 0.0, 26.5],
+        "bbox": [10.0, 1.0, 8.0],
+        "azimuth_deg": 0.0,
+        "detail_focus": [77.0, 0.0, 26.5],
+    },
     "bus_shelter": {
         "label": "Павильон автобусной остановки с навесом и скамьями",
         "center": [12.0, 1.35, 23.4],
