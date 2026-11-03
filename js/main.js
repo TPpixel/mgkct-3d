@@ -698,11 +698,6 @@ function updateFloorsInteriorVisibility() {
                 }
                 return;
             }
-            // Адаптивная белая подложка пола (активна на видимом этаже, включая спутниковый вид)
-            if (child.userData.isFloorBacking === true) {
-                child.visible = showInterior;
-                return;
-            }
 
             // Скрываем/показываем ТОЛЬКО внутренние перегородки, межкомнатные двери, внутренние ступени и таблички кабинетов
             if (child.userData.isInterior === true) {

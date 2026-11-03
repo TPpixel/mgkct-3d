@@ -62,9 +62,10 @@ def test_botanical_geometry_integrity():
     with open(TER_PATH, "r", encoding="utf-8") as f:
         content = f.read()
 
-    # Verify mergeBufferGeometriesVanilla
-    assert "function mergeBufferGeometriesVanilla" in content, "Missing mergeBufferGeometriesVanilla"
-    assert "window.mergeBufferGeometriesVanilla = mergeBufferGeometriesVanilla" in content, "mergeBufferGeometriesVanilla not exported to window"
+    # Verify mergeBufferGeometriesVanilla in js/helpers.js
+    helpers_src = open("js/helpers.js", "r", encoding="utf-8").read()
+    assert "function mergeBufferGeometriesVanilla" in helpers_src, "Missing mergeBufferGeometriesVanilla in helpers.js"
+    assert "window.mergeBufferGeometriesVanilla = mergeBufferGeometriesVanilla" in helpers_src, "mergeBufferGeometriesVanilla not exported to window"
     assert "Float32Array" in content and "Uint16Array" in content, "mergeBufferGeometriesVanilla must use typed arrays"
     assert "new THREE.BufferGeometry()" in content, "mergeBufferGeometriesVanilla must return BufferGeometry"
 

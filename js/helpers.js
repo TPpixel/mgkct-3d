@@ -64,11 +64,11 @@ function addFloorRect(targetGroup, x1, z1, x2, z2, isCore = false) {
 }
 
 
-function addFloorRightTriangle(targetGroup, xA, zA, xB, zB, xC, zC, isBacking = false) {
+function addFloorRightTriangle(targetGroup, xA, zA, xB, zB, xC, zC) {
     if (!targetGroup) return null;
     const geom = new THREE.BufferGeometry();
-    const thickness = isBacking ? 0.15 : 0.16;
-    const yTop = isBacking ? -0.005 : 0.0;
+    const thickness = 0.16;
+    const yTop = 0.0;
     const yBottom = yTop - thickness;
 
     // Треугольная призма в плоскости XZ с нормалями строго наружу и вверх (+Y)
@@ -113,15 +113,12 @@ function addFloorRightTriangle(targetGroup, xA, zA, xB, zB, xC, zC, isBacking = 
 
     const mat = MATERIALS.slab;
     const mesh = new THREE.Mesh(geom, mat);
-    mesh.receiveShadow = !isBacking;
-    mesh.userData.isFloorBacking = isBacking;
-    mesh.userData.isFloorSlab = !isBacking;
-    mesh.userData.isExterior = !isBacking;
-    mesh.userData.isInterior = isBacking;
+    mesh.receiveShadow = true;
+    mesh.userData.isFloorSlab = true;
+    mesh.userData.isExterior = true;
+    mesh.userData.isInterior = false;
     targetGroup.add(mesh);
-    if (!isBacking) {
-        slabMeshes.push(mesh);
-    }
+    slabMeshes.push(mesh);
     return mesh;
 }
 

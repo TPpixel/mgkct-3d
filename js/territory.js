@@ -2992,7 +2992,6 @@ function buildRingRoadAroundCollege(group) {
 }
 
 window.buildRingRoadAroundCollege = buildRingRoadAroundCollege;
-window.mergeBufferGeometriesVanilla = mergeBufferGeometriesVanilla;
 window.createWhiteBirchTree = createWhiteBirchTree;
 window.addBirchTree = addBirchTree;
 window.addLindenTree = addLindenTree;
