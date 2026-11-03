@@ -814,16 +814,19 @@
             registerDynamicStairStep(targetGroup, leftLandingWallGeom, 11.05, 4.0, landingH + 0.14, 0, true);
 
             // Торцевой бортик площадки перед ЛК№2 (X = 11.8, Z [4.0..8.6])
-            const frontPlatformWallGeom = new THREE.BoxGeometry(0.24, 1, 4.6);
-            registerDynamicStairStep(targetGroup, frontPlatformWallGeom, 11.8, 6.3, landingH + 0.14, 0, true);
+            const frontPlatformWallGeom = new THREE.BoxGeometry(0.24, 1, 4.48);
+            registerDynamicStairStep(targetGroup, frontPlatformWallGeom, 11.8, 6.24, landingH + 0.14, 0, true);
 
             // Наружная лестница: ступени спускаются по оси X от 11.8 до 15.6, строго в створе тамбура Z [8.6..12.2]
+            // Плита основания под ступенями (устраняет просвет земли под лестницей)
+            addFloorRect(targetGroup, 11.8, 8.6, 15.6, 12.2, true);
+
             const stepCount = 9;
             const stairXStart = 11.8;
             const stairXEnd = 15.6;
             const stepW = (stairXEnd - stairXStart) / stepCount;
-            const stairDepth = 3.3; // ширина лестницы по Z (от Z = 8.7 до Z = 12.0)
-            const stairCZ = 10.35;
+            const stairDepth = 3.23; // Пролет ступеней между парапетами Z: 8.72..11.95 (глубина 3.23, центр 10.335)
+            const stairCZ = 10.335;
 
             for (let i = 0; i < stepCount; i++) {
                 const sx = stairXStart + (i + 0.5) * stepW;
@@ -833,9 +836,9 @@
             }
 
             // Правый наружный парапет лестницы (идет по наружной линии Z = 12.2, без выступающей плиты справа)
-            const rightWallFlatGeom = new THREE.BoxGeometry(3.08, 1, 0.3);
-            registerDynamicStairStep(targetGroup, rightWallFlatGeom, 10.26, 12.2, landingH + 0.14, 0, true);
-            addSlopedWedgeX(targetGroup, 11.8, 15.6, 12.05, 12.35, landingH + 0.14, 0.08);
+            const rightWallFlatGeom = new THREE.BoxGeometry(3.08, 1, 0.25);
+            registerDynamicStairStep(targetGroup, rightWallFlatGeom, 10.26, 12.075, landingH + 0.14, 0, true);
+            addSlopedWedgeX(targetGroup, 11.8, 15.6, 11.95, 12.20, landingH + 0.14, 0.08);
 
             // Левый бортик лестницы (между площадкой ЛК№2 и ступенями, вдоль Z = 8.6 от X = 8.72 до X = 15.6)
             const midStairFlatGeom = new THREE.BoxGeometry(3.08, 1, 0.24);
