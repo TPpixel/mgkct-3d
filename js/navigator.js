@@ -957,7 +957,7 @@
         g.addNode("b1_f1_stair_lk1", 1, 1, 9.4, -2.0, "stair", "К1 ЛК№1 (Эт.1)");
         g.addNode("b1_f1_stair_lk2", 1, 1, 9.4, 1.9, "stair", "К1 ЛК№2 (Эт.1)");
         g.addNode("b1_f1_elev", 1, 1, 1.8, 1.5, "elevator", "К1 Лифты (Эт.1)");
-        g.addNode("b1_f1_entrance_main", 1, 1, 10.5, 10.4, "entrance", "Главный вход 2 (Корпус 1)");
+        g.addNode("b1_f1_entrance_main", 1, 1, 10.5, 10.4, "entrance", "Восточный вход (Корпус 1 — на ремонте)");
         g.addNode("b1_f1_porch_walk_1", 1, 1, 9.5, 9.8, "corridor", "Крыльцо у главного входа");
         g.addNode("b1_f1_porch_doors", 1, 1, 8.6, 9.8, "door", "Двери главного входа");
         g.addNode("b1_f1_vestibule", 1, 1, 6.2, 9.8, "corridor", "Тамбур главного входа");
@@ -987,7 +987,7 @@
         g.addNode("b3_f1_stair_north", 1, 3, 4.1, -46, "stair", "К3 Северная ЛК (Эт.1)");
         g.addNode("b3_f1_stair_north_wp", 1, 3, 1.5, -46.9, "stair", "Марш ЛК№1");
         g.addNode("b3_f1_entrance_north", 1, 3, -1.6, -46.1, "entrance", "Вход К3 (Северный)");
-        g.addNode("b3_f1_entrance_west", 1, 3, -1.6, -37.1, "entrance", "Главный вход (Корпус 3)");
+        g.addNode("b3_f1_entrance_west", 1, 3, -1.6, -37.1, "entrance", "Главный вход (Корпус 3 / Западный)");
         g.addNode("b3_f1_vest_north", 1, 3, 5.9, -56.2, "corridor", "Тамбур К3 Эт.1");
         g.addNode("b3_f1_door_vest_south", 1, 3, 5.9, -55, "door", "Дверь тамбура К3 Эт.1");
         g.addNode("b3_f1_d_corr_east_exit", 1, 3, 7.2, -29.1, "door", "Дверь к восточному выходу");
@@ -2737,7 +2737,7 @@
             NAV_STATE.startPoint = entrance;
             const inputA = document.getElementById('nav-input-start');
             if (inputA && !inputA.value) {
-                inputA.value = 'Главный вход (Корпус 3)';
+                inputA.value = 'Главный вход (Корпус 3 / Западный)';
                 inputA.setAttribute('data-is-default', 'true');
                 const btnClearA = document.getElementById('btn-clear-start');
                 if (btnClearA) btnClearA.classList.remove('hidden');
@@ -3900,8 +3900,8 @@
             const g = NAV_STATE.graph;
 
             const ROOM_ALIASES = {
-                'b3_f1_entrance_west': 'главный вход основной вход вход к3 корпус 3',
-                'b1_f1_entrance_main': 'главный вход 2 второй вход старый вход к1 корпус 1',
+                'b3_f1_entrance_west': 'главный вход основной вход западный вход вход к3 корпус 3',
+                'b1_f1_entrance_main': 'восточный вход главный вход 2 старый вход вход к1 корпус 1 ремонт',
                 'room_4_1_182': '104 4-104 гардероб раздевалка',
                 'room_4_1_183': '103 4-103 гардероб раздевалка',
                 'room_4_1_186': '1 4-1 туалет санузел',
@@ -4268,9 +4268,9 @@
                 let targetNode = null;
 
                 // Точное соответствие для главного входа (Корпус 3) и входа 2 (Корпус 1)
-                if (q === 'главный вход') {
+                if (q === 'главный вход' || q === 'западный вход' || q === 'основной вход' || q === 'вход') {
                     targetNode = g.getNode('b3_f1_entrance_west');
-                } else if (q === 'главный вход 2') {
+                } else if (q === 'восточный вход' || q === 'главный вход 2' || q === 'старый вход' || q === 'вход к1' || q === 'ремонт') {
                     targetNode = g.getNode('b1_f1_entrance_main');
                 } else {
                     for (const node of g.nodes.values()) {
@@ -4299,7 +4299,7 @@
                         if (mainEntrance) {
                             NAV_STATE.startPoint = mainEntrance;
                             const inputA = document.getElementById('nav-input-start');
-                            if (inputA) inputA.value = 'Главный вход (Корпус 3)';
+                            if (inputA) inputA.value = 'Главный вход (Корпус 3 / Западный)';
                         }
                     }
 
@@ -4342,9 +4342,9 @@
 
                         if (urlFrom) {
                             const q = urlFrom.toLowerCase().trim();
-                            if (q === 'главный вход') {
+                            if (q === 'главный вход' || q === 'западный вход' || q === 'основной вход' || q === 'вход') {
                                 fromNode = g.getNode('b3_f1_entrance_west');
-                            } else if (q === 'главный вход 2') {
+                            } else if (q === 'восточный вход' || q === 'главный вход 2' || q === 'старый вход' || q === 'вход к1' || q === 'ремонт') {
                                 fromNode = g.getNode('b1_f1_entrance_main');
                             } else {
                                 for (const n of g.nodes.values()) {
@@ -4357,9 +4357,9 @@
                         }
                         if (urlTo) {
                             const q = urlTo.toLowerCase().trim();
-                            if (q === 'главный вход') {
+                            if (q === 'главный вход' || q === 'западный вход' || q === 'основной вход' || q === 'вход') {
                                 toNode = g.getNode('b3_f1_entrance_west');
-                            } else if (q === 'главный вход 2') {
+                            } else if (q === 'восточный вход' || q === 'главный вход 2' || q === 'старый вход' || q === 'вход к1' || q === 'ремонт') {
                                 toNode = g.getNode('b1_f1_entrance_main');
                             } else {
                                 for (const n of g.nodes.values()) {

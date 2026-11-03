@@ -1283,7 +1283,7 @@ function setupRoomContextPopup() {
                             NAV_STATE.startPoint = entrance;
                             const inputA = document.getElementById('nav-input-start');
                             if (inputA) {
-                                inputA.value = 'Главный вход (Корпус 3)';
+                                inputA.value = 'Главный вход (Корпус 3 / Западный)';
                                 inputA.setAttribute('data-is-default', 'true');
                             }
                         }
