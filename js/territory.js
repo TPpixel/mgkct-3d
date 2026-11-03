@@ -333,7 +333,7 @@ function buildBusStop(group) {
     addBusStopYellowZigzag(group, xBayStart + 1.0, xBayEnd - 1.0, zRoadNorth - 0.4, zPocketEdge + 0.4);
 
     // Тактильная предупреждающая полоса (СТБ П 2443)
-    addTactileWarningStrip(group, xBayStart + 0.5, 40.5 - 1.0, zPocketEdge - 0.45, zPocketEdge - 0.10);
+    addTactileWarningStrip(group, xBayStart, xBayEnd, zPocketEdge - 0.45, zPocketEdge - 0.10);
 
     // Бордюр кармана
     addCurbSegment(group, xBayStart, zPocketEdge, xBayEnd, zPocketEdge);
