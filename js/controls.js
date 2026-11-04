@@ -191,8 +191,10 @@ function findRoomAtScreenPoint(clientX, clientY) {
     const x = ((clientX - rect.left) / rect.width) * 2 - 1;
     const y = -((clientY - rect.top) / rect.height) * 2 + 1;
 
-    const clickRaycaster = new THREE.Raycaster();
-    clickRaycaster.setFromCamera(new THREE.Vector2(x, y), camera);
+    if (!raycaster) raycaster = new THREE.Raycaster();
+    if (!mouseVec) mouseVec = new THREE.Vector2();
+    mouseVec.set(x, y);
+    raycaster.setFromCamera(mouseVec, camera);
 
     const activeFloor = (STATE.mode !== 'all' && STATE.mode !== 'sideBySide' && STATE.mode !== 'slice')
         ? parseInt(STATE.mode, 10)
@@ -211,7 +213,7 @@ function findRoomAtScreenPoint(clientX, clientY) {
         })
         .map(l => l.mesh);
 
-    const intersects = clickRaycaster.intersectObjects(visibleLabelMeshes, false);
+    const intersects = raycaster.intersectObjects(visibleLabelMeshes, false);
     if (intersects.length > 0) {
         const hitMesh = intersects[0].object;
         if (hitMesh.userData && hitMesh.userData.roomInfo) {
