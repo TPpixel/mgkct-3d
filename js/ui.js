@@ -121,7 +121,7 @@ const BUILDING_NAMES = {
     '2': 'Корпус 2',
     '3': 'Корпус 3',
     '4': 'Корпус 4',
-    '5': 'Корпус 5 (Хозкорпус)'
+    '5': 'Гараж (Хозстроение)'
 };
 
 function updateTopFloorBadge() {
@@ -258,12 +258,9 @@ function setSliceFloor(newFloor) {
     if (newFloor === 7) {
         setMode('all');
     } else {
-        STATE.mode = 'slice';
-        document.querySelectorAll('.floor-btn').forEach(btn => btn.classList.remove('active'));
-        updateFloorInfo();
-        recalcTargetPositions();
-        updateAlignmentGuides();
-        updateStairValidationAxes();
+        // Используем setMode() чтобы корректно обновить кнопки, маршруты,
+        // dispatchEvent('floorChanged') и все сопряжённые подсистемы.
+        setMode('slice', false);
         saveSettings();
     }
 }
@@ -577,13 +574,17 @@ function saveRecentSearch(roomInfo) {
             filtered.length = MAX_RECENT_SEARCHES_COUNT;
         }
         localStorage.setItem(RECENT_SEARCHES_STORAGE_KEY, JSON.stringify(filtered));
-    } catch (e) {}
+    } catch (e) {
+        console.warn('[MGKCT] saveRecentSearch: не удалось записать в localStorage:', e);
+    }
 }
 
 function clearRecentSearches() {
     try {
         localStorage.removeItem(RECENT_SEARCHES_STORAGE_KEY);
-    } catch (e) {}
+    } catch (e) {
+        console.warn('[MGKCT] clearRecentSearches: не удалось очистить localStorage:', e);
+    }
 }
 
 // Поиск кабинетов
@@ -875,94 +876,27 @@ function updateBuildingColors() {
     if (STATE.theme === 'dark') return;
 
     if (STATE.showTerritory) {
-        // Спутниковый вид: выразительные, насыщенные, не белые цвета
-        const pIdx = STATE.buildingPaletteIndex || 0;
-        const p = (typeof COLLEGE_COLOR_PALETTES !== 'undefined' && COLLEGE_COLOR_PALETTES[pIdx]) 
-            ? COLLEGE_COLOR_PALETTES[pIdx] 
-            : (typeof COLLEGE_COLOR_PALETTES !== 'undefined' ? COLLEGE_COLOR_PALETTES[0] : null);
-        if (p) {
-            if (MATERIALS.slab) MATERIALS.slab.color.setHex(p.slab);
-            if (MATERIALS.coreSlab) MATERIALS.coreSlab.color.setHex(p.coreSlab);
-            if (MATERIALS.wall) MATERIALS.wall.color.setHex(p.wall);
-            if (MATERIALS.stair) MATERIALS.stair.color.setHex(p.stair);
-        }
+        // Спутниковый / 3D режим с территорией: фиксированная палитра (Шалфейный гранит)
+        const p = (typeof DEFAULT_CAMPUS_COLORS !== 'undefined') ? DEFAULT_CAMPUS_COLORS : {
+            slab: 0x9faea0,
+            coreSlab: 0x9faea0,
+            wall: 0x5b6c5d,
+            stair: 0x7d5336
+        };
+        if (MATERIALS.slab) MATERIALS.slab.color.setHex(p.slab);
+        if (MATERIALS.coreSlab) MATERIALS.coreSlab.color.setHex(p.coreSlab);
+        if (MATERIALS.wall) MATERIALS.wall.color.setHex(p.wall);
+        if (MATERIALS.stair) MATERIALS.stair.color.setHex(p.stair);
     } else {
-        // Обычный чертёжный вид: классический чистый белый
+        // Обычный 2D/3D вид: светлая минималистичная гамма
         if (MATERIALS.slab) MATERIALS.slab.color.setHex(0xf8fafc);
-        if (MATERIALS.coreSlab) MATERIALS.coreSlab.color.setHex(0xeef2f6);
+        if (MATERIALS.coreSlab) MATERIALS.coreSlab.color.setHex(0xf8fafc);
         if (MATERIALS.wall) MATERIALS.wall.color.setHex(0xffffff);
         if (MATERIALS.stair) MATERIALS.stair.color.setHex(0xcbd5e1);
     }
 }
 
-function showPaletteToast(palette, curNum, totalNum) {
-    let toast = document.getElementById('palette-toast');
-    if (!toast) {
-        toast = document.createElement('div');
-        toast.id = 'palette-toast';
-        toast.className = 'fixed bottom-20 left-1/2 -translate-x-1/2 z-50 pointer-events-none transition-all duration-300 opacity-0 translate-y-3';
-        document.body.appendChild(toast);
-    }
-    const hexFloor = '#' + palette.slab.toString(16).padStart(6, '0');
-    const hexWall = '#' + palette.wall.toString(16).padStart(6, '0');
-    const hexStair = '#' + palette.stair.toString(16).padStart(6, '0');
-    toast.innerHTML = '<div class="px-4 py-2.5 rounded-2xl bg-slate-900/90 backdrop-blur-md border border-slate-700/80 shadow-2xl flex items-center space-x-3 text-slate-100">' +
-        '<div class="flex items-center -space-x-1.5 flex-shrink-0">' +
-            '<div class="w-5 h-5 rounded-full border border-white/30 shadow-inner" style="background-color: ' + hexFloor + '" title="Пол"></div>' +
-            '<div class="w-5 h-5 rounded-full border border-white/30 shadow-inner" style="background-color: ' + hexWall + '" title="Стены"></div>' +
-            '<div class="w-5 h-5 rounded-full border border-white/30 shadow-inner" style="background-color: ' + hexStair + '" title="Лестницы"></div>' +
-        '</div>' +
-        '<div class="flex flex-col">' +
-            '<div class="flex items-center space-x-2">' +
-                '<span class="text-xs font-semibold text-white tracking-wide">' + palette.name + '</span>' +
-                '<span class="text-[10px] font-mono text-amber-400 bg-amber-500/10 px-1.5 py-0.5 rounded-full">' + curNum + '/' + totalNum + '</span>' +
-            '</div>' +
-            '<span class="text-[11px] text-slate-400 max-w-xs leading-tight">' + palette.desc + '</span>' +
-        '</div>' +
-    '</div>';
-    requestAnimationFrame(() => {
-        toast.classList.remove('opacity-0', 'translate-y-3');
-        toast.classList.add('opacity-100', 'translate-y-0');
-    });
-    if (toast._timer) clearTimeout(toast._timer);
-    toast._timer = setTimeout(() => {
-        toast.classList.remove('opacity-100', 'translate-y-0');
-        toast.classList.add('opacity-0', 'translate-y-3');
-    }, 2800);
-}
-
-function applyCollegePalette(paletteIndex, shouldSave = true, showNotification = true) {
-    if (typeof COLLEGE_COLOR_PALETTES === 'undefined') return;
-    const idx = (paletteIndex >= 0 && paletteIndex < COLLEGE_COLOR_PALETTES.length) ? paletteIndex : 0;
-    STATE.buildingPaletteIndex = idx;
-    const p = COLLEGE_COLOR_PALETTES[idx];
-
-    // При выборе палитры включаем спутниковый вид, если он был выключен:
-    if (!STATE.showTerritory) {
-        setTerritoryMode(true, true);
-    } else {
-        updateBuildingColors();
-    }
-
-    if (shouldSave) {
-        saveSettings();
-    }
-
-    if (showNotification) {
-        showPaletteToast(p, idx + 1, COLLEGE_COLOR_PALETTES.length);
-    }
-}
-
-function cycleCollegePalette() {
-    const curIdx = STATE.buildingPaletteIndex || 0;
-    const nextIdx = (curIdx + 1) % COLLEGE_COLOR_PALETTES.length;
-    applyCollegePalette(nextIdx, true, true);
-}
-
 window.updateBuildingColors = updateBuildingColors;
-window.showPaletteToast = showPaletteToast;
-window.applyCollegePalette = applyCollegePalette;
-window.cycleCollegePalette = cycleCollegePalette;
 
 function saveSettings() {
     try {
@@ -986,8 +920,7 @@ function saveSettings() {
             sliceMaxFloor: STATE.sliceMaxFloor,
             explodeGap: STATE.explodeGap,
             exploded: STATE.exploded,
-            theme: STATE.theme,
-            buildingPaletteIndex: STATE.buildingPaletteIndex ?? 0
+            theme: STATE.theme
         };
         localStorage.setItem(SETTINGS_KEY, JSON.stringify(payload));
     } catch (e) {
@@ -1001,18 +934,33 @@ function restoreSavedSettings() {
         if (!raw) return;
         const s = JSON.parse(raw);
         if (typeof s.is2D === 'boolean') STATE.is2D = s.is2D;
+        // wallHeight вычисляем из is2D — не доверяем сохранённому значению
         STATE.wallHeight = STATE.is2D ? BASE_WALL_HEIGHT : 1.50;
-        STATE.showDoors = true;
-        STATE.showLabels = true;
-        STATE.showEdges = true;
-        STATE.showRoof = false;
+        // Восстанавливаем все сохранённые булевы настройки
+        if (typeof s.showDoors === 'boolean') STATE.showDoors = s.showDoors;
+        if (typeof s.showLabels === 'boolean') STATE.showLabels = s.showLabels;
+        if (typeof s.showEdges === 'boolean') STATE.showEdges = s.showEdges;
+        if (typeof s.showRoof === 'boolean') STATE.showRoof = s.showRoof;
         if (typeof s.showTerritory === 'boolean') STATE.showTerritory = s.showTerritory;
+        if (typeof s.showStairAxes === 'boolean') STATE.showStairAxes = s.showStairAxes;
+        if (typeof s.showGuides === 'boolean') STATE.showGuides = s.showGuides;
+        if (typeof s.smartLabelOcclusion === 'boolean') STATE.smartLabelOcclusion = s.smartLabelOcclusion;
+        // Числовые настройки с санитарными проверками диапазона
+        if (typeof s.labelScale === 'number' && s.labelScale >= 0.5 && s.labelScale <= 3.0) STATE.labelScale = s.labelScale;
+        if (typeof s.slabOpacity === 'number' && s.slabOpacity >= 0.1 && s.slabOpacity <= 1.0) STATE.slabOpacity = s.slabOpacity;
+        if (typeof s.explodeGap === 'number' && s.explodeGap >= 0 && s.explodeGap <= 14) STATE.explodeGap = s.explodeGap;
+        if (typeof s.exploded === 'boolean') STATE.exploded = s.exploded;
+        if (typeof s.sliceMaxFloor === 'number' && s.sliceMaxFloor >= 1 && s.sliceMaxFloor <= 7) STATE.sliceMaxFloor = s.sliceMaxFloor;
+        // preset восстанавливается только если это валидный вариант
+        if (s.preset === 'eco' || s.preset === 'balance' || s.preset === 'ultra') STATE.preset = s.preset;
         if (typeof s.buildingFilter === 'string') STATE.buildingFilter = s.buildingFilter;
-        if (typeof s.mode === 'string' && /^[1-7]$/.test(s.mode)) STATE.mode = s.mode;
+        // mode: принимаем числовой этаж или системные режимы
+        if (typeof s.mode === 'string' && (/^[1-7]$/.test(s.mode) || s.mode === 'all' || s.mode === 'sideBySide' || s.mode === 'slice')) {
+            STATE.mode = s.mode;
+        }
         if (s.theme === 'dark' || s.theme === 'light') STATE.theme = s.theme;
-        if (typeof s.buildingPaletteIndex === 'number') STATE.buildingPaletteIndex = s.buildingPaletteIndex;
     } catch (e) {
-        console.warn('LocalStorage load error:', e);
+        console.warn('[MGKCT] restoreSavedSettings: не удалось разобрать localStorage:', e);
     }
 }
 
@@ -1082,7 +1030,6 @@ function setupUI() {
     // Плавающие кнопки карты: Территория, 2D/3D, Зум
     document.getElementById('btn-toggle-territory')?.addEventListener('click', toggleTerritoryView);
     document.getElementById('btn-toggle-2d')?.addEventListener('click', toggle2DView);
-    document.getElementById('btn-toggle-palette')?.addEventListener('click', cycleCollegePalette);
     document.getElementById('btn-zoom-in')?.addEventListener('click', () => {
         if (typeof zoomIn === 'function') zoomIn();
     });
@@ -1098,9 +1045,6 @@ function setupUI() {
         }
         if (e.code === 'KeyH' || e.key === 'h' || e.key === 'H' || e.key === 'р' || e.key === 'Р') {
             document.body.classList.toggle('ui-hidden');
-        }
-        if (e.code === 'KeyP' || e.key === 'p' || e.key === 'P' || e.key === 'з' || e.key === 'З') {
-            cycleCollegePalette();
         }
     });
 
@@ -1118,7 +1062,6 @@ function setupUI() {
     setTerritoryMode(STATE.showTerritory, false);
     setLabelScale(STATE.labelScale || 1.0);
     setTheme(STATE.theme || 'light', false);
-    applyCollegePalette(STATE.buildingPaletteIndex ?? 0, false, false);
 }
 
 
