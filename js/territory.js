@@ -1701,9 +1701,11 @@ function buildLandscaping(group) {
         }
     });
 
-    // 6. Западный ландшафтный сквер (X: -22.0..-12.0, Z: -60.0..-15.0)
-    // Деревья растут прямо из земли (БЕЗ клумб/приствольных кругов) и отодвинуты от забора (X = -5.0) на 7-15 м:
+    // 6. Западная парковая зона (X: -22.0..-12.0, Z: -66.0..-15.0)
+    // Разреженная ландшафтная посадка (береза/липа/ель) за западным забором (X = -5.0):
     const westParkTrees = [
+        { x: -18.0, z: -66.0, type: 'spruce', scale: 1.25, seed: 14 },
+        { x: -12.5, z: -64.0, type: 'linden', scale: 1.18, rot: 1.80 },
         { x: -18.0, z: -58.0, type: 'birch',  scale: 1.18, rot: 0.40 },
         { x: -13.0, z: -56.0, type: 'linden', scale: 1.15, rot: 1.20 },
         { x: -16.5, z: -48.0, type: 'spruce', scale: 1.30, seed: 11 },
@@ -1725,7 +1727,46 @@ function buildLandscaping(group) {
             addSpruceTree(group, t.x, t.z, t.scale, t.seed);
         }
     });
+
+    // 7. Северная парковая лесополоса (X: -20.0..68.0, Z: -73.0..-91.0)
+    // Единый живописный массив берез, лип и елей, гармонично продолжающий западный парк за северным забором:
+    const northParkTrees = [
+        // Северо-западный сектор: огибание угла забора
+        { x: -18.0, z: -74.0, type: 'birch',  scale: 1.16, rot: 0.70 },
+        { x: -13.0, z: -73.0, type: 'linden', scale: 1.22, rot: 2.30 },
+        { x: -16.0, z: -83.0, type: 'spruce', scale: 1.30, seed: 15 },
+        { x: -10.0, z: -84.0, type: 'birch',  scale: 1.18, rot: 1.10 },
+        { x:  -4.0, z: -79.0, type: 'linden', scale: 1.24, rot: 0.50 },
+        { x:  -6.0, z: -88.0, type: 'spruce', scale: 1.28, seed: 16 },
+
+        // Центральная северная панорама: смешанная роща (шахматный двухъярусный ритм)
+        { x:   2.5, z: -82.0, type: 'birch',  scale: 1.18, rot: 2.50 },
+        { x:   8.0, z: -88.0, type: 'linden', scale: 1.26, rot: 1.40 },
+        { x:  14.0, z: -81.0, type: 'spruce', scale: 1.26, seed: 17 },
+        { x:  20.0, z: -87.0, type: 'birch',  scale: 1.20, rot: 0.85 },
+        { x:  26.0, z: -80.0, type: 'linden', scale: 1.25, rot: 2.10 },
+        { x:  32.0, z: -88.0, type: 'spruce', scale: 1.32, seed: 18 },
+        { x:  38.0, z: -81.5, type: 'birch',  scale: 1.17, rot: 1.60 },
+        { x:  44.0, z: -88.5, type: 'linden', scale: 1.24, rot: 0.30 },
+        { x:  50.0, z: -81.0, type: 'spruce', scale: 1.28, seed: 19 },
+        { x:  56.0, z: -88.0, type: 'birch',  scale: 1.18, rot: 2.80 },
+
+        // Северо-восточный сектор: плавный переход к елям восточной аллеи у стоянки
+        { x:  62.0, z: -81.5, type: 'linden', scale: 1.22, rot: 1.05 },
+        { x:  67.5, z: -88.0, type: 'spruce', scale: 1.30, seed: 20 }
+    ];
+
+    northParkTrees.forEach((t, idx) => {
+        if (t.type === 'birch') {
+            addBirchTree(group, t.x, t.z, t.scale, t.rot);
+        } else if (t.type === 'linden') {
+            addLindenTree(group, t.x, t.z, t.scale, idx + 25);
+        } else if (t.type === 'spruce') {
+            addSpruceTree(group, t.x, t.z, t.scale, t.seed);
+        }
+    });
 }
+
 
 function buildStreetFurniture(group) {
     // Опоры освещения размещены СТРОГО на тротуарах и газонах за бордюрами (ноль столбов на проезжей части!)
