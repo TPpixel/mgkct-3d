@@ -3010,6 +3010,7 @@
         }
 
         NAV_STATE.activeRoute = null;
+        _badgeWidthCache.clear();
         if (typeof requestRender === 'function') requestRender(20);
     }
 
@@ -3438,6 +3439,7 @@
     // SCREEN-SPACE RETINA БЕЙДЖИ ДЛЯ ТОЧЕК "А", "Б" И ЛЕСТНИЦ НА 2D CANVAS
     // ------------------------------------------------------------------------
     const _tempVec = new THREE.Vector3();
+    const _badgeWidthCache = new Map();
 
     function renderNavigatorScreenBadges(ctx, dpr, width, height) {
         if (!NAV_STATE.activeRoute || !window.camera) return;
@@ -3470,7 +3472,11 @@
 
             ctx.save();
             ctx.font = 'bold 12px Inter, sans-serif';
-            const textWidth = ctx.measureText(label).width;
+            let textWidth = _badgeWidthCache.get(label);
+            if (textWidth === undefined) {
+                textWidth = ctx.measureText(label).width;
+                _badgeWidthCache.set(label, textWidth);
+            }
             const bWidth = textWidth + 28;
             const bHeight = 26;
             const bx = sx - bWidth / 2;
@@ -3666,8 +3672,11 @@
         const camZOffset = (STATE && STATE.is2D) ? 14 : 30;
         const camXOffset = (STATE && STATE.is2D) ? 0 : -14;
 
-        STATE.targetControlsCenter = new THREE.Vector3(node.x, 0, node.z);
-        STATE.targetCamPos = new THREE.Vector3(node.x + camXOffset, targetY, node.z + camZOffset);
+        if (!STATE.targetControlsCenter) STATE.targetControlsCenter = new THREE.Vector3();
+        STATE.targetControlsCenter.set(node.x, 0, node.z);
+
+        if (!STATE.targetCamPos) STATE.targetCamPos = new THREE.Vector3();
+        STATE.targetCamPos.set(node.x + camXOffset, targetY, node.z + camZOffset);
 
         if (typeof requestRender === 'function') requestRender(45);
     }
