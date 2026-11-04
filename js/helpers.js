@@ -438,8 +438,9 @@ function solveCampusJunctions(targetGroup, pendingLines) {
                     } else if (!aContinues && !bContinues) {
                         // Г-образный угол: сопряжение двух сходящихся стен
                         let aIsPrimary = true;
-                        if (Math.abs(B.fixedCoord - 20.4) < 0.05) {
-                            // На границе с Корпусом 2 (X = 20.4) вертикальная стена приоритетна, чтобы горизонтальные стены не заходили за X = 20.28
+                        const bldg2StartX = (typeof B2_X_START !== 'undefined') ? B2_X_START : 20.4;
+                        if (Math.abs(B.fixedCoord - bldg2StartX) < 0.05) {
+                            // На границе с Корпусом 2 (B2_X_START = 20.4) вертикальная стена приоритетна, чтобы горизонтальные стены не заходили за X = 20.28
                             aIsPrimary = false;
                         } else if (A.isExterior !== B.isExterior) {
                             aIsPrimary = A.isExterior;
@@ -1666,7 +1667,7 @@ function renderScreenSpaceLabels() {
     activeBadgeKeys = nextActiveBadgeKeys;
 
     // Отрисовка Screen-Space Retina бейджей навигатора (Точки А, Б, лестничные указатели)
-    if (typeof renderNavigatorScreenBadges === 'function') {
+    if (typeof renderNavigatorScreenBadges === 'function' && typeof NAV_STATE !== 'undefined' && NAV_STATE.activeRoute) {
         renderNavigatorScreenBadges(overlayCtx, dpr, w, h);
     }
 

@@ -2973,13 +2973,13 @@
         function disposeHierarchy(root) {
             if (!root) return;
             root.traverse((child) => {
-                if (child.geometry) {
+                if (child.geometry && typeof child.geometry.dispose === 'function') {
                     child.geometry.dispose();
                 }
                 if (child.material) {
                     if (Array.isArray(child.material)) {
-                        child.material.forEach(m => m && m.dispose && m.dispose());
-                    } else if (child.material.dispose) {
+                        child.material.forEach(m => m && typeof m.dispose === 'function' && m.dispose());
+                    } else if (typeof child.material.dispose === 'function') {
                         child.material.dispose();
                     }
                 }
@@ -4073,7 +4073,9 @@
     // ------------------------------------------------------------------------
     function initNavigator() {
         if (NAV_STATE.isInitialized) return;
-        NAV_STATE.graph = buildCollegeNavGraph();
+        if (!NAV_STATE.graph) {
+            NAV_STATE.graph = buildCollegeNavGraph();
+        }
         NAV_STATE.isInitialized = true;
 
         // Google Maps: начальная установка точки отправления

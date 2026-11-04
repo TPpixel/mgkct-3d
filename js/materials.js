@@ -579,7 +579,10 @@ function createTrolleybusTimetable2Texture() {
     return tex;
 }
 
-// Алиас для обратной совместимости
+/**
+ * Алиас для обратной совместимости: возвращает текстуру основного
+ * расписания троллейбусов (маршруты 19 и 27) для остановки «Колледж технологии и дизайна».
+ */
 function createTrolleybusTimetableTexture() {
     return createTrolleybusTimetable1Texture();
 }
@@ -1200,8 +1203,10 @@ function loadTimetableTexturesAsync() {
     if (typeof window !== 'undefined') {
         if ('requestIdleCallback' in window) {
             window.requestIdleCallback(doLoad, { timeout: 2000 });
+        } else if ('requestAnimationFrame' in window) {
+            window.requestAnimationFrame(() => setTimeout(doLoad, 50));
         } else {
-            setTimeout(doLoad, 600);
+            doLoad();
         }
     } else {
         doLoad();
