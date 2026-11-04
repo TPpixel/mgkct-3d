@@ -1015,6 +1015,9 @@
         g.addNode("door_room_room_1_1_7", 1, 1, 5.6, -3.6, "door", "Вход 103");
         g.addNode("door_corr_room_1_1_7", 1, 1, 5.6, -4.4, "door", "Коридор 103");
         g.addNode("room_1_1_8", 1, 1, 1.8, 1.8, "room", "103 (Холл)");
+        g.addNode("door_room_room_1_1_8", 1, 1, -0.8, 1.7, "door", "Вход Холл 103");
+        g.addNode("door_mid_room_1_1_8", 1, 1, -1.2, 1.7, "door", "Дверь Холл 103");
+        g.addNode("door_corr_room_1_1_8", 1, 1, -1.6, 1.7, "door", "Коридор Холл 103");
         g.addNode("room_1_1_9", 1, 1, 3.7, 6.7, "room", "101");
         g.addNode("door_mid_room_1_1_9", 1, 1, 2.6, 8.6, "door", "Дверь 101");
         g.addNode("door_room_room_1_1_9", 1, 1, 2.6, 8.2, "door", "Вход 101");
@@ -2199,6 +2202,10 @@
         g.addEdge("b1_f1_stair_lk2", "room_1_1_11", 0.2);
         g.addEdge("b1_f1_elev", "b1_f1_inner_door_lk2", 6.8);
         g.addEdge("b1_f1_elev", "room_1_1_8", 0.3);
+        g.addEdge("room_1_1_8", "door_room_room_1_1_8", 2.6);
+        g.addEdge("door_mid_room_1_1_8", "door_room_room_1_1_8", 0.4);
+        g.addEdge("door_mid_room_1_1_8", "door_corr_room_1_1_8", 0.4);
+        g.addEdge("b1_f1_wc_1.7", "door_corr_room_1_1_8", 1.4);
         g.addEdge("b1_f1_entrance_main", "b1_f1_porch_walk_1", 1.2);
         g.addEdge("b1_f1_porch_walk_1", "b1_f1_porch_doors", 0.9);
         g.addEdge("b1_f1_porch_doors", "b1_f1_vestibule", 2.4);
