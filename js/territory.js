@@ -1,5 +1,37 @@
 let _curbBatch = null;
 
+function disposeTerritoryHierarchy(obj) {
+    if (!obj) return;
+    if (obj.geometry && typeof obj.geometry.dispose === 'function') {
+        obj.geometry.dispose();
+    }
+    if (obj.material) {
+        const isShared = (typeof MATERIALS !== 'undefined') && Object.values(MATERIALS).includes(obj.material);
+        if (!isShared) {
+            if (Array.isArray(obj.material)) {
+                obj.material.forEach(m => m && typeof m.dispose === 'function' && m.dispose());
+            } else if (typeof obj.material.dispose === 'function') {
+                obj.material.dispose();
+            }
+        }
+    }
+    if (obj.children) {
+        for (let i = obj.children.length - 1; i >= 0; i--) {
+            disposeTerritoryHierarchy(obj.children[i]);
+        }
+    }
+}
+
+function clearAndDisposeGroup(group) {
+    if (!group) return;
+    while (group.children.length > 0) {
+        const child = group.children[0];
+        disposeTerritoryHierarchy(child);
+        group.remove(child);
+    }
+}
+
+
 // ==========================================
 // ПРИЛЕГАЮЩАЯ ТЕРРИТОРИЯ КОЛЛЕДЖА (ДОРОГИ, ОСТАНОВКА, ПОДЪЕЗДЫ)
 // ==========================================
@@ -9,9 +41,7 @@ function buildTerritory() {
     if (!tGroup) return;
 
     // Очищаем группу перед повторным построением
-    while (tGroup.children.length > 0) {
-        tGroup.remove(tGroup.children[0]);
-    }
+    clearAndDisposeGroup(tGroup);
 
     const t = tGroup;
     _curbBatch = [];
@@ -2859,9 +2889,7 @@ window.buildTerritory = buildTerritory;
 function buildRingRoadAroundCollege(group) {
     const targetGroup = group || window.roadNetworkGroup || (typeof roadNetworkGroup !== 'undefined' ? roadNetworkGroup : null);
     if (!targetGroup) return;
-    while (targetGroup.children.length > 0) {
-        targetGroup.remove(targetGroup.children[0]);
-    }
+    clearAndDisposeGroup(targetGroup);
     const isDark = (typeof STATE !== 'undefined' && STATE.theme === 'dark');
 
     // Материалы для упрощенной дорожной сети
