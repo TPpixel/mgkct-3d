@@ -644,61 +644,19 @@ function createPedestrianTrafficLensTexture(color = 'red') { return createMinima
 function createPedestrianButtonPlateTexture() { return createMinimalTexture('#facc15', 256, 256); }
 
 // ============================================================================
-// Архитектурные цветовые палитры здания колледжа (для спутникового вида)
-// ============================================================================
-const COLLEGE_COLOR_PALETTES = [
-    {
-        id: 'warm_sandstone',
-        name: 'Тёплый песчаник и Терракота',
-        desc: 'Натуральный бежево-песчаный пол, благородные каменные стены и акцентные терракотовые лестницы.',
-        slab: 0xbda98c,
-        coreSlab: 0xad997c,
-        wall: 0x7d6e59,
-        stair: 0x9e5a38
-    },
-    {
-        id: 'nordic_slate',
-        name: 'Скандинавский базальт и Сланец',
-        desc: 'Холодная нордическая гамма: сланцево-голубой пол, графитово-базальтовые стены и глубокие темные ступени.',
-        slab: 0x9baab8,
-        coreSlab: 0x8a99a7,
-        wall: 0x566573,
-        stair: 0x3e5060
-    },
-    {
-        id: 'sage_forest',
-        name: 'Оливковый шалфей и Эвкалипт',
-        desc: 'Природный биофильный дизайн: шалфейно-оливковый пол, лесные хвойные перегородки и лестницы цвета лиственницы.',
-        slab: 0x9faea0,
-        coreSlab: 0x8d9c8e,
-        wall: 0x5b6c5d,
-        stair: 0x7d5336
-    },
-    {
-        id: 'roman_travertine',
-        name: 'Римский травертин и Охра',
-        desc: 'Монументальный университетский стиль: золотистый травертиновый пол, бронзовые стены и ступени из жженой охры.',
-        slab: 0xc4b087,
-        coreSlab: 0xb39f76,
-        wall: 0x806f4d,
-        stair: 0xa84a28
-    },
-    {
-        id: 'smoked_titanium',
-        name: 'Дымчатый титан и Карбон',
-        desc: 'Современный высокотехнологичный хай-тек: матовый титановый пол, карбоново-серые стены и антрацитовые лестницы.',
-        slab: 0xa8abb0,
-        coreSlab: 0x979aa0,
-        wall: 0x5c6066,
-        stair: 0x41474e
-    }
-];
-window.COLLEGE_COLOR_PALETTES = COLLEGE_COLOR_PALETTES;
+// Фиксированная архитектурная цветовая палитра колледжа (Шалфейный гранит / Шалфейный лес)
+const DEFAULT_CAMPUS_COLORS = {
+    slab: 0x9faea0,
+    coreSlab: 0x9faea0,
+    wall: 0x5b6c5d,
+    stair: 0x7d5336
+};
+window.DEFAULT_CAMPUS_COLORS = DEFAULT_CAMPUS_COLORS;
 
 const MATERIALS = {
     // 1. Плиты перекрытий и несущие ядра
     slab: new THREE.MeshStandardMaterial({
-        color: isInitialDark ? 0x161f2e : COLLEGE_COLOR_PALETTES[0].slab,
+        color: isInitialDark ? 0x161f2e : DEFAULT_CAMPUS_COLORS.slab,
         roughness: 0.90,
         metalness: 0.02,
         transparent: false,
@@ -708,7 +666,7 @@ const MATERIALS = {
         polygonOffsetUnits: -1
     }),
     coreSlab: new THREE.MeshStandardMaterial({
-        color: isInitialDark ? 0x121a26 : COLLEGE_COLOR_PALETTES[0].coreSlab,
+        color: isInitialDark ? 0x121a26 : DEFAULT_CAMPUS_COLORS.coreSlab,
         roughness: 0.90,
         metalness: 0.02,
         transparent: false,
@@ -718,7 +676,7 @@ const MATERIALS = {
         polygonOffsetUnits: -1
     }),
     wall: new THREE.MeshStandardMaterial({
-        color: isInitialDark ? 0x283548 : COLLEGE_COLOR_PALETTES[0].wall,
+        color: isInitialDark ? 0x283548 : DEFAULT_CAMPUS_COLORS.wall,
         roughness: 0.65,
         metalness: 0.03
     }),
@@ -731,7 +689,7 @@ const MATERIALS = {
         polygonOffsetUnits: -1
     }),
     stair: new THREE.MeshStandardMaterial({
-        color: isInitialDark ? 0x222e40 : 0xcbd5e1,
+        color: isInitialDark ? 0x222e40 : DEFAULT_CAMPUS_COLORS.stair,
         roughness: 0.72,
         metalness: 0.05,
         polygonOffset: true,
