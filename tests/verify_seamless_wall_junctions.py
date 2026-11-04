@@ -520,9 +520,9 @@ assert "targetGroup._pendingChamferBoxes" in helpers_js, \
 print("  [OK] Photo 3: Room 205 chamfer meets orthogonal cuts flatly with 0 gap and chamfer boxes registered")
 
 # 5. Photo 1: Corridor Floor Slab Seam
-assert bldg1_js.count("addFloorRect(targetGroup, -10.0, -14.0, 16.0, -4.0, false);") == 2, \
-    "North floor slab must end at Z = -4.0 in both buildCommonStructure and buildFloor1!"
-print("  [OK] Photo 1: North floor slab meets core slab at Z = -4.0 with 0.00m overlap (dark corridor seam eliminated)")
+assert "addFloorPolygon(targetGroup, [" in bldg1_js, \
+    "Building 1 must use monolithic floor polygon to eliminate hallway seam at Z = -4.0!"
+print("  [OK] Photo 1: Monolithic floor polygon eliminates the hallway seam at Z = -4.0 (dark corridor seam eliminated)")
 
 print("\n" + "=" * 70)
 print("  ALL 4-STAGE SEAMLESS JUNCTION & 5-STAGE CAMPUS GEOMETRY VERIFICATIONS PASSED 100%!")

@@ -30,7 +30,6 @@
 
         // Двухмаршевая лестница для Корпуса 4 (поддерживает продольную и поперечную ориентацию маршей)
         function buildB4Staircase(targetGroup, x1, x2, z1, z2, alongZ = true) {
-            addFloorRect(targetGroup, x1, z1, x2, z2, true);
             const steps = 9;
 
             if (alongZ) {
@@ -137,14 +136,15 @@
             // Большой зал столовой 102 (X [45.0..66.0], Z [-45.4..-27.4])
             addFloorRect(targetGroup, 45.0, -45.4, 66.0, -27.4, false);
 
-            // Юго-западный блок комнат 104, 103 и холла (X [32.4..39.2], Z [-45.4..-36.2])
-            addFloorRect(targetGroup, 32.4, -45.4, 39.2, -36.2, false);
-
-            // Блок помещений 105, 3, 2, 1 (X [39.2..45.0], Z [-46.2..-36.2])
-            addFloorRect(targetGroup, 39.2, -46.2, 45.0, -36.2, false);
-
-            // Единое сплошное южное фойе перед входом и ЛК №1 (X [32.4..45.0], Z [-36.2..-27.4])
-            addFloorRect(targetGroup, 32.4, -36.2, 45.0, -27.4, false);
+            // Западный и центральный объем 1-го этажа (104, 103, коридор, 4-1 и южное фойе) единым монолитным полигоном без стыков на Z = -36.2 и X = 39.2
+            addFloorPolygon(targetGroup, [
+                [32.4, -45.4],
+                [39.2, -45.4],
+                [39.2, -46.2],
+                [45.0, -46.2],
+                [45.0, -27.4],
+                [32.4, -27.4]
+            ], false);
 
             // Открытая площадка западного крыльца под переходом (X [28.8..32.4], Z [-45.4..-42.4]) и ступени на юг
             addFloorRect(targetGroup, 28.8, -45.4, 32.4, -42.4, true);
@@ -161,7 +161,7 @@
             // Западный ряд комнат 4–7 (X [35.6..39.2], Z [-54.3..-45.4])
             addFloorRect(targetGroup, 35.6, -54.3, 39.2, -45.4, false);
 
-            // Единый монолитный контур северного производственного блока (цеха 22, 23, 24, комн. 12, 13, 15–17, 19, 20, 21 и коридоры)
+            // Единый монолитный контур северного производственного блока, мойки 14, восточного коридора и комн. 18
             addFloorPolygon(targetGroup, [
                 [39.2, -49.7],
                 [39.2, -54.3],
@@ -172,17 +172,13 @@
                 [52.4, -58.4],
                 [52.4, -60.4],
                 [62.3, -60.4],
-                [62.3, -49.7]
+                [62.3, -45.4],
+                [45.0, -45.4],
+                [45.0, -49.7]
             ], false);
 
             // Кабинет 11 и 3-дверный тамбур (X [39.2..45.0], Z [-49.7..-46.2])
             addFloorRect(targetGroup, 39.2, -49.7, 45.0, -46.2, false);
-
-            // Мойка 14 (строго по периметру стен X [45.0..55.4], Z [-49.7..-45.4])
-            addFloorRect(targetGroup, 45.0, -49.7, 55.4, -45.4, false);
-
-            // Восточный коридор и комната 18 (X [55.4..62.3], Z [-49.7..-45.4])
-            addFloorRect(targetGroup, 55.4, -49.7, 62.3, -45.4, false);
 
             // Шахта ЛК №3 (X [62.3..69.0], Z [-49.8..-45.4])
             addFloorRect(targetGroup, 62.3, B4_LK3_Z1, B4_LK3_X2, B4_LK3_Z2, true);
@@ -192,7 +188,7 @@
             buildB4ExteriorPorch(targetGroup, B4_LK1_X2, -27.4, 45.0, -25.1, 'south');
 
             // Акцентный пол санузлов 2 и 1 (X [39.2..45.0], Z [-43.5..-39.4])
-            addFloorRect(targetGroup, 39.2, -43.5, 45.0, -39.4, true);
+            // Дублирующий фрагмент пола санузлов удален для исключения внутренних стыков
 
             // --- 2. СКВОЗНЫЕ ОПОРНЫЕ КОЛОННЫ НА 1-М ЭТАЖЕ ПОД НАВИСАЮЩИМ СПОРТЗАЛОМ 206 ---
             B4_GYM_COLUMNS.forEach(col => {
@@ -500,23 +496,33 @@
             const OUTER_T = 0.24;
             const INNER_T = 0.18;
 
-            // 1. Плиты перекрытия 2-го этажа Корпуса 4 (единый контур до X = 66.0):
-            addFloorRect(targetGroup, B4_X_WEST, B4_Z_NORTH, B4_X_S_GYM, B4_Z_MID_N, false);
-            addFloorRect(targetGroup, B4_X_WEST, B4_Z_MID_N, B4_X_S_HALL, B4_Z_SOUTH, false);
+            // 1. Единая монолитная плита перекрытия 2-го этажа Корпуса 4 (включая переходы К3 ↔ К4 и К4 ↔ К2 без поперечных стыков):
+            addFloorPolygon(targetGroup, [
+                [B4_X_WEST, B4_Z_NORTH],
+                [B4_X_S_GYM, B4_Z_NORTH],
+                [B4_X_S_GYM, B4_Z_SOUTH],
+                [B4_LK1_X1, B4_Z_SOUTH],
+                [B4_LK1_X1, B2_Z_TOP],
+                [36.0, B2_Z_TOP],
+                [36.0, B4_Z_SOUTH],
+                [B4_X_WEST, B4_Z_SOUTH],
+                [B4_X_WEST, -44.2],
+                [15.6, -44.2],
+                [15.6, -46.8],
+                [B4_X_WEST, -46.8]
+            ], false);
 
             // Выступающие лестничные клетки Корпуса 4:
-            addFloorRect(targetGroup, B4_LK2_X1, B4_LK2_Z1, 34.8, B4_LK2_Z2, true);
+            addFloorRect(targetGroup, B4_LK2_X1, B4_LK2_Z1, B4_X_WEST, B4_LK2_Z2, true);
             addFloorRect(targetGroup, 63.6, B4_LK3_Z1, B4_LK3_X2, -46.8, true);
             addFloorRect(targetGroup, B4_LK1_X1, B4_LK1_Z1, B4_LK1_X2, B4_LK1_Z2, true);
 
             // --- ДВА ПРЯМЫХ НАДЗЕМНЫХ КОРИДОРА-ПЕРЕХОДА 2-ГО ЭТАЖА ---
             // 1) ПРЯМОЙ ПЕРЕХОД К3 ↔ К4 (X [15.6..32.4], Z [-46.8..-44.2]) — стыкуется со стеной X = 15.6 без нахлёста
-            addFloorRect(targetGroup, 15.6, -46.8, B4_X_WEST, -44.2, false);
             addWallLine(targetGroup, 15.60, -46.8, B4_LK2_X1, -46.8, [], OUTER_T);
             addWallLine(targetGroup, 15.60, -44.2, B4_X_WEST, -44.2, [], OUTER_T);
 
             // 2) ПРЯМОЙ ПЕРЕХОД К4 ↔ К2 (X [36.0..38.8], Z [-27.4..-13.8]) — стыкуется со стеной Z = -13.8 без нахлёста
-            addFloorRect(targetGroup, 36.0, B4_Z_SOUTH, B4_LK1_X1, B2_Z_TOP, false);
             addWallLine(targetGroup, 36.0, B4_Z_SOUTH, 36.0, B2_Z_TOP - OUTER_T / 2, [], OUTER_T);
             addWallLine(targetGroup, B4_LK1_X1, B4_LK1_Z2, B4_LK1_X1, B2_Z_TOP - OUTER_T / 2, [], OUTER_T);
             for (let i = 0; i < 4; i++) {
@@ -583,9 +589,8 @@
             });
 
             // 2) Блок двух С/у (X [42.0..45.5], Z [-49.8..-45.4]) строго по БТИ 2.jpg
-            addFloorRect(targetGroup, 42.7, B4_Z_MID_N, 45.5, B4_Z_MID_S, true);
-            addFloorRect(targetGroup, 42.0, -49.8, 42.7, -48.5, true);
-            addFloorRect(targetGroup, 42.0, -46.7, 42.7, -45.4, true);
+            // Плита перекрытия санузлов 2-го этажа монолитно покрыта базовым полотном addFloorRect(targetGroup, B4_X_WEST, B4_Z_MID_N, B4_X_S_HALL, B4_Z_SOUTH)
+            // (дублирующие фрагменты удалены для исключения внутренних стыков в кабинках)
 
             // Восточная стена санузлов (общая со Служеб. пом.): X = 45.5, Z [-49.8..-45.4]
             addWallLine(targetGroup, 45.5, B4_Z_MID_N, 45.5, B4_Z_MID_S, [], INNER_T);
@@ -779,23 +784,26 @@
             const INNER_T = 0.18;
 
             // --- 1. ПЛИТЫ ПЕРЕКРЫТИЯ 3-ГО ЭТАЖА ---
-            // Центральная продольная полоса (301, 303, 302, служебный узел у ЛК №3): X [39.4..66.0], Z [-49.8..-43.6]
-            addFloorRect(targetGroup, 39.4, B4_Z_MID_N, B4_X_S_HALL, -43.6, false);
-
-            // Средний блок (305, 312, 311, предбанник, С/у, Витраж, холл 310): X [39.4..49.0], Z [-43.6..-27.4]
-            addFloorRect(targetGroup, 39.4, -43.6, 49.0, B4_Z_SOUTH, false);
-
-            // 1) Основной коридор и аудитории к северу от ЛК-1 (до X = 39.4 встык с восточными плитами)
-            addFloorRect(targetGroup, B4_X_WEST, B4_Z_MID_N, 39.4, -29.6, false);
-            // 2) Коридор и каб. 309 к западу от ЛК-1 (до X = 38.8 встык со стеной и плитой ЛК-1)
-            addFloorRect(targetGroup, B4_X_WEST, -29.6, 38.8, B4_Z_SOUTH, false);
+            // Единый монолитный контур плит 3-го этажа Корпуса 4 (исключает северный и юго-восточный второй свет и шахту ЛК-1):
+            addFloorPolygon(targetGroup, [
+                [B4_X_WEST, B4_Z_MID_N],
+                [B4_X_S_HALL, B4_Z_MID_N],
+                [B4_X_S_HALL, -43.6],
+                [49.0, -43.6],
+                [49.0, B4_Z_SOUTH],
+                [B4_LK1_X2, B4_Z_SOUTH],
+                [B4_LK1_X2, -29.6],
+                [B4_LK1_X1, -29.6],
+                [B4_LK1_X1, B4_Z_SOUTH],
+                [B4_X_WEST, B4_Z_SOUTH]
+            ], false);
 
             // Акцентная плитка в блоке двух С/у и в Витраже
             addFloorRect(targetGroup, 39.4, -41.6, 43.1, -37.2, true); // Два С/у
             addFloorRect(targetGroup, 39.4, -37.2, 45.4, -31.0, true); // Витраж
 
             // Плиты трех сквозных лестничных клеток
-            addFloorRect(targetGroup, B4_LK2_X1, B4_LK2_Z1, 34.6, -46.7, true);
+            addFloorRect(targetGroup, B4_LK2_X1, B4_LK2_Z1, B4_X_WEST, -46.7, true);
             addFloorRect(targetGroup, 61.9, B4_LK3_Z1, B4_LK3_X2, -46.6, true);
             addFloorRect(targetGroup, 38.8, -29.6, B4_LK1_X2, B4_LK1_Z2, true);
 

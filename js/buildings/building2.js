@@ -4,7 +4,7 @@
 // ==========================================
 
         function buildB2Staircase(targetGroup, x1, x2, zTop, zBot) {
-            addFloorRect(targetGroup, x1, zTop, x2, zBot, true);
+            // Основание лестницы уже монолитно покрыто базовой плитой этажа addFloorRect(targetGroup, B2_X_START, B2_Z_TOP, B2_X_END, B2_Z_BOT)
             const xMid = (x1 + x2) / 2;
             const zStart = zTop + 0.85;
             const zEnd = zBot - 0.85;

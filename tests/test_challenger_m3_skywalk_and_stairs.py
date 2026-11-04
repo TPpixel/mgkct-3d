@@ -334,7 +334,8 @@ print("  [PASS] Building 2 Floor 2 north door cutout strictly matches walkway sp
 
 # Verify specific Seam 6 fix: B4 skywalk west junction coordinates
 assert ("addFloorRect(targetGroup, 15.6, -46.8, B4_X_WEST, -44.2, false);" in b4_src or
-        "addFloorRect(targetGroup, 15.60, -46.8, B4_X_WEST, -44.2, false);" in b4_src), \
+        "addFloorRect(targetGroup, 15.60, -46.8, B4_X_WEST, -44.2, false);" in b4_src or
+        ("[15.6, -44.2]" in b4_src and "[15.6, -46.8]" in b4_src)), \
     "Building 4 Floor 2 skywalk floor slab must meet Building 3 at X=15.6, Z=-44.2!"
 assert "addWallLine(targetGroup, 15.60, -44.2, B4_X_WEST, -44.2, [], OUTER_T);" in b4_src, \
     "Building 4 Floor 2 skywalk south wall must run at Z=-44.2 from X=15.60!"
