@@ -1,3 +1,14 @@
+// Вспомогательная функция для безопасного экранирования HTML перед вставкой в innerHTML
+function escapeHtml(str) {
+    if (str === null || str === undefined) return '';
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
 // ==========================================
 // ОБРАБОТКА ПОЛЬЗОВАТЕЛЬСКОГО ИНТЕРФЕЙСА (UI)
 // ИНТЕРАКТИВНАЯ КАРТА КОЛЛЕДЖА (2D / 3D)
@@ -629,32 +640,42 @@ function setupSearch() {
         });
     });
 
+    // Делегированный обработчик клика для всех элементов выдачи поиска и кнопки очистки истории
+    searchResults?.addEventListener('click', (e) => {
+        const clearBtn = e.target.closest('#btn-clear-recent');
+        if (clearBtn) {
+            e.stopPropagation();
+            clearRecentSearches();
+            renderSearchResults('');
+            return;
+        }
+
+        const btn = e.target.closest('.room-search-item');
+        if (!btn) return;
+
+        const f = parseInt(btn.dataset.floor, 10);
+        const b = parseInt(btn.dataset.bldg, 10);
+        const x = parseFloat(btn.dataset.x);
+        const z = parseFloat(btn.dataset.z);
+        const t = btn.dataset.text;
+        closeSearch();
+
+        if (STATE.buildingFilter !== 'both' && typeof setBuildingFilter === 'function') {
+            setBuildingFilter('both', false);
+        }
+        const roomInfo = { floor: f, building: b, x: x, z: z, text: t };
+        saveRecentSearch(roomInfo);
+        selectRoom(roomInfo, true);
+        if (typeof showRoomContextPopup === 'function') {
+            showRoomContextPopup(roomInfo, window.innerWidth / 2, window.innerHeight * 0.42, false);
+        }
+    });
+
     function renderSearchResults(query) {
         if (!searchResults) return;
         query = (query || '').trim().toLowerCase();
 
-        function attachItemClickListeners() {
-            searchResults.querySelectorAll('.room-search-item').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    const f = parseInt(btn.dataset.floor, 10);
-                    const b = parseInt(btn.dataset.bldg, 10);
-                    const x = parseFloat(btn.dataset.x);
-                    const z = parseFloat(btn.dataset.z);
-                    const t = btn.dataset.text;
-                    closeSearch();
-                    // Все корпуса остаются видимыми в общем контексте кампуса (не скрываем остальные корпуса)
-                    if (STATE.buildingFilter !== 'both' && typeof setBuildingFilter === 'function') {
-                        setBuildingFilter('both', false);
-                    }
-                    const roomInfo = { floor: f, building: b, x: x, z: z, text: t };
-                    saveRecentSearch(roomInfo);
-                    selectRoom(roomInfo, true);
-                    if (typeof showRoomContextPopup === 'function') {
-                        showRoomContextPopup(roomInfo, window.innerWidth / 2, window.innerHeight * 0.42, false);
-                    }
-                });
-            });
-        }
+
 
         // 1) Пустой поисковый запрос: показываем историю недавних поисков
         if (!query) {
@@ -676,16 +697,18 @@ function setupSearch() {
                 recent.forEach(item => {
                     const bldgLabel = `Корпус ${item.building}`;
                     const floorLabel = `${item.floor} этаж`;
-                    const dataText = (item.text || '').replace(/\n/g, ' ');
+                    const dataText = escapeHtml((item.text || '').replace(/\n/g, ' '));
+                    const safeCode = escapeHtml(item.codeLabel);
+                    const safeTitle = escapeHtml(item.displayTitle);
                     html += `
                         <button class="room-search-item flex items-center justify-between gap-2.5 p-2 rounded-xl hover:bg-slate-800/80 border border-transparent hover:border-slate-700/60 transition text-left w-full group overflow-hidden flex-shrink-0"
                                 data-floor="${item.floor}" data-bldg="${item.building}" data-x="${item.x}" data-z="${item.z}" data-text="${dataText}">
                             <div class="flex items-center gap-2.5 min-w-0 flex-1 overflow-hidden">
                                 <div class="room-search-badge min-w-[3.25rem] max-w-[4.75rem] px-2 h-8 rounded-lg border flex items-center justify-center font-extrabold text-xs tracking-tight flex-shrink-0 overflow-hidden text-ellipsis whitespace-nowrap">
-                                    ${item.codeLabel}
+                                    ${safeCode}
                                 </div>
                                 <div class="min-w-0 flex-1 flex flex-col justify-center overflow-hidden py-0.5">
-                                    <div class="room-search-title font-bold text-slate-200 text-xs truncate group-hover:text-sky-400 transition leading-snug py-0.5">${item.displayTitle}</div>
+                                    <div class="room-search-title font-bold text-slate-200 text-xs truncate group-hover:text-sky-400 transition leading-snug py-0.5">${safeTitle}</div>
                                     <div class="room-search-sub text-[10px] text-slate-400 truncate leading-none mt-0.5">${bldgLabel} • ${floorLabel}</div>
                                 </div>
                             </div>
@@ -697,13 +720,7 @@ function setupSearch() {
                 });
                 searchResults.innerHTML = html;
 
-                document.getElementById('btn-clear-recent')?.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    clearRecentSearches();
-                    renderSearchResults('');
-                });
 
-                attachItemClickListeners();
                 return;
             } else {
                 searchResults.innerHTML = `
@@ -806,7 +823,7 @@ function setupSearch() {
         const displayItems = filtered.slice(0, 30);
 
         if (displayItems.length === 0) {
-            searchResults.innerHTML = `<div class="text-center py-6 text-xs text-slate-500">По запросу «${query}» ничего не найдено</div>`;
+            searchResults.innerHTML = `<div class="text-center py-6 text-xs text-slate-500">По запросу &laquo;${escapeHtml(query)}&raquo; ничего не найдено</div>`;
             return;
         }
 
@@ -815,16 +832,18 @@ function setupSearch() {
             const bldgLabel = `Корпус ${item.building}`;
             const floorLabel = `${item.floor} этаж`;
             const { codeLabel, displayTitle } = formatSearchRoomBadgeAndTitle(item);
-            const dataText = (item.text || '').replace(/\n/g, ' ');
+            const dataText = escapeHtml((item.text || '').replace(/\n/g, ' '));
+            const safeCode = escapeHtml(codeLabel);
+            const safeTitle = escapeHtml(displayTitle);
             html += `
                 <button class="room-search-item flex items-center justify-between gap-2.5 p-2 rounded-xl hover:bg-slate-800/80 border border-transparent hover:border-slate-700/60 transition text-left w-full group overflow-hidden flex-shrink-0"
                         data-floor="${item.floor}" data-bldg="${item.building}" data-x="${item.x}" data-z="${item.z}" data-text="${dataText}">
                     <div class="flex items-center gap-2.5 min-w-0 flex-1 overflow-hidden">
                         <div class="room-search-badge min-w-[3.25rem] max-w-[4.75rem] px-2 h-8 rounded-lg border flex items-center justify-center font-extrabold text-xs tracking-tight flex-shrink-0 overflow-hidden text-ellipsis whitespace-nowrap">
-                            ${codeLabel}
+                            ${safeCode}
                         </div>
                         <div class="min-w-0 flex-1 flex flex-col justify-center overflow-hidden py-0.5">
-                            <div class="room-search-title font-bold text-slate-200 text-xs truncate group-hover:text-sky-400 transition leading-snug py-0.5">${displayTitle}</div>
+                            <div class="room-search-title font-bold text-slate-200 text-xs truncate group-hover:text-sky-400 transition leading-snug py-0.5">${safeTitle}</div>
                             <div class="room-search-sub text-[10px] text-slate-400 truncate leading-none mt-0.5">${bldgLabel} • ${floorLabel}</div>
                         </div>
                     </div>
@@ -835,7 +854,6 @@ function setupSearch() {
             `;
         });
         searchResults.innerHTML = html;
-        attachItemClickListeners();
     }
 }
 
