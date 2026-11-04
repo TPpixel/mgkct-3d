@@ -6,6 +6,9 @@ let raycaster = null;
 let mouseVec = null;
 let floorPlane = null;
 let isCtrlZooming = false;
+const _zoomHitVec = new THREE.Vector3();
+const _zoomCamOffset = new THREE.Vector3();
+const _zoomTargetOffset = new THREE.Vector3();
 
 function resetControlsMomentum() {
     if (!controls) return;
@@ -136,9 +139,9 @@ function zoomIn() {
     STATE.targetControlsCenter = null;
     resetControlsMomentum();
     const factor = 0.80;
-    const camToTarget = camera.position.clone().sub(controls.target);
-    if (camToTarget.length() * factor >= controls.minDistance) {
-        camera.position.copy(controls.target).addScaledVector(camToTarget, factor);
+    _zoomCamOffset.subVectors(camera.position, controls.target);
+    if (_zoomCamOffset.length() * factor >= controls.minDistance) {
+        camera.position.copy(controls.target).addScaledVector(_zoomCamOffset, factor);
         controls.update();
         if (typeof requestRender === 'function') requestRender(25);
     }
@@ -150,11 +153,11 @@ function zoomOut() {
     STATE.targetControlsCenter = null;
     resetControlsMomentum();
     const factor = 1.25;
-    const camToTarget = camera.position.clone().sub(controls.target);
-    const currDist = camToTarget.length();
+    _zoomCamOffset.subVectors(camera.position, controls.target);
+    const currDist = _zoomCamOffset.length();
     if (currDist >= controls.maxDistance) return;
     const newDist = Math.min(currDist * factor, controls.maxDistance);
-    camera.position.copy(controls.target).add(camToTarget.normalize().multiplyScalar(newDist));
+    camera.position.copy(controls.target).add(_zoomCamOffset.normalize().multiplyScalar(newDist));
     controls.update();
     if (typeof requestRender === 'function') requestRender(25);
 }
@@ -278,18 +281,20 @@ function onPointerZoom(event) {
 
     // Ищем точку пересечения луча курсора с плоскостью этажа
     let hitPoint = null;
-    const pt = new THREE.Vector3();
-    if (raycaster.ray.intersectPlane(floorPlane, pt)) {
+    if (raycaster.ray.intersectPlane(floorPlane, _zoomHitVec)) {
         // Проверяем, что точка находится в пределах территории колледжа, а не на горизонте
-        if (Math.hypot(pt.x - 25, pt.z - (-25)) < 300) {
-            hitPoint = pt;
+        const campusCx = (typeof getActiveCenterX === 'function') ? getActiveCenterX() : 16.0;
+        const campusCz = (typeof getActiveCenterZ === 'function') ? getActiveCenterZ() : -18.0;
+        if (Math.hypot(_zoomHitVec.x - campusCx, _zoomHitVec.z - campusCz) < 350) {
+            hitPoint = _zoomHitVec;
         }
     }
 
     // Если курсор смотрит в бесконечность или мимо кампуса, зумируем относительно текущего центра
     if (!hitPoint) {
-        hitPoint = controls.target.clone();
-        hitPoint.y = activeFloorY;
+        _zoomHitVec.copy(controls.target);
+        _zoomHitVec.y = activeFloorY;
+        hitPoint = _zoomHitVec;
     }
 
     const zoomIn = event.deltaY < 0;
@@ -313,11 +318,11 @@ function onPointerZoom(event) {
     }
 
     // Зум к точке курсора: точка hitPoint на экране остаётся неподвижной
-    const camOffset = camera.position.clone().sub(hitPoint).multiplyScalar(factor);
-    const targetOffset = controls.target.clone().sub(hitPoint).multiplyScalar(factor);
+    _zoomCamOffset.subVectors(camera.position, hitPoint).multiplyScalar(factor);
+    _zoomTargetOffset.subVectors(controls.target, hitPoint).multiplyScalar(factor);
 
-    camera.position.copy(hitPoint).add(camOffset);
-    controls.target.copy(hitPoint).add(targetOffset);
+    camera.position.addVectors(hitPoint, _zoomCamOffset);
+    controls.target.addVectors(hitPoint, _zoomTargetOffset);
 
     // Гарантируем, что target.y строго лежит на плоскости этажа
     controls.target.y = activeFloorY;
