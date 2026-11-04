@@ -50,9 +50,9 @@ function addFloorRect(targetGroup, x1, z1, x2, z2, isCore = false) {
 
     const thickness = 0.16;
     const geom = new THREE.BoxGeometry(w, thickness, d);
-    const mat = isCore ? MATERIALS.coreSlab : MATERIALS.slab;
+    const mat = MATERIALS.slab;
     const mesh = new THREE.Mesh(geom, mat);
-    mesh.position.set(cx, -thickness / 2 + (isCore ? 0.008 : 0), cz);
+    mesh.position.set(cx, -thickness / 2 + 0, cz);
     mesh.receiveShadow = true;
     mesh.userData.isFloorSlab = true;
     mesh.userData.isInterior = false;
@@ -138,9 +138,9 @@ function addFloorPolygon(targetGroup, points, isCore = false) {
     });
     geom.rotateX(Math.PI / 2);
 
-    const mat = isCore ? MATERIALS.coreSlab : MATERIALS.slab;
+    const mat = MATERIALS.slab;
     const mesh = new THREE.Mesh(geom, mat);
-    mesh.position.set(0, (isCore ? 0.008 : 0), 0);
+    mesh.position.set(0, 0, 0);
     mesh.receiveShadow = true;
     mesh.userData.isFloorSlab = true;
     mesh.userData.isInterior = false;
@@ -824,7 +824,7 @@ function flushWalls(targetGroup) {
     }
     for (let i = 0; i < solvedSegments.length; i++) {
         const s = solvedSegments[i];
-        if (s.isDoor) continue;
+        if (s.isDoor || s.isColumn) continue;
         const isH = s.isHorizontal;
         const cMin = Math.min(s.c1, s.c2);
         const cMax = Math.max(s.c1, s.c2);
@@ -1864,6 +1864,9 @@ function mergeBufferGeometriesVanilla(geometries) {
     for (let i = 0; i < geometries.length; i++) {
         let geom = geometries[i];
         if (!geom || !geom.attributes || !geom.attributes.position) continue;
+        if (!geom.attributes.normal) {
+            geom.computeVertexNormals();
+        }
         validGeoms.push(geom);
 
         totalPositions += geom.attributes.position.array.length;
@@ -1875,10 +1878,15 @@ function mergeBufferGeometriesVanilla(geometries) {
 
     if (validGeoms.length === 0) return null;
 
+    // Общее количество вершин — именно оно определяет диапазон адресов индексов.
+    // totalIndices — это количество индексов (элементов массива), но каждый индекс
+    // адресует вершину. Если вершин > 65535, Uint16 не сможет их адресовать.
+    const totalVertices = totalPositions / 3;
+
     const mergedPositions = new Float32Array(totalPositions);
     const mergedNormals = totalNormals > 0 ? new Float32Array(totalPositions) : null;
-    const mergedUvs = totalUvs > 0 ? new Float32Array((totalPositions / 3) * 2) : null;
-    const mergedIndices = totalIndices <= 65535 ? new Uint16Array(totalIndices) : new Uint32Array(totalIndices);
+    const mergedUvs = totalUvs > 0 ? new Float32Array(totalVertices * 2) : null;
+    const mergedIndices = totalVertices <= 65535 ? new Uint16Array(totalIndices) : new Uint32Array(totalIndices);
 
     let posOffset = 0;
     let normOffset = 0;
