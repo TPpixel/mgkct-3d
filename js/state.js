@@ -189,3 +189,13 @@ function getActiveCenterZ() {
     if (STATE.buildingFilter === '5') return -68.75;
     return -18.0;
 }
+
+function isBuildingVisible(bldgId) {
+    if (!STATE || !STATE.buildingFilter || STATE.buildingFilter === 'both') return true;
+    const filter = String(STATE.buildingFilter);
+    const b = String(bldgId);
+    if (filter === b) return true;
+    if (filter === '3' && b === '5') return true;
+    return false;
+}
+window.isBuildingVisible = isBuildingVisible;

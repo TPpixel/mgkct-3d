@@ -329,12 +329,9 @@ function updateStairValidationAxes() {
     }
 
     stairValidationItems.forEach(item => {
-        let visibleByBuilding =
-            (STATE.buildingFilter === 'both' ||
-            (STATE.buildingFilter === '1' && item.bldg === 1) ||
-            (STATE.buildingFilter === '2' && item.bldg === 2) ||
-            (STATE.buildingFilter === '3' && item.bldg === 3) ||
-            (STATE.buildingFilter === '4' && item.bldg === 4));
+        let visibleByBuilding = (typeof isBuildingVisible === 'function')
+            ? isBuildingVisible(item.bldg)
+            : (STATE.buildingFilter === 'both' || String(STATE.buildingFilter) === String(item.bldg));
 
         if (isSingleFloor) {
             if (item.maxFloor < selectedFloor) {
@@ -479,12 +476,9 @@ function updateAlignmentGuides() {
     }
 
     guideLines.forEach(item => {
-        let visibleByBuilding =
-            (STATE.buildingFilter === 'both' ||
-            (STATE.buildingFilter === '1' && item.bldg === 1) ||
-            (STATE.buildingFilter === '2' && item.bldg === 2) ||
-            (STATE.buildingFilter === '3' && item.bldg === 3) ||
-            (STATE.buildingFilter === '4' && item.bldg === 4));
+        let visibleByBuilding = (typeof isBuildingVisible === 'function')
+            ? isBuildingVisible(item.bldg)
+            : (STATE.buildingFilter === 'both' || String(STATE.buildingFilter) === String(item.bldg));
 
         if (isSingleFloor) {
             if (item.maxFloor < selectedFloor) {
@@ -513,12 +507,11 @@ function updateAlignmentGuides() {
 
 function isPointInFloorFootprint(lx, lz, floorNum, bldId = null) {
     const m = 0.22;
-    const showB1 = STATE.buildingFilter === 'both' || STATE.buildingFilter === '1';
-    const showB2 = STATE.buildingFilter === 'both' || STATE.buildingFilter === '2';
-    const showB3 = STATE.buildingFilter === 'both' || STATE.buildingFilter === '3';
-    const showB4 = STATE.buildingFilter === 'both' || STATE.buildingFilter === '4';
+    const isVisible = (typeof isBuildingVisible === 'function')
+        ? isBuildingVisible
+        : (b) => (STATE.buildingFilter === 'both' || String(STATE.buildingFilter) === String(b));
 
-    if (showB1 && (!bldId || bldId === 1)) {
+    if (isVisible(1) && (!bldId || bldId === 1)) {
         if (lx >= -10.0 - m && lx <= 16.0 + m && lz >= -14.0 - m && lz <= -4.0 + m) return true;
         if (lx >= -14.0 - m && lx <= 16.0 + m && lz >= -4.0 - m && lz <= 4.0 + m) return true;
         if (lx >= -14.0 - m && lx <= 12.5 + m && lz >= 4.0 - m && lz <= 14.0 + m) return true;
@@ -527,16 +520,16 @@ function isPointInFloorFootprint(lx, lz, floorNum, bldId = null) {
         }
     }
 
-    if (showB2 && (!bldId || bldId === 2) && floorNum <= 3) {
+    if (isVisible(2) && (!bldId || bldId === 2) && floorNum <= 3) {
         if (lx >= B2_X_START - m && lx <= B2_X_END + m && lz >= B2_Z_TOP - m && lz <= B2_Z_BOT + m) return true;
     }
 
-    if (showB3 && (!bldId || bldId === 3) && floorNum <= 2) {
+    if (isVisible(3) && (!bldId || bldId === 3) && floorNum <= 2) {
         if (lx >= B3_X_WEST - m && lx <= B3_X_EAST + m && lz >= B3_Z_NORTH - m && lz <= B3_Z_SOUTH + m) return true;
         if (lx >= B3_X_EAST - m && lx <= 15.6 + m && lz >= -47.6 - m && lz <= -44.0 + m) return true;
     }
 
-    if (showB4 && (!bldId || bldId === 4) && floorNum <= 3) {
+    if (isVisible(4) && (!bldId || bldId === 4) && floorNum <= 3) {
         if (floorNum === 3) {
             // На 3-м этаже Корпуса 4 зоны Второго Света (над спортзалом и актовым залом) являются сквозными проемами (нет перекрытия)
             const inGymVoid = (lx >= B4_X_WEST - m && lx <= B4_X_EAST + m && lz >= B4_Z_NORTH - m && lz <= B4_Z_MID_N + m);
@@ -752,19 +745,17 @@ function updateFloorsInteriorVisibility() {
 
 function recalcTargetPositions() {
     const stepH = STATE.wallHeight + 0.25 + (STATE.exploded ? STATE.explodeGap : 0);
-    const showB1 = STATE.buildingFilter === 'both' || STATE.buildingFilter === '1';
-    const showB2 = STATE.buildingFilter === 'both' || STATE.buildingFilter === '2';
-    const showB3 = STATE.buildingFilter === 'both' || STATE.buildingFilter === '3';
-    const showB4 = STATE.buildingFilter === 'both' || STATE.buildingFilter === '4';
-    const showB5 = STATE.buildingFilter === 'both' || STATE.buildingFilter === '3' || STATE.buildingFilter === '5';
+    const isVisible = (typeof isBuildingVisible === 'function')
+        ? isBuildingVisible
+        : (b) => (STATE.buildingFilter === 'both' || String(STATE.buildingFilter) === String(b));
 
     for (let f = 1; f <= 7; f++) {
-        bldg1FloorGroups[f].visible = showB1;
-        bldg2FloorGroups[f].visible = showB2 && (f <= 3);
-        bldg3FloorGroups[f].visible = showB3 && (f <= 2);
-        bldg4FloorGroups[f].visible = showB4 && (f <= 3);
+        bldg1FloorGroups[f].visible = isVisible(1);
+        bldg2FloorGroups[f].visible = isVisible(2) && (f <= 3);
+        bldg3FloorGroups[f].visible = isVisible(3) && (f <= 2);
+        bldg4FloorGroups[f].visible = isVisible(4) && (f <= 3);
         if (typeof bldg5FloorGroups !== 'undefined' && bldg5FloorGroups[f]) {
-            bldg5FloorGroups[f].visible = showB5 && (f <= 1);
+            bldg5FloorGroups[f].visible = isVisible(5) && (f <= 1);
         }
     }
 
