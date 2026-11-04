@@ -251,7 +251,9 @@ function init() {
                 });
             }
         }
-    } catch (e) {}
+    } catch (e) {
+        console.warn('[MGKCT] URL-параметры: ошибка разбора при инициализации:', e);
+    }
     if (typeof initNavigator === 'function') {
         initNavigator();
     }
@@ -578,6 +580,9 @@ function isLabelOccludedByUpperSlabs(labelItem, floorNum = null, bldId = null) {
     const camPos = camera.position;
     const dy = _tempLabelWorldPos.y - camPos.y;
 
+    // Если камера и метка на одной высоте — луч горизонтален, перекрытия нет.
+    if (Math.abs(dy) < 1e-6) return false;
+
     for (let u = f + 1; u <= 7; u++) {
         const ug = floorGroups[u];
         if (!ug || !ug.visible) continue;
@@ -618,37 +623,32 @@ function updateLabelsVisibility() {
 // ==========================================
 function updateEdgesVisibility() {
     const hideSharedBoundary = (STATE.buildingFilter === 'both');
-    wallEdges.forEach(line => {
-        if (line) {
-            if (line.userData && line.userData.sharedBoundaryWith !== undefined && hideSharedBoundary) {
-                line.visible = false;
-            } else if (line.userData && line.userData.isColumn && STATE.is2D) {
-                line.visible = false;
-            } else {
-                line.visible = STATE.showEdges;
-            }
+
+    // Используем Set для O(1) проверки — traverse не обрабатывает то, что уже обработано.
+    const handled = new Set();
+
+    function applyEdgeVisibility(line) {
+        if (!line) return;
+        handled.add(line);
+        if (line.userData && line.userData.sharedBoundaryWith !== undefined && hideSharedBoundary) {
+            line.visible = false;
+        } else if (line.userData && line.userData.isColumn && STATE.is2D) {
+            line.visible = false;
+        } else {
+            line.visible = STATE.showEdges;
         }
-    });
-    doorEdges.forEach(line => {
-        if (line) {
-            if (line.userData && line.userData.sharedBoundaryWith !== undefined && hideSharedBoundary) {
-                line.visible = false;
-            } else {
-                line.visible = STATE.showEdges;
-            }
-        }
-    });
+    }
+
+    wallEdges.forEach(applyEdgeVisibility);
+    doorEdges.forEach(applyEdgeVisibility);
+
+    // Второй проход ловит LineSegments-объекты, не попавшие в wallEdges/doorEdges
+    // (вспомогательные линии, оси, направляющие внутри floorGroups).
     for (let f = 1; f <= 7; f++) {
         if (floorGroups[f]) {
             floorGroups[f].traverse(child => {
-                if (child.isLineSegments) {
-                    if (child.userData && child.userData.sharedBoundaryWith !== undefined && hideSharedBoundary) {
-                        child.visible = false;
-                    } else if (child.userData && child.userData.isColumn && STATE.is2D) {
-                        child.visible = false;
-                    } else {
-                        child.visible = STATE.showEdges;
-                    }
+                if (child.isLineSegments && !handled.has(child)) {
+                    applyEdgeVisibility(child);
                 }
             });
         }
@@ -756,7 +756,7 @@ function recalcTargetPositions() {
     const showB2 = STATE.buildingFilter === 'both' || STATE.buildingFilter === '2';
     const showB3 = STATE.buildingFilter === 'both' || STATE.buildingFilter === '3';
     const showB4 = STATE.buildingFilter === 'both' || STATE.buildingFilter === '4';
-    const showB5 = STATE.buildingFilter === 'both' || STATE.buildingFilter === '5';
+    const showB5 = STATE.buildingFilter === 'both' || STATE.buildingFilter === '3' || STATE.buildingFilter === '5';
 
     for (let f = 1; f <= 7; f++) {
         bldg1FloorGroups[f].visible = showB1;
@@ -1061,7 +1061,9 @@ function animate(currentTime = 0) {
         if (STATE.showStairAxes && isFloorsMoving) {
             updateStairValidationAxes();
         }
-        if (typeof updateAdaptiveLabelScaling === 'function') {
+        // updateAdaptiveLabelScaling зависит от расстояния камеры.
+        // Вызываем только если камера или этажи движутся — экономим ~20 вызовов/сек в idle.
+        if (typeof updateAdaptiveLabelScaling === 'function' && (isCamMoving || isFloorsMoving)) {
             updateAdaptiveLabelScaling();
         }
     }
