@@ -987,7 +987,7 @@
         g.addNode("b3_f1_stair_north", 1, 3, 4.1, -46, "stair", "К3 Северная ЛК (Эт.1)");
         g.addNode("b3_f1_stair_north_wp", 1, 3, 1.5, -46.9, "stair", "Марш ЛК№1");
         g.addNode("b3_f1_entrance_north", 1, 3, -1.6, -46.1, "entrance", "Вход К3 (Северный)");
-        g.addNode("b3_f1_entrance_west", 1, 3, -1.6, -37.1, "entrance", "Главный вход (Корпус 3 / Западный)");
+        g.addNode("b3_f1_entrance_west", 1, 3, -1.6, -36.5, "entrance", "Главный вход (Корпус 3 / Западный)");
         g.addNode("b3_f1_vest_north", 1, 3, 5.9, -56.2, "corridor", "Тамбур К3 Эт.1");
         g.addNode("b3_f1_door_vest_south", 1, 3, 5.9, -55, "door", "Дверь тамбура К3 Эт.1");
         g.addNode("b3_f1_d_corr_east_exit", 1, 3, 7.2, -29.1, "door", "Дверь к восточному выходу");
@@ -1107,7 +1107,7 @@
         g.addNode("room_3_1_152", 1, 3, 3, -38, "room", "109");
         g.addNode("room_3_1_153", 1, 3, -0.4, -38.7, "room", "108");
         g.addNode("door_room_room_3_1_153", 1, 3, -0.3, -37.8, "door", "Дверь 108");
-        g.addNode("b3_f1_tambur_108", 1, 3, -0.4, -37.1, "corridor", "Тамбур входа К3");
+        g.addNode("b3_f1_tambur_108", 1, 3, -0.4, -36.5, "corridor", "Тамбур входа К3");
         g.addNode("b3_f1_door_tambur_108", 1, 3, 0.4, -36.4, "door", "Дверь тамбура К3");
         g.addNode("b3_f1_exit_east_inner", 1, 3, 9.4, -28.6, "corridor", "Проход к выходу К3");
         g.addNode("b3_f1_exit_east_door", 1, 3, 13.8, -28.6, "door", "Выход К3 во двор");
