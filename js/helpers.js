@@ -2,8 +2,8 @@ const _registeredMiterJoints = [];
 
 function registerMiterJoint(targetGroup, x, z, thickness) {
     if (!targetGroup) return;
-    _registeredMiterJoints.push({
-        group: targetGroup,
+    if (!targetGroup._miterJoints) targetGroup._miterJoints = [];
+    targetGroup._miterJoints.push({
         x,
         z,
         thickness
@@ -16,6 +16,23 @@ const _edgesGeomCache = new Map();
 const _wallEdgesGeomCache = new Map();
 let _sharedHiddenLabelMat = null;
 const _textWidthCache = new Map();
+
+function clearHelpersGeometryCaches() {
+    for (const geom of _boxGeomCache.values()) {
+        if (geom && geom.dispose) geom.dispose();
+    }
+    _boxGeomCache.clear();
+    for (const geom of _edgesGeomCache.values()) {
+        if (geom && geom.dispose) geom.dispose();
+    }
+    _edgesGeomCache.clear();
+    for (const geom of _wallEdgesGeomCache.values()) {
+        if (geom && geom.dispose) geom.dispose();
+    }
+    _wallEdgesGeomCache.clear();
+    _textWidthCache.clear();
+}
+window.clearHelpersGeometryCaches = clearHelpersGeometryCaches;
 
 function getCachedBoxGeometry(w, h, d) {
     const key = `${Math.round(w * 1000)}_${Math.round(h * 1000)}_${Math.round(d * 1000)}`;
@@ -305,11 +322,12 @@ function solveCampusJunctions(targetGroup, pendingLines) {
     }));
 
     // Бесшовное сопряжение ортогональных стен с диагональными скосами (Miter Joints)
+    const miterJoints = targetGroup._miterJoints || _registeredMiterJoints;
     for (const w of solved) {
         if (w.isHorizontal) {
             const z0 = w.fixedCoord;
-            for (const mj of _registeredMiterJoints) {
-                if (mj.group === targetGroup && Math.abs(mj.z - z0) < 0.14) {
+            for (const mj of miterJoints) {
+                if ((!mj.group || mj.group === targetGroup) && Math.abs(mj.z - z0) < 0.14) {
                     if (Math.abs(mj.x - w.origC1) < 0.14) {
                         w.omitStartCap = true;
                     }
@@ -320,8 +338,8 @@ function solveCampusJunctions(targetGroup, pendingLines) {
             }
         } else {
             const x0 = w.fixedCoord;
-            for (const mj of _registeredMiterJoints) {
-                if (mj.group === targetGroup && Math.abs(mj.x - x0) < 0.14) {
+            for (const mj of miterJoints) {
+                if ((!mj.group || mj.group === targetGroup) && Math.abs(mj.x - x0) < 0.14) {
                     if (Math.abs(mj.z - w.origC1) < 0.14) {
                         w.omitStartCap = true;
                     }
@@ -893,6 +911,8 @@ function flushWalls(targetGroup) {
             WALLS_REGISTRY.push(wallEntry);
         }
     }
+    // Очищаем локальный список сопряжений группы после генерации
+    targetGroup._miterJoints = null;
 }
 
 const finalizeFloorWalls = flushWalls;
@@ -1553,13 +1573,17 @@ function renderScreenSpaceLabels() {
         const fontSize = Math.max(Math.round(baseFontSize * zoomScale), 8.5);
 
         const fontStack = '-apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Segoe UI", Roboto, system-ui, sans-serif';
-        overlayCtx.font = '900 ' + fontSize + 'px ' + fontStack;
+        const fontStr = '900 ' + fontSize + 'px ' + fontStack;
+        if (overlayCtx.font !== fontStr) {
+            overlayCtx.font = fontStr;
+        }
 
         let maxLineW = 0;
         for (let l = 0; l < lines.length; l++) {
             const mKey = fontSize + '|' + lines[l];
             let lw = _textWidthCache.get(mKey);
             if (lw === undefined) {
+                if (_textWidthCache.size > 2000) _textWidthCache.clear();
                 lw = overlayCtx.measureText(lines[l]).width;
                 _textWidthCache.set(mKey, lw);
             }
@@ -1704,13 +1728,16 @@ function buildElevatorShaftCross(targetGroup, x1, z1, x2, z2) {
 
 
 function addOutdoorPorchStep(targetGroup, geomOrW, dOrCx, cxOrCz, czOrYTop, yTopOrYBottom, maybeYBottom) {
-    let geom, cx, cz, yTop, yBottom;
-    if (geomOrW && typeof geomOrW === 'object' && geomOrW.isBufferGeometry) {
+    let geom, cx, cz, yTop, yBottom, stepH;
+    const isBufferGeom = (geomOrW && typeof geomOrW === 'object' && geomOrW.isBufferGeometry);
+
+    if (isBufferGeom) {
         geom = geomOrW;
         cx = dOrCx;
         cz = cxOrCz;
         yTop = czOrYTop;
         yBottom = yTopOrYBottom !== undefined ? yTopOrYBottom : -0.16;
+        stepH = Math.max(0.02, yTop - yBottom);
     } else {
         const w = geomOrW;
         const d = dOrCx;
@@ -1718,13 +1745,12 @@ function addOutdoorPorchStep(targetGroup, geomOrW, dOrCx, cxOrCz, czOrYTop, yTop
         cz = czOrYTop;
         yTop = yTopOrYBottom;
         yBottom = maybeYBottom !== undefined ? maybeYBottom : -0.16;
-        const stepH = Math.max(0.02, yTop - yBottom);
-        geom = new THREE.BoxGeometry(w, stepH, d);
+        stepH = Math.max(0.02, yTop - yBottom);
+        geom = getCachedBoxGeometry(w, stepH, d);
     }
 
-    const stepH = Math.max(0.02, yTop - yBottom);
     const mesh = new THREE.Mesh(geom, MATERIALS.coreSlab);
-    if (geomOrW && typeof geomOrW === 'object' && geomOrW.isBufferGeometry) {
+    if (isBufferGeom) {
         mesh.scale.y = stepH;
     }
     mesh.position.set(cx, (yTop + yBottom) / 2, cz);
@@ -1734,7 +1760,7 @@ function addOutdoorPorchStep(targetGroup, geomOrW, dOrCx, cxOrCz, czOrYTop, yTop
     mesh.userData.isExterior = true;
     mesh.userData.isStair = true;
 
-    const edges = new THREE.EdgesGeometry(geom);
+    const edges = isBufferGeom ? new THREE.EdgesGeometry(geom) : getCachedEdgesGeometry(geom, geomOrW, stepH, dOrCx);
     const edgeLine = new THREE.LineSegments(edges, MATERIALS.edgeMain);
     edgeLine.userData.isInterior = false;
     edgeLine.userData.isExterior = true;
