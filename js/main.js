@@ -984,19 +984,22 @@ function animate(currentTime = 0) {
 
     // 1. Проверяем анимацию этажей (интерполяция)
     let isFloorsMoving = false;
+    let shadowNeedsUpdate = false;
     for (let f = 1; f <= 7; f++) {
         if (floorGroups[f] && STATE.targetPos[f]) {
             if (floorGroups[f].position.distanceToSquared(STATE.targetPos[f]) > 0.0001) {
                 isFloorsMoving = true;
                 floorGroups[f].position.lerp(STATE.targetPos[f], 0.15);
-                if (renderer.shadowMap && renderer.shadowMap.enabled) {
-                    renderer.shadowMap.needsUpdate = true;
-                }
+                shadowNeedsUpdate = true;
             } else if (!floorGroups[f].position.equals(STATE.targetPos[f])) {
                 floorGroups[f].position.copy(STATE.targetPos[f]);
                 isFloorsMoving = true;
+                shadowNeedsUpdate = true;
             }
         }
+    }
+    if (shadowNeedsUpdate && renderer && renderer.shadowMap && renderer.shadowMap.enabled) {
+        renderer.shadowMap.needsUpdate = true;
     }
 
     // 2. Проверяем синхронную анимацию камеры и центра вращения (без конфликта с инерцией OrbitControls)
