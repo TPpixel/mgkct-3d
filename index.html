@@ -4,6 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
     <title>Интерактивная карта — Колледж МГКЦТ</title>
+    <!-- Resource Hints & Preconnections -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="dns-prefetch" href="https://cdn.tailwindcss.com">
+    <link rel="preload" href="js/vendor/three.min.js" as="script">
+    <link rel="preload" href="js/vendor/OrbitControls.js" as="script">
     <!-- Tailwind CSS & Google Fonts (Roboto, Google Sans) -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -25,7 +31,7 @@
     <script src="js/vendor/three.min.js"></script>
     <script src="js/vendor/OrbitControls.js"></script>
     <!-- Стили -->
-    <link rel="stylesheet" href="css/style-v2.css?v=77">
+    <link rel="stylesheet" href="css/style.css?v=80">
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
     <meta http-equiv="Pragma" content="no-cache" />
     <meta http-equiv="Expires" content="0" />
@@ -197,6 +203,17 @@
                 </svg>
                 <span>Карта</span>
             </button>
+        </div>
+
+        <!-- Быстрые теги ключевых аудиторий с названиями -->
+        <div class="m3-search-chips-bar flex flex-wrap items-center gap-1.5 py-1 text-[11px] flex-shrink-0 px-1">
+            <button class="search-tag-chip px-2.5 py-1 rounded-lg transition font-medium" data-query="Столовая">Столовая</button>
+            <button class="search-tag-chip px-2.5 py-1 rounded-lg transition font-medium" data-query="Спортзал">Спортзал</button>
+            <button class="search-tag-chip px-2.5 py-1 rounded-lg transition font-medium" data-query="Актовый зал">Актовый зал</button>
+            <button class="search-tag-chip px-2.5 py-1 rounded-lg transition font-medium" data-query="Библиотека">Библиотека</button>
+            <button class="search-tag-chip px-2.5 py-1 rounded-lg transition font-medium" data-query="Гардероб">Гардероб</button>
+            <button class="search-tag-chip px-2.5 py-1 rounded-lg transition font-medium" data-query="Конференц-зал">Конференц-зал</button>
+            <button class="search-tag-chip px-2.5 py-1 rounded-lg transition font-medium" data-query="С/У">Санузел</button>
         </div>
 
         <!-- Карточка результатов поиска (Results Card с 3-колоночным списком Google) -->
@@ -703,16 +720,17 @@
 
     <!-- Подключение JS модулей -->
     <script src="js/state.js?v=53"></script>
-    <script src="js/materials.js?v=11"></script>
-    <script src="js/helpers.js?v=11"></script>
-    <script src="js/buildings/building1.js?v=11"></script>
-    <script src="js/buildings/building2.js?v=11"></script>
-    <script src="js/buildings/building3.js?v=11"></script>
-    <script src="js/buildings/building4.js?v=11"></script>
-    <script src="js/territory.js?v=11"></script>
-    <script src="js/controls.js?v=11"></script>
-    <script src="js/navigator.js?v=71"></script>
-    <script src="js/ui.js?v=71"></script>
-    <script src="js/main.js?v=71"></script>
+    <script src="js/materials.js?v=15"></script>
+    <script src="js/helpers.js?v=15"></script>
+    <script src="js/buildings/building1.js?v=15"></script>
+    <script src="js/buildings/building2.js?v=15"></script>
+    <script src="js/buildings/building3.js?v=15"></script>
+    <script src="js/buildings/building4.js?v=15"></script>
+    <script src="js/buildings/building5.js?v=15"></script>
+    <script src="js/territory.js?v=15"></script>
+    <script src="js/controls.js?v=15"></script>
+    <script src="js/navigator.js?v=73"></script>
+    <script src="js/ui.js?v=73"></script>
+    <script src="js/main.js?v=73"></script>
 </body>
 </html>

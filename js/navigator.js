@@ -244,7 +244,7 @@
         g.addNode("b1_f5_sc_5.6", 5, 1, 5.6, 6, "corridor", "К1 Эт.5 Юж. коридор");
         g.addNode("b1_f5_sc_9.4", 5, 1, 9.4, 6, "corridor", "К1 Эт.5 Юж. коридор");
         g.addNode("b1_f5_sc_10.5", 5, 1, 10.5, 6, "corridor", "К1 Эт.5 Юж. коридор");
-        g.addNode("b1_f5_stair_lk1", 5, 1, 9.4, -1.9, "stair", "К1 ЛК№1 (Эт.5)");
+        g.addNode("b1_f5_stair_lk1", 5, 1, 9.4, -2.0, "stair", "К1 ЛК№1 (Эт.5)");
         g.addNode("b1_f5_stair_lk2", 5, 1, 9.4, 1.9, "stair", "К1 ЛК№2 (Эт.5)");
         g.addNode("b1_f5_elev", 5, 1, 1.8, 1.5, "elevator", "К1 Лифты (Эт.5)");
         g.addNode("b1_f6_nc_-6.0", 6, 1, -6, -5, "corridor", "К1 Эт.6 Сев. коридор");
@@ -267,7 +267,7 @@
         g.addNode("b1_f6_sc_5.6", 6, 1, 5.6, 6, "corridor", "К1 Эт.6 Юж. коридор");
         g.addNode("b1_f6_sc_9.4", 6, 1, 9.4, 6, "corridor", "К1 Эт.6 Юж. коридор");
         g.addNode("b1_f6_sc_10.5", 6, 1, 10.5, 6, "corridor", "К1 Эт.6 Юж. коридор");
-        g.addNode("b1_f6_stair_lk1", 6, 1, 9.4, -1.9, "stair", "К1 ЛК№1 (Эт.6)");
+        g.addNode("b1_f6_stair_lk1", 6, 1, 9.4, -2.0, "stair", "К1 ЛК№1 (Эт.6)");
         g.addNode("b1_f6_stair_lk2", 6, 1, 9.4, 1.9, "stair", "К1 ЛК№2 (Эт.6)");
         g.addNode("b1_f6_elev", 6, 1, 1.8, 1.5, "elevator", "К1 Лифты (Эт.6)");
         g.addNode("b1_f7_nc_-6.0", 7, 1, -6, -5, "corridor", "К1 Эт.7 Сев. коридор");
@@ -290,7 +290,7 @@
         g.addNode("b1_f7_sc_5.6", 7, 1, 5.6, 6, "corridor", "К1 Эт.7 Юж. коридор");
         g.addNode("b1_f7_sc_9.4", 7, 1, 9.4, 6, "corridor", "К1 Эт.7 Юж. коридор");
         g.addNode("b1_f7_sc_10.5", 7, 1, 10.5, 6, "corridor", "К1 Эт.7 Юж. коридор");
-        g.addNode("b1_f7_stair_lk1", 7, 1, 9.4, -1.9, "stair", "К1 ЛК№1 (Эт.7)");
+        g.addNode("b1_f7_stair_lk1", 7, 1, 9.4, -2.0, "stair", "К1 ЛК№1 (Эт.7)");
         g.addNode("b1_f7_stair_lk2", 7, 1, 9.4, 1.9, "stair", "К1 ЛК№2 (Эт.7)");
         g.addNode("b1_f7_elev", 7, 1, 1.8, 1.5, "elevator", "К1 Лифты (Эт.7)");
         g.addNode("room_1_5_56", 5, 1, 6.2, -2.8, "room", "С/У");
@@ -459,7 +459,7 @@
         g.addNode("b1_f3_sc_5.6", 3, 1, 5.6, 6, "corridor", "К1 Эт.3 Юж. коридор");
         g.addNode("b1_f3_sc_9.4", 3, 1, 9.4, 6, "corridor", "К1 Эт.3 Юж. коридор");
         g.addNode("b1_f3_sc_10.5", 3, 1, 10.5, 6, "corridor", "К1 Эт.3 Юж. коридор");
-        g.addNode("b1_f3_stair_lk1", 3, 1, 9.4, -1.9, "stair", "К1 ЛК№1 (Эт.3)");
+        g.addNode("b1_f3_stair_lk1", 3, 1, 9.4, -2.0, "stair", "К1 ЛК№1 (Эт.3)");
         g.addNode("b1_f3_stair_lk2", 3, 1, 9.4, 1.9, "stair", "К1 ЛК№2 (Эт.3)");
         g.addNode("b1_f3_elev", 3, 1, 1.8, 1.5, "elevator", "К1 Лифты (Эт.3)");
         g.addNode("b2_f3_c_22.6", 3, 2, 24.4, -5.8, "corridor", "К2 Эт.3 Коридор");
@@ -618,7 +618,7 @@
         g.addNode("b1_f4_sc_5.6", 4, 1, 5.6, 6, "corridor", "К1 Эт.4 Юж. коридор");
         g.addNode("b1_f4_sc_9.4", 4, 1, 9.4, 6, "corridor", "К1 Эт.4 Юж. коридор");
         g.addNode("b1_f4_sc_10.5", 4, 1, 10.5, 6, "corridor", "К1 Эт.4 Юж. коридор");
-        g.addNode("b1_f4_stair_lk1", 4, 1, 9.4, -1.9, "stair", "К1 ЛК№1 (Эт.4)");
+        g.addNode("b1_f4_stair_lk1", 4, 1, 9.4, -2.0, "stair", "К1 ЛК№1 (Эт.4)");
         g.addNode("b1_f4_stair_lk2", 4, 1, 9.4, 1.9, "stair", "К1 ЛК№2 (Эт.4)");
         g.addNode("b1_f4_elev", 4, 1, 1.8, 1.5, "elevator", "К1 Лифты (Эт.4)");
         g.addNode("room_1_4_44", 4, 1, 6.2, -2.8, "room", "С/У");
@@ -686,7 +686,7 @@
         g.addNode("b1_f2_sc_5.6", 2, 1, 5.6, 6, "corridor", "К1 Эт.2 Юж. коридор");
         g.addNode("b1_f2_sc_9.4", 2, 1, 9.4, 6, "corridor", "К1 Эт.2 Юж. коридор");
         g.addNode("b1_f2_sc_10.5", 2, 1, 10.5, 6, "corridor", "К1 Эт.2 Юж. коридор");
-        g.addNode("b1_f2_stair_lk1", 2, 1, 9.4, -1.9, "stair", "К1 ЛК№1 (Эт.2)");
+        g.addNode("b1_f2_stair_lk1", 2, 1, 9.4, -2.0, "stair", "К1 ЛК№1 (Эт.2)");
         g.addNode("b1_f2_stair_lk2", 2, 1, 9.4, 1.9, "stair", "К1 ЛК№2 (Эт.2)");
         g.addNode("b1_f2_elev", 2, 1, 1.8, 1.5, "elevator", "К1 Лифты (Эт.2)");
         g.addNode("b1_f2_room_206_corr_door", 2, 1, -5.8, 1.1, "door", "Дверь блока 206");
@@ -954,10 +954,10 @@
         g.addNode("b1_f1_sc_0.0", 1, 1, -0.5, 6, "corridor", "К1 Эт.1 Юж. коридор");
         g.addNode("b1_f1_sc_1.8", 1, 1, 0, 9.8, "corridor", "К1 Эт.1 Юж. коридор");
         g.addNode("b1_f1_sc_3.5", 1, 1, 3.5, 9.8, "corridor", "К1 Эт.1 Юж. коридор");
-        g.addNode("b1_f1_stair_lk1", 1, 1, 9.4, -1.9, "stair", "К1 ЛК№1 (Эт.1)");
+        g.addNode("b1_f1_stair_lk1", 1, 1, 9.4, -2.0, "stair", "К1 ЛК№1 (Эт.1)");
         g.addNode("b1_f1_stair_lk2", 1, 1, 9.4, 1.9, "stair", "К1 ЛК№2 (Эт.1)");
         g.addNode("b1_f1_elev", 1, 1, 1.8, 1.5, "elevator", "К1 Лифты (Эт.1)");
-        g.addNode("b1_f1_entrance_main", 1, 1, 10.5, 10.4, "entrance", "Главный вход (Корпус 1)");
+        g.addNode("b1_f1_entrance_main", 1, 1, 10.5, 10.4, "entrance", "Восточный вход (Корпус 1 — на ремонте)");
         g.addNode("b1_f1_porch_walk_1", 1, 1, 9.5, 9.8, "corridor", "Крыльцо у главного входа");
         g.addNode("b1_f1_porch_doors", 1, 1, 8.6, 9.8, "door", "Двери главного входа");
         g.addNode("b1_f1_vestibule", 1, 1, 6.2, 9.8, "corridor", "Тамбур главного входа");
@@ -987,7 +987,7 @@
         g.addNode("b3_f1_stair_north", 1, 3, 4.1, -46, "stair", "К3 Северная ЛК (Эт.1)");
         g.addNode("b3_f1_stair_north_wp", 1, 3, 1.5, -46.9, "stair", "Марш ЛК№1");
         g.addNode("b3_f1_entrance_north", 1, 3, -1.6, -46.1, "entrance", "Вход К3 (Северный)");
-        g.addNode("b3_f1_entrance_west", 1, 3, -1.6, -37.1, "entrance", "Вход К3 (Западный)");
+        g.addNode("b3_f1_entrance_west", 1, 3, -1.6, -36.5, "entrance", "Главный вход (Корпус 3 / Западный)");
         g.addNode("b3_f1_vest_north", 1, 3, 5.9, -56.2, "corridor", "Тамбур К3 Эт.1");
         g.addNode("b3_f1_door_vest_south", 1, 3, 5.9, -55, "door", "Дверь тамбура К3 Эт.1");
         g.addNode("b3_f1_d_corr_east_exit", 1, 3, 7.2, -29.1, "door", "Дверь к восточному выходу");
@@ -1014,7 +1014,10 @@
         g.addNode("door_mid_room_1_1_7", 1, 1, 5.6, -4, "door", "Дверь 103");
         g.addNode("door_room_room_1_1_7", 1, 1, 5.6, -3.6, "door", "Вход 103");
         g.addNode("door_corr_room_1_1_7", 1, 1, 5.6, -4.4, "door", "Коридор 103");
-        g.addNode("room_1_1_8", 1, 1, 1.8, 1.8, "room", "103");
+        g.addNode("room_1_1_8", 1, 1, 1.8, 1.8, "room", "103 (Холл)");
+        g.addNode("door_room_room_1_1_8", 1, 1, -0.8, 1.7, "door", "Вход Холл 103");
+        g.addNode("door_mid_room_1_1_8", 1, 1, -1.2, 1.7, "door", "Дверь Холл 103");
+        g.addNode("door_corr_room_1_1_8", 1, 1, -1.6, 1.7, "door", "Коридор Холл 103");
         g.addNode("room_1_1_9", 1, 1, 3.7, 6.7, "room", "101");
         g.addNode("door_mid_room_1_1_9", 1, 1, 2.6, 8.6, "door", "Дверь 101");
         g.addNode("door_room_room_1_1_9", 1, 1, 2.6, 8.2, "door", "Вход 101");
@@ -1107,7 +1110,7 @@
         g.addNode("room_3_1_152", 1, 3, 3, -38, "room", "109");
         g.addNode("room_3_1_153", 1, 3, -0.4, -38.7, "room", "108");
         g.addNode("door_room_room_3_1_153", 1, 3, -0.3, -37.8, "door", "Дверь 108");
-        g.addNode("b3_f1_tambur_108", 1, 3, -0.4, -37.1, "corridor", "Тамбур входа К3");
+        g.addNode("b3_f1_tambur_108", 1, 3, -0.4, -36.5, "corridor", "Тамбур входа К3");
         g.addNode("b3_f1_door_tambur_108", 1, 3, 0.4, -36.4, "door", "Дверь тамбура К3");
         g.addNode("b3_f1_exit_east_inner", 1, 3, 9.4, -28.6, "corridor", "Проход к выходу К3");
         g.addNode("b3_f1_exit_east_door", 1, 3, 13.8, -28.6, "door", "Выход К3 во двор");
@@ -1163,7 +1166,10 @@
         g.addNode("custom_b1_f1_c_58_-72_tpz", 1, 1, 5.8, -7.2, "corridor", "Коридор (5.8, -7.2)");
         g.addNode("custom_b1_f1_c_58_-101_wov", 1, 1, 5.8, -10.1, "corridor", "Коридор (5.8, -10.1)");
         g.addNode("custom_b2_f1_c_500_-59_9s1", 1, 2, 50, -5.9, "corridor", "Коридор (50, -5.9)");
-        g.addNode("outdoor_node_86645", 1, 0, 21.3, -45.3, "corridor", "Улица");
+        // Семантический узел северной части внутреннего проезда между К3 и К4
+        g.addNode("outdoor_court_north", 1, 0, 21.3, -45.3, "corridor", "Внутренний проезд (север)");
+        g.addNode("outdoor_node_86645", 1, 0, 21.3, -45.3, "corridor", "Внутренний проезд (север)");
+        g.addEdge("outdoor_court_north", "outdoor_node_86645", 0.0);
         g.addNode("outdoor_node_90724", 1, 0, 21.6, -19.6, "corridor", "Улица");
         g.addNode("outdoor_node_78", 1, 0, 43.8, -19.4, "corridor", "Улица");
         g.addNode("outdoor_node_52241", 1, 0, 43.8, -32.1, "corridor", "Улица");
@@ -1221,7 +1227,7 @@
         g.addNode("door_room_4_1_190", 1, 4, 42.6, -47.65, "door", "Дверь 11");
         g.addNode("room_4_1_191", 1, 4, 42.1, -51.1, "room", "12");
         g.addNode("door_room_4_1_191", 1, 4, 41, -51.8, "door", "Дверь 12");
-        g.addNode("b4_f1_c401_500", 1, 4, 40.1, -50, "corridor", "Коридор у 4");
+        g.addNode("b4_f1_c401_500", 1, 4, 40.1, -50.0, "corridor", "Коридор у 4");
         g.addNode("b4_f1_c401_513", 1, 4, 40.1, -51.3, "corridor", "Коридор у 5");
         g.addNode("b4_f1_c401_518", 1, 4, 40.1, -51.8, "corridor", "Коридор у 12");
         g.addNode("b4_f1_c401_525", 1, 4, 40.1, -52.5, "corridor", "Коридор у 6");
@@ -1232,8 +1238,8 @@
         g.addNode("b4_f1_c416_561", 1, 4, 41.65, -56.15, "corridor", "Коридор у 9");
         g.addNode("b4_f1_c416_574", 1, 4, 41.65, -57.7, "corridor", "Коридор у 13");
         g.addNode("b4_f1_c416_578", 1, 4, 41.65, -57.8, "corridor", "Коридор у 10");
-        g.addNode("room_4_1_198", 1, 4, 37.4, -48, "room", "4");
-        g.addNode("door_room_4_1_198", 1, 4, 39.2, -50, "door", "Дверь 4");
+        g.addNode("room_4_1_198", 1, 4, 37.4, -48.0, "room", "4");
+        g.addNode("door_room_4_1_198", 1, 4, 39.2, -50.0, "door", "Дверь 4");
         g.addNode("room_4_1_199", 1, 4, 37.4, -51.3, "room", "5");
         g.addNode("door_room_4_1_199", 1, 4, 39.2, -51.3, "door", "Дверь 5");
         g.addNode("room_4_1_200", 1, 4, 37.4, -52.5, "room", "6");
@@ -1265,7 +1271,7 @@
         g.addNode("door_room_4_1_206_207", 1, 4, 50.3, -54.95, "door", "Проем 20-21");
         g.addNode("b4_f1_21_south", 1, 4, 51.3, -54.95, "corridor", "Юг 21");
         g.addNode("room_4_1_207", 1, 4, 51.3, -56.4, "room", "21");
-        g.addNode("door_room_4_1_207_24", 1, 4, 52.4, -57.2, "door", "Дверь 21-24");
+        g.addNode("door_room_4_1_207_24", 1, 4, 52.4, -57.8, "door", "Дверь 21-24");
         g.addNode("room_4_1_193", 1, 4, 46.9, -51.1, "room", "15");
         g.addNode("door_room_4_1_193", 1, 4, 47.2, -52.6, "door", "Дверь 15");
         g.addNode("room_4_1_194", 1, 4, 49.7, -51.1, "room", "16");
@@ -2196,6 +2202,10 @@
         g.addEdge("b1_f1_stair_lk2", "room_1_1_11", 0.2);
         g.addEdge("b1_f1_elev", "b1_f1_inner_door_lk2", 6.8);
         g.addEdge("b1_f1_elev", "room_1_1_8", 0.3);
+        g.addEdge("room_1_1_8", "door_room_room_1_1_8", 2.6);
+        g.addEdge("door_mid_room_1_1_8", "door_room_room_1_1_8", 0.4);
+        g.addEdge("door_mid_room_1_1_8", "door_corr_room_1_1_8", 0.4);
+        g.addEdge("b1_f1_wc_1.7", "door_corr_room_1_1_8", 1.4);
         g.addEdge("b1_f1_entrance_main", "b1_f1_porch_walk_1", 1.2);
         g.addEdge("b1_f1_porch_walk_1", "b1_f1_porch_doors", 0.9);
         g.addEdge("b1_f1_porch_doors", "b1_f1_vestibule", 2.4);
@@ -2391,9 +2401,9 @@
         g.addEdge("custom_b2_f1_c_570_-58_cc0", "custom_b2_f1_c_500_-59_9s1", 7);
         g.addEdge("custom_b1_f1_c_61_-132_nb8", "custom_b1_f1_c_58_-101_wov", 3.1);
         g.addEdge("custom_b1_f1_c_58_-72_tpz", "custom_b1_f1_c_58_-101_wov", 2.9);
-        g.addEdge("outdoor_node_86645", "outdoor_node_90724", 25.701750913118737);
-        g.addEdge("outdoor_node_86645", "outdoor_b4_porch_corner", 8.2);
-        g.addEdge("outdoor_node_86645", "outdoor_node_74046", 17.8);
+        g.addEdge("outdoor_court_north", "outdoor_node_90724", 25.701750913118737);
+        g.addEdge("outdoor_court_north", "outdoor_b4_porch_corner", 8.2);
+        g.addEdge("outdoor_court_north", "outdoor_node_74046", 17.8);
         g.addEdge("outdoor_node_90724", "outdoor_node_78", 22.200900882621855);
         g.addEdge("outdoor_node_90724", "outdoor_node_74046", 11);
         g.addEdge("outdoor_node_78", "outdoor_node_52241", 12.700000000000003);
@@ -2661,6 +2671,20 @@
         g.addEdge("b4_f2_stair_lk2", "b4_f3_stair_lk2", 5.5);
         g.addEdge("b4_f1_stair_lk3", "b4_f2_stair_lk3", 5.5);
         g.addEdge("b4_f2_stair_lk3", "b4_f3_stair_lk3", 5.5);
+        
+        // --- Гараж (хозяйственное строение, заезд с северного проезда) ---
+        // bldg: 5 — корректный идентификатор корпуса 5 (был bldg: 0, что делало
+        // узлы недостижимыми через findClosestNode при фильтрации по корпусу).
+        g.addNode("b5_f1_interior", 1, 5, 11.0, -68.7, "corridor", "Гараж");
+        g.addNode("b5_f1_gate", 1, 5, 14.0, -68.7, "door", "Въезд в гараж");
+        g.addNode("outdoor_b5_apron", 1, 5, 16.5, -68.7, "corridor", "Подъезд к гаражу");
+        g.addNode("outdoor_b5_junc", 1, 5, 19.0, -68.7, "corridor", "Проезд к гаражу");
+
+        g.addEdge("outdoor_court_north", "outdoor_b5_junc", 23.5);
+        g.addEdge("outdoor_b5_junc", "outdoor_b5_apron", 2.5);
+        g.addEdge("outdoor_b5_apron", "b5_f1_gate", 2.5);
+        g.addEdge("b5_f1_gate", "b5_f1_interior", 3.0);
+
         return g;
     }
 
@@ -2668,7 +2692,11 @@
 
 
     // ------------------------------------------------------------------------
-    // ПОИСК БЛИЖАЙШЕГО ТУАЛЕТА (С/У)
+    // ПОИСК БЛИЖАЙШЕГО ТУАЛЕТА (С/У) — ищем напрямую по узлам графа.
+    // Прежняя реализация генерировала ID через ROOMS_REGISTRY.indexOf(),
+    // что никогда не совпадало с именованными ID туалетных узлов в графе
+    // (например room_4_2_wc_north, b1_f1_wc_1.7 и т.д.).
+    // Теперь поиск ведётся непосредственно по g.nodes — ID гарантированно валиден для A*.
     // ------------------------------------------------------------------------
     function findClosestToilet(fromPoint) {
         if (!NAV_STATE.graph) NAV_STATE.graph = buildCollegeNavGraph();
@@ -2676,68 +2704,53 @@
 
         let startP = fromPoint;
         if (!startP) {
-            startP = g.getNode('b1_f1_entrance_main');
+            startP = g.getNode('b3_f1_entrance_west') || g.getNode('b1_f1_entrance_main');
         }
         if (!startP) return null;
 
         const startFloor = startP.floor || 1;
-        const startBldg = startP.building || startP.bldg || 1;
+        const startBldg = startP.bldg || startP.building || 1;
         const startX = startP.x !== undefined ? startP.x : 10.5;
         const startZ = startP.z !== undefined ? startP.z : 10.4;
 
-        if (typeof ROOMS_REGISTRY === 'undefined' || !Array.isArray(ROOMS_REGISTRY)) {
-            return null;
-        }
-
-        const toilets = ROOMS_REGISTRY.filter(r => {
-            const t = (r.text || '').trim();
-            const raw = (r.rawText || '').trim();
-            return t === 'С/У' || raw === 'С/У' || t === '\u0421/\u0423' || t.toLowerCase().includes('туалет') || t.toLowerCase().includes('санузел');
-        });
-
-        if (toilets.length === 0) return null;
-
-        let bestToilet = null;
+        // Собираем туалетные узлы прямо из графа — их ID валидны для A*.
+        // Узел считается туалетом, если его ID содержит '_wc_', тип 'wc',
+        // или label === 'С/У' / 'С/У'.
+        let bestNode = null;
         let bestScore = Infinity;
 
-        for (let i = 0; i < toilets.length; i++) {
-            const t = toilets[i];
-            const floorDiff = Math.abs(t.floor - startFloor);
-            const bldgDiff = (t.building === startBldg) ? 0 : 1;
-            const geomDist = Math.hypot(t.x - startX, t.z - startZ);
+        for (const [nid, node] of g.nodes.entries()) {
+            const lbl = (node.label || '').trim();
+            const isWC = node.type === 'wc'
+                || nid.includes('_wc_')
+                || lbl === 'С/У'
+                || lbl === '\u0421/\u0423'
+                || lbl.toLowerCase().includes('туалет')
+                || lbl.toLowerCase().includes('санузел');
+            if (!isWC) continue;
+
+            const floorDiff = Math.abs(node.floor - startFloor);
+            const bldgDiff = (node.bldg === startBldg) ? 0 : 1;
+            const geomDist = Math.hypot(node.x - startX, node.z - startZ);
             // Штраф за смену этажа (20м) и переход в другой корпус (35м)
             const score = geomDist + floorDiff * 20.0 + bldgDiff * 35.0;
             if (score < bestScore) {
                 bestScore = score;
-                bestToilet = t;
+                bestNode = node;
             }
         }
 
-        if (!bestToilet) return null;
-
-        const tIdx = ROOMS_REGISTRY.indexOf(bestToilet);
-        const toiletNodeId = `room_${bestToilet.building}_${bestToilet.floor}_${tIdx}`;
-        const toiletNode = g.getNode(toiletNodeId);
-
-        return toiletNode || {
-            id: toiletNodeId,
-            label: `С/У (Корпус ${bestToilet.building}, ${bestToilet.floor} этаж)`,
-            floor: bestToilet.floor,
-            bldg: bestToilet.building,
-            x: bestToilet.x,
-            z: bestToilet.z,
-            type: 'room'
-        };
+        return bestNode;
     }
 
     function setDefaultStartPoint() {
         if (!NAV_STATE.graph) NAV_STATE.graph = buildCollegeNavGraph();
-        const entrance = NAV_STATE.graph.getNode('b1_f1_entrance_main');
+        const entrance = NAV_STATE.graph.getNode('b3_f1_entrance_west') || NAV_STATE.graph.getNode('b1_f1_entrance_main');
         if (entrance && !NAV_STATE.startPoint) {
             NAV_STATE.startPoint = entrance;
             const inputA = document.getElementById('nav-input-start');
             if (inputA && !inputA.value) {
-                inputA.value = 'Главный вход (Корпус 1)';
+                inputA.value = 'Главный вход (Корпус 3 / Западный)';
                 inputA.setAttribute('data-is-default', 'true');
                 const btnClearA = document.getElementById('btn-clear-start');
                 if (btnClearA) btnClearA.classList.remove('hidden');
@@ -2967,13 +2980,13 @@
         function disposeHierarchy(root) {
             if (!root) return;
             root.traverse((child) => {
-                if (child.geometry) {
+                if (child.geometry && typeof child.geometry.dispose === 'function') {
                     child.geometry.dispose();
                 }
                 if (child.material) {
                     if (Array.isArray(child.material)) {
-                        child.material.forEach(m => m && m.dispose && m.dispose());
-                    } else if (child.material.dispose) {
+                        child.material.forEach(m => m && typeof m.dispose === 'function' && m.dispose());
+                    } else if (typeof child.material.dispose === 'function') {
                         child.material.dispose();
                     }
                 }
@@ -3004,6 +3017,7 @@
         }
 
         NAV_STATE.activeRoute = null;
+        _badgeWidthCache.clear();
         if (typeof requestRender === 'function') requestRender(20);
     }
 
@@ -3390,6 +3404,8 @@
 
     // ------------------------------------------------------------------------
     // АНИМАЦИЯ ПУЛЬСАЦИИ И ИМПУЛЬСОВ МАРШРУТА
+    // Кэшируем pulsing-объекты при построении маршрута, чтобы не делать traverse
+    // на 60 кадрах в секунду по всему дереву сцены.
     // ------------------------------------------------------------------------
     function updateNavigatorAnimation(delta) {
         if (!NAV_STATE.activeRoute) return;
@@ -3398,6 +3414,27 @@
         const scalePulse = 1.0 + Math.sin(NAV_STATE.animationTime * 4.0) * 0.12;
         const opacityPulse = 0.75 + Math.sin(NAV_STATE.animationTime * 4.0) * 0.25;
 
+        // Если pulsing-маркеры закэшированы при создании — используем кэш.
+        if (NAV_STATE._pulsingObjects && NAV_STATE._pulsingObjects.length > 0) {
+            for (let i = 0; i < NAV_STATE._pulsingObjects.length; i++) {
+                const child = NAV_STATE._pulsingObjects[i];
+                // Пропускаем объекты из невидимых групп
+                const fg = child.parent;
+                if (!fg || !fg.visible) continue;
+                if (child.userData.ring) {
+                    child.userData.ring.scale.set(scalePulse, scalePulse, scalePulse);
+                    if (child.userData.ring.material) {
+                        child.userData.ring.material.opacity = opacityPulse;
+                    }
+                }
+                if (child.userData.disk && child.userData.disk.material) {
+                    child.userData.disk.material.opacity = 0.25 + opacityPulse * 0.2;
+                }
+            }
+            return;
+        }
+
+        // Fallback: traverse если кэш не заполнен (обратная совместимость).
         for (let f = 1; f <= 7; f++) {
             const rGroup = NAV_STATE.routeFloorGroups[f];
             if (!rGroup || !rGroup.visible) continue;
@@ -3423,6 +3460,7 @@
     // ------------------------------------------------------------------------
     const _tempVec = new THREE.Vector3();
     let renderedStairBadges = [];
+    const _badgeWidthCache = new Map();
 
     function checkStairBadgeClick(clientX, clientY) {
         if (!renderedStairBadges || renderedStairBadges.length === 0) return false;
@@ -3474,7 +3512,11 @@
 
             ctx.save();
             ctx.font = 'bold 12px Inter, sans-serif';
-            const textWidth = ctx.measureText(label).width;
+            let textWidth = _badgeWidthCache.get(label);
+            if (textWidth === undefined) {
+                textWidth = ctx.measureText(label).width;
+                _badgeWidthCache.set(label, textWidth);
+            }
             const bWidth = textWidth + 28;
             const bHeight = 26;
             const bx = sx - bWidth / 2;
@@ -3729,8 +3771,11 @@
         const camZOffset = (STATE && STATE.is2D) ? 14 : 30;
         const camXOffset = (STATE && STATE.is2D) ? 0 : -14;
 
-        STATE.targetControlsCenter = new THREE.Vector3(node.x, 0, node.z);
-        STATE.targetCamPos = new THREE.Vector3(node.x + camXOffset, targetY, node.z + camZOffset);
+        if (!STATE.targetControlsCenter) STATE.targetControlsCenter = new THREE.Vector3();
+        STATE.targetControlsCenter.set(node.x, 0, node.z);
+
+        if (!STATE.targetCamPos) STATE.targetCamPos = new THREE.Vector3();
+        STATE.targetCamPos.set(node.x + camXOffset, targetY, node.z + camZOffset);
 
         if (typeof requestRender === 'function') requestRender(45);
     }
@@ -4173,12 +4218,85 @@
     }
 
     // ------------------------------------------------------------------------
+    // СЛОВАРЬ ПСЕВДОНИМОВ КАБИНЕТОВ ДЛЯ ПОИСКА НАВИГАТОРА
+    // Вынесен на уровень модуля: создаётся один раз, а не при каждом keystroke.
+    // ------------------------------------------------------------------------
+    const ROOM_ALIASES = {
+        'b3_f1_entrance_west': 'главный вход основной вход западный вход вход к3 корпус 3',
+        'b1_f1_entrance_main': 'восточный вход главный вход 2 старый вход вход к1 корпус 1 ремонт',
+        'room_4_1_182': '104 4-104 гардероб раздевалка',
+        'room_4_1_183': '103 4-103 гардероб раздевалка',
+        'room_4_1_186': '1 4-1 туалет санузел',
+        'room_4_1_187': '2 4-2 туалет санузел',
+        'room_4_1_188': '105 4-105 инвентарная',
+        'room_4_1_189': '3 4-3',
+        'room_4_1_190': '11 4-11 охлаждаемая камера',
+        'room_4_1_191': '12 4-12 бельевая',
+        'room_4_1_192': '14 4-14 мойка столовой посуды',
+        'room_4_1_193': '15 4-15',
+        'room_4_1_194': '16 4-16',
+        'room_4_1_195': '17 4-17',
+        'room_4_1_196': '18 4-18 хлеборезка',
+        'room_4_1_197': '19 4-19 суточный запас продуктов',
+        'room_4_1_198': '4 4-4',
+        'room_4_1_199': '5 4-5',
+        'room_4_1_200': '6 4-6',
+        'room_4_1_201': '7 4-7',
+        'room_4_1_202': '8 4-8',
+        'room_4_1_203': '9 4-9',
+        'room_4_1_204': '10 4-10',
+        'room_4_1_205': '13 4-13 камера отходов',
+        'room_4_1_206': '20 4-20 кладовая сухих продуктов',
+        'room_4_1_207': '21 4-21 овощной цех',
+        'room_4_1_208': '24 4-24 горячий цех кухня',
+        'room_4_1_209': '22 4-22 мясо-рыбный цех',
+        'room_4_1_210': '23 4-23 моечная посуды мойка',
+        'room_4_2_224': '201 4-201',
+        'room_4_2_223': '202 4-202',
+        'room_4_2_228': '203 4-203',
+        'room_4_2_222': '205 4-205 раздевалка',
+        'room_4_2_225': '207 4-207 тренерская снарядная',
+        'room_4_2_226': '208 4-208',
+        'room_4_2_227': '209 4-209 раздевалка',
+        'room_4_2_218': '210 4-210',
+        'room_4_2_219': '211 4-211 служебное помещение',
+        'room_4_2_220': '212 4-212',
+        'room_4_3_237': '301 4-301',
+        'room_4_3_238': '302 4-302',
+        'room_4_3_239': '303 4-303',
+        'room_4_3_247': '304 4-304',
+        'room_4_3_240': '305 4-305',
+        'room_4_3_246': '306 4-306',
+        'room_4_3_248': '308 4-308',
+        'room_4_3_249': '309 4-309',
+        'room_4_3_243': '310 4-310',
+        'room_4_3_242': '311 4-311',
+        'room_4_3_241': '312 4-312',
+        'room_4_1_184': '102 4-102 столовая буфет обед',
+        'room_1_1_0': '102 1-102 гардероб раздевалка одежда',
+        'room_2_1_103': '104 2-104 библиотека книги читальный зал',
+        'room_4_2_230': '204 4-204 актовый зал сцена',
+        'room_4_2_211': '206 4-206 спортзал спортивный зал спорт',
+        'room_2_3_135': '308 2-308 спортзал спортивный зал спорт',
+        'room_2_3_136': '312 2-312 конференц-зал конференц зал собрания'
+    };
+
+    // ------------------------------------------------------------------------
     // АВТОЗАПОЛНЕНИЕ И ПОИСК КАБИНЕТОВ В ПОЛЯХ НАВИГАТОРА
     // ------------------------------------------------------------------------
     function setupNavigatorAutocomplete(inputId, dropdownId, onSelect) {
         const input = document.getElementById(inputId);
         const dropdown = document.getElementById(dropdownId);
         if (!input || !dropdown) return;
+
+        // AbortController позволяет атомарно снять все listener'ы этого instance
+        // при повторном вызове setupNavigatorAutocomplete (или при уничтожении модала).
+        const ac = new AbortController();
+        const { signal } = ac;
+
+        // Сохраняем контроллер на DOM-элементе, чтобы внешний код мог вызвать cleanup.
+        if (input._navAutocompletAC) input._navAutocompletAC.abort();
+        input._navAutocompletAC = ac;
 
         input.addEventListener('input', () => {
             if (inputId === 'nav-input-start' && input.getAttribute('data-is-default') === 'true') {
@@ -4202,64 +4320,7 @@
             if (!NAV_STATE.graph) NAV_STATE.graph = buildCollegeNavGraph();
             const g = NAV_STATE.graph;
 
-            const ROOM_ALIASES = {
-                'room_4_1_182': '104 4-104 гардероб раздевалка',
-                'room_4_1_183': '103 4-103 гардероб раздевалка',
-                'room_4_1_186': '1 4-1 туалет санузел',
-                'room_4_1_187': '2 4-2 туалет санузел',
-                'room_4_1_188': '105 4-105 инвентарная',
-                'room_4_1_189': '3 4-3',
-                'room_4_1_190': '11 4-11 охлаждаемая камера',
-                'room_4_1_191': '12 4-12 бельевая',
-                'room_4_1_192': '14 4-14 мойка столовой посуды',
-                'room_4_1_193': '15 4-15',
-                'room_4_1_194': '16 4-16',
-                'room_4_1_195': '17 4-17',
-                'room_4_1_196': '18 4-18 хлеборезка',
-                'room_4_1_197': '19 4-19 суточный запас продуктов',
-                'room_4_1_198': '4 4-4',
-                'room_4_1_199': '5 4-5',
-                'room_4_1_200': '6 4-6',
-                'room_4_1_201': '7 4-7',
-                'room_4_1_202': '8 4-8',
-                'room_4_1_203': '9 4-9',
-                'room_4_1_204': '10 4-10',
-                'room_4_1_205': '13 4-13 камера отходов',
-                'room_4_1_206': '20 4-20 кладовая сухих продуктов',
-                'room_4_1_207': '21 4-21 овощной цех',
-                'room_4_1_208': '24 4-24 горячий цех кухня',
-                'room_4_1_209': '22 4-22 мясо-рыбный цех',
-                'room_4_1_210': '23 4-23 моечная посуды мойка',
-                'room_4_2_224': '201 4-201',
-                'room_4_2_223': '202 4-202',
-                'room_4_2_228': '203 4-203',
-                'room_4_2_222': '205 4-205 раздевалка',
-                'room_4_2_225': '207 4-207 тренерская снарядная',
-                'room_4_2_226': '208 4-208',
-                'room_4_2_227': '209 4-209 раздевалка',
-                'room_4_2_218': '210 4-210',
-                'room_4_2_219': '211 4-211 служебное помещение',
-                'room_4_2_220': '212 4-212',
-                'room_4_3_237': '301 4-301',
-                'room_4_3_238': '302 4-302',
-                'room_4_3_239': '303 4-303',
-                'room_4_3_247': '304 4-304',
-                'room_4_3_240': '305 4-305',
-                'room_4_3_246': '306 4-306',
-                'room_4_3_248': '308 4-308',
-                'room_4_3_249': '309 4-309',
-                'room_4_3_243': '310 4-310',
-                'room_4_3_242': '311 4-311',
-                'room_4_3_241': '312 4-312',
-
-                'room_4_1_184': '102 4-102 столовая буфет обед',
-                'room_1_1_0': '102 1-102 гардероб раздевалка одежда',
-                'room_2_1_103': '104 2-104 библиотека книги читальный зал',
-                'room_4_2_230': '204 4-204 актовый зал сцена',
-                'room_4_2_211': '206 4-206 спортзал спортивный зал спорт',
-                'room_2_3_135': '308 2-308 спортзал спортивный зал спорт',
-                'room_2_3_136': '312 2-312 конференц-зал конференц зал собрания'
-            };
+            // ROOM_ALIASES определён на уровне модуля — не пересоздаём при каждом keystroke.
 
             const matches = [];
             for (const [nid, n] of g.nodes.entries()) {
@@ -4304,6 +4365,13 @@
             }
 
             dropdown.innerHTML = '';
+            matches.sort((a, b) => {
+                if (query === 'главный вход') {
+                    if (a.id === 'b3_f1_entrance_west') return -1;
+                    if (b.id === 'b3_f1_entrance_west') return 1;
+                }
+                return 0;
+            });
             matches.forEach((item, index) => {
                 let codeLabel = formatNavNodeName(item.label, item.bldg);
                 let displayTitle = item.label;
@@ -4384,9 +4452,10 @@
             });
 
             dropdown.classList.remove('hidden');
-        });
+        }, { signal });
 
         // Клавиша Enter выбирает первый активный элемент из подсказок
+        // { signal } обеспечивает автоматическое снятие listener при вызове ac.abort()
         input.addEventListener('keydown', (e) => {
             if (e.key === 'Enter' && !dropdown.classList.contains('hidden')) {
                 const firstRow = dropdown.querySelector('.m3-search-row');
@@ -4395,14 +4464,15 @@
                     firstRow._onItemClick();
                 }
             }
-        });
+        }, { signal });
 
-        // Закрытие выпадающего списка при клике вне
+        // Закрытие выпадающего списка при клике вне.
+        // { signal } обеспечивает автоматическое снятие listener при вызове ac.abort().
         document.addEventListener('click', (e) => {
             if (!input.contains(e.target) && !dropdown.contains(e.target)) {
                 dropdown.classList.add('hidden');
             }
-        });
+        }, { signal });
     }
 
     // ------------------------------------------------------------------------
@@ -4410,7 +4480,9 @@
     // ------------------------------------------------------------------------
     function initNavigator() {
         if (NAV_STATE.isInitialized) return;
-        NAV_STATE.graph = buildCollegeNavGraph();
+        if (!NAV_STATE.graph) {
+            NAV_STATE.graph = buildCollegeNavGraph();
+        }
         NAV_STATE.isInitialized = true;
 
         // Google Maps: начальная установка точки отправления
@@ -4667,19 +4739,27 @@
 
                 // Находим целевой узел
                 const g = NAV_STATE.graph;
-                const q = targetText.toLowerCase();
+                const q = targetText.toLowerCase().trim();
                 let targetNode = null;
-                for (const node of g.nodes.values()) {
-                    if (node.type === 'room' || node.type === 'entrance') {
-                        const lbl = (node.label || '').toLowerCase();
-                        const isMatch = lbl.includes(q) ||
-                            (q === 'столовая' && ((node.bldg === 4 && node.floor === 1 && lbl.includes('102')) || lbl.includes('столов'))) ||
-                            (q === 'спортзал' && ((node.bldg === 4 && node.floor === 2 && lbl.includes('206')) || lbl.includes('спортзал'))) ||
-                            (q === 'актовый зал' && ((node.bldg === 4 && node.floor === 2 && lbl.includes('204')) || lbl.includes('актовый'))) ||
-                            (q === 'главный вход' && node.id === 'b1_f1_entrance_main');
-                        if (isMatch) {
-                            targetNode = node;
-                            break;
+
+                // Точное соответствие для главного входа (Корпус 3) и входа 2 (Корпус 1)
+                if (q === 'главный вход' || q === 'западный вход' || q === 'основной вход' || q === 'вход') {
+                    targetNode = g.getNode('b3_f1_entrance_west');
+                } else if (q === 'восточный вход' || q === 'главный вход 2' || q === 'старый вход' || q === 'вход к1' || q === 'ремонт') {
+                    targetNode = g.getNode('b1_f1_entrance_main');
+                } else {
+                    for (const node of g.nodes.values()) {
+                        if (node.type === 'room' || node.type === 'entrance') {
+                            const lbl = (node.label || '').toLowerCase();
+                            const isMatch =
+                                (q === 'столовая' && ((node.bldg === 4 && node.floor === 1 && lbl.includes('102')) || lbl.includes('столов'))) ||
+                                (q === 'спортзал' && ((node.bldg === 4 && node.floor === 2 && lbl.includes('206')) || lbl.includes('спортзал'))) ||
+                                (q === 'актовый зал' && ((node.bldg === 4 && node.floor === 2 && lbl.includes('204')) || lbl.includes('актовый'))) ||
+                                (lbl.includes(q) && !(q === 'главный вход' && node.id === 'b1_f1_entrance_main'));
+                            if (isMatch) {
+                                targetNode = node;
+                                break;
+                            }
                         }
                     }
                 }
@@ -4690,11 +4770,11 @@
 
                     // Если точка отправления не выбрана, ставим Главный вход
                     if (!NAV_STATE.startPoint) {
-                        const mainEntrance = g.getNode('b1_f1_entrance_main');
+                        const mainEntrance = g.getNode('b3_f1_entrance_west') || g.getNode('b1_f1_entrance_main');
                         if (mainEntrance) {
                             NAV_STATE.startPoint = mainEntrance;
                             const inputA = document.getElementById('nav-input-start');
-                            if (inputA) inputA.value = 'Главный вход (Корпус 1)';
+                            if (inputA) inputA.value = 'Главный вход (Корпус 3 / Западный)';
                         }
                     }
 
@@ -4736,26 +4816,39 @@
                         let toNode = null;
 
                         if (urlFrom) {
-                            for (const n of g.nodes.values()) {
-                                if ((n.type === 'room' || n.type === 'entrance') && n.label.toLowerCase().includes(urlFrom.toLowerCase())) {
-                                    fromNode = n;
-                                    break;
+                            const q = urlFrom.toLowerCase().trim();
+                            if (q === 'главный вход' || q === 'западный вход' || q === 'основной вход' || q === 'вход') {
+                                fromNode = g.getNode('b3_f1_entrance_west');
+                            } else if (q === 'восточный вход' || q === 'главный вход 2' || q === 'старый вход' || q === 'вход к1' || q === 'ремонт') {
+                                fromNode = g.getNode('b1_f1_entrance_main');
+                            } else {
+                                for (const n of g.nodes.values()) {
+                                    if ((n.type === 'room' || n.type === 'entrance') && n.label.toLowerCase().includes(q)) {
+                                        fromNode = n;
+                                        break;
+                                    }
                                 }
                             }
                         }
                         if (urlTo) {
-                            for (const n of g.nodes.values()) {
-                                if ((n.type === 'room' || n.type === 'entrance') && n.label.toLowerCase().includes(urlTo.toLowerCase())) {
-                                    toNode = n;
-                                    break;
+                            const q = urlTo.toLowerCase().trim();
+                            if (q === 'главный вход' || q === 'западный вход' || q === 'основной вход' || q === 'вход') {
+                                toNode = g.getNode('b3_f1_entrance_west');
+                            } else if (q === 'восточный вход' || q === 'главный вход 2' || q === 'старый вход' || q === 'вход к1' || q === 'ремонт') {
+                                toNode = g.getNode('b1_f1_entrance_main');
+                            } else {
+                                for (const n of g.nodes.values()) {
+                                    if ((n.type === 'room' || n.type === 'entrance') && n.label.toLowerCase().includes(q)) {
+                                        toNode = n;
+                                        break;
+                                    }
                                 }
                             }
                         }
-
                         if (fromNode && toNode) {
                             buildRoute(fromNode, toNode);
                         } else if (toNode) {
-                            const entrance = g.getNode('b1_f1_entrance_main');
+                            const entrance = g.getNode('b3_f1_entrance_west') || g.getNode('b1_f1_entrance_main');
                             if (entrance) buildRoute(entrance, toNode);
                         }
                     }, 500);

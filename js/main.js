@@ -83,10 +83,13 @@ function init() {
         bldg3FloorGroups[f].userData = { building: 3, floor: f };
         bldg4FloorGroups[f] = new THREE.Group();
         bldg4FloorGroups[f].userData = { building: 4, floor: f };
+        bldg5FloorGroups[f] = new THREE.Group();
+        bldg5FloorGroups[f].userData = { building: 5, floor: f };
         floorGroups[f].add(bldg1FloorGroups[f]);
         floorGroups[f].add(bldg2FloorGroups[f]);
         floorGroups[f].add(bldg3FloorGroups[f]);
         floorGroups[f].add(bldg4FloorGroups[f]);
+        floorGroups[f].add(bldg5FloorGroups[f]);
         scene.add(floorGroups[f]);
     }
     alignmentGuidesGroup = new THREE.Group();
@@ -123,6 +126,7 @@ function init() {
     buildBuilding4Floor1(bldg4FloorGroups[1]);
     buildBuilding4Floor2(bldg4FloorGroups[2]);
     buildBuilding4Floor3(bldg4FloorGroups[3]);
+    if (typeof buildBuilding5Floor1 === 'function') buildBuilding5Floor1(bldg5FloorGroups[1]);
 
     // Построение стен со сопряжением стыков (устранение взаимного проникновения)
     if (typeof flushAllPendingWalls === 'function') {
@@ -150,6 +154,9 @@ function init() {
     setupUI();
     try {
         const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.has('territory') && typeof setTerritoryMode === 'function') {
+            setTerritoryMode(urlParams.get('territory') !== '0', false);
+        }
         if (urlParams.has('floor') && typeof setMode === 'function') {
             setMode(urlParams.get('floor'), false);
         }
@@ -244,7 +251,9 @@ function init() {
                 });
             }
         }
-    } catch (e) {}
+    } catch (e) {
+        console.warn('[MGKCT] URL-параметры: ошибка разбора при инициализации:', e);
+    }
     if (typeof initNavigator === 'function') {
         initNavigator();
     }
@@ -266,6 +275,12 @@ function init() {
             renderScreenSpaceLabels();
         }
     }
+
+    // Отложенная загрузка детальных табличек расписаний в фоновом режиме (Zero main-thread blocking)
+    if (typeof loadTimetableTexturesAsync === 'function') {
+        loadTimetableTexturesAsync();
+    }
+
     animate();
 }
 
@@ -314,12 +329,9 @@ function updateStairValidationAxes() {
     }
 
     stairValidationItems.forEach(item => {
-        let visibleByBuilding =
-            (STATE.buildingFilter === 'both' ||
-            (STATE.buildingFilter === '1' && item.bldg === 1) ||
-            (STATE.buildingFilter === '2' && item.bldg === 2) ||
-            (STATE.buildingFilter === '3' && item.bldg === 3) ||
-            (STATE.buildingFilter === '4' && item.bldg === 4));
+        let visibleByBuilding = (typeof isBuildingVisible === 'function')
+            ? isBuildingVisible(item.bldg)
+            : (STATE.buildingFilter === 'both' || String(STATE.buildingFilter) === String(item.bldg));
 
         if (isSingleFloor) {
             if (item.maxFloor < selectedFloor) {
@@ -376,6 +388,9 @@ function buildRoofs() {
     addRoofRect(bldg3FloorGroups[2], B3_X_EAST, -47.6, 15.6, -44.0, 3);
 
     // Корпус 4: Кровля 3-го этажа + сквозные лестничные шахты + переходы 2-го этажа
+    if (typeof bldg5FloorGroups !== 'undefined' && bldg5FloorGroups[1]) {
+        addRoofRect(bldg5FloorGroups[1], -1.6, -71.5, 14.0, -66.0, 5);
+    }
     addRoofRect(bldg4FloorGroups[3], B4_X_WEST, B4_Z_NORTH, B4_X_EAST, B4_Z_SOUTH, 4);
     addRoofRect(bldg4FloorGroups[3], B4_LK2_X1, B4_LK2_Z1, B4_LK2_X2, B4_LK2_Z2, 4);
     addRoofRect(bldg4FloorGroups[3], B4_LK3_X1, B4_LK3_Z1, B4_LK3_X2, B4_LK3_Z2, 4);
@@ -461,12 +476,9 @@ function updateAlignmentGuides() {
     }
 
     guideLines.forEach(item => {
-        let visibleByBuilding =
-            (STATE.buildingFilter === 'both' ||
-            (STATE.buildingFilter === '1' && item.bldg === 1) ||
-            (STATE.buildingFilter === '2' && item.bldg === 2) ||
-            (STATE.buildingFilter === '3' && item.bldg === 3) ||
-            (STATE.buildingFilter === '4' && item.bldg === 4));
+        let visibleByBuilding = (typeof isBuildingVisible === 'function')
+            ? isBuildingVisible(item.bldg)
+            : (STATE.buildingFilter === 'both' || String(STATE.buildingFilter) === String(item.bldg));
 
         if (isSingleFloor) {
             if (item.maxFloor < selectedFloor) {
@@ -495,12 +507,11 @@ function updateAlignmentGuides() {
 
 function isPointInFloorFootprint(lx, lz, floorNum, bldId = null) {
     const m = 0.22;
-    const showB1 = STATE.buildingFilter === 'both' || STATE.buildingFilter === '1';
-    const showB2 = STATE.buildingFilter === 'both' || STATE.buildingFilter === '2';
-    const showB3 = STATE.buildingFilter === 'both' || STATE.buildingFilter === '3';
-    const showB4 = STATE.buildingFilter === 'both' || STATE.buildingFilter === '4';
+    const isVisible = (typeof isBuildingVisible === 'function')
+        ? isBuildingVisible
+        : (b) => (STATE.buildingFilter === 'both' || String(STATE.buildingFilter) === String(b));
 
-    if (showB1 && (!bldId || bldId === 1)) {
+    if (isVisible(1) && (!bldId || bldId === 1)) {
         if (lx >= -10.0 - m && lx <= 16.0 + m && lz >= -14.0 - m && lz <= -4.0 + m) return true;
         if (lx >= -14.0 - m && lx <= 16.0 + m && lz >= -4.0 - m && lz <= 4.0 + m) return true;
         if (lx >= -14.0 - m && lx <= 12.5 + m && lz >= 4.0 - m && lz <= 14.0 + m) return true;
@@ -509,16 +520,16 @@ function isPointInFloorFootprint(lx, lz, floorNum, bldId = null) {
         }
     }
 
-    if (showB2 && (!bldId || bldId === 2) && floorNum <= 3) {
+    if (isVisible(2) && (!bldId || bldId === 2) && floorNum <= 3) {
         if (lx >= B2_X_START - m && lx <= B2_X_END + m && lz >= B2_Z_TOP - m && lz <= B2_Z_BOT + m) return true;
     }
 
-    if (showB3 && (!bldId || bldId === 3) && floorNum <= 2) {
+    if (isVisible(3) && (!bldId || bldId === 3) && floorNum <= 2) {
         if (lx >= B3_X_WEST - m && lx <= B3_X_EAST + m && lz >= B3_Z_NORTH - m && lz <= B3_Z_SOUTH + m) return true;
         if (lx >= B3_X_EAST - m && lx <= 15.6 + m && lz >= -47.6 - m && lz <= -44.0 + m) return true;
     }
 
-    if (showB4 && (!bldId || bldId === 4) && floorNum <= 3) {
+    if (isVisible(4) && (!bldId || bldId === 4) && floorNum <= 3) {
         if (floorNum === 3) {
             // На 3-м этаже Корпуса 4 зоны Второго Света (над спортзалом и актовым залом) являются сквозными проемами (нет перекрытия)
             const inGymVoid = (lx >= B4_X_WEST - m && lx <= B4_X_EAST + m && lz >= B4_Z_NORTH - m && lz <= B4_Z_MID_N + m);
@@ -562,6 +573,9 @@ function isLabelOccludedByUpperSlabs(labelItem, floorNum = null, bldId = null) {
     const camPos = camera.position;
     const dy = _tempLabelWorldPos.y - camPos.y;
 
+    // Если камера и метка на одной высоте — луч горизонтален, перекрытия нет.
+    if (Math.abs(dy) < 1e-6) return false;
+
     for (let u = f + 1; u <= 7; u++) {
         const ug = floorGroups[u];
         if (!ug || !ug.visible) continue;
@@ -602,37 +616,32 @@ function updateLabelsVisibility() {
 // ==========================================
 function updateEdgesVisibility() {
     const hideSharedBoundary = (STATE.buildingFilter === 'both');
-    wallEdges.forEach(line => {
-        if (line) {
-            if (line.userData && line.userData.sharedBoundaryWith !== undefined && hideSharedBoundary) {
-                line.visible = false;
-            } else if (line.userData && line.userData.isColumn && STATE.is2D) {
-                line.visible = false;
-            } else {
-                line.visible = STATE.showEdges;
-            }
+
+    // Используем Set для O(1) проверки — traverse не обрабатывает то, что уже обработано.
+    const handled = new Set();
+
+    function applyEdgeVisibility(line) {
+        if (!line) return;
+        handled.add(line);
+        if (line.userData && line.userData.sharedBoundaryWith !== undefined && hideSharedBoundary) {
+            line.visible = false;
+        } else if (line.userData && line.userData.isColumn && STATE.is2D) {
+            line.visible = false;
+        } else {
+            line.visible = STATE.showEdges;
         }
-    });
-    doorEdges.forEach(line => {
-        if (line) {
-            if (line.userData && line.userData.sharedBoundaryWith !== undefined && hideSharedBoundary) {
-                line.visible = false;
-            } else {
-                line.visible = STATE.showEdges;
-            }
-        }
-    });
+    }
+
+    wallEdges.forEach(applyEdgeVisibility);
+    doorEdges.forEach(applyEdgeVisibility);
+
+    // Второй проход ловит LineSegments-объекты, не попавшие в wallEdges/doorEdges
+    // (вспомогательные линии, оси, направляющие внутри floorGroups).
     for (let f = 1; f <= 7; f++) {
         if (floorGroups[f]) {
             floorGroups[f].traverse(child => {
-                if (child.isLineSegments) {
-                    if (child.userData && child.userData.sharedBoundaryWith !== undefined && hideSharedBoundary) {
-                        child.visible = false;
-                    } else if (child.userData && child.userData.isColumn && STATE.is2D) {
-                        child.visible = false;
-                    } else {
-                        child.visible = STATE.showEdges;
-                    }
+                if (child.isLineSegments && !handled.has(child)) {
+                    applyEdgeVisibility(child);
                 }
             });
         }
@@ -736,16 +745,18 @@ function updateFloorsInteriorVisibility() {
 
 function recalcTargetPositions() {
     const stepH = STATE.wallHeight + 0.25 + (STATE.exploded ? STATE.explodeGap : 0);
-    const showB1 = STATE.buildingFilter === 'both' || STATE.buildingFilter === '1';
-    const showB2 = STATE.buildingFilter === 'both' || STATE.buildingFilter === '2';
-    const showB3 = STATE.buildingFilter === 'both' || STATE.buildingFilter === '3';
-    const showB4 = STATE.buildingFilter === 'both' || STATE.buildingFilter === '4';
+    const isVisible = (typeof isBuildingVisible === 'function')
+        ? isBuildingVisible
+        : (b) => (STATE.buildingFilter === 'both' || String(STATE.buildingFilter) === String(b));
 
     for (let f = 1; f <= 7; f++) {
-        bldg1FloorGroups[f].visible = showB1;
-        bldg2FloorGroups[f].visible = showB2 && (f <= 3);
-        bldg3FloorGroups[f].visible = showB3 && (f <= 2);
-        bldg4FloorGroups[f].visible = showB4 && (f <= 3);
+        bldg1FloorGroups[f].visible = isVisible(1);
+        bldg2FloorGroups[f].visible = isVisible(2) && (f <= 3);
+        bldg3FloorGroups[f].visible = isVisible(3) && (f <= 2);
+        bldg4FloorGroups[f].visible = isVisible(4) && (f <= 3);
+        if (typeof bldg5FloorGroups !== 'undefined' && bldg5FloorGroups[f]) {
+            bldg5FloorGroups[f].visible = isVisible(5) && (f <= 1);
+        }
     }
 
     if (STATE.mode === 'all' || STATE.mode === 'slice') {
@@ -774,6 +785,16 @@ function recalcTargetPositions() {
                 floorGroups[f].position.set(0, 0, 0);
             }
         }
+    }
+
+    // Синхронизируем высотную отметку прилегающей территории и дорог (этажи парят в небе на естественной высоте)
+    const isSingleFloorMode = (STATE.mode !== 'all' && STATE.mode !== 'slice' && STATE.mode !== 'sideBySide');
+    const groundElevationY = isSingleFloorMode ? -((parseInt(STATE.mode, 10) || 1) - 1) * BASE_FLOOR_STEP : 0;
+    if (typeof territoryGroup !== 'undefined' && territoryGroup) {
+        territoryGroup.position.y = groundElevationY;
+    }
+    if (typeof roadNetworkGroup !== 'undefined' && roadNetworkGroup) {
+        roadNetworkGroup.position.y = groundElevationY;
     }
 
     // Применяем умную оптимизацию видимости внутренностей
@@ -1031,7 +1052,9 @@ function animate(currentTime = 0) {
         if (STATE.showStairAxes && isFloorsMoving) {
             updateStairValidationAxes();
         }
-        if (typeof updateAdaptiveLabelScaling === 'function') {
+        // updateAdaptiveLabelScaling зависит от расстояния камеры.
+        // Вызываем только если камера или этажи движутся — экономим ~20 вызовов/сек в idle.
+        if (typeof updateAdaptiveLabelScaling === 'function' && (isCamMoving || isFloorsMoving)) {
             updateAdaptiveLabelScaling();
         }
     }

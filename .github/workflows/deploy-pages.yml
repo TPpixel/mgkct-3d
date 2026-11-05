@@ -1,0 +1,60 @@
+name: Deploy GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+      - dev
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: 'pages'
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout production (main)
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          path: prod
+
+      - name: Checkout development (dev)
+        uses: actions/checkout@v4
+        with:
+          ref: dev
+          path: dev_branch
+
+      - name: Assemble deployment artifacts
+        run: |
+          mkdir -p site
+          # Копируем продакшн (main) в корень сайта
+          cp -r prod/* site/
+          touch site/.nojekyll
+
+          # Копируем dev-версию в поддиректорию /dev/
+          mkdir -p site/dev
+          cp -r dev_branch/* site/dev/
+          touch site/dev/.nojekyll
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
