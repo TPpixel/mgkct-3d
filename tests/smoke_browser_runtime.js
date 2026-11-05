@@ -103,13 +103,11 @@ async function runSmokeTest() {
     const serverPort = server.address().port;
     console.log(`[SERVER] Ephemeral static server listening on http://127.0.0.1:${serverPort}`);
 
-    // Dynamic debug port
-    const debugPort = serverPort + 100;
     const tempUserDataDir = path.join(require('os').tmpdir(), `mgkct_smoke_${Date.now()}`);
 
     const browserArgs = [
         '--headless=new',
-        `--remote-debugging-port=${debugPort}`,
+        '--remote-debugging-port=0',
         '--remote-debugging-address=127.0.0.1',
         `--user-data-dir=${tempUserDataDir}`,
         '--no-first-run',
@@ -129,20 +127,28 @@ async function runSmokeTest() {
     ];
 
     const browserLogs = [];
+    let detectedPort = null;
+    let portResolve = null;
+    const portPromise = new Promise(resolve => { portResolve = resolve; });
+
     const browserProc = spawn(browserBin, browserArgs, { stdio: ['ignore', 'pipe', 'pipe'] });
-    browserProc.stderr.on('data', (d) => {
-        const s = d.toString().trim();
-        if (s && !s.includes('DevTools listening on')) {
-            // keep debug info if failure occurs
-            browserLogs.push(s);
+    console.log(`[BROWSER] Headless process spawned (PID=${browserProc.pid})`);
+
+    browserProc.stderr.on('data', (chunk) => {
+        const text = chunk.toString();
+        const match = text.match(/DevTools listening on ws:\/\/(?:127\.0\.0\.1|localhost):(\d+)\//);
+        if (match && !detectedPort) {
+            detectedPort = parseInt(match[1], 10);
+            if (portResolve) portResolve(detectedPort);
         }
+        browserLogs.push(text.trim());
     });
+
     browserProc.on('exit', (code, sig) => {
         if (code !== null && code !== 0) {
             browserLogs.push(`Browser process exited with code ${code} (signal ${sig})`);
         }
     });
-    console.log(`[BROWSER] Headless process spawned (PID=${browserProc.pid}, debugPort=${debugPort})`);
 
     const cleanup = () => {
         try { browserProc.kill('SIGKILL'); } catch {}
@@ -153,12 +159,20 @@ async function runSmokeTest() {
     const errors = [];
 
     try {
-        // Wait for CDP to become available
+        // Wait for Chrome to output the dynamic devtools listening port
+        const debugPort = await Promise.race([
+            portPromise,
+            new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout waiting for DevTools port from browser')), 10000))
+        ]);
+
+        console.log(`[CDP] DevTools port detected: ${debugPort}`);
+
+        // Fetch targets list from CDP HTTP endpoint
         let wsUrl = null;
-        for (let i = 0; i < 40; i++) {
-            await new Promise(r => setTimeout(r, 200));
+        for (let i = 0; i < 20; i++) {
+            await new Promise(r => setTimeout(r, 150));
             try {
-                const res = await fetch(`http://127.0.0.1:${debugPort}/json/list`);
+                const res = await fetch(`http://127.0.0.1:${debugPort}/json`);
                 if (res.ok) {
                     const pages = await res.json();
                     const page = pages.find(p => p.type === 'page' && p.webSocketDebuggerUrl) || pages[0];
@@ -177,7 +191,7 @@ async function runSmokeTest() {
             throw new Error(`Failed to establish CDP connection on port ${debugPort}`);
         }
 
-        console.log('[CDP] Connected to Chrome DevTools Protocol');
+        console.log('[CDP] Connecting to page WebSocket debugger...');
         const ws = new WSClient(wsUrl);
 
         await new Promise((resolve, reject) => {
