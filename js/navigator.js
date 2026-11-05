@@ -3796,8 +3796,10 @@ if (typeof window !== 'undefined' && !window.escapeHtml) {
             }
         }
 
-        // Оценка времени пешком (скорость ~1.15 м/с)
-        const durationMin = Math.max(1, Math.round((result.totalDistance / 1.15) / 60 * 10) / 10);
+        // Оценка времени пешком (скорость ~1.15 м/с) + 45 сек на каждый межэтажный лестничный переход
+        const stairDelaySec = (stairTransitions ? stairTransitions.length : 0) * 45;
+        const totalWalkSec = (result.totalDistance / 1.15) + stairDelaySec;
+        const durationMin = Math.max(1, Math.round((totalWalkSec / 60) * 10) / 10);
 
         const routeData = {
             path: result.path,

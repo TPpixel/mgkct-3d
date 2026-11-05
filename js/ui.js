@@ -1859,15 +1859,18 @@ function estimateWalkTime(roomInfo) {
     const f = parseInt(roomInfo.floor, 10) || 1;
     const b = parseInt(roomInfo.building, 10) || 1;
 
-    let baseMins = 1;
-    if (b === 2) baseMins += 1;
-    else if (b === 3) baseMins += 1;
-    else if (b === 4) baseMins += 2;
+    let baseSeconds = 60;
+    if (b === 2) baseSeconds += 60;
+    else if (b === 3) baseSeconds += 90;
+    else if (b === 4) baseSeconds += 120;
 
-    if (f >= 5) baseMins += 2;
-    else if (f >= 3) baseMins += 1;
+    // Добавляем +45 секунд на каждый межэтажный переход
+    if (f > 1) {
+        baseSeconds += (f - 1) * 45;
+    }
 
-    return `${baseMins}м`;
+    const mins = Math.max(1, Math.round(baseSeconds / 60));
+    return `${mins}м`;
 }
 
 function showRoomContextPopup(roomInfo, clientX, clientY, shouldSelectAndFly = true, fromSearch = false) {
