@@ -6,6 +6,7 @@ let raycaster = null;
 let mouseVec = null;
 let floorPlane = null;
 let isCtrlZooming = false;
+let lastZoomTime = -Infinity;
 const _zoomHitVec = new THREE.Vector3();
 const _zoomCamOffset = new THREE.Vector3();
 const _zoomTargetOffset = new THREE.Vector3();
@@ -46,20 +47,22 @@ function initControls(camera, domElement) {
     // чтобы изолировать колесико мыши от OrbitControls и исключить двойной зум
     domElement.addEventListener('wheel', onPointerZoom, { passive: false, capture: true });
 
-    // Отслеживание мультитач-жестов: отсекаем ложные клики по кабинетам при двухпальцевом зуме/панорамировании
+    // Отслеживание мультитач-жестов и зума: полностью исключаем случайные клики по кабинетам
+    // при двухпальцевом pinch-зуме, панорамировании и зуме колесиком
     let activeTouches = 0;
-    // Временная метка последнего мультитач-жеста (performance.now()).
-    // Используется вместо wasMultiTouch + setTimeout, чтобы исключить race condition
-    // на экранах с разной частотой обновления (60/120 Гц).
+    let multiTouchActive = false;
     let lastMultiTouchTime = -Infinity;
-    const MULTI_TOUCH_GUARD_MS = 200; // окно блокировки ложных кликов после pinch
+    const MULTI_TOUCH_GUARD_MS = 450; // Окно блокировки ложных кликов после pinch-зума
     let pointerDownPos = { x: 0, y: 0 };
+    let pointerDownTime = 0;
+    const pointerDownCamPos = new THREE.Vector3();
+    const pointerDownTarget = new THREE.Vector3();
 
     domElement.addEventListener('touchstart', (e) => {
         activeTouches = e.touches ? e.touches.length : 0;
-        // Во время активного касания пальцем увеличиваем демпфирование для мгновенного отклика 1:1
         if (controls) controls.dampingFactor = 0.24;
         if (activeTouches >= 2) {
+            multiTouchActive = true;
             lastMultiTouchTime = performance.now();
         }
         if (STATE.targetCamPos || STATE.targetControlsCenter) {
@@ -70,24 +73,33 @@ function initControls(camera, domElement) {
         }
     }, { passive: true });
 
+    domElement.addEventListener('touchmove', (e) => {
+        activeTouches = e.touches ? e.touches.length : 0;
+        if (activeTouches >= 2) {
+            multiTouchActive = true;
+            lastMultiTouchTime = performance.now();
+        }
+    }, { passive: true });
+
     domElement.addEventListener('touchend', (e) => {
         activeTouches = e.touches ? e.touches.length : 0;
-        // При отпускании пальца возвращаем демпфер для естественного скольжения по инерции
         if (controls) controls.dampingFactor = 0.12;
-        if (activeTouches === 1 && controls && controls.enabled) {
-            // Бесшовный переход: если оторвали 1 палец из 2, обновляем базовую точку
-            // для корректного определения клика/свайпа оставшимся пальцем.
-            // Синтетический dispatchEvent(touchstart) убран: он нарушал внутреннее
-            // состояние OrbitControls и провоцировал рывки камеры.
-            const remTouch = e.touches[0];
-            pointerDownPos = { x: remTouch.clientX, y: remTouch.clientY };
-        } else if (activeTouches === 0) {
+        if (multiTouchActive || activeTouches > 0) {
             lastMultiTouchTime = performance.now();
+        }
+        if (activeTouches === 0) {
+            lastMultiTouchTime = performance.now();
+            setTimeout(() => {
+                if (!e.touches || e.touches.length === 0) {
+                    multiTouchActive = false;
+                }
+            }, MULTI_TOUCH_GUARD_MS);
         }
     }, { passive: true });
 
     domElement.addEventListener('touchcancel', () => {
         activeTouches = 0;
+        multiTouchActive = false;
         if (controls) controls.dampingFactor = 0.12;
         lastMultiTouchTime = performance.now();
     }, { passive: true });
@@ -102,19 +114,55 @@ function initControls(camera, domElement) {
         }
         if (e.isPrimary !== false) {
             pointerDownPos = { x: e.clientX, y: e.clientY };
+            pointerDownTime = performance.now();
+            if (camera && controls) {
+                pointerDownCamPos.copy(camera.position);
+                pointerDownTarget.copy(controls.target);
+            }
         }
     }, { passive: true });
 
     domElement.addEventListener('pointerup', (e) => {
-        if (e.isPrimary === false || (performance.now() - lastMultiTouchTime < MULTI_TOUCH_GUARD_MS)) {
+        // 1. Игнорируем вторичные пальцы / указатели
+        if (e.isPrimary === false) {
             return;
         }
+
+        // 2. Блокируем клик, если активен или недавно завершился pinch-зум двумя пальцами
+        if (multiTouchActive || (performance.now() - lastMultiTouchTime < MULTI_TOUCH_GUARD_MS)) {
+            return;
+        }
+
+        // 3. Блокируем клик, если недавно происходил зум к курсору колесиком или кнопками
+        if (performance.now() - lastZoomTime < 350) {
+            return;
+        }
+
+        // 4. Отсекаем долгое удержание пальца (жест панорамирования или ожидания, а не быстрый тап)
+        const holdDuration = performance.now() - pointerDownTime;
+        if (holdDuration > 550) {
+            return;
+        }
+
+        // 5. Проверяем физическое смещение курсора на экране
         const dx = Math.abs(e.clientX - pointerDownPos.x);
         const dy = Math.abs(e.clientY - pointerDownPos.y);
-        // Если это был клик/тап (а не свайп/перетаскивание карты)
-        if (Math.hypot(dx, dy) < 14) {
-            handleMapClick(e);
+        if (Math.hypot(dx, dy) >= 12) {
+            return;
         }
+
+        // 6. Физическая проверка: если камера сдвинулась или масштабировалась во время касания,
+        // значит выполнялся зум или сдвиг сцены
+        if (camera && controls) {
+            const camDistMoved = camera.position.distanceTo(pointerDownCamPos);
+            const targetDistMoved = controls.target.distanceTo(pointerDownTarget);
+            if (camDistMoved > 0.25 || targetDistMoved > 0.25) {
+                return;
+            }
+        }
+
+        // Чистый одиночный клик / тап по карте
+        handleMapClick(e);
     });
 
     // Оповещение цикла рендеринга о движении камеры (On-Demand Render)
@@ -177,6 +225,7 @@ function apply2DControls(is2D) {
 
 function zoomIn() {
     if (!controls || !camera) return;
+    lastZoomTime = performance.now();
     STATE.targetCamPos = null;
     STATE.targetControlsCenter = null;
     resetControlsMomentum();
@@ -191,6 +240,7 @@ function zoomIn() {
 
 function zoomOut() {
     if (!controls || !camera) return;
+    lastZoomTime = performance.now();
     STATE.targetCamPos = null;
     STATE.targetControlsCenter = null;
     resetControlsMomentum();
@@ -300,6 +350,7 @@ function handleMapClick(event) {
 
 function onPointerZoom(event) {
     if (!controls || !camera || !renderer) return;
+    lastZoomTime = performance.now();
 
     // Предотвращаем дефолтный скролл страницы и блокируем стандартный зум колесиком в OrbitControls
     event.preventDefault();
