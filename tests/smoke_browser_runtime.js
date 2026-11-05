@@ -157,6 +157,8 @@ async function runSmokeTest() {
     };
 
     const errors = [];
+    let ws = null;
+    let sendCDP = null;
 
     try {
         // Wait for Chrome to output the dynamic devtools listening port
@@ -192,7 +194,7 @@ async function runSmokeTest() {
         }
 
         console.log('[CDP] Connecting to page WebSocket debugger...');
-        const ws = new WSClient(wsUrl);
+        ws = new WSClient(wsUrl);
 
         await new Promise((resolve, reject) => {
             ws.onopen = resolve;
@@ -231,10 +233,23 @@ async function runSmokeTest() {
             }
         };
 
-        const sendCDP = (method, params = {}) => new Promise((resolve) => {
+        sendCDP = (method, params = {}, timeoutMs = 10000) => new Promise((resolve, reject) => {
             const id = msgId++;
-            pendingCallbacks.set(id, resolve);
-            ws.send(JSON.stringify({ id, method, params }));
+            const timer = setTimeout(() => {
+                pendingCallbacks.delete(id);
+                reject(new Error(`CDP command '${method}' timed out after ${timeoutMs}ms`));
+            }, timeoutMs);
+            pendingCallbacks.set(id, (res) => {
+                clearTimeout(timer);
+                resolve(res);
+            });
+            try {
+                ws.send(JSON.stringify({ id, method, params }));
+            } catch (err) {
+                clearTimeout(timer);
+                pendingCallbacks.delete(id);
+                reject(err);
+            }
         });
 
         await sendCDP('Page.enable');
@@ -271,13 +286,15 @@ async function runSmokeTest() {
         const stateInfo = evalRes.result?.result?.value;
         console.log('[STATUS] Runtime State Evaluation:', stateInfo);
 
-        if (!stateInfo || !stateInfo.hasThree || !stateInfo.hasState || !stateInfo.hasNav) {
+        if (!stateInfo || !stateInfo.hasThree || !stateInfo.hasState || !stateInfo.hasNav || !stateInfo.hasScene) {
             errors.push(`Runtime bootstrap incomplete: ${JSON.stringify(stateInfo)}`);
         }
         if (stateInfo && (stateInfo.roomCount < 200 || stateInfo.wallCount < 1000)) {
             errors.push(`Architecture registry incomplete: rooms=${stateInfo?.roomCount}, walls=${stateInfo?.wallCount}`);
         }
 
+        // Graceful CDP browser shutdown to release file handles and child processes on Windows
+        await sendCDP('Browser.close').catch(() => {});
         ws.close();
 
         if (errors.length > 0) {
@@ -293,6 +310,10 @@ async function runSmokeTest() {
 
     } catch (err) {
         console.error('\x1b[31m[ERROR] Smoke test failure:\x1b[0m', err.message);
+        if (ws) {
+            try { await sendCDP?.('Browser.close'); } catch {}
+            try { ws.close(); } catch {}
+        }
         cleanup();
         process.exit(1);
     }

@@ -194,7 +194,7 @@ node tests/check_syntax.js
 npx oxlint -c .oxlintrc.json js
 
 # Headless browser runtime smoke test:
-node tests/smoke_browser_runtime.js
+node --experimental-websocket tests/smoke_browser_runtime.js
 
 # Full campus-wide navigation & wall-collision test suite:
 node tests/validate_campus_navigation.js

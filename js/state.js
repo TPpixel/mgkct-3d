@@ -87,8 +87,23 @@ const ROAD_3D_MINIMALISM = 0;
 // Осевая пунктирная разметка на минималистичной дороге (1 = включена, 0 = отключена)
 const ROAD_SHOW_CENTERLINE = 1;
 
+function getSystemTheme() {
+    if (typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        return 'dark';
+    }
+    return 'light';
+}
+
+function getInitialTheme() {
+    try {
+        const saved = localStorage.getItem('mgkct_theme');
+        if (saved === 'dark' || saved === 'light') return saved;
+    } catch (_) {}
+    return getSystemTheme();
+}
+
 const STATE = {
-    theme: localStorage.getItem('mgkct_theme') || 'light',
+    theme: getInitialTheme(),
     buildingFilter: 'both',    // 'both' | '1' | '2' | '3' | '4'
     mode: '1',                 // По умолчанию 1-й этаж как в картах (1..7, 'all', 'sideBySide', 'slice')
     sliceMaxFloor: 7,          // 1..7

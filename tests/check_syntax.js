@@ -65,7 +65,7 @@ for (const filePath of allFiles) {
         passedCount++;
     } catch (err) {
         console.error(`\x1b[31m[SYNTAX ERROR]\x1b[0m ${relPath}`);
-        console.error(`  Line ${err.lineNumber || '?'}: ${err.message}`);
+        console.error(`  ${err.message}`);
         if (err.stack) {
             console.error(`  ${err.stack.split('\n').slice(0, 3).join('\n  ')}`);
         }
