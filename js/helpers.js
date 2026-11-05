@@ -1212,8 +1212,8 @@ function computeRoomLabelPriority(textStr) {
     if (/столов|спорт|актов|гардероб|библиот|конференц/i.test(t)) return 0;
     if (/^\d+[\u0400-\u04FFA-Za-z]?$/.test(t)) return 1;
     if (t.includes('\n') || t.length > 3) return 2;
-    if (t.startsWith('ЛК') || t.startsWith('\u041B\u041A')) return 3;
-    if (t === 'С/У' || t === '\u0421/\u0423') return 4;
+    if (t.startsWith('ЛК')) return 3;
+    if (t === 'С/У') return 4;
     return 2;
 }
 

@@ -1,4 +1,4 @@
-name: CI & Branch Validation
+name: CI & Quality Gates
 
 on:
   pull_request:
@@ -23,7 +23,7 @@ jobs:
           echo "Verified: PR to main originates from dev."
 
   test:
-    name: Architecture & Navigation Tests
+    name: Code Quality & Architecture Verification
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -34,8 +34,17 @@ jobs:
         with:
           node-version: 20
 
+      - name: Validate JavaScript Syntax (V8)
+        run: node tests/check_syntax.js
+
+      - name: Static Code Analysis (Oxlint)
+        run: npx --yes oxlint@latest -c .oxlintrc.json js --deny-warnings --format github
+
       - name: Validate Floor Architecture & Geometry
         run: node .agents/skills/map-architecture-sync/scripts/validate_floor.js
 
       - name: Validate Campus Navigation Graph
         run: node tests/validate_campus_navigation.js
+
+      - name: Headless Browser Runtime Smoke Test
+        run: node tests/smoke_browser_runtime.js
