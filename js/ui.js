@@ -121,6 +121,9 @@ function setTheme(themeName, shouldSave = false) {
         try {
             localStorage.setItem('mgkct_theme', themeName);
         } catch (_) {}
+        if (typeof saveSettings === 'function') {
+            saveSettings();
+        }
     }
 
     if (typeof requestRender === 'function') {
@@ -1648,7 +1651,16 @@ function restoreSavedSettings() {
         if (typeof s.mode === 'string' && (/^[1-7]$/.test(s.mode) || s.mode === 'all' || s.mode === 'sideBySide' || s.mode === 'slice')) {
             STATE.mode = s.mode;
         }
-        if (s.theme === 'dark' || s.theme === 'light') STATE.theme = s.theme;
+        try {
+            const explicit = localStorage.getItem('mgkct_theme');
+            if (explicit === 'dark' || explicit === 'light') {
+                STATE.theme = explicit;
+            } else if (s.theme === 'dark' || s.theme === 'light') {
+                STATE.theme = s.theme;
+            }
+        } catch (_) {
+            if (s.theme === 'dark' || s.theme === 'light') STATE.theme = s.theme;
+        }
     } catch (e) {
         console.warn('[MGKCT] restoreSavedSettings: не удалось разобрать localStorage:', e);
     }
@@ -1657,6 +1669,7 @@ function restoreSavedSettings() {
 function resetSettingsToDefault() {
     try {
         localStorage.removeItem(SETTINGS_KEY);
+        localStorage.removeItem('mgkct_theme');
     } catch (e) {}
 
     STATE.preset = 'balance';
@@ -1748,7 +1761,14 @@ function setupUI() {
 
     // Кнопка переключения темы оформления (Светлая / Тёмная)
     document.getElementById('btn-toggle-theme')?.addEventListener('click', () => {
-        const current = STATE.theme || (document.body.getAttribute('data-theme') === 'dark' ? 'dark' : 'light');
+        let current = STATE.theme;
+        try {
+            const saved = localStorage.getItem('mgkct_theme');
+            if (saved === 'dark' || saved === 'light') current = saved;
+        } catch (_) {}
+        if (!current) {
+            current = (document.body && document.body.getAttribute('data-theme') === 'dark') ? 'dark' : 'light';
+        }
         const nextTheme = current === 'dark' ? 'light' : 'dark';
         setTheme(nextTheme, true);
     });
@@ -1770,9 +1790,12 @@ function setupUI() {
     setTerritoryMode(STATE.showTerritory, false);
     setLabelScale(STATE.labelScale || 1.0);
     
-    let initialTheme = (typeof STATE !== 'undefined' && STATE.theme) ? STATE.theme : null;
-    if (!initialTheme) {
-        try { initialTheme = localStorage.getItem('mgkct_theme'); } catch (_) {}
+    let initialTheme = null;
+    try {
+        initialTheme = localStorage.getItem('mgkct_theme');
+    } catch (_) {}
+    if (!initialTheme && typeof STATE !== 'undefined' && (STATE.theme === 'dark' || STATE.theme === 'light')) {
+        initialTheme = STATE.theme;
     }
     setTheme(initialTheme || getSystemTheme(), false);
 }
