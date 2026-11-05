@@ -534,9 +534,14 @@ function selectRoom(roomInfo, shouldFly = true) {
         setMode(String(roomInfo.floor));
     }
 
-    // Сохраняем в недавние поиски
-    if (typeof saveRecentSearch === 'function') {
-        saveRecentSearch(roomInfo);
+    // Очищаем поисковую строку после найденного кабинета
+    const searchInput = document.getElementById('search-input');
+    const btnClearSearch = document.getElementById('btn-clear-search');
+    if (searchInput) {
+        searchInput.value = '';
+    }
+    if (btnClearSearch) {
+        btnClearSearch.classList.add('hidden');
     }
 
     // Обновляем текст в поисковом виджете шапки
@@ -678,10 +683,16 @@ function formatSearchRoomBadgeAndTitle(item) {
         codeNum = "312";
         title = "Конференц-зал";
         subtitle = "Зал заседаний и презентаций";
-    } else if (/^с\/у$/i.test(rawOrig)) {
+    } else if (b === 2 && f === 2 && (/учебн/i.test(rawOrig) || /209/.test(rawOrig))) {
+        codeNum = "209";
+        title = "Учебная часть";
+        subtitle = "Учебная часть колледжа";
+    } else if (/^с\/у/i.test(rawOrig)) {
+        const isM = /м|муж/i.test(rawOrig);
+        const isF = /ж|жен/i.test(rawOrig);
         codeNum = "WC";
-        title = "Санузел";
-        subtitle = "Уборная";
+        title = isM ? "Санузел (мужской)" : (isF ? "Санузел (женский)" : "Санузел");
+        subtitle = isM ? "Мужской туалет" : (isF ? "Женский туалет" : "Уборная");
     } else if (/^лк\s*№?\s*(\d+)/i.test(rawOrig)) {
         const m = rawOrig.match(/^лк\s*№?\s*(\d+)/i);
         codeNum = `ЛК${m[1]}`;
@@ -744,54 +755,16 @@ function formatSearchRoomBadgeAndTitle(item) {
 }
 
 // =====================================================================
-// --- НЕДАВНИЕ ПОИСКИ (RECENT SEARCHES STORAGE) ---
-const RECENT_SEARCHES_STORAGE_KEY = 'mgkct_recent_searches';
-const MAX_RECENT_SEARCHES_COUNT = 8;
+// --- НЕДАВНИЕ ПОИСКИ (ПОЛНОСТЬЮ ОТКЛЮЧЕНЫ ПО ЗАПРОСУ) ---
+try {
+    localStorage.removeItem('mgkct_recent_searches');
+} catch (_) {}
 
 function getRecentSearches() {
-    try {
-        const raw = localStorage.getItem(RECENT_SEARCHES_STORAGE_KEY);
-        if (!raw) return [];
-        const arr = JSON.parse(raw);
-        return Array.isArray(arr) ? arr : [];
-    } catch (e) {
-        return [];
-    }
+    return [];
 }
-
-function saveRecentSearch(roomInfo) {
-    if (!roomInfo || !roomInfo.text) return;
-    try {
-        const { codeLabel, displayTitle } = formatSearchRoomBadgeAndTitle(roomInfo);
-        const item = {
-            floor: roomInfo.floor,
-            building: roomInfo.building,
-            x: roomInfo.x,
-            z: roomInfo.z,
-            text: roomInfo.text,
-            codeLabel,
-            displayTitle,
-            timestamp: Date.now()
-        };
-        const current = getRecentSearches();
-        const filtered = current.filter(r => !(r.building === item.building && r.floor === item.floor && r.codeLabel === item.codeLabel));
-        filtered.unshift(item);
-        if (filtered.length > MAX_RECENT_SEARCHES_COUNT) {
-            filtered.length = MAX_RECENT_SEARCHES_COUNT;
-        }
-        localStorage.setItem(RECENT_SEARCHES_STORAGE_KEY, JSON.stringify(filtered));
-    } catch (e) {
-        console.warn('[MGKCT] saveRecentSearch: не удалось записать в localStorage:', e);
-    }
-}
-
-function clearRecentSearches() {
-    try {
-        localStorage.removeItem(RECENT_SEARCHES_STORAGE_KEY);
-    } catch (e) {
-        console.warn('[MGKCT] clearRecentSearches: не удалось очистить localStorage:', e);
-    }
-}
+function saveRecentSearch() {}
+function clearRecentSearches() {}
 
 window.saveRecentSearch = saveRecentSearch;
 window.getRecentSearches = getRecentSearches;
@@ -1145,11 +1118,22 @@ function setupSearch() {
         const t = btn.dataset.text;
         closeSearch();
 
+        // Очищаем строку поиска после выбора найденного кабинета
+        if (searchInput) {
+            searchInput.value = '';
+        }
+        if (btnClearSearch) {
+            btnClearSearch.classList.add('hidden');
+        }
+        quickButtons.forEach(b => b?.classList.remove('is-active'));
+        if (typeof renderSearchResults === 'function') {
+            renderSearchResults('');
+        }
+
         if (STATE.buildingFilter !== 'both' && typeof setBuildingFilter === 'function') {
             setBuildingFilter('both', false);
         }
         const roomInfo = { floor: f, building: b, x: x, z: z, text: t };
-        saveRecentSearch(roomInfo);
         selectRoom(roomInfo, true);
         if (typeof showRoomContextPopup === 'function') {
             showRoomContextPopup(roomInfo, window.innerWidth / 2, window.innerHeight * 0.42, false);
@@ -1165,79 +1149,22 @@ function setupSearch() {
             chipsBar.classList.toggle("hidden", Boolean(query));
         }
 
-        // 1) Пустой поисковый запрос: показываем историю недавних поисков
+        // 1) Пустой поисковый запрос: приветственная подсказка быстрого поиска
         if (!query) {
-            const recent = getRecentSearches();
-            if (recent.length > 0) {
-                let html = `
-                    <div class="flex items-center justify-between px-3 py-2 text-slate-400 text-xs font-semibold flex-shrink-0 border-b border-black/10 dark:border-white/10 mb-1">
-                        <span class="flex items-center gap-1.5 text-slate-700 dark:text-slate-300">
-                            <svg class="w-3.5 h-3.5 text-sky-600 dark:text-sky-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                            Недавние поиски
-                        </span>
-                        <button id="btn-clear-recent" type="button" class="text-slate-500 dark:text-slate-400 hover:text-sky-600 dark:hover:text-sky-400 transition text-xs font-medium hover:underline p-0.5">
-                            Очистить историю
-                        </button>
+            searchResults.innerHTML = `
+                <div class="text-center py-8 px-4 flex flex-col items-center justify-center gap-2 text-slate-400 dark:text-slate-500">
+                    <div class="w-10 h-10 rounded-full bg-black/5 dark:bg-white/5 flex items-center justify-center text-slate-500 mb-1">
+                        <svg class="w-5 h-5 text-sky-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
                     </div>
-                `;
-                recent.forEach((item, index) => {
-                    const dataText = escapeHtml((item.text || '').replace(/\n/g, ' '));
-                    const safeCode = escapeHtml(item.codeLabel || '');
-                    const safeTitle = escapeHtml(item.displayTitle || '');
-                    const isActive = index === 0 ? ' is-active' : '';
-                    html += `
-                        <button type="button" class="m3-search-row room-search-item flex items-stretch w-full transition text-left cursor-pointer${isActive}"
-                                data-floor="${item.floor}" data-bldg="${item.building}" data-x="${item.x}" data-z="${item.z}" data-text="${dataText}">
-                            <!-- Колонка 1: Номер аудитории -->
-                            <div class="m3-search-col-num flex items-center justify-center font-bold text-slate-800 dark:text-slate-100 select-none">
-                                ${safeCode}
-                            </div>
-                            <!-- Колонка 2: Бейджи Корпуса и Этажа -->
-                            <div class="m3-search-col-badges flex flex-col justify-stretch p-0 m-0">
-                                <div class="m3-search-badge m3-badge-bldg flex items-center justify-center gap-1" title="Корпус ${item.building}">
-                                    <svg class="w-3.5 h-3.5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                                        <rect x="4" y="3" width="7" height="18" rx="1"></rect>
-                                        <rect x="11" y="9" width="6" height="12" rx="1"></rect>
-                                    </svg>
-                                    <span class="m3-badge-num">${item.building}</span>
-                                </div>
-                                <div class="m3-search-badge m3-badge-floor flex items-center justify-center gap-1" title="${item.floor} этаж">
-                                    <svg class="w-3.5 h-3.5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                                        <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
-                                        <path d="M2 17l10 5 10-5"></path>
-                                        <path d="M2 12l10 5 10-5"></path>
-                                    </svg>
-                                    <span class="m3-badge-num">${item.floor}</span>
-                                </div>
-                            </div>
-                            <!-- Колонка 3: Название кабинета -->
-                            <div class="m3-search-col-info flex flex-col justify-center min-w-0 flex-1 overflow-hidden">
-                                <span class="m3-search-title room-search-title leading-snug truncate">${safeTitle}</span>
-                                <span class="m3-search-subtitle room-search-sub truncate">Корпус ${item.building} • ${item.floor} этаж</span>
-                            </div>
-                        </button>
-                    `;
-                });
-                searchResults.innerHTML = html;
-                return;
-            } else {
-                searchResults.innerHTML = `
-                    <div class="text-center py-8 px-4 flex flex-col items-center justify-center gap-2 text-slate-400 dark:text-slate-500">
-                        <div class="w-10 h-10 rounded-full bg-black/5 dark:bg-white/5 flex items-center justify-center text-slate-500 mb-1">
-                            <svg class="w-5 h-5 text-sky-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                            </svg>
-                        </div>
-                        <div class="text-xs font-semibold text-slate-700 dark:text-slate-300">Быстрый поиск аудиторий</div>
-                        <div class="text-[11px] text-slate-400 dark:text-slate-500 max-w-[260px] leading-relaxed">
-                            Начните ввод номера кабинета или выберите категорию выше
-                        </div>
+                    <div class="text-xs font-semibold text-slate-700 dark:text-slate-300">Быстрый поиск аудиторий</div>
+                    <div class="text-[11px] text-slate-400 dark:text-slate-500 max-w-[260px] leading-relaxed">
+                        Начните ввод номера кабинета или выберите категорию выше
                     </div>
-                `;
-                return;
-            }
+                </div>
+            `;
+            return;
         }
 
         if (typeof ROOMS_REGISTRY === "undefined" || ROOMS_REGISTRY.length === 0) {
@@ -1287,7 +1214,12 @@ function setupSearch() {
             if (bldg === 2 && r.floor === 1 && (cleanText.includes("104") || cleanText.includes("библиот"))) alias = "библиотека книги читальный зал 104";
             if (bldg === 2 && r.floor === 3 && (cleanText.includes("308") || cleanText.includes("спорт"))) alias = "спортзал спортивный зал спорт 308";
             if (bldg === 2 && r.floor === 3 && (cleanText.includes("312") || cleanText.includes("конференц"))) alias = "конференц-зал конференц зал собрания 312";
-            if (/^с\/у$/i.test(cleanText)) alias = "туалет санузел уборная wc с/у";
+            if (bldg === 2 && r.floor === 2 && (cleanText.includes("209") || cleanText.includes("учебн"))) alias = "учебная часть учебная 209 2-209";
+            if (/^с\/у/i.test(cleanText)) {
+                const isM = /м|муж/i.test(cleanText);
+                const isF = /ж|жен/i.test(cleanText);
+                alias = "туалет санузел уборная wc с/у" + (isM ? " мужской м" : "") + (isF ? " женский ж" : "");
+            }
 
             if (targetBldg !== null) {
                 if (bldg !== targetBldg) return false;
@@ -1427,15 +1359,21 @@ function setupSearch() {
                 const z = parseFloat(btn.dataset.z);
                 const t = btn.dataset.text;
                 closeSearch(true);
+                // Очищаем строку поиска после выбора найденного кабинета
+                if (searchInput) {
+                    searchInput.value = '';
+                }
+                if (btnClearSearch) {
+                    btnClearSearch.classList.add('hidden');
+                }
+                quickButtons.forEach(b => b?.classList.remove('is-active'));
+                if (typeof renderSearchResults === 'function') {
+                    renderSearchResults('');
+                }
                 if (typeof setBuildingFilter === "function") {
                     setBuildingFilter(String(b), false);
                 }
                 const roomInfo = { floor: f, building: b, x: x, z: z, text: t };
-
-                // Сохраняем в недавние поиски
-                if (typeof saveRecentSearch === "function") {
-                    saveRecentSearch(roomInfo);
-                }
 
                 // Если активен маршрут и пользователь выбирает кабинет в поиске для смены в маршруте
                 if (window.NAV_STATE && window.NAV_STATE.activeRoute && (window.NAV_STATE.targetToChange || document.getElementById('navigator-route-card')?.classList.contains('hidden') === false)) {
