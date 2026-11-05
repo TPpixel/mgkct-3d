@@ -35,10 +35,13 @@ function clearHelpersGeometryCaches() {
 window.clearHelpersGeometryCaches = clearHelpersGeometryCaches;
 
 function getCachedBoxGeometry(w, h, d) {
-    const key = `${Math.round(w * 1000)}_${Math.round(h * 1000)}_${Math.round(d * 1000)}`;
+    const safeW = Math.max(w, 0.001);
+    const safeH = Math.max(h, 0.001);
+    const safeD = Math.max(d, 0.001);
+    const key = `${Math.round(safeW * 1000)}_${Math.round(safeH * 1000)}_${Math.round(safeD * 1000)}`;
     let geom = _boxGeomCache.get(key);
     if (!geom) {
-        geom = new THREE.BoxGeometry(w, h, d);
+        geom = new THREE.BoxGeometry(safeW, safeH, safeD);
         _boxGeomCache.set(key, geom);
     }
     return geom;
@@ -1700,7 +1703,10 @@ function renderScreenSpaceLabels() {
             const mKey = fontSize + '|' + lines[l];
             let lw = _textWidthCache.get(mKey);
             if (lw === undefined) {
-                if (_textWidthCache.size > 2000) _textWidthCache.clear();
+                if (_textWidthCache.size > 2000) {
+                    const oldestKey = _textWidthCache.keys().next().value;
+                    _textWidthCache.delete(oldestKey);
+                }
                 lw = overlayCtx.measureText(lines[l]).width;
                 _textWidthCache.set(mKey, lw);
             }
