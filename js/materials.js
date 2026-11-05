@@ -651,12 +651,12 @@ function createPedestrianTrafficLensTexture(color = 'red') { return createMinima
 function createPedestrianButtonPlateTexture() { return createMinimalTexture('#facc15', 256, 256); }
 
 // ============================================================================
-// Архитектурная цветовая палитра колледжа (Светлая картографическая классика)
+// Фиксированная архитектурная цветовая палитра колледжа (Шалфейный гранит / Шалфейный лес)
 const DEFAULT_CAMPUS_COLORS = {
-    slab: 0xf8fafc,
-    coreSlab: 0xeef2f6,
-    wall: 0xffffff,
-    stair: 0xcbd5e1
+    slab: 0x9faea0,
+    coreSlab: 0x9faea0,
+    wall: 0x5b6c5d,
+    stair: 0x7d5336
 };
 window.DEFAULT_CAMPUS_COLORS = DEFAULT_CAMPUS_COLORS;
 
