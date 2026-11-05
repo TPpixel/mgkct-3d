@@ -3434,7 +3434,8 @@ if (typeof window !== 'undefined' && !window.escapeHtml) {
 
         const mode = (typeof STATE !== 'undefined') ? STATE.mode : '1';
         const isSingleFloor = (mode !== 'all' && mode !== 'sideBySide' && mode !== 'slice');
-        const activeFloor = isSingleFloor ? parseInt(mode, 10) : 1;
+        const parsedFloor = parseInt(mode, 10);
+        const activeFloor = (isSingleFloor && Number.isFinite(parsedFloor)) ? parsedFloor : 1;
         const maxFloor = (mode === 'slice') ? STATE.sliceMaxFloor : 7;
         const isAllFloors = (mode === 'all');
         const isDark = (typeof STATE !== 'undefined' && STATE.theme === 'dark');
@@ -3566,7 +3567,8 @@ if (typeof window !== 'undefined' && !window.escapeHtml) {
         const route = NAV_STATE.activeRoute;
         const mode = (typeof STATE !== 'undefined') ? STATE.mode : '1';
         const isSingleFloor = (mode !== 'all' && mode !== 'sideBySide' && mode !== 'slice');
-        const activeFloor = isSingleFloor ? parseInt(mode, 10) : 1;
+        const parsedFloor = parseInt(mode, 10);
+        const activeFloor = (isSingleFloor && Number.isFinite(parsedFloor)) ? parsedFloor : 1;
 
         const startNode = route.startNode;
         const destNode = route.destNode;
