@@ -986,6 +986,9 @@ function setupSearch() {
         searchBackdrop?.classList.remove("active");
         document.body.classList.remove("search-open");
         quickButtons.forEach(b => b?.classList.remove("is-active"));
+        if (searchInput) {
+            searchInput.placeholder = 'Поиск по колледжу...';
+        }
         if (!keepPickBanner && typeof window.hidePickBanner === 'function') {
             window.hidePickBanner();
         }
@@ -1108,7 +1111,7 @@ function setupSearch() {
             return;
         }
 
-        const btn = e.target.closest('.room-search-item');
+        const btn = e.target.closest('.room-search-item, .m3-search-row');
         if (!btn) return;
 
         const f = parseInt(btn.dataset.floor, 10);
@@ -1116,7 +1119,7 @@ function setupSearch() {
         const x = parseFloat(btn.dataset.x);
         const z = parseFloat(btn.dataset.z);
         const t = btn.dataset.text;
-        closeSearch();
+        closeSearch(true);
 
         // Очищаем строку поиска после выбора найденного кабинета
         if (searchInput) {
@@ -1130,13 +1133,31 @@ function setupSearch() {
             renderSearchResults('');
         }
 
-        if (STATE.buildingFilter !== 'both' && typeof setBuildingFilter === 'function') {
-            setBuildingFilter('both', false);
+        if (typeof setBuildingFilter === "function") {
+            setBuildingFilter(String(b), false);
         }
         const roomInfo = { floor: f, building: b, x: x, z: z, text: t };
+
+        // Сохраняем в недавние поиски
+        if (typeof saveRecentSearch === "function") {
+            saveRecentSearch(roomInfo);
+        }
+
+        // Если активен маршрут и пользователь выбирает кабинет в поиске для смены в маршруте
+        if (window.NAV_STATE && (window.NAV_STATE.targetToChange || window.NAV_STATE.activeRoute || (document.getElementById('navigator-route-card') && !document.getElementById('navigator-route-card').classList.contains('hidden')))) {
+            const targetType = window.NAV_STATE.targetToChange || 'dest';
+            if (typeof window.applyRoomToActiveRoute === 'function') {
+                window.applyRoomToActiveRoute(roomInfo, targetType);
+            }
+            window.NAV_STATE.targetToChange = null;
+            if (typeof hideRoomContextPopup === 'function') {
+                hideRoomContextPopup(true);
+            }
+            return;
+        }
         selectRoom(roomInfo, true);
-        if (typeof showRoomContextPopup === 'function') {
-            showRoomContextPopup(roomInfo, window.innerWidth / 2, window.innerHeight * 0.42, false);
+        if (typeof showRoomContextPopup === "function") {
+            showRoomContextPopup(roomInfo, window.innerWidth / 2, window.innerHeight * 0.42, false, true);
         }
     });
 
@@ -1351,45 +1372,6 @@ function setupSearch() {
                 });
                 btn.classList.add("is-active");
             });
-
-            btn.addEventListener("click", () => {
-                const f = parseInt(btn.dataset.floor, 10);
-                const b = parseInt(btn.dataset.bldg, 10);
-                const x = parseFloat(btn.dataset.x);
-                const z = parseFloat(btn.dataset.z);
-                const t = btn.dataset.text;
-                closeSearch(true);
-                // Очищаем строку поиска после выбора найденного кабинета
-                if (searchInput) {
-                    searchInput.value = '';
-                }
-                if (btnClearSearch) {
-                    btnClearSearch.classList.add('hidden');
-                }
-                quickButtons.forEach(b => b?.classList.remove('is-active'));
-                if (typeof renderSearchResults === 'function') {
-                    renderSearchResults('');
-                }
-                if (typeof setBuildingFilter === "function") {
-                    setBuildingFilter(String(b), false);
-                }
-                const roomInfo = { floor: f, building: b, x: x, z: z, text: t };
-
-                // Если активен маршрут и пользователь выбирает кабинет в поиске для смены в маршруте
-                if (window.NAV_STATE && window.NAV_STATE.activeRoute && (window.NAV_STATE.targetToChange || document.getElementById('navigator-route-card')?.classList.contains('hidden') === false)) {
-                    const targetType = window.NAV_STATE.targetToChange || 'dest';
-                    if (typeof window.applyRoomToActiveRoute === 'function') {
-                        window.applyRoomToActiveRoute(roomInfo, targetType);
-                    }
-                    window.NAV_STATE.targetToChange = null;
-                    return;
-                }
-
-                selectRoom(roomInfo, true);
-                if (typeof showRoomContextPopup === "function") {
-                    showRoomContextPopup(roomInfo, window.innerWidth / 2, window.innerHeight * 0.42, false, true);
-                }
-            });
         });
     }
 
@@ -1505,18 +1487,25 @@ function updateBuildingColors() {
     if (typeof MATERIALS === 'undefined') return;
     if (STATE.theme === 'dark') return;
 
-    // Архитектурная палитра кампуса (Шалфейный гранит) применяется единообразно
-    // как с включенной внешней территорией, так и без нее
-    const p = (typeof DEFAULT_CAMPUS_COLORS !== 'undefined') ? DEFAULT_CAMPUS_COLORS : {
-        slab: 0x9faea0,
-        coreSlab: 0x9faea0,
-        wall: 0x5b6c5d,
-        stair: 0x7d5336
-    };
-    if (MATERIALS.slab) MATERIALS.slab.color.setHex(p.slab);
-    if (MATERIALS.coreSlab) MATERIALS.coreSlab.color.setHex(p.coreSlab);
-    if (MATERIALS.wall) MATERIALS.wall.color.setHex(p.wall);
-    if (MATERIALS.stair) MATERIALS.stair.color.setHex(p.stair);
+    if (STATE.is2D) {
+        // Светлая 2D-палитра чертежа
+        if (MATERIALS.slab) MATERIALS.slab.color.setHex(0xf8fafc);
+        if (MATERIALS.coreSlab) MATERIALS.coreSlab.color.setHex(0xeef2f6);
+        if (MATERIALS.wall) MATERIALS.wall.color.setHex(0xffffff);
+        if (MATERIALS.stair) MATERIALS.stair.color.setHex(0xcbd5e1);
+    } else {
+        // Объёмная 3D-палитра кампуса
+        const p = (typeof DEFAULT_CAMPUS_COLORS !== 'undefined') ? DEFAULT_CAMPUS_COLORS : {
+            slab: 0xf8fafc,
+            coreSlab: 0xeef2f6,
+            wall: 0xffffff,
+            stair: 0xcbd5e1
+        };
+        if (MATERIALS.slab) MATERIALS.slab.color.setHex(p.slab);
+        if (MATERIALS.coreSlab) MATERIALS.coreSlab.color.setHex(p.coreSlab);
+        if (MATERIALS.wall) MATERIALS.wall.color.setHex(p.wall);
+        if (MATERIALS.stair) MATERIALS.stair.color.setHex(p.stair);
+    }
 }
 
 
@@ -1770,6 +1759,13 @@ function estimateWalkTime(roomInfo) {
 
 function showRoomContextPopup(roomInfo, clientX, clientY, shouldSelectAndFly = true, fromSearch = false) {
     if (!roomInfo) return;
+
+    // Не перекрываем активную карточку навигатора / маршрута
+    const routeCard = document.getElementById('navigator-route-card');
+    if ((window.NAV_STATE && window.NAV_STATE.activeRoute) || (routeCard && !routeCard.classList.contains('hidden'))) {
+        return;
+    }
+
     pushOverlayState('room-card', { fromSearch: Boolean(fromSearch) });
     currentPopupRoom = roomInfo;
 

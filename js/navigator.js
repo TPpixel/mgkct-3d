@@ -3676,6 +3676,9 @@
     // ПУБЛИЧНЫЙ МЕТОД ПОСТРОЕНИЯ МАРШРУТА
     // ------------------------------------------------------------------------
     function buildRoute(startPoint, destPoint) {
+        if (typeof hideRoomContextPopup === 'function') {
+            hideRoomContextPopup(true);
+        }
         if (!NAV_STATE.graph) {
             NAV_STATE.graph = buildCollegeNavGraph();
         }
@@ -3785,6 +3788,9 @@
     // ------------------------------------------------------------------------
     function applyRoomToActiveRoute(roomInfo, targetType = 'dest') {
         if (!roomInfo) return;
+        if (typeof hideRoomContextPopup === 'function') {
+            hideRoomContextPopup(true);
+        }
         const g = NAV_STATE.graph || buildCollegeNavGraph();
         NAV_STATE.graph = g;
 
