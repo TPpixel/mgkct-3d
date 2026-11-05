@@ -1960,12 +1960,10 @@ function registerDynamicStairStep(targetGroup, geom, sx, cz, heightRatio, yOffse
     }
 }
 
-function buildStaircaseUnit(targetGroup, zTop, zBottom, zMid, isUpperStaircase) {
-    addWallLine(targetGroup, 10.2, zMid, 14.6, zMid, [], 0.08);
+function buildStaircaseUnit(targetGroup, zTop, zBottom, zMid, isUpperStaircase, startX = 10.2, endX = 14.6, landingX = 15.3) {
+    addWallLine(targetGroup, startX, zMid, endX, zMid, [], 0.08);
 
     const stepsCount = 10;
-    const startX = 10.2;
-    const endX = 14.6;
     const stepDepth = (endX - startX) / stepsCount;
 
     const flights = [
@@ -1989,7 +1987,7 @@ function buildStaircaseUnit(targetGroup, zTop, zBottom, zMid, isUpperStaircase) 
 
     // Межэтажная разворотная площадка у наружной стены
     const landingGeom = new THREE.BoxGeometry(1.4, 1, Math.abs(zBottom - zTop));
-    registerDynamicStairStep(targetGroup, landingGeom, 15.3, (zTop + zBottom) / 2, 0.26, 0);
+    registerDynamicStairStep(targetGroup, landingGeom, landingX, (zTop + zBottom) / 2, 0.26, 0);
 }
 
 function buildCorridorStepsRight(targetGroup) {
