@@ -29,7 +29,7 @@ function initControls(camera, domElement) {
     controls.minDistance = 10;
     controls.maxDistance = 115;
     controls.screenSpacePanning = true; // Важно для плавного перемещения карты
-    controls.enableZoom = false; // Исключаем двойное зумирование OrbitControls при скролле колесиком
+    controls.enableZoom = true; // Оставляем включенным для стабильного двухпальцевого pinch-зума на смартфонах
 
     const cx = (typeof getActiveCenterX === 'function') ? getActiveCenterX() : 24.0;
     const cz = (typeof getActiveCenterZ === 'function') ? getActiveCenterZ() : -22.0;
@@ -41,36 +41,57 @@ function initControls(camera, domElement) {
     mouseVec = new THREE.Vector2();
     floorPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
 
-    // Зум к позиции курсора (BIM / CAD Zoom to Pointer)
-    domElement.addEventListener('wheel', onPointerZoom, { passive: false });
+    // Зум к позиции курсора (BIM / CAD Zoom to Pointer) перехватываем в фазе захвата (capture),
+    // чтобы изолировать колесико мыши от OrbitControls и исключить двойной зум
+    domElement.addEventListener('wheel', onPointerZoom, { passive: false, capture: true });
 
-    // Включаем зум OrbitControls исключительно для двухпальцевого жеста pinch на смартфонах
-    domElement.addEventListener('touchstart', (e) => {
-        if (e.touches && e.touches.length >= 2 && controls) {
-            controls.enableZoom = true;
-        }
-    }, { passive: true });
-    domElement.addEventListener('touchend', () => {
-        if (controls) controls.enableZoom = false;
-    }, { passive: true });
-    domElement.addEventListener('touchcancel', () => {
-        if (controls) controls.enableZoom = false;
-    }, { passive: true });
-
-    // Клик / тап по карте для выбора кабинета
+    // Отслеживание мультитач-жестов: отсекаем ложные клики по кабинетам при двухпальцевом зуме/панорамировании
+    let activeTouches = 0;
+    let wasMultiTouch = false;
     let pointerDownPos = { x: 0, y: 0 };
-    domElement.addEventListener('pointerdown', (e) => {
-        // Если была анимация камеры, прерываем её при первом взаимодействии пользователя
+
+    domElement.addEventListener('touchstart', (e) => {
+        activeTouches = e.touches ? e.touches.length : 0;
+        if (activeTouches >= 2) {
+            wasMultiTouch = true;
+        }
         if (STATE.targetCamPos || STATE.targetControlsCenter) {
             STATE.targetCamPos = null;
             STATE.targetControlsCenter = null;
             resetControlsMomentum();
             if (controls) controls.update();
         }
-        pointerDownPos = { x: e.clientX, y: e.clientY };
+    }, { passive: true });
+
+    domElement.addEventListener('touchend', (e) => {
+        activeTouches = e.touches ? e.touches.length : 0;
+        if (activeTouches === 0) {
+            setTimeout(() => { wasMultiTouch = false; }, 80);
+        }
+    }, { passive: true });
+
+    domElement.addEventListener('touchcancel', () => {
+        activeTouches = 0;
+        setTimeout(() => { wasMultiTouch = false; }, 80);
+    }, { passive: true });
+
+    // Клик / тап по карте для выбора кабинета
+    domElement.addEventListener('pointerdown', (e) => {
+        if (STATE.targetCamPos || STATE.targetControlsCenter) {
+            STATE.targetCamPos = null;
+            STATE.targetControlsCenter = null;
+            resetControlsMomentum();
+            if (controls) controls.update();
+        }
+        if (e.isPrimary !== false) {
+            pointerDownPos = { x: e.clientX, y: e.clientY };
+        }
     }, { passive: true });
 
     domElement.addEventListener('pointerup', (e) => {
+        if (e.isPrimary === false || wasMultiTouch) {
+            return;
+        }
         const dx = Math.abs(e.clientX - pointerDownPos.x);
         const dy = Math.abs(e.clientY - pointerDownPos.y);
         // Если это был клик/тап (а не свайп/перетаскивание карты)
@@ -259,8 +280,9 @@ function handleMapClick(event) {
 function onPointerZoom(event) {
     if (!controls || !camera || !renderer) return;
 
-    // Предотвращаем дефолтный скролл страницы
+    // Предотвращаем дефолтный скролл страницы и блокируем стандартный зум колесиком в OrbitControls
     event.preventDefault();
+    if (typeof event.stopImmediatePropagation === 'function') event.stopImmediatePropagation();
 
     STATE.targetCamPos = null;
     STATE.targetControlsCenter = null;

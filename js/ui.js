@@ -381,6 +381,9 @@ function setViewMode(is2D, shouldAnimateCam = true) {
     if (typeof updateEdgesVisibility === 'function') {
         updateEdgesVisibility();
     }
+    if (typeof updateBuildingColors === 'function') {
+        updateBuildingColors();
+    }
 
     if (typeof requestRender === 'function') requestRender(45);
     saveSettings();
@@ -893,25 +896,17 @@ function updateBuildingColors() {
     if (typeof MATERIALS === 'undefined') return;
     if (STATE.theme === 'dark') return;
 
-    if (STATE.showTerritory) {
-        // Спутниковый / 3D режим с территорией: фиксированная палитра (Шалфейный гранит)
-        const p = (typeof DEFAULT_CAMPUS_COLORS !== 'undefined') ? DEFAULT_CAMPUS_COLORS : {
-            slab: 0x9faea0,
-            coreSlab: 0x9faea0,
-            wall: 0x5b6c5d,
-            stair: 0x7d5336
-        };
-        if (MATERIALS.slab) MATERIALS.slab.color.setHex(p.slab);
-        if (MATERIALS.coreSlab) MATERIALS.coreSlab.color.setHex(p.coreSlab);
-        if (MATERIALS.wall) MATERIALS.wall.color.setHex(p.wall);
-        if (MATERIALS.stair) MATERIALS.stair.color.setHex(p.stair);
-    } else {
-        // Обычный 2D/3D вид: светлая минималистичная гамма
-        if (MATERIALS.slab) MATERIALS.slab.color.setHex(0xf8fafc);
-        if (MATERIALS.coreSlab) MATERIALS.coreSlab.color.setHex(0xf8fafc);
-        if (MATERIALS.wall) MATERIALS.wall.color.setHex(0xffffff);
-        if (MATERIALS.stair) MATERIALS.stair.color.setHex(0xcbd5e1);
-    }
+    // Полноценная архитектурная палитра кампуса (Шалфейный гранит) используется как в 3D, так и в 2D режиме
+    const p = (typeof DEFAULT_CAMPUS_COLORS !== 'undefined') ? DEFAULT_CAMPUS_COLORS : {
+        slab: 0x9faea0,
+        coreSlab: 0x9faea0,
+        wall: 0x5b6c5d,
+        stair: 0x7d5336
+    };
+    if (MATERIALS.slab) MATERIALS.slab.color.setHex(p.slab);
+    if (MATERIALS.coreSlab) MATERIALS.coreSlab.color.setHex(p.coreSlab);
+    if (MATERIALS.wall) MATERIALS.wall.color.setHex(p.wall);
+    if (MATERIALS.stair) MATERIALS.stair.color.setHex(p.stair);
 }
 
 window.updateBuildingColors = updateBuildingColors;
@@ -1018,6 +1013,7 @@ function resetSettingsToDefault() {
     if (typeof updateLabelsVisibility === 'function') updateLabelsVisibility();
     if (typeof updateRoofsVisibility === 'function') updateRoofsVisibility();
     if (typeof updateTerritoryVisibility === 'function') updateTerritoryVisibility();
+    if (typeof updateBuildingColors === 'function') updateBuildingColors();
 
     resetToNorth();
     saveSettings();
