@@ -182,10 +182,19 @@ Then navigate to:
 - Node editor: `http://localhost:8000/node_editor/`
 
 ### Automated Verification Suites
-Always run these before finishing any geometry or navigation changes:
+Always run these before finishing any code, geometry, or navigation changes:
 ```bash
 # Fast architectural & navigation linter across all 15 floors:
 node .agents/skills/map-architecture-sync/scripts/validate_floor.js
+
+# Fast V8 syntax check across all JavaScript files:
+node tests/check_syntax.js
+
+# Fast static code analysis (zero-config linter):
+npx oxlint -c .oxlintrc.json js
+
+# Headless browser runtime smoke test:
+node --experimental-websocket tests/smoke_browser_runtime.js
 
 # Full campus-wide navigation & wall-collision test suite:
 node tests/validate_campus_navigation.js

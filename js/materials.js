@@ -228,7 +228,11 @@ function drawMinsktransBoardCanvas(canvas, kind, title, code, routes, isBus) {
     const bx = px1 - 138, by = 20, bw = 126, bh = 46, br = 6;
     ctx.fillStyle = '#ea580c';
     ctx.beginPath();
-    ctx.roundRect ? ctx.roundRect(bx, by, bw, bh, br) : ctx.rect(bx, by, bw, bh);
+    if (ctx.roundRect) {
+        ctx.roundRect(bx, by, bw, bh, br);
+    } else {
+        ctx.rect(bx, by, bw, bh);
+    }
     ctx.fill();
     ctx.lineWidth = 2;
     ctx.strokeStyle = '#c2410c';
