@@ -27,8 +27,9 @@ function handleRequest(req, res) {
         reqPath = '/index.html';
     }
 
+    const safeRoot = ROOT.endsWith(path.sep) ? ROOT : ROOT + path.sep;
     const filePath = path.normalize(path.join(ROOT, reqPath));
-    if (!filePath.startsWith(ROOT)) {
+    if (filePath !== ROOT && !filePath.startsWith(safeRoot)) {
         res.writeHead(403);
         return res.end('Forbidden');
     }
