@@ -358,14 +358,36 @@ function solveCampusJunctions(targetGroup, pendingLines) {
         origC2: d.c2
     }));
 
+    // Пространственный индекс для ускорения поиска коллинеарных стен с O(N) до O(1)
+    const collinearMap = new Map();
+    function getCollinearKey(isH, fixedCoord) {
+        return (isH ? 'H_' : 'V_') + Math.round(fixedCoord * 20);
+    }
+    for (let idx = 0; idx < solved.length; idx++) {
+        const w = solved[idx];
+        const k = getCollinearKey(w.isHorizontal, w.fixedCoord);
+        let list = collinearMap.get(k);
+        if (!list) {
+            list = [];
+            collinearMap.set(k, list);
+        }
+        list.push(w);
+    }
+
     function wallContinuesThrough(fixedCoord, axisCoord, isH) {
-        for (const other of solved) {
-            if (other.isHorizontal === isH && Math.abs(other.fixedCoord - fixedCoord) < 0.05) {
+        const k = getCollinearKey(isH, fixedCoord);
+        const candidates = collinearMap.get(k);
+        if (!candidates) return null;
+        for (let idx = 0; idx < candidates.length; idx++) {
+            const other = candidates[idx];
+            if (Math.abs(other.fixedCoord - fixedCoord) < 0.05) {
                 if (axisCoord > other.origC1 + 0.06 && axisCoord < other.origC2 - 0.06) {
                     return other;
                 }
-                for (const o2 of solved) {
-                    if (o2 !== other && o2.isHorizontal === isH && Math.abs(o2.fixedCoord - fixedCoord) < 0.05) {
+                for (let idx2 = 0; idx2 < candidates.length; idx2++) {
+                    if (idx === idx2) continue;
+                    const o2 = candidates[idx2];
+                    if (Math.abs(o2.fixedCoord - fixedCoord) < 0.05) {
                         if (Math.abs(other.origC2 - axisCoord) <= 0.06 && Math.abs(o2.origC1 - axisCoord) <= 0.06) {
                             return other;
                         }
@@ -376,13 +398,20 @@ function solveCampusJunctions(targetGroup, pendingLines) {
         return null;
     }
 
-    for (let i = 0; i < solved.length; i++) {
-        const A = solved[i];
-        for (let j = 0; j < solved.length; j++) {
-            if (i === j) continue;
-            const B = solved[j];
+    // Разделение стен по ориентации для исключения избыточных парных проверок
+    const hWalls = [];
+    const vWalls = [];
+    for (let idx = 0; idx < solved.length; idx++) {
+        if (solved[idx].isHorizontal) hWalls.push(solved[idx]);
+        else vWalls.push(solved[idx]);
+    }
 
-            if (A.isHorizontal && !B.isHorizontal) {
+    for (let i = 0; i < hWalls.length; i++) {
+        const A = hWalls[i];
+        for (let j = 0; j < vWalls.length; j++) {
+            const B = vWalls[j];
+
+            if (true) {
                 const x0 = B.fixedCoord;
                 const z0 = A.fixedCoord;
 
