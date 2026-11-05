@@ -1764,8 +1764,9 @@ function updateRoomLabelsScale() {
         if (!item || !item.mesh) return;
         const planeW = item.baseW * item.customScale * scaleMult;
         const planeH = planeW * item.ratio;
-        item.mesh.geometry.dispose();
-        item.mesh.geometry = new THREE.PlaneGeometry(planeW, planeH);
+        item.currentW = planeW;
+        item.currentH = planeH;
+        item.mesh.scale.set(scaleMult, scaleMult, 1);
     });
     if (typeof lastAdaptiveDist !== 'undefined') {
         lastAdaptiveDist = -1;
