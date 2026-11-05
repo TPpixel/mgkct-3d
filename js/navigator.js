@@ -3044,7 +3044,7 @@ if (typeof window !== 'undefined' && !window.escapeHtml) {
             });
         }
 
-        // Удаляем объекты пути с каждого этажа
+        // Удаляем объекты пути с каждого этажа и отсоединяем пустые группы
         for (let f = 1; f <= 7; f++) {
             const fg = NAV_STATE.routeFloorGroups[f];
             if (fg) {
@@ -3053,8 +3053,12 @@ if (typeof window !== 'undefined' && !window.escapeHtml) {
                     disposeHierarchy(obj);
                     fg.remove(obj);
                 }
+                if (fg.parent) {
+                    fg.parent.remove(fg);
+                }
             }
         }
+        NAV_STATE.routeFloorGroups = {};
 
         // Удаляем глобальную группу межэтажных переходов в режиме 'all'
         if (NAV_STATE.globalRouteGroup && window.scene) {
@@ -3329,24 +3333,26 @@ if (typeof window !== 'undefined' && !window.escapeHtml) {
             floorSegments[currentFloor].push(currentPoints);
         }
 
-        // Рендерим 3D-путь на каждом этаже и прикрепляем в соответствующий floorGroups[f]
-        for (let f = 1; f <= 7; f++) {
-            if (!NAV_STATE.routeFloorGroups[f]) {
-                NAV_STATE.routeFloorGroups[f] = new THREE.Group();
-                NAV_STATE.routeFloorGroups[f].name = `routeGroup_floor_${f}`;
+        function getOrCreateFloorRouteGroup(floorNum) {
+            if (!NAV_STATE.routeFloorGroups[floorNum]) {
+                const grp = new THREE.Group();
+                grp.name = `routeGroup_floor_${floorNum}`;
+                NAV_STATE.routeFloorGroups[floorNum] = grp;
             }
-
-            const rGroup = NAV_STATE.routeFloorGroups[f];
-
-            // Прикрепляем к системной группе этажа Three.js
-            if (window.floorGroups && window.floorGroups[f]) {
-                if (rGroup.parent !== window.floorGroups[f]) {
-                    window.floorGroups[f].add(rGroup);
+            const rGroup = NAV_STATE.routeFloorGroups[floorNum];
+            if (window.floorGroups && window.floorGroups[floorNum]) {
+                if (rGroup.parent !== window.floorGroups[floorNum]) {
+                    window.floorGroups[floorNum].add(rGroup);
                 }
             }
+            return rGroup;
+        }
 
+        // Лениво рендерим 3D-путь только на тех этажах, где действительно есть геометрия
+        for (let f = 1; f <= 7; f++) {
             const segs = floorSegments[f];
             if (segs && segs.length > 0) {
+                const rGroup = getOrCreateFloorRouteGroup(f);
                 for (const pts of segs) {
                     const mesh = createLuminousRouteMesh(pts);
                     if (mesh) rGroup.add(mesh);
@@ -3356,8 +3362,8 @@ if (typeof window !== 'undefined' && !window.escapeHtml) {
 
         // Маркер точки "А" (Откуда / первичный) — небесно-голубой
         const startNode = nodes[0];
-        const startGroup = NAV_STATE.routeFloorGroups[startNode.floor];
-        if (startGroup) {
+        if (startNode) {
+            const startGroup = getOrCreateFloorRouteGroup(startNode.floor);
             const startMarker = createMarkerRing(0x38bdf8, 'A', true);
             startMarker.position.set(startNode.x, 0.05, startNode.z);
             startGroup.add(startMarker);
@@ -3365,8 +3371,8 @@ if (typeof window !== 'undefined' && !window.escapeHtml) {
 
         // Маркер точки "Б" (Куда / конечный) — синий Google Blue
         const destNode = nodes[nodes.length - 1];
-        const destGroup = NAV_STATE.routeFloorGroups[destNode.floor];
-        if (destGroup) {
+        if (destNode) {
+            const destGroup = getOrCreateFloorRouteGroup(destNode.floor);
             const destMarker = createMarkerRing(0x1a73e8, 'B', true);
             destMarker.position.set(destNode.x, 0.05, destNode.z);
             destGroup.add(destMarker);
@@ -3378,12 +3384,10 @@ if (typeof window !== 'undefined' && !window.escapeHtml) {
             const curr = nodes[i];
             if (curr.floor !== prev.floor) {
                 const isUp = curr.floor > prev.floor;
-                const fg = NAV_STATE.routeFloorGroups[prev.floor];
-                if (fg) {
-                    const stairMarker = createStairTransitionMarker(isUp ? `↑ ${curr.floor} этаж` : `↓ ${curr.floor} этаж`, isUp);
-                    stairMarker.position.set(prev.x, 0.05, prev.z);
-                    fg.add(stairMarker);
-                }
+                const fg = getOrCreateFloorRouteGroup(prev.floor);
+                const stairMarker = createStairTransitionMarker(isUp ? `↑ ${curr.floor} этаж` : `↓ ${curr.floor} этаж`, isUp);
+                stairMarker.position.set(prev.x, 0.05, prev.z);
+                fg.add(stairMarker);
             }
         }
 
