@@ -670,6 +670,12 @@ const DEFAULT_CAMPUS_COLORS = {
 };
 window.DEFAULT_CAMPUS_COLORS = DEFAULT_CAMPUS_COLORS;
 
+const _sharedShelterFrameMat = new THREE.MeshStandardMaterial({
+    color: 0xd4dce4,
+    roughness: 0.25,
+    metalness: 0.88
+});
+
 const MATERIALS = {
     // 1. Плиты перекрытий и несущие ядра
     slab: new THREE.MeshStandardMaterial({
@@ -717,7 +723,7 @@ const MATERIALS = {
         color: isInitialDark ? 0x1e293b : 0xcbd5e1,
         roughness: 0.75
     }),
-    edgeMain: new THREE.LineBasicMaterial({ color: isInitialDark ? 0x475569 : 0x475569, linewidth: 1 }),
+    edgeMain: new THREE.LineBasicMaterial({ color: isInitialDark ? 0x475569 : 0x64748b, linewidth: 1 }),
     edgeDoor: new THREE.LineBasicMaterial({ color: isInitialDark ? 0x475569 : 0x64748b, linewidth: 1 }),
     guideLine: new THREE.LineDashedMaterial({
         color: 0x94a3b8,
@@ -810,16 +816,8 @@ const MATERIALS = {
     }),
 
     // 3. Остановочный павильон и навесы
-    shelterFrame: new THREE.MeshStandardMaterial({
-        color: 0xd4dce4,
-        roughness: 0.25,
-        metalness: 0.88
-    }),
-    shelterFrameStainless: new THREE.MeshStandardMaterial({
-        color: 0xd4dce4,
-        roughness: 0.25,
-        metalness: 0.88
-    }),
+    shelterFrame: _sharedShelterFrameMat,
+    shelterFrameStainless: _sharedShelterFrameMat,
     shelterGlass: new THREE.MeshStandardMaterial({
         color: 0xd8e8f0,
         transparent: true,
