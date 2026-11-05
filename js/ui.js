@@ -1403,35 +1403,35 @@ function setupSearch() {
             const isActive = index === 0 ? " is-active" : "";
             html += `
                 <button class="m3-search-row room-search-item flex items-stretch w-full transition text-left group overflow-hidden${isActive}"
-                        data-floor="${item.floor}" data-bldg="${item.building}" data-x="${item.x}" data-z="${item.z}" data-text="${dataText}">
+                        data-floor="${escapeHtml(item.floor)}" data-bldg="${escapeHtml(item.building)}" data-x="${escapeHtml(item.x)}" data-z="${escapeHtml(item.z)}" data-text="${escapeHtml(dataText)}">
                     <!-- Колонка 1: Номер аудитории -->
                     <div class="m3-search-col-num flex items-center justify-center font-bold text-slate-800 dark:text-slate-100 select-none">
-                        ${codeLabel}
+                        ${escapeHtml(codeLabel)}
                     </div>
 
                     <!-- Колонка 2: Бейджи Корпуса и Этажа (на всю ширину блока) -->
                     <div class="m3-search-col-badges flex flex-col justify-stretch p-0 m-0">
                         <!-- Корпус -->
-                        <div class="m3-search-badge m3-badge-bldg flex items-center justify-center gap-1" title="Корпус ${item.building}">
+                        <div class="m3-search-badge m3-badge-bldg flex items-center justify-center gap-1" title="Корпус ${escapeHtml(item.building)}">
                             <svg class="w-3.5 h-3.5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                                 <rect x="4" y="3" width="7" height="18" rx="1"></rect>
                                 <rect x="11" y="9" width="6" height="12" rx="1"></rect>
                             </svg>
-                            <span class="m3-badge-num">${item.building}</span>
+                            <span class="m3-badge-num">${escapeHtml(item.building)}</span>
                         </div>
                         <!-- Этаж -->
-                        <div class="m3-search-badge m3-badge-floor flex items-center justify-center gap-1" title="${item.floor} этаж">
+                        <div class="m3-search-badge m3-badge-floor flex items-center justify-center gap-1" title="${escapeHtml(item.floor)} этаж">
                             <svg class="w-3.5 h-3.5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M4 19h4v-4h4v-4h4V7h4"></path>
                             </svg>
-                            <span class="m3-badge-num">${item.floor}</span>
+                            <span class="m3-badge-num">${escapeHtml(item.floor)}</span>
                         </div>
                     </div>
 
                     <!-- Колонка 3: Название кабинета + преподаватель / описание -->
                     <div class="m3-search-col-info flex flex-col justify-center min-w-0 flex-1 overflow-hidden">
-                        <span class="m3-search-title room-search-title leading-snug truncate">${displayTitle}</span>
-                        <span class="m3-search-subtitle room-search-sub truncate">${subtitle}</span>
+                        <span class="m3-search-title room-search-title leading-snug truncate">${escapeHtml(displayTitle)}</span>
+                        <span class="m3-search-subtitle room-search-sub truncate">${escapeHtml(subtitle)}</span>
                     </div>
                 </button>
             `;
