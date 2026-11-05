@@ -2984,11 +2984,16 @@
                     child.geometry.dispose();
                 }
                 if (child.material) {
-                    if (Array.isArray(child.material)) {
-                        child.material.forEach(m => m && typeof m.dispose === 'function' && m.dispose());
-                    } else if (typeof child.material.dispose === 'function') {
-                        child.material.dispose();
-                    }
+                    const materials = Array.isArray(child.material) ? child.material : [child.material];
+                    materials.forEach(m => {
+                        if (!m) return;
+                        if (m.map && typeof m.map.dispose === 'function') {
+                            m.map.dispose();
+                        }
+                        if (typeof m.dispose === 'function') {
+                            m.dispose();
+                        }
+                    });
                 }
             });
         }
@@ -3016,6 +3021,9 @@
             NAV_STATE.globalRouteGroup = null;
         }
 
+        if (NAV_STATE._pulsingObjects) {
+            NAV_STATE._pulsingObjects.length = 0;
+        }
         NAV_STATE.activeRoute = null;
         _badgeWidthCache.clear();
         if (typeof requestRender === 'function') requestRender(20);
