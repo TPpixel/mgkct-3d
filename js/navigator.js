@@ -4045,15 +4045,25 @@
             }
 
             titleEl.onclick = (e) => {
-                if (e.target !== destEl && e.target !== startEl) {
-                    if (destEl) {
-                        destEl.click();
-                    } else {
-                        openNavigatorModal();
-                    }
+                if (e.target.closest('#nav-card-dest-badge') || e.target.closest('#nav-card-start-label')) {
+                    return;
                 }
+                openNavigatorModal();
             };
         }
+
+        // Клик по любой области плашки маршрута открывает модальное меню маршрута,
+        // сохраняя при этом быстрый выбор точек по клику на сами бейджи
+        card.style.cursor = 'pointer';
+        card.onclick = (e) => {
+            if (e.target.closest('#nav-card-dest-badge')) return;
+            if (e.target.closest('#nav-card-start-label')) return;
+            if (e.target.closest('#btn-card-close')) return;
+            if (e.target.closest('#nav-card-floors') || e.target.closest('.m3-nav-stairs-icon') || e.target.closest('.m3-nav-floor-chip') || e.target.closest('.m3-nav-floor-pill')) return;
+            if (e.target.closest('#nav-steps-container')) return;
+
+            openNavigatorModal();
+        };
 
         // Круглая иконка лестницы: по нажатию переход на следующий этаж маршрута
         const stairsIconEl = card.querySelector('.m3-nav-stairs-icon');
@@ -4088,7 +4098,8 @@
                 btn.className = `m3-nav-floor-pill ${isActive ? 'active-pill' : ''}`;
                 btn.textContent = String(f);
                 btn.title = `Перейти на ${f} этаж`;
-                btn.onclick = () => {
+                btn.onclick = (e) => {
+                    e.stopPropagation();
                     if (typeof setMode === 'function') {
                         setMode(String(f));
                         // Перемещаем камеру к началу этого отрезка
@@ -4136,6 +4147,20 @@
         if (typeof pushOverlayState === 'function') pushOverlayState('navigator');
         if (typeof updateVisualViewportVars === 'function') updateVisualViewportVars();
         setDefaultStartPoint();
+
+        // Синхронизируем поля ввода с актуальными точками текущего маршрута
+        const inputA = document.getElementById('nav-input-start');
+        const inputB = document.getElementById('nav-input-dest');
+        if (inputA && NAV_STATE.startPoint) {
+            inputA.value = formatNavInputString(NAV_STATE.startPoint);
+            const btnClearA = document.getElementById('btn-clear-start');
+            if (btnClearA) btnClearA.classList.remove('hidden');
+        }
+        if (inputB && NAV_STATE.destPoint) {
+            inputB.value = formatNavInputString(NAV_STATE.destPoint);
+            const btnClearB = document.getElementById('btn-clear-dest');
+            if (btnClearB) btnClearB.classList.remove('hidden');
+        }
         const btnElevIcon = document.getElementById('btn-toggle-elevators-icon');
         if (btnElevIcon) {
             btnElevIcon.classList.toggle('active', !!NAV_STATE.allowElevators);
@@ -4683,7 +4708,10 @@
         // Кнопка закрытия карточки маршрута
         const btnCardClose = document.getElementById('btn-card-close');
         if (btnCardClose) {
-            btnCardClose.addEventListener('click', clearRoute);
+            btnCardClose.addEventListener('click', (e) => {
+                e.stopPropagation();
+                clearRoute();
+            });
         }
 
         // Автодополнение для поля "Откуда"
@@ -4801,7 +4829,8 @@
         const btnToggleSteps = document.getElementById('btn-toggle-steps');
         const stepsContainer = document.getElementById('nav-steps-container');
         if (btnToggleSteps && stepsContainer) {
-            btnToggleSteps.addEventListener('click', () => {
+            btnToggleSteps.addEventListener('click', (e) => {
+                e.stopPropagation();
                 const isHidden = stepsContainer.classList.contains('hidden');
                 stepsContainer.classList.toggle('hidden', !isHidden);
                 const icon = btnToggleSteps.querySelector('svg');
