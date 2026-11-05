@@ -24,11 +24,12 @@ window.resetControlsMomentum = resetControlsMomentum;
 function initControls(camera, domElement) {
     controls = new THREE.OrbitControls(camera, domElement);
     controls.enableDamping = true;
-    controls.dampingFactor = 0.08;
+    controls.dampingFactor = 0.18; // Более быстрый и отзывчивый отклик (было 0.08)
+    controls.zoomSpeed = 0.85;     // Контролируемый щипок без гиперчувствительности
     controls.maxPolarAngle = Math.PI / 2 - 0.01;
     controls.minDistance = 10;
     controls.maxDistance = 115;
-    controls.screenSpacePanning = true; // Важно для плавного перемещения карты
+    controls.screenSpacePanning = false; // Важно: строго горизонтальное перемещение по полу (XZ) без дрейфа высоты
     controls.enableZoom = true; // Оставляем включенным для стабильного двухпальцевого pinch-зума на смартфонах
 
     const cx = (typeof getActiveCenterX === 'function') ? getActiveCenterX() : 24.0;
@@ -52,6 +53,8 @@ function initControls(camera, domElement) {
 
     domElement.addEventListener('touchstart', (e) => {
         activeTouches = e.touches ? e.touches.length : 0;
+        // Во время активного касания пальцем увеличиваем демпфирование для мгновенного отклика 1:1
+        if (controls) controls.dampingFactor = 0.24;
         if (activeTouches >= 2) {
             wasMultiTouch = true;
         }
@@ -65,13 +68,38 @@ function initControls(camera, domElement) {
 
     domElement.addEventListener('touchend', (e) => {
         activeTouches = e.touches ? e.touches.length : 0;
-        if (activeTouches === 0) {
+        // При отпускании пальца возвращаем демпфер для естественного скольжения по инерции
+        if (controls) controls.dampingFactor = 0.12;
+        if (activeTouches === 1 && controls && controls.enabled) {
+            // Бесшовный переход: если оторвали 1 палец из 2, продолжаем панорамирование оставшимся пальцем
+            const remTouch = e.touches[0];
+            pointerDownPos = { x: remTouch.clientX, y: remTouch.clientY };
+            try {
+                const simTouch = new Touch({
+                    identifier: remTouch.identifier,
+                    target: domElement,
+                    clientX: remTouch.clientX,
+                    clientY: remTouch.clientY,
+                    pageX: remTouch.pageX,
+                    pageY: remTouch.pageY
+                });
+                const simEvent = new TouchEvent('touchstart', {
+                    touches: [simTouch],
+                    targetTouches: [simTouch],
+                    changedTouches: [simTouch],
+                    bubbles: true,
+                    cancelable: true
+                });
+                domElement.dispatchEvent(simEvent);
+            } catch (err) {}
+        } else if (activeTouches === 0) {
             setTimeout(() => { wasMultiTouch = false; }, 80);
         }
     }, { passive: true });
 
     domElement.addEventListener('touchcancel', () => {
         activeTouches = 0;
+        if (controls) controls.dampingFactor = 0.12;
         setTimeout(() => { wasMultiTouch = false; }, 80);
     }, { passive: true });
 
