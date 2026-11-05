@@ -2818,17 +2818,27 @@ if (typeof window !== 'undefined' && !window.escapeHtml) {
         cameFrom.set(startId, null);
         costSoFar.set(startId, 0);
 
+        const destX = destNode.x;
+        const destZ = destNode.z;
+        const destFloor = destNode.floor;
+
         function heuristic(uId) {
             const u = graph.getNode(uId);
-            const dx = u.x - destNode.x;
-            const dz = u.z - destNode.z;
-            const df = Math.abs(u.floor - destNode.floor);
+            if (!u) return 0;
+            const dx = u.x - destX;
+            const dz = u.z - destZ;
+            const df = Math.abs(u.floor - destFloor);
             return Math.hypot(dx, dz) + df * 5.0;
         }
+
+        const settled = new Set();
 
         while (!frontier.isEmpty()) {
             const current = frontier.pop();
             if (current === destId) break;
+            // Ленивое удаление дубликатов из MinHeap: исключаем повторное раскрытие уже посещенных вершин
+            if (settled.has(current)) continue;
+            settled.add(current);
 
             const neighbors = graph.adj.get(current) || [];
             const currentCost = costSoFar.get(current);
