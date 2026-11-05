@@ -1,3 +1,6 @@
+(function() {
+    'use strict';
+
 // ==========================================
 // КОРПУС 4 (Этажи 1–3 + переходы) — ИСПРАВЛЕННАЯ ГЕОМЕТРИЯ ПО НАЛОЖЕНИЮ ПЛАНОВ БТИ
 // ==========================================
@@ -1025,3 +1028,5 @@
 window.buildBuilding4Floor1 = buildBuilding4Floor1;
 window.buildBuilding4Floor2 = buildBuilding4Floor2;
 window.buildBuilding4Floor3 = buildBuilding4Floor3;
+
+})();

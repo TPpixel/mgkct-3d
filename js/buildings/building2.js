@@ -1,3 +1,6 @@
+(function() {
+    'use strict';
+
 // ==========================================
 // КОРПУС 2 (Этажи 1–3) — ИСПРАВЛЕННАЯ ВНУТРЕННЯЯ ПЛАНИРОВКА ПО ПЛАНАМ БТИ
 // Внешний периметр, сквозные лестницы (ЛК №1, ЛК №2, ЛК №3) и выходы к переходам сохранены 1-в-1!
@@ -521,3 +524,5 @@
 window.buildBuilding2Floor1 = buildBuilding2Floor1;
 window.buildBuilding2Floor2 = buildBuilding2Floor2;
 window.buildBuilding2Floor3 = buildBuilding2Floor3;
+
+})();

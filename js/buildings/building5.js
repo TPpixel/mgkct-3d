@@ -42,8 +42,4 @@
 
     // Экспорт в глобальную область видимости
     window.buildBuilding5Floor1 = buildBuilding5Floor1;
-    window.B5_X_WEST = B5_X_WEST;
-    window.B5_X_EAST = B5_X_EAST;
-    window.B5_Z_NORTH = B5_Z_NORTH;
-    window.B5_Z_SOUTH = B5_Z_SOUTH;
 })();
