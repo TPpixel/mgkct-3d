@@ -32,7 +32,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
 
       - name: Validate JavaScript Syntax (V8)
         run: node tests/check_syntax.js
@@ -47,4 +47,4 @@ jobs:
         run: node tests/validate_campus_navigation.js
 
       - name: Headless Browser Runtime Smoke Test
-        run: node tests/smoke_browser_runtime.js
+        run: node --experimental-websocket tests/smoke_browser_runtime.js
