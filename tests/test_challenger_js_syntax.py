@@ -5,7 +5,8 @@ Check basic bracket balancing and JS sanity across all project JS files.
 """
 
 import os
-import re
+import subprocess
+import shutil
 
 js_files = [
     "js/state.js",
@@ -22,6 +23,13 @@ js_files = [
     "js/main.js"
 ]
 
+REGEX_PRECEDING_TOKENS = {
+    '(', '[', '{', ';', ',', '=', ':', '?', '!', '&', '|', '^', '~', '+', '-', '*', '/', '%', '<', '>',
+    'return', 'case', 'typeof', 'void', 'delete', 'yield', 'await', 'throw', 'default', 'do', 'new'
+}
+
+node_bin = shutil.which("node")
+
 all_ok = True
 for fpath in js_files:
     if not os.path.exists(fpath):
@@ -30,112 +38,174 @@ for fpath in js_files:
         continue
     with open(fpath, "r", encoding="utf-8") as f:
         src = f.read()
-    
-    # Check bracket balance (skipping comments and strings)
-    # Simple lexical scan
+
+    # Optional authoritative Node.js V8 syntax check
+    if node_bin:
+        res = subprocess.run([node_bin, "-c", fpath], capture_output=True, text=True)
+        if res.returncode != 0:
+            print(f"[FAIL] Node syntax check failed for {fpath}:\n{res.stderr.strip()}")
+            all_ok = False
+            continue
+
+    # Check bracket balance (skipping comments, strings, and regex literals)
+    # Lexical scan with regex awareness
     stack = []
     pairs = {')': '(', '}': '{', ']': '['}
-    in_single_str = False
-    in_double_str = False
-    in_template_str = False
-    in_line_comment = False
-    in_block_comment = False
-    
+
     i = 0
     n = len(src)
     line = 1
     col = 1
-    
+    prev_token = None
     error = None
+
     while i < n:
         c = src[i]
         c2 = src[i:i+2]
-        
+
         if c == '\n':
             line += 1
             col = 1
-            in_line_comment = False
             i += 1
             continue
-            
-        if in_line_comment:
+
+        if c.isspace():
             i += 1
             col += 1
             continue
-            
-        if in_block_comment:
-            if c2 == '*/':
-                in_block_comment = False
-                i += 2
-                col += 2
-            else:
+
+        # Line comment
+        if c2 == '//':
+            i += 2
+            col += 2
+            while i < n and src[i] != '\n':
                 i += 1
                 col += 1
             continue
-            
-        if in_single_str:
-            if c == '\\':
-                i += 2
-                col += 2
-                continue
-            elif c == "'":
-                in_single_str = False
-            i += 1
-            col += 1
-            continue
-            
-        if in_double_str:
-            if c == '\\':
-                i += 2
-                col += 2
-                continue
-            elif c == '"':
-                in_double_str = False
-            i += 1
-            col += 1
-            continue
-            
-        if in_template_str:
-            if c == '\\':
-                i += 2
-                col += 2
-                continue
-            elif c == '`':
-                in_template_str = False
-            i += 1
-            col += 1
-            continue
-            
-        # Not in string or comment
-        if c2 == '//':
-            in_line_comment = True
+
+        # Block comment
+        if c2 == '/*':
+            i += 2
+            col += 2
+            while i < n and src[i:i+2] != '*/':
+                if src[i] == '\n':
+                    line += 1
+                    col = 1
+                else:
+                    col += 1
+                i += 1
             i += 2
             col += 2
             continue
-        elif c2 == '/*':
-            in_block_comment = True
-            i += 2
-            col += 2
-            continue
-        elif c == "'":
-            in_single_str = True
+
+        # Single quoted string
+        if c == "'":
             i += 1
             col += 1
-            continue
-        elif c == '"':
-            in_double_str = True
+            while i < n and src[i] != "'":
+                if src[i] == '\\':
+                    i += 2
+                    col += 2
+                elif src[i] == '\n':
+                    line += 1
+                    col = 1
+                    i += 1
+                else:
+                    i += 1
+                    col += 1
             i += 1
             col += 1
+            prev_token = 'str'
             continue
-        elif c == '`':
-            in_template_str = True
+
+        # Double quoted string
+        if c == '"':
             i += 1
             col += 1
+            while i < n and src[i] != '"':
+                if src[i] == '\\':
+                    i += 2
+                    col += 2
+                elif src[i] == '\n':
+                    line += 1
+                    col = 1
+                    i += 1
+                else:
+                    i += 1
+                    col += 1
+            i += 1
+            col += 1
+            prev_token = 'str'
             continue
-            
+
+        # Template literal
+        if c == '`':
+            i += 1
+            col += 1
+            while i < n and src[i] != '`':
+                if src[i] == '\\':
+                    i += 2
+                    col += 2
+                elif src[i] == '\n':
+                    line += 1
+                    col = 1
+                    i += 1
+                else:
+                    i += 1
+                    col += 1
+            i += 1
+            col += 1
+            prev_token = 'str'
+            continue
+
+        # Slash: regex literal or division operator
+        if c == '/':
+            if prev_token is None or prev_token in REGEX_PRECEDING_TOKENS:
+                reg_l, reg_c = line, col
+                i += 1
+                col += 1
+                in_cc = False
+                while i < n:
+                    if src[i] == '\n':
+                        error = f"Unterminated regex literal at {reg_l}:{reg_c}"
+                        break
+                    if src[i] == '\\':
+                        i += 2
+                        col += 2
+                        continue
+                    if src[i] == '[':
+                        in_cc = True
+                    elif src[i] == ']' and in_cc:
+                        in_cc = False
+                    elif src[i] == '/' and not in_cc:
+                        i += 1
+                        col += 1
+                        while i < n and src[i].isalpha():
+                            i += 1
+                            col += 1
+                        break
+                    i += 1
+                    col += 1
+                if error:
+                    break
+                prev_token = 'regex'
+                continue
+            else:
+                prev_token = '/'
+                i += 1
+                col += 1
+                continue
+
+        # Opening brackets
         if c in '({[':
             stack.append((c, line, col))
-        elif c in ')}]':
+            prev_token = c
+            i += 1
+            col += 1
+            continue
+
+        # Closing brackets
+        if c in ')}]':
             if not stack:
                 error = f"Unmatched closing '{c}' at {line}:{col}"
                 break
@@ -143,10 +213,32 @@ for fpath in js_files:
             if pairs[c] != top:
                 error = f"Mismatched bracket: opened '{top}' at {tl}:{tc}, closed with '{c}' at {line}:{col}"
                 break
-                
+            prev_token = c
+            i += 1
+            col += 1
+            continue
+
+        # Identifiers and keywords
+        if c.isalpha() or c in '_$':
+            w_start = i
+            while i < n and (src[i].isalnum() or src[i] in '_$'):
+                i += 1
+                col += 1
+            prev_token = src[w_start:i]
+            continue
+
+        # Number literals
+        if c.isdigit():
+            while i < n and (src[i].isalnum() or src[i] in '._'):
+                i += 1
+                col += 1
+            prev_token = 'num'
+            continue
+
+        prev_token = c
         i += 1
         col += 1
-        
+
     if error:
         print(f"[FAIL] {fpath}: {error}")
         all_ok = False
