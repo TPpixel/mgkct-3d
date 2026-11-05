@@ -188,22 +188,27 @@ const FLOOR_DESCRIPTIONS = {
     '1': 'Этаж 1: Корпус 1 + Корпус 2 (103–111) + Корпус 3 (102–117) + Корпус 4 (1–24, 102–105)'
 };
 
+const BUILDING_CENTERS = {
+    '1': { x: 1.0, z: -2.0 },
+    '2': { x: 44.2, z: -5.1 },
+    '3': { x: 5.9, z: -40.2 },
+    '4': { x: 48.5, z: -44.5 },
+    '5': { x: 6.0, z: -68.75 },
+    'default': { x: 16.0, z: -18.0 }
+};
+
+function setBuildingCenter(bldgId, x, z) {
+    BUILDING_CENTERS[String(bldgId)] = { x, z };
+}
+
 function getActiveCenterX() {
-    if (STATE.buildingFilter === '1') return 1.0;
-    if (STATE.buildingFilter === '2') return 44.2;
-    if (STATE.buildingFilter === '3') return 5.9;
-    if (STATE.buildingFilter === '4') return 48.5;
-    if (STATE.buildingFilter === '5') return 6.0;
-    return 16.0;
+    const key = String(STATE.buildingFilter);
+    return (BUILDING_CENTERS[key] || BUILDING_CENTERS['default']).x;
 }
 
 function getActiveCenterZ() {
-    if (STATE.buildingFilter === '1') return -2.0;
-    if (STATE.buildingFilter === '2') return -5.1;
-    if (STATE.buildingFilter === '3') return -40.2;
-    if (STATE.buildingFilter === '4') return -44.5;
-    if (STATE.buildingFilter === '5') return -68.75;
-    return -18.0;
+    const key = String(STATE.buildingFilter);
+    return (BUILDING_CENTERS[key] || BUILDING_CENTERS['default']).z;
 }
 
 function isBuildingVisible(bldgId) {
@@ -215,3 +220,17 @@ function isBuildingVisible(bldgId) {
     return false;
 }
 window.isBuildingVisible = isBuildingVisible;
+
+// Единое пространство имен MGKCT для консолидации архитектурного состояния
+window.MGKCT = window.MGKCT || {};
+Object.assign(window.MGKCT, {
+    STATE,
+    ROOMS_REGISTRY,
+    DOORS_REGISTRY,
+    WALLS_REGISTRY,
+    BUILDING_CENTERS,
+    setBuildingCenter,
+    getActiveCenterX,
+    getActiveCenterZ,
+    isBuildingVisible
+});
