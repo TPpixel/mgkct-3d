@@ -4454,33 +4454,34 @@ if (typeof window !== 'undefined' && !window.escapeHtml) {
             const matches = [];
             for (const [nid, n] of g.nodes.entries()) {
                 if (n.type === 'room' || n.type === 'entrance') {
-                    const lbl = (n.label || '').toLowerCase();
-                    const alias = (ROOM_ALIASES[nid] || '').toLowerCase();
-                    const formattedCode = formatNavNodeName(n.label, n.bldg).toLowerCase();
+                    // Кэшируем вычисленные поисковые ключевые слова на узле графа,
+                    // избегая квадратичного поиска O(N*M) в ROOMS_REGISTRY на каждое нажатие клавиши
+                    if (!n._searchKeywords) {
+                        const lbl = (n.label || '').toLowerCase();
+                        const alias = (ROOM_ALIASES[nid] || '').toLowerCase();
+                        const formattedCode = formatNavNodeName(n.label, n.bldg).toLowerCase();
 
-                    let extraKeywords = '';
-                    if (typeof ROOMS_REGISTRY !== 'undefined' && Array.isArray(ROOMS_REGISTRY)) {
-                        const rMatch = ROOMS_REGISTRY.find(r => 
-                            r.building === n.bldg && 
-                            r.floor === n.floor && 
-                            (r.text === n.label || r.text.includes(n.label) || (n.bldg > 1 && r.text.includes(`${n.bldg}-${n.label}`)))
-                        );
-                        if (rMatch) {
-                            extraKeywords = (rMatch.text || '').toLowerCase();
-                            if (typeof getRoomSubjectAndTeacher === 'function') {
-                                const details = getRoomSubjectAndTeacher(n.bldg, n.floor, n.label, rMatch.text);
-                                if (details) {
-                                    extraKeywords += ' ' + (details.subject || '').toLowerCase() + ' ' + (details.teacher || '').toLowerCase();
+                        let extraKeywords = '';
+                        if (typeof ROOMS_REGISTRY !== 'undefined' && Array.isArray(ROOMS_REGISTRY)) {
+                            const rMatch = ROOMS_REGISTRY.find(r => 
+                                r.building === n.bldg && 
+                                r.floor === n.floor && 
+                                (r.text === n.label || r.text.includes(n.label) || (n.bldg > 1 && r.text.includes(`${n.bldg}-${n.label}`)))
+                            );
+                            if (rMatch) {
+                                extraKeywords = (rMatch.text || '').toLowerCase();
+                                if (typeof getRoomSubjectAndTeacher === 'function') {
+                                    const details = getRoomSubjectAndTeacher(n.bldg, n.floor, n.label, rMatch.text);
+                                    if (details) {
+                                        extraKeywords += ' ' + (details.subject || '').toLowerCase() + ' ' + (details.teacher || '').toLowerCase();
+                                    }
                                 }
                             }
                         }
+                        n._searchKeywords = `${lbl} ${n.bldg}-${lbl} ${formattedCode} ${alias} ${extraKeywords}`;
                     }
 
-                    if (lbl.includes(query) || 
-                        `${n.bldg}-${lbl}`.includes(query) || 
-                        formattedCode.includes(query) || 
-                        alias.includes(query) ||
-                        (extraKeywords && extraKeywords.includes(query))) {
+                    if (n._searchKeywords.includes(query)) {
                         matches.push(n);
                         if (matches.length >= 8) break;
                     }
