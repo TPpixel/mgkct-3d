@@ -1218,3 +1218,22 @@ function loadTimetableTexturesAsync() {
 }
 
 window.loadTimetableTexturesAsync = loadTimetableTexturesAsync;
+
+// Централизованное освобождение WebGL материалов и текстур для предотвращения утечек GPU
+function disposeAllMaterials() {
+    if (typeof MATERIALS === 'undefined' || !MATERIALS) return;
+    for (const key of Object.keys(MATERIALS)) {
+        const mat = MATERIALS[key];
+        if (!mat) continue;
+        if (mat.map && typeof mat.map.dispose === 'function') {
+            mat.map.dispose();
+        }
+        if (mat.lightMap && typeof mat.lightMap.dispose === 'function') {
+            mat.lightMap.dispose();
+        }
+        if (typeof mat.dispose === 'function') {
+            mat.dispose();
+        }
+    }
+}
+window.disposeAllMaterials = disposeAllMaterials;
