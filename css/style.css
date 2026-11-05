@@ -434,6 +434,36 @@ body[data-theme="dark"] .m3-icon-pill-btn:hover {
     transform: scale(0.96);
 }
 
+/* Круглая кнопка навигатора на главной панели (Google Directions Pill Button) */
+.m3-nav-pill-btn {
+    background: #1a73e8 !important;
+    color: #ffffff !important;
+    border: 1.5px solid #1a73e8 !important;
+    box-shadow: 0 4px 14px rgba(26, 115, 232, 0.35), 0 1px 3px rgba(0, 0, 0, 0.12) !important;
+}
+
+.m3-nav-pill-btn:hover {
+    background: #1558b0 !important;
+    border-color: #1558b0 !important;
+    box-shadow: 0 6px 18px rgba(26, 115, 232, 0.45) !important;
+}
+
+.m3-nav-pill-btn:active {
+    transform: scale(0.94) !important;
+}
+
+body[data-theme="dark"] .m3-nav-pill-btn {
+    background: #1a73e8 !important;
+    color: #ffffff !important;
+    border-color: #1a73e8 !important;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5) !important;
+}
+
+body[data-theme="dark"] .m3-nav-pill-btn:hover {
+    background: #1b80f5 !important;
+    border-color: #1b80f5 !important;
+}
+
 /* Скрываем нижнюю панель поиска при активном маршруте (на всех экранах) */
 #bottom-search-bar.route-active {
     opacity: 0 !important;
