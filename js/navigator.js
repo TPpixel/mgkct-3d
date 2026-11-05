@@ -3873,11 +3873,11 @@ if (typeof window !== 'undefined' && !window.escapeHtml) {
         const g = NAV_STATE.graph || buildCollegeNavGraph();
         NAV_STATE.graph = g;
 
-        // Находим соответствующий узел в графе
+        // Находим соответствующий узел в графе с учетом погрешности координат
         let matchedNodeId = null;
         for (const [nid, n] of g.nodes.entries()) {
             if (n.floor === roomInfo.floor && n.bldg === roomInfo.building &&
-                Math.hypot(n.x - roomInfo.x, n.z - roomInfo.z) < 0.2) {
+                Math.hypot(n.x - roomInfo.x, n.z - roomInfo.z) < 0.05) {
                 matchedNodeId = nid;
                 break;
             }
@@ -3985,11 +3985,11 @@ if (typeof window !== 'undefined' && !window.escapeHtml) {
         const g = NAV_STATE.graph || buildCollegeNavGraph();
         NAV_STATE.graph = g;
 
-        // Находим соответствующий узел комнаты в графе
+        // Находим соответствующий узел комнаты в графе с учетом погрешности координат
         let matchedNodeId = null;
         for (const [nid, n] of g.nodes.entries()) {
             if (n.floor === roomInfo.floor && n.bldg === roomInfo.building &&
-                Math.hypot(n.x - roomInfo.x, n.z - roomInfo.z) < 0.2) {
+                Math.hypot(n.x - roomInfo.x, n.z - roomInfo.z) < 0.05) {
                 matchedNodeId = nid;
                 break;
             }
@@ -4003,7 +4003,7 @@ if (typeof window !== 'undefined' && !window.escapeHtml) {
 
         const pointData = {
             id: matchedNodeId,
-            text: roomInfo.text ? roomInfo.text.replace('\n', ' ') : 'Кабинет',
+            text: roomInfo.text ? roomInfo.text.replace(/\n/g, ' ').trim() : 'Кабинет',
             floor: roomInfo.floor,
             building: roomInfo.building,
             x: roomInfo.x,
