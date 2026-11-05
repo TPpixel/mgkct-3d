@@ -1,4 +1,4 @@
-name: CI & Quality Gates
+name: CI & Branch Validation
 
 on:
   pull_request:
@@ -23,7 +23,7 @@ jobs:
           echo "Verified: PR to main originates from dev."
 
   test:
-    name: Code Quality & Architecture Verification
+    name: Architecture & Navigation Tests
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
