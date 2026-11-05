@@ -311,9 +311,17 @@ function setMode(newMode, shouldSave = true) {
         btn.classList.toggle('active-pill', btn.textContent.trim() === String(newMode));
     });
 
-    // Скрываем контекстный попап кабинета, если переключили на другой этаж
-    if (currentPopupRoom && String(currentPopupRoom.floor) !== String(newMode)) {
-        hideRoomContextPopup();
+    // Скрываем контекстный попап кабинета, только если выбранный этаж стал невидим
+    if (currentPopupRoom) {
+        let roomIsVisible = true;
+        if (newMode === 'slice') {
+            roomIsVisible = (currentPopupRoom.floor <= (STATE.sliceMaxFloor || 7));
+        } else if (newMode !== 'all' && newMode !== 'sideBySide') {
+            roomIsVisible = (String(currentPopupRoom.floor) === String(newMode));
+        }
+        if (!roomIsVisible) {
+            hideRoomContextPopup();
+        }
     }
 
     // При выборе режима «Все этажи» переводим камеру на комфортный общий ракурс 3D здания
