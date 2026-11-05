@@ -2761,8 +2761,8 @@ if (typeof window !== 'undefined' && !window.escapeHtml) {
             const floorDiff = Math.abs(node.floor - startFloor);
             const bldgDiff = (node.bldg === startBldg) ? 0 : 1;
             const geomDist = Math.hypot(node.x - startX, node.z - startZ);
-            // Штраф за смену этажа (20м) и переход в другой корпус (35м)
-            const score = geomDist + floorDiff * 20.0 + bldgDiff * 35.0;
+            // Штраф за смену этажа (50м) и переход в другой корпус (80м) для приоритета текущего этажа
+            const score = geomDist + floorDiff * 50.0 + bldgDiff * 80.0;
             if (score < bestScore) {
                 bestScore = score;
                 bestNode = node;
