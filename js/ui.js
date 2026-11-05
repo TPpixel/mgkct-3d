@@ -16,12 +16,7 @@ function escapeHtml(str) {
 
 const SETTINGS_KEY = 'college_3d_map_settings_v3';
 
-function getSystemTheme() {
-    if (typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-        return 'dark';
-    }
-    return 'light';
-}
+// getSystemTheme импортирован из единого источника истины в js/state.js
 
 function setTheme(themeName, shouldSave = false) {
     if (themeName !== 'dark' && themeName !== 'light') {
