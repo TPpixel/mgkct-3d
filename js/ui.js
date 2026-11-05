@@ -1876,14 +1876,14 @@ function showRoomContextPopup(roomInfo, clientX, clientY, shouldSelectAndFly = t
     if (bldgNumEl) {
         bldgNumEl.textContent = bldgVal;
     } else if (bldgBadgeEl) {
-        bldgBadgeEl.innerHTML = `<svg class="w-3.5 h-3.5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="7" height="18" rx="1"></rect><rect x="11" y="9" width="6" height="12" rx="1"></rect></svg><span id="popup-room-bldg-num">${bldgVal}</span>`;
+        bldgBadgeEl.innerHTML = `<svg class="w-3.5 h-3.5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="7" height="18" rx="1"></rect><rect x="11" y="9" width="6" height="12" rx="1"></rect></svg><span id="popup-room-bldg-num">${escapeHtml(bldgVal)}</span>`;
     }
     if (bldgBadgeEl) bldgBadgeEl.title = `Корпус ${bldgVal}`;
 
     if (floorNumEl) {
         floorNumEl.textContent = floorVal;
     } else if (floorBadgeEl) {
-        floorBadgeEl.innerHTML = `<svg class="w-3.5 h-3.5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19h4v-4h4v-4h4V7h4"></path></svg><span id="popup-room-floor-num">${floorVal}</span>`;
+        floorBadgeEl.innerHTML = `<svg class="w-3.5 h-3.5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19h4v-4h4v-4h4V7h4"></path></svg><span id="popup-room-floor-num">${escapeHtml(floorVal)}</span>`;
     }
     if (floorBadgeEl) floorBadgeEl.title = `Этаж ${floorVal}`;
     if (timeNumEl) timeNumEl.textContent = estimateWalkTime(roomInfo);
