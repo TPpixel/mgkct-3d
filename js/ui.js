@@ -231,9 +231,10 @@ function setBuildingFilter(bFilter, shouldAnimateCam = true) {
         b.classList.toggle('active', b.dataset.bldg === bFilter);
     });
 
-    const btnAllBldg = document.getElementById('btn-toggle-all-bldg');
+    const btnAllBldg = document.getElementById('btn-toggle-all-bldg') || document.getElementById('btn-bldg-all');
     if (btnAllBldg) {
         btnAllBldg.classList.toggle('mode-active', bFilter === 'both');
+        btnAllBldg.classList.toggle('active', bFilter === 'both');
     }
 
     updateFloorButtonsAvailability();
@@ -789,6 +790,113 @@ function clearRecentSearches() {
 window.saveRecentSearch = saveRecentSearch;
 window.getRecentSearches = getRecentSearches;
 window.clearRecentSearches = clearRecentSearches;
+// ============================================================================
+// УПРАВЛЕНИЕ ЖЕСТОМ «НАЗАД» (MOBILE BACK GESTURE / ANDROID BACK BUTTON)
+// Перехватывает системный жест «Назад» на телефоне, чтобы закрывать поиск,
+// карточки кабинетов и модальные окна, возвращая пользователя на карту,
+// а не выбрасывая из сайта.
+// ============================================================================
+let activeOverlay = null; // 'search' | 'room-card' | 'navigator' | 'route' | null
+let isPoppingStateInternal = false;
+
+function initHistoryManager() {
+    if (typeof window === 'undefined' || !window.history) return;
+    try {
+        if (!history.state || !history.state.page) {
+            history.replaceState({ page: 'map' }, '');
+        }
+    } catch (_) {}
+
+    window.addEventListener('popstate', (e) => {
+        if (isPoppingStateInternal) {
+            isPoppingStateInternal = false;
+            return;
+        }
+
+        const targetOverlay = (e.state && e.state.overlay) || null;
+
+        // Проверяем открытые оверлеи
+        const searchModal = document.getElementById('search-modal');
+        const isSearchOpen = searchModal && (searchModal.classList.contains('active') || searchModal.classList.contains('open'));
+
+        const roomPopup = document.getElementById('room-context-popup');
+        const isRoomCardOpen = roomPopup && !roomPopup.classList.contains('hidden');
+
+        const navModal = document.getElementById('navigator-modal');
+        const isNavModalOpen = navModal && (navModal.classList.contains('active') || navModal.classList.contains('open'));
+
+        const isRouteActive = (typeof NAV_STATE !== 'undefined' && NAV_STATE.activeRoute);
+
+        // 1. Если была открыта карточка кабинета
+        if (isRoomCardOpen) {
+            hideRoomContextPopup(true);
+
+            // Если пришли из поиска — возвращаемся обратно в поиск!
+            if (targetOverlay === 'search') {
+                if (typeof openSearch === 'function') {
+                    openSearch(true);
+                }
+                activeOverlay = 'search';
+                return;
+            }
+
+            activeOverlay = null;
+            return;
+        }
+
+        // 2. Если был открыт поиск
+        if (isSearchOpen) {
+            if (typeof closeSearch === 'function') closeSearch(true);
+            activeOverlay = null;
+            return;
+        }
+
+        // 3. Если было открыто окно навигатора
+        if (isNavModalOpen) {
+            if (typeof closeNavigatorModal === 'function') closeNavigatorModal(true);
+            activeOverlay = null;
+            return;
+        }
+
+        // 4. Если был активен маршрут
+        if (isRouteActive) {
+            if (typeof clearRoute === 'function') clearRoute(true);
+            activeOverlay = null;
+            return;
+        }
+
+        activeOverlay = null;
+    });
+}
+
+function pushOverlayState(name, extra = {}) {
+    if (typeof window === 'undefined' || !window.history) return;
+    try {
+        if (activeOverlay === name) return;
+        const stateObj = { page: 'map', overlay: name, ...extra };
+        history.pushState(stateObj, '');
+        activeOverlay = name;
+    } catch (_) {}
+}
+
+function popOverlayState(name) {
+    if (typeof window === 'undefined' || !window.history) return;
+    if (activeOverlay === name) {
+        activeOverlay = null;
+        if (history.state && history.state.overlay) {
+            isPoppingStateInternal = true;
+            try {
+                history.back();
+            } catch (_) {}
+            setTimeout(() => { isPoppingStateInternal = false; }, 200);
+        }
+    }
+}
+
+window.pushOverlayState = pushOverlayState;
+window.popOverlayState = popOverlayState;
+window.initHistoryManager = initHistoryManager;
+
 function setupSearch() {
     const searchModal = document.getElementById("search-modal");
     const searchBackdrop = document.getElementById("search-backdrop");
@@ -1607,7 +1715,7 @@ function setupUI() {
     });
 
     // Плавающие кнопки карты: Все корпуса, Все этажи, Территория, 2D/3D, Зум
-    document.getElementById('btn-toggle-all-bldg')?.addEventListener('click', () => {
+    (document.getElementById('btn-toggle-all-bldg') || document.getElementById('btn-bldg-all'))?.addEventListener('click', () => {
         setBuildingFilter('both');
     });
 

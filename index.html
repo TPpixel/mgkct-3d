@@ -18,8 +18,8 @@
         };
         (function() {
             try {
-                var isDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-                var theme = isDark ? 'dark' : 'light';
+                var saved = localStorage.getItem('mgkct_theme');
+                var theme = (saved === 'dark' || saved === 'light') ? saved : ((window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light');
                 document.documentElement.setAttribute('data-theme', theme);
             } catch (_) {}
         })();
@@ -40,8 +40,8 @@
     <script>
         (function() {
             try {
-                var isDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-                var theme = isDark ? 'dark' : 'light';
+                var saved = localStorage.getItem('mgkct_theme');
+                var theme = (saved === 'dark' || saved === 'light') ? saved : ((window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light');
                 document.body.setAttribute('data-theme', theme);
             } catch (_) {}
         })();
@@ -167,6 +167,11 @@
         <div class="m3-search-bottom-bar flex items-center gap-1.5 sm:gap-2 w-full flex-shrink-0">
             <!-- Поисковая плашка -->
             <div class="m3-search-input-pill flex items-center justify-between flex-1 min-w-0">
+                <button id="btn-close-search" type="button" class="m3-search-nav-btn" aria-label="Назад" title="Закрыть поиск">
+                    <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                    </svg>
+                </button>
                 <form role="search" action="javascript:void(0);" method="get" autocomplete="off" onsubmit="return false;" class="m3-search-form flex-1 flex items-center min-w-0">
                     <input id="search-input"
                            type="search"
