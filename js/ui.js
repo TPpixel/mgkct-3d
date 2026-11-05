@@ -1567,25 +1567,18 @@ function updateBuildingColors() {
     if (typeof MATERIALS === 'undefined') return;
     if (STATE.theme === 'dark') return;
 
-    if (STATE.showTerritory) {
-        // Спутниковый / 3D режим с территорией: выразительная палитра кампуса (Шалфейный гранит)
-        const p = (typeof DEFAULT_CAMPUS_COLORS !== 'undefined') ? DEFAULT_CAMPUS_COLORS : {
-            slab: 0x9faea0,
-            coreSlab: 0x9faea0,
-            wall: 0x5b6c5d,
-            stair: 0x7d5336
-        };
-        if (MATERIALS.slab) MATERIALS.slab.color.setHex(p.slab);
-        if (MATERIALS.coreSlab) MATERIALS.coreSlab.color.setHex(p.coreSlab);
-        if (MATERIALS.wall) MATERIALS.wall.color.setHex(p.wall);
-        if (MATERIALS.stair) MATERIALS.stair.color.setHex(p.stair);
-    } else {
-        // Обычный 2D/3D вид: чистая светлая минималистичная архитектурная гамма
-        if (MATERIALS.slab) MATERIALS.slab.color.setHex(0xf8fafc);
-        if (MATERIALS.coreSlab) MATERIALS.coreSlab.color.setHex(0xeef2f6);
-        if (MATERIALS.wall) MATERIALS.wall.color.setHex(0xffffff);
-        if (MATERIALS.stair) MATERIALS.stair.color.setHex(0xcbd5e1);
-    }
+    // Архитектурная палитра кампуса (Шалфейный гранит) применяется единообразно
+    // как с включенной внешней территорией, так и без нее
+    const p = (typeof DEFAULT_CAMPUS_COLORS !== 'undefined') ? DEFAULT_CAMPUS_COLORS : {
+        slab: 0x9faea0,
+        coreSlab: 0x9faea0,
+        wall: 0x5b6c5d,
+        stair: 0x7d5336
+    };
+    if (MATERIALS.slab) MATERIALS.slab.color.setHex(p.slab);
+    if (MATERIALS.coreSlab) MATERIALS.coreSlab.color.setHex(p.coreSlab);
+    if (MATERIALS.wall) MATERIALS.wall.color.setHex(p.wall);
+    if (MATERIALS.stair) MATERIALS.stair.color.setHex(p.stair);
 }
 
 
