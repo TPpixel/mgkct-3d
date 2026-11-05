@@ -659,7 +659,7 @@ window.DEFAULT_CAMPUS_COLORS = DEFAULT_CAMPUS_COLORS;
 const MATERIALS = {
     // 1. Плиты перекрытий и несущие ядра
     slab: new THREE.MeshStandardMaterial({
-        color: isInitialDark ? 0x161f2e : DEFAULT_CAMPUS_COLORS.slab,
+        color: isInitialDark ? 0x161f2e : 0xf8fafc,
         roughness: 0.90,
         metalness: 0.02,
         transparent: false,
@@ -669,7 +669,7 @@ const MATERIALS = {
         polygonOffsetUnits: -1
     }),
     coreSlab: new THREE.MeshStandardMaterial({
-        color: isInitialDark ? 0x121a26 : DEFAULT_CAMPUS_COLORS.coreSlab,
+        color: isInitialDark ? 0x121a26 : 0xeef2f6,
         roughness: 0.90,
         metalness: 0.02,
         transparent: false,
@@ -679,7 +679,7 @@ const MATERIALS = {
         polygonOffsetUnits: -1
     }),
     wall: new THREE.MeshStandardMaterial({
-        color: isInitialDark ? 0x283548 : DEFAULT_CAMPUS_COLORS.wall,
+        color: isInitialDark ? 0x283548 : 0xffffff,
         roughness: 0.65,
         metalness: 0.03
     }),
@@ -692,7 +692,7 @@ const MATERIALS = {
         polygonOffsetUnits: -1
     }),
     stair: new THREE.MeshStandardMaterial({
-        color: isInitialDark ? 0x222e40 : DEFAULT_CAMPUS_COLORS.stair,
+        color: isInitialDark ? 0x222e40 : 0xcbd5e1,
         roughness: 0.72,
         metalness: 0.05,
         polygonOffset: true,
