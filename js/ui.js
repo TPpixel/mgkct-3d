@@ -890,11 +890,16 @@ window.pushOverlayState = pushOverlayState;
 window.popOverlayState = popOverlayState;
 window.initHistoryManager = initHistoryManager;
 
+let _searchSetupDone = false;
 function setupSearch() {
+    if (_searchSetupDone) return;
+    _searchSetupDone = true;
+
     const searchModal = document.getElementById("search-modal");
     const searchBackdrop = document.getElementById("search-backdrop");
     const searchInput = document.getElementById("search-input");
     const searchResults = document.getElementById("search-results");
+    const searchTagChips = document.querySelectorAll(".search-tag-chip");
     const btnOpenSearch = document.getElementById("btn-open-search");
     const btnCloseSearch = document.getElementById("btn-close-search");
     const btnClearSearch = document.getElementById("btn-clear-search");
@@ -1135,7 +1140,7 @@ function setupSearch() {
             searchInput.value = "";
             searchInput.focus();
             btnClearSearch.classList.add("hidden");
-            document.querySelectorAll(".search-tag-chip").forEach(c => c.classList.remove("is-active"));
+            searchTagChips.forEach(c => c.classList.remove("is-active"));
             renderSearchResults("");
         }
     });
@@ -1146,7 +1151,7 @@ function setupSearch() {
             btnClearSearch.classList.toggle("hidden", !val);
         }
         quickButtons.forEach(b => b?.classList.remove("is-active"));
-        document.querySelectorAll(".search-tag-chip").forEach(c => {
+        searchTagChips.forEach(c => {
             c.classList.toggle("is-active", Boolean(val) && (c.dataset.query || "").toLowerCase() === val.toLowerCase());
         });
         if (searchDebounceTimer) {
