@@ -4864,7 +4864,13 @@ if (typeof window !== 'undefined' && !window.escapeHtml) {
             });
         }
 
-        // Быстрые чипы популярных направлений
+        // Быстрые чипы популярных направлений: используем AbortController для защиты от дублирования
+        if (NAV_STATE._chipsAbortController) {
+            NAV_STATE._chipsAbortController.abort();
+        }
+        NAV_STATE._chipsAbortController = new AbortController();
+        const chipsSignal = NAV_STATE._chipsAbortController.signal;
+
         const chips = document.querySelectorAll('.nav-quick-chip');
         chips.forEach(chip => {
             chip.addEventListener('click', () => {
@@ -4921,7 +4927,7 @@ if (typeof window !== 'undefined' && !window.escapeHtml) {
                         closeNavigatorModal();
                     }
                 }
-            });
+            }, { signal: chipsSignal });
         });
 
         // Кнопка "Свернуть/Развернуть подробный маршрут"
