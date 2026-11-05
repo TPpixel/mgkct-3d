@@ -1200,8 +1200,10 @@ function formatRoomDisplayName(text, buildingNum) {
     const raw = String(text).trim();
     if (b <= 1 || isNaN(b)) return raw;
     if (raw.startsWith('2-') || raw.startsWith('3-') || raw.startsWith('4-') || raw.startsWith('5-')) return raw;
-    if (/^\d+[а-яa-z]?$/i.test(raw)) {
-        return b + '-' + raw;
+    if (raw.startsWith('С/У') || raw.startsWith('С/У')) return raw;
+    const numPrefixMatch = raw.match(/^(\d+[а-яa-z]?)(.*)$/i);
+    if (numPrefixMatch) {
+        return b + '-' + numPrefixMatch[1] + numPrefixMatch[2];
     }
     return raw;
 }
@@ -1209,11 +1211,11 @@ window.formatRoomDisplayName = formatRoomDisplayName;
 
 function computeRoomLabelPriority(textStr) {
     const t = (textStr || '').trim();
-    if (/столов|спорт|актов|гардероб|библиот|конференц/i.test(t)) return 0;
+    if (/столов|спорт|актов|гардероб|библиот|конференц|учебн/i.test(t)) return 0;
     if (/^\d+[\u0400-\u04FFA-Za-z]?$/.test(t)) return 1;
     if (t.includes('\n') || t.length > 3) return 2;
     if (t.startsWith('ЛК') || t.startsWith('\u041B\u041A')) return 3;
-    if (t === 'С/У' || t === '\u0421/\u0423') return 4;
+    if (t.startsWith('С/У') || t.startsWith('\u0421/\u0423')) return 4;
     return 2;
 }
 
@@ -1301,6 +1303,53 @@ function addRoomLabel3D(targetGroup, floorNum, text, x, z, isSmall = false, isWi
 let overlayCanvas = null;
 let overlayCtx = null;
 let renderedScreenBadges = [];
+
+function drawWcIcon(ctx, cx, cy, size, gender, color) {
+    const H = size;
+    const w = size * 0.74;
+    const topY = cy - H / 2;
+    const r = H * 0.145;
+    const headCy = topY + r;
+    const gap = H * 0.09;
+    const bodyTop = headCy + r + gap;
+    const bodyBot = cy + H / 2;
+
+    ctx.save();
+    ctx.fillStyle = color;
+
+    // Круглая голова
+    ctx.beginPath();
+    ctx.arc(cx, headCy, r, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Тело: треугольник со скруглёнными углами
+    ctx.beginPath();
+    const cornerR = Math.max(H * 0.08, 1.2);
+    if (gender === 'female') {
+        // Женский силуэт: треугольник вершиной вверх (юбка/платье)
+        const p1x = cx, p1y = bodyTop;
+        const p2x = cx + w * 0.50, p2y = bodyBot;
+        const p3x = cx - w * 0.50, p3y = bodyBot;
+
+        ctx.moveTo(cx, bodyTop + cornerR);
+        ctx.arcTo(p2x, p2y, p3x, p3y, cornerR);
+        ctx.arcTo(p3x, p3y, p1x, p1y, cornerR);
+        ctx.arcTo(p1x, p1y, p2x, p2y, cornerR);
+    } else {
+        // Мужской силуэт: перевёрнутый треугольник вершиной вниз (широкие плечи)
+        const p1x = cx - w * 0.52, p1y = bodyTop;
+        const p2x = cx + w * 0.52, p2y = bodyTop;
+        const p3x = cx, p3y = bodyBot;
+
+        ctx.moveTo(p1x + cornerR, p1y);
+        ctx.arcTo(p2x, p2y, p3x, p3y, cornerR);
+        ctx.arcTo(p3x, p3y, p1x, p1y, cornerR);
+        ctx.arcTo(p1x, p1y, p2x, p2y, cornerR);
+    }
+    ctx.closePath();
+    ctx.fill();
+    ctx.restore();
+}
 window.renderedScreenBadges = renderedScreenBadges;
 let activeBadgeKeys = new Set();
 const _tempProjectVec = new THREE.Vector3();
@@ -1591,11 +1640,18 @@ function renderScreenSpaceLabels() {
             if (lw > maxLineW) maxLineW = lw;
         }
 
+        // Определение гендерного санузла (М / Ж)
+        const rawWcText = (r.rawText || r.text || '');
+        const isMaleWc = /с\/у\s*\(?м\)?/i.test(rawWcText);
+        const isFemaleWc = /с\/у\s*\(?ж\)?/i.test(rawWcText);
+        const isWcIcon = isMaleWc || isFemaleWc;
+
         // Отступы пропорционально сжимаются при отдалении камеры
         const padX = Math.max(Math.round(fontSize * 0.36), 2.5);
         const padY = Math.max(Math.round(fontSize * 0.20), 1.5);
-        const badgeW = Math.round(maxLineW + padX * 2);
-        const badgeH = Math.round(isMulti ? (fontSize * 2.1 + padY * 2) : (fontSize + padY * 2 + 1.5));
+        const iconSize = Math.max(Math.round(fontSize * 1.25), 12);
+        const badgeW = isWcIcon ? Math.max(Math.round(iconSize * 1.30), 18) : Math.round(maxLineW + padX * 2);
+        const badgeH = isWcIcon ? Math.max(Math.round(iconSize * 1.30), 18) : Math.round(isMulti ? (fontSize * 2.1 + padY * 2) : (fontSize + padY * 2 + 1.5));
 
         const x0 = Math.round(drawX - badgeW / 2);
         const y0 = Math.round(drawY - badgeH / 2);
@@ -1652,7 +1708,11 @@ function renderScreenSpaceLabels() {
         overlayCtx.textBaseline = 'middle';
         overlayCtx.fillStyle = badgeText;
 
-        if (isMulti) {
+        if (isWcIcon) {
+            // Векторная отрисовка силуэтной иконки М/Ж со скруглёнными углами (акцентный цвет)
+            const wcColor = isDarkTheme ? (isMaleWc ? '#38bdf8' : '#fb7185') : (isMaleWc ? '#0284c7' : '#e11d48');
+            drawWcIcon(overlayCtx, drawX, drawY, iconSize, isMaleWc ? 'male' : 'female', wcColor);
+        } else if (isMulti) {
             overlayCtx.font = '900 ' + (fontSize - 1) + 'px ' + fontStack;
             overlayCtx.fillText(lines[0], drawX, y0 + padY + (fontSize - 1) / 2);
             overlayCtx.fillStyle = badgeSec;

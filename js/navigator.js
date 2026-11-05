@@ -293,11 +293,11 @@
         g.addNode("b1_f7_stair_lk1", 7, 1, 9.4, -2.0, "stair", "К1 ЛК№1 (Эт.7)");
         g.addNode("b1_f7_stair_lk2", 7, 1, 9.4, 1.9, "stair", "К1 ЛК№2 (Эт.7)");
         g.addNode("b1_f7_elev", 7, 1, 1.8, 1.5, "elevator", "К1 Лифты (Эт.7)");
-        g.addNode("room_1_5_56", 5, 1, 6.2, -2.8, "room", "С/У");
+        g.addNode("room_1_5_56", 5, 1, 6.2, -2.8, "room", "С/У (М)");
         g.addNode("door_mid_room_1_5_56", 5, 1, 5.4, -4, "door", "Дверь С/У");
         g.addNode("door_room_room_1_5_56", 5, 1, 5.4, -3.6, "door", "Вход С/У");
         g.addNode("door_corr_room_1_5_56", 5, 1, 5.4, -4.4, "door", "Коридор С/У");
-        g.addNode("room_1_5_57", 5, 1, 5.6, 1.3, "room", "С/У");
+        g.addNode("room_1_5_57", 5, 1, 5.6, 1.3, "room", "С/У (Ж)");
         g.addNode("door_mid_room_1_5_57", 5, 1, 5.5, 4, "door", "Дверь С/У");
         g.addNode("door_room_room_1_5_57", 5, 1, 5.5, 3.6, "door", "Вход С/У");
         g.addNode("door_corr_room_1_5_57", 5, 1, 5.5, 4.4, "door", "Коридор С/У");
@@ -341,11 +341,11 @@
         g.addNode("door_mid_room_1_5_67", 5, 1, -0.4, 7.2, "door", "Дверь 501");
         g.addNode("door_room_room_1_5_67", 5, 1, -0.4, 7.6, "door", "Вход 501");
         g.addNode("door_corr_room_1_5_67", 5, 1, -0.4, 6.8, "door", "Коридор 501");
-        g.addNode("room_1_6_68", 6, 1, 6.2, -2.8, "room", "С/У");
+        g.addNode("room_1_6_68", 6, 1, 6.2, -2.8, "room", "С/У (М)");
         g.addNode("door_mid_room_1_6_68", 6, 1, 5.4, -4, "door", "Дверь С/У");
         g.addNode("door_room_room_1_6_68", 6, 1, 5.4, -3.6, "door", "Вход С/У");
         g.addNode("door_corr_room_1_6_68", 6, 1, 5.4, -4.4, "door", "Коридор С/У");
-        g.addNode("room_1_6_69", 6, 1, 5.6, 1.3, "room", "С/У");
+        g.addNode("room_1_6_69", 6, 1, 5.6, 1.3, "room", "С/У (Ж)");
         g.addNode("door_mid_room_1_6_69", 6, 1, 5.5, 4, "door", "Дверь С/У");
         g.addNode("door_room_room_1_6_69", 6, 1, 5.5, 3.6, "door", "Вход С/У");
         g.addNode("door_corr_room_1_6_69", 6, 1, 5.5, 4.4, "door", "Коридор С/У");
@@ -393,11 +393,11 @@
         g.addNode("door_mid_room_1_6_80", 6, 1, 9.8, 7.2, "door", "Дверь 601");
         g.addNode("door_room_room_1_6_80", 6, 1, 9.8, 7.6, "door", "Вход 601");
         g.addNode("door_corr_room_1_6_80", 6, 1, 9.8, 6.8, "door", "Коридор 601");
-        g.addNode("room_1_7_81", 7, 1, 6.2, -2.8, "room", "С/У");
+        g.addNode("room_1_7_81", 7, 1, 6.2, -2.8, "room", "С/У (М)");
         g.addNode("door_mid_room_1_7_81", 7, 1, 5.4, -4, "door", "Дверь С/У");
         g.addNode("door_room_room_1_7_81", 7, 1, 5.4, -3.6, "door", "Вход С/У");
         g.addNode("door_corr_room_1_7_81", 7, 1, 5.4, -4.4, "door", "Коридор С/У");
-        g.addNode("room_1_7_82", 7, 1, 5.6, 1.3, "room", "С/У");
+        g.addNode("room_1_7_82", 7, 1, 5.6, 1.3, "room", "С/У (Ж)");
         g.addNode("door_mid_room_1_7_82", 7, 1, 5.5, 4, "door", "Дверь С/У");
         g.addNode("door_room_room_1_7_82", 7, 1, 5.5, 3.6, "door", "Вход С/У");
         g.addNode("door_corr_room_1_7_82", 7, 1, 5.5, 4.4, "door", "Коридор С/У");
@@ -479,11 +479,11 @@
         g.addNode("b2_f3_c_66.1", 3, 2, 66.1, -5.8, "corridor", "К2 Эт.3 Коридор");
         g.addNode("b2_f3_stair_lk1", 3, 2, 66.1, -10.5, "stair", "К2 ЛК№1 (Эт.3)");
         g.addNode("b2_f3_stair_lk2", 3, 2, 42.7, -10.5, "stair", "К2 ЛК№2 (Эт.3)");
-        g.addNode("room_1_3_31", 3, 1, 6.2, -2.8, "room", "С/У");
+        g.addNode("room_1_3_31", 3, 1, 6.2, -2.8, "room", "С/У (М)");
         g.addNode("door_mid_room_1_3_31", 3, 1, 5.4, -4, "door", "Дверь С/У");
         g.addNode("door_room_room_1_3_31", 3, 1, 5.4, -3.6, "door", "Вход С/У");
         g.addNode("door_corr_room_1_3_31", 3, 1, 5.4, -4.4, "door", "Коридор С/У");
-        g.addNode("room_1_3_32", 3, 1, 5.6, 1.3, "room", "С/У");
+        g.addNode("room_1_3_32", 3, 1, 5.6, 1.3, "room", "С/У (Ж)");
         g.addNode("door_mid_room_1_3_32", 3, 1, 5.5, 4, "door", "Дверь С/У");
         g.addNode("door_room_room_1_3_32", 3, 1, 5.5, 3.6, "door", "Вход С/У");
         g.addNode("door_corr_room_1_3_32", 3, 1, 5.5, 4.4, "door", "Коридор С/У");
@@ -548,11 +548,11 @@
         g.addNode("door_mid_room_2_3_127", 3, 2, 37.1, -7.2, "door", "Дверь 307");
         g.addNode("door_room_room_2_3_127", 3, 2, 37.1, -7.6, "door", "Вход 307");
         g.addNode("door_corr_room_2_3_127", 3, 2, 37.1, -6.8, "door", "Коридор 307");
-        g.addNode("room_2_3_128", 3, 2, 39.5, -7.8, "room", "С/У");
+        g.addNode("room_2_3_128", 3, 2, 39.5, -7.8, "room", "С/У (М)");
         g.addNode("door_mid_room_2_3_128", 3, 2, 39.6, -7.2, "door", "Дверь С/У");
         g.addNode("door_room_room_2_3_128", 3, 2, 39.6, -7.6, "door", "Вход С/У");
         g.addNode("door_corr_room_2_3_128", 3, 2, 39.6, -6.8, "door", "Коридор С/У");
-        g.addNode("room_2_3_129", 3, 2, 41, -7.8, "room", "С/У");
+        g.addNode("room_2_3_129", 3, 2, 41, -7.8, "room", "С/У (Ж)");
         g.addNode("door_mid_room_2_3_129", 3, 2, 41, -7.2, "door", "Дверь С/У");
         g.addNode("door_room_room_2_3_129", 3, 2, 41, -7.6, "door", "Вход С/У");
         g.addNode("door_corr_room_2_3_129", 3, 2, 41, -6.8, "door", "Коридор С/У");
@@ -621,11 +621,11 @@
         g.addNode("b1_f4_stair_lk1", 4, 1, 9.4, -2.0, "stair", "К1 ЛК№1 (Эт.4)");
         g.addNode("b1_f4_stair_lk2", 4, 1, 9.4, 1.9, "stair", "К1 ЛК№2 (Эт.4)");
         g.addNode("b1_f4_elev", 4, 1, 1.8, 1.5, "elevator", "К1 Лифты (Эт.4)");
-        g.addNode("room_1_4_44", 4, 1, 6.2, -2.8, "room", "С/У");
+        g.addNode("room_1_4_44", 4, 1, 6.2, -2.8, "room", "С/У (М)");
         g.addNode("door_mid_room_1_4_44", 4, 1, 5.4, -4, "door", "Дверь С/У");
         g.addNode("door_room_room_1_4_44", 4, 1, 5.4, -3.6, "door", "Вход С/У");
         g.addNode("door_corr_room_1_4_44", 4, 1, 5.4, -4.4, "door", "Коридор С/У");
-        g.addNode("room_1_4_45", 4, 1, 5.6, 1.3, "room", "С/У");
+        g.addNode("room_1_4_45", 4, 1, 5.6, 1.3, "room", "С/У (Ж)");
         g.addNode("door_mid_room_1_4_45", 4, 1, 5.5, 4, "door", "Дверь С/У");
         g.addNode("door_room_room_1_4_45", 4, 1, 5.5, 3.6, "door", "Вход С/У");
         g.addNode("door_corr_room_1_4_45", 4, 1, 5.5, 4.4, "door", "Коридор С/У");
@@ -717,11 +717,11 @@
         g.addNode("b3_f2_stair_south", 2, 3, 4.1, -28.6, "stair", "К3 Южная ЛК (Эт.2)");
         g.addNode("b3_f2_stair_north", 2, 3, 4.1, -46, "stair", "К3 Северная ЛК (Эт.2)");
         g.addNode("bridge_k1_k3_f2", 2, 1, 5.9, -14, "bridge", "Переход К1 ↔ К3 (2 эт.)");
-        g.addNode("room_1_2_12", 2, 1, 6.2, -2.8, "room", "С/У");
+        g.addNode("room_1_2_12", 2, 1, 6.2, -2.8, "room", "С/У (М)");
         g.addNode("door_mid_room_1_2_12", 2, 1, 5.4, -4, "door", "Дверь С/У");
         g.addNode("door_room_room_1_2_12", 2, 1, 5.4, -3.6, "door", "Вход С/У");
         g.addNode("door_corr_room_1_2_12", 2, 1, 5.4, -4.4, "door", "Коридор С/У");
-        g.addNode("room_1_2_13", 2, 1, 5.6, 1.3, "room", "С/У");
+        g.addNode("room_1_2_13", 2, 1, 5.6, 1.3, "room", "С/У (Ж)");
         g.addNode("door_mid_room_1_2_13", 2, 1, 5.5, 4, "door", "Дверь С/У");
         g.addNode("door_room_room_1_2_13", 2, 1, 5.5, 3.6, "door", "Вход С/У");
         g.addNode("door_corr_room_1_2_13", 2, 1, 5.5, 4.4, "door", "Коридор С/У");
@@ -788,7 +788,7 @@
         g.addNode("door_mid_room_2_2_108", 2, 2, 32.9, -7.2, "door", "Дверь 205");
         g.addNode("door_room_room_2_2_108", 2, 2, 32.9, -7.6, "door", "Вход 205");
         g.addNode("door_corr_room_2_2_108", 2, 2, 32.9, -6.8, "door", "Коридор 205");
-        g.addNode("room_2_2_109", 2, 2, 39.5, -8.4, "room", "С/У");
+        g.addNode("room_2_2_109", 2, 2, 39.5, -8.4, "room", "С/У (Ж)");
         g.addNode("door_mid_room_2_2_109", 2, 2, 39.6, -7.2, "door", "Дверь С/У");
         g.addNode("door_room_room_2_2_109", 2, 2, 39.6, -7.6, "door", "Вход С/У");
         g.addNode("door_corr_room_2_2_109", 2, 2, 39.6, -6.8, "door", "Коридор С/У");
@@ -800,7 +800,7 @@
         g.addNode("door_mid_room_2_2_111", 2, 2, 44.5, -7.2, "door", "Дверь ЛК№2");
         g.addNode("door_room_room_2_2_111", 2, 2, 44.5, -7.6, "door", "Вход ЛК№2");
         g.addNode("door_corr_room_2_2_111", 2, 2, 44.5, -6.8, "door", "Коридор ЛК№2");
-        g.addNode("room_2_2_112", 2, 2, 46.9, -10.5, "room", "209");
+        g.addNode("room_2_2_112", 2, 2, 46.9, -10.5, "room", "209 Учебная часть");
         g.addNode("door_mid_room_2_2_112", 2, 2, 46.9, -7.2, "door", "Дверь 209");
         g.addNode("door_room_room_2_2_112", 2, 2, 46.9, -7.6, "door", "Вход 209");
         g.addNode("door_corr_room_2_2_112", 2, 2, 46.9, -6.8, "door", "Коридор 209");
@@ -1000,8 +1000,8 @@
         g.addNode("door_room_room_1_1_1", 1, 1, 4.2, -10, "door", "Вход 106");
         g.addNode("door_corr_room_1_1_1", 1, 1, 5, -10, "door", "Коридор 106");
         g.addNode("room_1_1_2", 1, 1, 6, -10.2, "room", "105");
-        g.addNode("room_1_1_3", 1, 1, 9.3, -13.2, "room", "С/У");
-        g.addNode("room_1_1_4", 1, 1, 9.3, -7, "room", "С/У");
+        g.addNode("room_1_1_3", 1, 1, 9.3, -13.2, "room", "С/У (М)");
+        g.addNode("room_1_1_4", 1, 1, 9.3, -7, "room", "С/У (Ж)");
         g.addNode("room_1_1_5", 1, 1, 13.6, -10.2, "room", "107");
         g.addNode("door_mid_room_1_1_5", 1, 1, 13.5, -6.2, "door", "Дверь 107");
         g.addNode("door_room_room_1_1_5", 1, 1, 13.5, -6.6, "door", "Вход 107");
@@ -1049,7 +1049,7 @@
         g.addNode("door_room_room_2_1_99", 1, 2, 59.4, -7.6, "door", "Вход 111");
         g.addNode("door_corr_room_2_1_99", 1, 2, 59.4, -6.8, "door", "Коридор 111");
         g.addNode("door_corr_room_2_1_100", 1, 2, 62, -8.8, "door", "Коридор С/У");
-        g.addNode("room_2_1_101", 1, 2, 62.7, -8, "room", "С/У");
+        g.addNode("room_2_1_101", 1, 2, 62.7, -8, "room", "С/У (М)");
         g.addNode("room_2_1_103", 1, 2, 29.5, -0.5, "room", "104 Библиотека");
         g.addNode("door_mid_room_2_1_103", 1, 2, 31.7, -4.4, "door", "Дверь 104");
         g.addNode("door_room_room_2_1_103", 1, 2, 31.7, -4, "door", "Вход 104");
@@ -1114,7 +1114,7 @@
         g.addNode("b3_f1_door_tambur_108", 1, 3, 0.4, -36.4, "door", "Дверь тамбура К3");
         g.addNode("b3_f1_exit_east_inner", 1, 3, 9.4, -28.6, "corridor", "Проход к выходу К3");
         g.addNode("b3_f1_exit_east_door", 1, 3, 13.8, -28.6, "door", "Выход К3 во двор");
-        g.addNode("room_3_1_154", 1, 3, 0.2, -40.7, "room", "С/У");
+        g.addNode("room_3_1_154", 1, 3, 0.2, -40.7, "room", "С/У (Ж)");
         g.addNode("door_mid_room_3_1_154", 1, 3, 4.6, -40.4, "door", "Дверь С/У");
         g.addNode("door_room_room_3_1_154", 1, 3, 4.2, -40.4, "door", "Вход С/У");
         g.addNode("door_corr_room_3_1_154", 1, 3, 5, -40.4, "door", "Коридор С/У");
@@ -1122,7 +1122,7 @@
         g.addNode("door_mid_room_3_1_155", 1, 3, 4.6, -41.9, "door", "Дверь С/У");
         g.addNode("door_room_room_3_1_155", 1, 3, 4.2, -41.9, "door", "Вход С/У");
         g.addNode("door_corr_room_3_1_155", 1, 3, 5, -41.9, "door", "Коридор С/У");
-        g.addNode("room_3_1_156", 1, 3, 0.2, -43.1, "room", "С/У");
+        g.addNode("room_3_1_156", 1, 3, 0.2, -43.1, "room", "С/У (М)");
         g.addNode("room_3_1_157", 1, 3, 4.1, -46, "room", "ЛК№1");
         g.addNode("door_mid_room_3_1_157", 1, 3, 4.6, -46, "door", "Дверь ЛК№1");
         g.addNode("door_room_room_3_1_157", 1, 3, 4.3, -46, "door", "Вход ЛК№1");
@@ -1330,9 +1330,9 @@
         g.addNode("room_4_2_211", 2, 4, 49.2, -55.7, "room", "206\nСпортивный зал");
         g.addNode("b4_f2_door_gym_w", 2, 4, 38.1, -49.8, "door", "Западный вход в спортзал 206");
         g.addNode("door_mid_room_4_2_211", 2, 4, 62.9, -49.8, "door", "Восточный вход в спортзал 206");
-        g.addNode("room_4_2_wc_north", 2, 4, 43.8, -49.1, "room", "С/У");
+        g.addNode("room_4_2_wc_north", 2, 4, 43.8, -49.1, "room", "С/У (М)");
         g.addNode("b4_f2_door_wc_n", 2, 4, 42, -49.15, "door", "Дверь С/У (сев)");
-        g.addNode("room_4_2_wc_south", 2, 4, 43.8, -46, "room", "С/У");
+        g.addNode("room_4_2_wc_south", 2, 4, 43.8, -46, "room", "С/У (Ж)");
         g.addNode("b4_f2_door_wc_s", 2, 4, 42, -46.05, "door", "Дверь С/У (юг)");
         g.addNode("room_4_2_service", 2, 4, 48.3, -47.6, "room", "Служеб.\nпом.");
         g.addNode("b4_f2_door_service_n", 2, 4, 47.6, -49.8, "door", "Дверь Служеб. пом.");
@@ -2723,8 +2723,8 @@
             const lbl = (node.label || '').trim();
             const isWC = node.type === 'wc'
                 || nid.includes('_wc_')
-                || lbl === 'С/У'
-                || lbl === '\u0421/\u0423'
+                || lbl.startsWith('С/У')
+                || lbl.startsWith('\u0421/\u0423')
                 || lbl.toLowerCase().includes('туалет')
                 || lbl.toLowerCase().includes('санузел');
             if (!isWC) continue;
@@ -4278,7 +4278,8 @@
         'room_4_2_230': '204 4-204 актовый зал сцена',
         'room_4_2_211': '206 4-206 спортзал спортивный зал спорт',
         'room_2_3_135': '308 2-308 спортзал спортивный зал спорт',
-        'room_2_3_136': '312 2-312 конференц-зал конференц зал собрания'
+        'room_2_3_136': '312 2-312 конференц-зал конференц зал собрания',
+        'room_2_2_112': '209 2-209 учебная часть учебная'
     };
 
     // ------------------------------------------------------------------------
@@ -4755,6 +4756,10 @@
                                 (q === 'столовая' && ((node.bldg === 4 && node.floor === 1 && lbl.includes('102')) || lbl.includes('столов'))) ||
                                 (q === 'спортзал' && ((node.bldg === 4 && node.floor === 2 && lbl.includes('206')) || lbl.includes('спортзал'))) ||
                                 (q === 'актовый зал' && ((node.bldg === 4 && node.floor === 2 && lbl.includes('204')) || lbl.includes('актовый'))) ||
+                                (q === 'учебная часть' && ((node.bldg === 2 && node.floor === 2 && lbl.includes('209')) || lbl.includes('учебн'))) ||
+                                (q === 'гардероб' && ((node.bldg === 1 && node.floor === 1 && lbl.includes('102')) || lbl.includes('гардероб'))) ||
+                                (q === 'библиотека' && ((node.bldg === 2 && node.floor === 1 && lbl.includes('104')) || lbl.includes('библиот'))) ||
+                                (q === 'конференц-зал' && ((node.bldg === 2 && node.floor === 3 && lbl.includes('312')) || lbl.includes('конференц'))) ||
                                 (lbl.includes(q) && !(q === 'главный вход' && node.id === 'b1_f1_entrance_main'));
                             if (isMatch) {
                                 targetNode = node;
