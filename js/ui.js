@@ -381,6 +381,9 @@ function setViewMode(is2D, shouldAnimateCam = true) {
     if (typeof updateEdgesVisibility === 'function') {
         updateEdgesVisibility();
     }
+    if (typeof updateBuildingColors === 'function') {
+        updateBuildingColors();
+    }
 
     if (typeof requestRender === 'function') requestRender(45);
     saveSettings();
@@ -893,8 +896,14 @@ function updateBuildingColors() {
     if (typeof MATERIALS === 'undefined') return;
     if (STATE.theme === 'dark') return;
 
-    if (STATE.showTerritory) {
-        // Спутниковый / 3D режим с территорией: фиксированная палитра (Шалфейный гранит)
+    if (STATE.is2D) {
+        // Светлая 2D-палитра чертежа: высокий контраст, читаемость линий перегородок
+        if (MATERIALS.slab) MATERIALS.slab.color.setHex(0xdde3ea);
+        if (MATERIALS.coreSlab) MATERIALS.coreSlab.color.setHex(0xcfd6de);
+        if (MATERIALS.wall) MATERIALS.wall.color.setHex(0x5b6c5d);
+        if (MATERIALS.stair) MATERIALS.stair.color.setHex(0xa8927e);
+    } else {
+        // Объёмная 3D-палитра кампуса
         const p = (typeof DEFAULT_CAMPUS_COLORS !== 'undefined') ? DEFAULT_CAMPUS_COLORS : {
             slab: 0x9faea0,
             coreSlab: 0x9faea0,
@@ -905,14 +914,9 @@ function updateBuildingColors() {
         if (MATERIALS.coreSlab) MATERIALS.coreSlab.color.setHex(p.coreSlab);
         if (MATERIALS.wall) MATERIALS.wall.color.setHex(p.wall);
         if (MATERIALS.stair) MATERIALS.stair.color.setHex(p.stair);
-    } else {
-        // Обычный 2D/3D вид: светлая минималистичная гамма
-        if (MATERIALS.slab) MATERIALS.slab.color.setHex(0xf8fafc);
-        if (MATERIALS.coreSlab) MATERIALS.coreSlab.color.setHex(0xf8fafc);
-        if (MATERIALS.wall) MATERIALS.wall.color.setHex(0xffffff);
-        if (MATERIALS.stair) MATERIALS.stair.color.setHex(0xcbd5e1);
     }
 }
+
 
 window.updateBuildingColors = updateBuildingColors;
 
@@ -1018,6 +1022,7 @@ function resetSettingsToDefault() {
     if (typeof updateLabelsVisibility === 'function') updateLabelsVisibility();
     if (typeof updateRoofsVisibility === 'function') updateRoofsVisibility();
     if (typeof updateTerritoryVisibility === 'function') updateTerritoryVisibility();
+    if (typeof updateBuildingColors === 'function') updateBuildingColors();
 
     resetToNorth();
     saveSettings();

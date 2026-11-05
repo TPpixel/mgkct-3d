@@ -24,12 +24,13 @@ window.resetControlsMomentum = resetControlsMomentum;
 function initControls(camera, domElement) {
     controls = new THREE.OrbitControls(camera, domElement);
     controls.enableDamping = true;
-    controls.dampingFactor = 0.08;
+    controls.dampingFactor = 0.18; // Более быстрый и отзывчивый отклик (было 0.08)
+    controls.zoomSpeed = 0.85;     // Контролируемый щипок без гиперчувствительности
     controls.maxPolarAngle = Math.PI / 2 - 0.01;
     controls.minDistance = 10;
     controls.maxDistance = 115;
-    controls.screenSpacePanning = true; // Важно для плавного перемещения карты
-    controls.enableZoom = false; // Исключаем двойное зумирование OrbitControls при скролле колесиком
+    controls.screenSpacePanning = false; // Важно: строго горизонтальное перемещение по полу (XZ) без дрейфа высоты
+    controls.enableZoom = true; // Оставляем включенным для стабильного двухпальцевого pinch-зума на смартфонах
 
     const cx = (typeof getActiveCenterX === 'function') ? getActiveCenterX() : 24.0;
     const cz = (typeof getActiveCenterZ === 'function') ? getActiveCenterZ() : -22.0;
@@ -41,36 +42,73 @@ function initControls(camera, domElement) {
     mouseVec = new THREE.Vector2();
     floorPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
 
-    // Зум к позиции курсора (BIM / CAD Zoom to Pointer)
-    domElement.addEventListener('wheel', onPointerZoom, { passive: false });
+    // Зум к позиции курсора (BIM / CAD Zoom to Pointer) перехватываем в фазе захвата (capture),
+    // чтобы изолировать колесико мыши от OrbitControls и исключить двойной зум
+    domElement.addEventListener('wheel', onPointerZoom, { passive: false, capture: true });
 
-    // Включаем зум OrbitControls исключительно для двухпальцевого жеста pinch на смартфонах
-    domElement.addEventListener('touchstart', (e) => {
-        if (e.touches && e.touches.length >= 2 && controls) {
-            controls.enableZoom = true;
-        }
-    }, { passive: true });
-    domElement.addEventListener('touchend', () => {
-        if (controls) controls.enableZoom = false;
-    }, { passive: true });
-    domElement.addEventListener('touchcancel', () => {
-        if (controls) controls.enableZoom = false;
-    }, { passive: true });
-
-    // Клик / тап по карте для выбора кабинета
+    // Отслеживание мультитач-жестов: отсекаем ложные клики по кабинетам при двухпальцевом зуме/панорамировании
+    let activeTouches = 0;
+    // Временная метка последнего мультитач-жеста (performance.now()).
+    // Используется вместо wasMultiTouch + setTimeout, чтобы исключить race condition
+    // на экранах с разной частотой обновления (60/120 Гц).
+    let lastMultiTouchTime = -Infinity;
+    const MULTI_TOUCH_GUARD_MS = 200; // окно блокировки ложных кликов после pinch
     let pointerDownPos = { x: 0, y: 0 };
-    domElement.addEventListener('pointerdown', (e) => {
-        // Если была анимация камеры, прерываем её при первом взаимодействии пользователя
+
+    domElement.addEventListener('touchstart', (e) => {
+        activeTouches = e.touches ? e.touches.length : 0;
+        // Во время активного касания пальцем увеличиваем демпфирование для мгновенного отклика 1:1
+        if (controls) controls.dampingFactor = 0.24;
+        if (activeTouches >= 2) {
+            lastMultiTouchTime = performance.now();
+        }
         if (STATE.targetCamPos || STATE.targetControlsCenter) {
             STATE.targetCamPos = null;
             STATE.targetControlsCenter = null;
             resetControlsMomentum();
             if (controls) controls.update();
         }
-        pointerDownPos = { x: e.clientX, y: e.clientY };
+    }, { passive: true });
+
+    domElement.addEventListener('touchend', (e) => {
+        activeTouches = e.touches ? e.touches.length : 0;
+        // При отпускании пальца возвращаем демпфер для естественного скольжения по инерции
+        if (controls) controls.dampingFactor = 0.12;
+        if (activeTouches === 1 && controls && controls.enabled) {
+            // Бесшовный переход: если оторвали 1 палец из 2, обновляем базовую точку
+            // для корректного определения клика/свайпа оставшимся пальцем.
+            // Синтетический dispatchEvent(touchstart) убран: он нарушал внутреннее
+            // состояние OrbitControls и провоцировал рывки камеры.
+            const remTouch = e.touches[0];
+            pointerDownPos = { x: remTouch.clientX, y: remTouch.clientY };
+        } else if (activeTouches === 0) {
+            lastMultiTouchTime = performance.now();
+        }
+    }, { passive: true });
+
+    domElement.addEventListener('touchcancel', () => {
+        activeTouches = 0;
+        if (controls) controls.dampingFactor = 0.12;
+        lastMultiTouchTime = performance.now();
+    }, { passive: true });
+
+    // Клик / тап по карте для выбора кабинета
+    domElement.addEventListener('pointerdown', (e) => {
+        if (STATE.targetCamPos || STATE.targetControlsCenter) {
+            STATE.targetCamPos = null;
+            STATE.targetControlsCenter = null;
+            resetControlsMomentum();
+            if (controls) controls.update();
+        }
+        if (e.isPrimary !== false) {
+            pointerDownPos = { x: e.clientX, y: e.clientY };
+        }
     }, { passive: true });
 
     domElement.addEventListener('pointerup', (e) => {
+        if (e.isPrimary === false || (performance.now() - lastMultiTouchTime < MULTI_TOUCH_GUARD_MS)) {
+            return;
+        }
         const dx = Math.abs(e.clientX - pointerDownPos.x);
         const dy = Math.abs(e.clientY - pointerDownPos.y);
         // Если это был клик/тап (а не свайп/перетаскивание карты)
@@ -95,6 +133,10 @@ function apply2DControls(is2D) {
 
     // Сбрасываем инерцию демпфирования, чтобы исключить паразитное вращение
     resetControlsMomentum();
+
+    // В 2D (вид строго сверху) screenSpacePanning=true обязателен:
+    // иначе вертикальное панорамирование карты будет заблокировано или нелинейно.
+    controls.screenSpacePanning = is2D;
 
     if (is2D) {
         controls.mouseButtons = {
@@ -259,8 +301,9 @@ function handleMapClick(event) {
 function onPointerZoom(event) {
     if (!controls || !camera || !renderer) return;
 
-    // Предотвращаем дефолтный скролл страницы
+    // Предотвращаем дефолтный скролл страницы и блокируем стандартный зум колесиком в OrbitControls
     event.preventDefault();
+    if (typeof event.stopImmediatePropagation === 'function') event.stopImmediatePropagation();
 
     STATE.targetCamPos = null;
     STATE.targetControlsCenter = null;
