@@ -1183,21 +1183,26 @@ body.search-open #nav-pick-banner,
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.55);
 }
 
-/* Док быстрых кнопок M3 Expressive: СТРОГО В ОДИН РЯД, БЕЗ ПРОКРУТОК, ПЛОТНО */
+/* Единый слитный док быстрых кнопок M3 Expressive, разделенный серыми полосами */
 .m3-search-chips-bar {
     display: flex !important;
     flex-direction: row !important;
     flex-wrap: nowrap !important;
     align-items: stretch !important;
-    justify-content: space-between !important;
-    gap: 3px !important;
+    justify-content: stretch !important;
+    gap: 0 !important; /* Слитный док без зазоров */
     width: 100% !important;
     max-width: 100% !important;
+    height: 44px !important;
     overflow: hidden !important;
     padding: 0 !important;
     margin-bottom: 6px !important;
     flex-shrink: 0 !important;
-    border-radius: 9999px !important; /* Общий контур стадиона */
+    border-radius: 9999px !important; /* Овальное закругление на концах как у поиска */
+    background-color: #eaf2fd !important;
+    border: 1.5px solid #cce0fd !important;
+    box-shadow: 0 2px 8px rgba(26, 115, 232, 0.08), 0 1px 3px rgba(0, 0, 0, 0.04) !important;
+    box-sizing: border-box !important;
 }
 
 @media (max-width: 639px) {
@@ -1206,9 +1211,10 @@ body.search-open #nav-pick-banner,
         flex-direction: row !important;
         flex-wrap: nowrap !important;
         overflow: hidden !important;
-        gap: 3px !important;
+        gap: 0 !important;
         padding: 0 !important;
         width: 100% !important;
+        height: 42px !important;
         margin-bottom: 4px !important;
         border-radius: 9999px !important;
     }
@@ -1218,47 +1224,30 @@ body.search-open #nav-pick-banner,
     max-height: min(390px, 50vh);
 }
 
-/* Иконочные кнопки M3 Expressive в доке (без текста) */
+/* Кнопки-сегменты внутри дока (без текста, разделены серыми полосами) */
 .search-tag-chip {
     flex: 1 1 0% !important;
     min-width: 0 !important;
-    height: 42px !important; /* Комфортная высота под палец */
+    height: 100% !important;
     padding: 0 !important;
-    border-radius: 8px !important; /* Внутренние кнопки */
+    border: none !important;
+    border-radius: 0 !important; /* Слитные сегменты */
+    border-right: 1px solid rgba(0, 0, 0, 0.12) !important; /* Серая разделительная полоса */
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
     cursor: pointer !important;
-    transition: all 0.16s cubic-bezier(0.2, 0, 0, 1) !important;
+    transition: background-color 0.15s ease, transform 0.1s ease !important;
     user-select: none !important;
     -webkit-tap-highlight-color: transparent !important;
     outline: none !important;
     box-sizing: border-box !important;
-
-    /* Светлая фирменная голубая палитра */
-    background: #e8f0fe !important;
-    color: #004a77 !important;
-    border: 1px solid rgba(26, 115, 232, 0.18) !important;
+    background: transparent !important;
+    color: #1a73e8 !important;
 }
 
-/* Скругление слева как у поиска на левом конце дока */
-.search-tag-chip:first-child,
-.search-tag-chip.m3-dock-start {
-    border-top-left-radius: 9999px !important;
-    border-bottom-left-radius: 9999px !important;
-    border-top-right-radius: 8px !important;
-    border-bottom-right-radius: 8px !important;
-    padding-left: 4px !important;
-}
-
-/* Скругление справа как у поиска на правом конце дока */
-.search-tag-chip:last-child,
-.search-tag-chip.m3-dock-end {
-    border-top-left-radius: 8px !important;
-    border-bottom-left-radius: 8px !important;
-    border-top-right-radius: 9999px !important;
-    border-bottom-right-radius: 9999px !important;
-    padding-right: 4px !important;
+.search-tag-chip:last-child {
+    border-right: none !important; /* У последней кнопки справа нет разделителя */
 }
 
 .search-tag-chip svg {
@@ -1270,31 +1259,37 @@ body.search-open #nav-pick-banner,
 }
 
 .search-tag-chip:hover {
-    background: #d4e4fc !important;
-    color: #003355 !important;
+    background-color: rgba(26, 115, 232, 0.1) !important;
 }
 
 .search-tag-chip:active {
-    transform: scale(0.95) !important;
+    transform: scale(0.96) !important;
 }
 
-/* Активное состояние кнопки (наш фирменный акцент #1a73e8) */
+/* Активная выбранная кнопка дока (#1a73e8 с белой иконкой) */
 .search-tag-chip.is-active {
-    background: #1a73e8 !important;
+    background-color: #1a73e8 !important;
     color: #ffffff !important;
-    border-color: #1a73e8 !important;
-    box-shadow: 0 2px 8px rgba(26, 115, 232, 0.35) !important;
 }
 
 .search-tag-chip.is-active svg {
     color: #ffffff !important;
 }
 
-/* Тёмная тема */
+/* Тёмная тема для слитного дока и разделителей */
+[data-theme="dark"] .m3-search-chips-bar {
+    background-color: #1a2433 !important;
+    border-color: rgba(56, 189, 248, 0.25) !important;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4) !important;
+}
+
 [data-theme="dark"] .search-tag-chip {
-    background: #1c2635 !important;
-    color: #93c5fd !important;
-    border-color: rgba(56, 189, 248, 0.22) !important;
+    border-right: 1px solid rgba(255, 255, 255, 0.14) !important; /* Серая полоса в тёмной теме */
+    color: #38bdf8 !important;
+}
+
+[data-theme="dark"] .search-tag-chip:last-child {
+    border-right: none !important;
 }
 
 [data-theme="dark"] .search-tag-chip svg {
@@ -1302,15 +1297,12 @@ body.search-open #nav-pick-banner,
 }
 
 [data-theme="dark"] .search-tag-chip:hover {
-    background: #253347 !important;
-    color: #bae6fd !important;
+    background-color: rgba(56, 189, 248, 0.14) !important;
 }
 
 [data-theme="dark"] .search-tag-chip.is-active {
-    background: #1a73e8 !important;
+    background-color: #1a73e8 !important;
     color: #ffffff !important;
-    border-color: #38bdf8 !important;
-    box-shadow: 0 2px 10px rgba(26, 115, 232, 0.5) !important;
 }
 
 [data-theme="dark"] .search-tag-chip.is-active svg {
