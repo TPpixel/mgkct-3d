@@ -318,13 +318,23 @@ function drawMinsktransBoardCanvas(canvas, kind, title, code, routes, isBus) {
             let curLine = [];
             let curX = col1 + 10 + hourOffset;
 
+            const hourWidthMap = new Map();
+            const minWidthMap = new Map();
             sRow.hours.forEach(item => {
                 const hStr = item.h;
                 const mStr = item.m.join(',');
-                ctx.font = fHour;
-                const hw = ctx.measureText(hStr).width;
-                ctx.font = fMin;
-                const mw = ctx.measureText(mStr).width;
+                let hw = hourWidthMap.get(hStr);
+                if (hw === undefined) {
+                    ctx.font = fHour;
+                    hw = ctx.measureText(hStr).width;
+                    hourWidthMap.set(hStr, hw);
+                }
+                let mw = minWidthMap.get(mStr);
+                if (mw === undefined) {
+                    ctx.font = fMin;
+                    mw = ctx.measureText(mStr).width;
+                    minWidthMap.set(mStr, mw);
+                }
                 const itemW = hw + mw + itemGap;
 
                 if (curX + itemW > px1 - 14 && curLine.length > 0) {
