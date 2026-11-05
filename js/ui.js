@@ -580,14 +580,22 @@ function selectRoom(roomInfo, shouldFly = true) {
 // Загружается динамически из локального файла (без хардкода в коде репозитория)
 // ============================================================================
 let ROOM_DISCIPLINES = (typeof window !== 'undefined' && window.ROOM_DISCIPLINES) ? window.ROOM_DISCIPLINES : {};
+let roomDisciplinesAbortController = null;
 
 function loadRoomDisciplines() {
     if (ROOM_DISCIPLINES && Object.keys(ROOM_DISCIPLINES).length > 0) {
         return;
     }
-    fetch('data/teachers.json?v=' + Date.now())
+    if (roomDisciplinesAbortController) {
+        roomDisciplinesAbortController.abort();
+    }
+    roomDisciplinesAbortController = new AbortController();
+    const signal = roomDisciplinesAbortController.signal;
+
+    fetch('data/teachers.json', { signal })
         .then(res => res.ok ? res.json() : null)
         .then(data => {
+            if (signal.aborted) return;
             if (data && typeof data === 'object') {
                 ROOM_DISCIPLINES = data;
                 if (typeof window !== 'undefined') window.ROOM_DISCIPLINES = data;
@@ -599,7 +607,8 @@ function loadRoomDisciplines() {
                 }
             }
         })
-        .catch(() => {
+        .catch(err => {
+            if (err && err.name === 'AbortError') return;
             // Файл отсутствует в публичном репозитории — работаем в штатном режиме
         });
 }
