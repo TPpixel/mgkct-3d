@@ -34,23 +34,25 @@ function handleRequest(req, res) {
         return res.end('Forbidden');
     }
 
-    if (!fs.existsSync(filePath) || !fs.statSync(filePath).isFile()) {
-        res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
-        return res.end('File not found: ' + reqPath);
-    }
+    fs.stat(filePath, (err, stats) => {
+        if (err || !stats.isFile()) {
+            res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
+            return res.end('File not found: ' + reqPath);
+        }
 
-    const ext = path.extname(filePath).toLowerCase();
-    const contentType = MIME[ext] || 'application/octet-stream';
+        const ext = path.extname(filePath).toLowerCase();
+        const contentType = MIME[ext] || 'application/octet-stream';
 
-    res.writeHead(200, {
-        'Content-Type': contentType,
-        'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0',
-        'Pragma': 'no-cache',
-        'Expires': '0',
-        'Access-Control-Allow-Origin': '*'
+        res.writeHead(200, {
+            'Content-Type': contentType,
+            'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0',
+            'Pragma': 'no-cache',
+            'Expires': '0',
+            'Access-Control-Allow-Origin': '*'
+        });
+
+        fs.createReadStream(filePath).pipe(res);
     });
-
-    fs.createReadStream(filePath).pipe(res);
 }
 
 const server = http.createServer(handleRequest);
