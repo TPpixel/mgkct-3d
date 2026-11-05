@@ -3515,24 +3515,22 @@ if (typeof window !== 'undefined' && !window.escapeHtml) {
             return;
         }
 
-        // Fallback: traverse если кэш не заполнен (обратная совместимость).
+        // Fallback: наполняем кэш _pulsingObjects один раз, предотвращая 60 обходов дерева в секунду
+        if (!NAV_STATE._pulsingObjects) {
+            NAV_STATE._pulsingObjects = [];
+        }
         for (let f = 1; f <= 7; f++) {
             const rGroup = NAV_STATE.routeFloorGroups[f];
-            if (!rGroup || !rGroup.visible) continue;
+            if (!rGroup) continue;
 
             rGroup.traverse((child) => {
                 if (child.userData && child.userData.isPulsing) {
-                    if (child.userData.ring) {
-                        child.userData.ring.scale.set(scalePulse, scalePulse, scalePulse);
-                        if (child.userData.ring.material) {
-                            child.userData.ring.material.opacity = opacityPulse;
-                        }
-                    }
-                    if (child.userData.disk && child.userData.disk.material) {
-                        child.userData.disk.material.opacity = 0.25 + opacityPulse * 0.2;
-                    }
+                    NAV_STATE._pulsingObjects.push(child);
                 }
             });
+        }
+        if (NAV_STATE._pulsingObjects.length > 0) {
+            updateNavigatorAnimation(delta);
         }
     }
 
