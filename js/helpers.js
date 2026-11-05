@@ -1622,8 +1622,8 @@ function renderScreenSpaceLabels() {
         return a.room.z - b.room.z;
     });
 
-    // Полифилл roundRect для 100% совместимости
-    if (!overlayCtx.roundRect) {
+    // Однократный полифилл roundRect на прототипе CanvasRenderingContext2D
+    if (!CanvasRenderingContext2D.prototype.roundRect && !overlayCtx.roundRect) {
         overlayCtx.roundRect = function(x, y, rw, rh, rad) {
             this.beginPath();
             this.moveTo(x + rad, y);
@@ -1636,7 +1636,25 @@ function renderScreenSpaceLabels() {
         };
     }
 
-    const drawnBoxes = [];
+    // Пространственная 2D-сетка (Spatial Grid) для детекции коллизий бейджей с O(N) вместо O(N^2)
+    const GRID_CELL_SIZE = 96;
+    const gridCols = Math.max(1, Math.ceil(w / GRID_CELL_SIZE) + 2);
+    const gridRows = Math.max(1, Math.ceil(h / GRID_CELL_SIZE) + 2);
+    const spatialGrid = new Map();
+
+    function getGridCellIndices(bx0, by0, bx1, by1) {
+        const cMinX = Math.max(0, Math.floor((bx0 + 80) / GRID_CELL_SIZE));
+        const cMaxX = Math.min(gridCols - 1, Math.floor((bx1 + 80) / GRID_CELL_SIZE));
+        const cMinY = Math.max(0, Math.floor((by0 + 40) / GRID_CELL_SIZE));
+        const cMaxY = Math.min(gridRows - 1, Math.floor((by1 + 40) / GRID_CELL_SIZE));
+        const indices = [];
+        for (let cy = cMinY; cy <= cMaxY; cy++) {
+            for (let cx = cMinX; cx <= cMaxX; cx++) {
+                indices.push(cy * gridCols + cx);
+            }
+        }
+        return indices;
+    }
 
     for (let i = 0; i < candidateRooms.length; i++) {
         const { room: r, fg } = candidateRooms[i];
@@ -1707,26 +1725,43 @@ function renderScreenSpaceLabels() {
         const x1 = x0 + badgeW;
         const y1 = y0 + badgeH;
 
-        // 3. Строгая проверка наложения с гарантированным зазором:
-        // Минимальный зазор гарантирует, что внешняя обводка (1.3-2.0px) и тень (размытие 4px)
-        // ни при каких условиях не пересекаются и не наползают друг на друга
+        // 3. Строгая проверка наложения с гарантированным зазором через пространственную сетку:
         const badgeKey = `${r.building}-${r.floor}-${r.text}-${Math.round(r.x * 10)}-${Math.round(r.z * 10)}`;
         const wasVisible = activeBadgeKeys.has(badgeKey);
         const baseMargin = Math.max(1.6, Math.min(2.8, 2.6 * zoomScale));
         const margin = wasVisible ? Math.max(0.8, 1.0 * zoomScale) : baseMargin;
 
+        const checkCells = getGridCellIndices(x0 - margin, y0 - margin, x1 + margin, y1 + margin);
         let overlap = false;
-        for (let b = 0; b < drawnBoxes.length; b++) {
-            const db = drawnBoxes[b];
-            if (!(x1 + margin < db.x0 || x0 - margin > db.x1 || y1 + margin < db.y0 || y0 - margin > db.y1)) {
-                overlap = true;
-                break;
+        const testedBoxes = new Set();
+
+        for (let c = 0; c < checkCells.length; c++) {
+            const cellBoxes = spatialGrid.get(checkCells[c]);
+            if (!cellBoxes) continue;
+            for (let b = 0; b < cellBoxes.length; b++) {
+                const db = cellBoxes[b];
+                if (testedBoxes.has(db)) continue;
+                testedBoxes.add(db);
+                if (!(x1 + margin < db.x0 || x0 - margin > db.x1 || y1 + margin < db.y0 || y0 - margin > db.y1)) {
+                    overlap = true;
+                    break;
+                }
             }
+            if (overlap) break;
         }
         if (overlap) continue;
 
         nextActiveBadgeKeys.add(badgeKey);
-        drawnBoxes.push({ x0, y0, x1, y1 });
+        const boxObj = { x0, y0, x1, y1 };
+        for (let c = 0; c < checkCells.length; c++) {
+            const cIdx = checkCells[c];
+            let cellList = spatialGrid.get(cIdx);
+            if (!cellList) {
+                cellList = [];
+                spatialGrid.set(cIdx, cellList);
+            }
+            cellList.push(boxObj);
+        }
         renderedScreenBadges.push({ room: r, x0, y0, x1, y1 });
 
         // 4. Отрисовка плашки номера кабинета (Тёмная / Светлая тема):
