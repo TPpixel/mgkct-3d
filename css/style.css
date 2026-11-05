@@ -1183,32 +1183,32 @@ body.search-open #nav-pick-banner,
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.55);
 }
 
-/* Панель быстрых фильтров-тегов в стиле M3 Expressive (Горизонтальный слайдер над строкой поиска) */
+/* Панель кнопок M3 Expressive: СТРОГО В ОДИН РЯД, БЕЗ ПРОКРУТОК, ПЛОТНО */
 .m3-search-chips-bar {
-    background: transparent !important;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 6px 2px;
-    width: 100%;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-    flex-shrink: 0;
-}
-
-.m3-search-chips-bar::-webkit-scrollbar {
-    display: none;
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    align-items: stretch !important;
+    justify-content: space-between !important;
+    gap: 3px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow: hidden !important;
+    padding: 0 !important;
+    margin-bottom: 6px !important;
+    flex-shrink: 0 !important;
 }
 
 @media (max-width: 639px) {
     .m3-search-chips-bar {
+        display: flex !important;
+        flex-direction: row !important;
         flex-wrap: nowrap !important;
-        overflow-x: auto !important;
-        -webkit-overflow-scrolling: touch !important;
-        scrollbar-width: none !important;
-        padding: 4px 2px !important;
-        gap: 8px !important;
+        overflow: hidden !important;
+        gap: 3px !important;
+        padding: 0 !important;
+        width: 100% !important;
+        margin-bottom: 4px !important;
     }
 }
 
@@ -1216,81 +1216,90 @@ body.search-open #nav-pick-banner,
     max-height: min(390px, 50vh);
 }
 
-/* Быстрые теги поиска (M3 Expressive Chips в голубой палитре) */
+/* Кнопки M3 Expressive (плотно в ряд, точно по референсу в голубой палитре) */
 .search-tag-chip {
-    height: 38px;
-    padding: 0 14px;
-    border-radius: 14px; /* M3 Expressive Shape как на референсе */
-    font-size: 13px;
-    font-weight: 600;
-    font-family: 'Google Sans', 'Roboto', sans-serif;
-    background: #e8f0fe;
-    color: #004a77;
-    border: 1px solid rgba(26, 115, 232, 0.18);
-    cursor: pointer;
-    transition: all 0.18s cubic-bezier(0.2, 0, 0, 1);
-    display: inline-flex;
-    align-items: center;
-    gap: 7px;
-    outline: none;
-    white-space: nowrap;
-    user-select: none;
-    -webkit-tap-highlight-color: transparent;
-    flex-shrink: 0;
+    flex: 1 1 0% !important;
+    min-width: 0 !important;
+    height: 38px !important;
+    padding: 0 4px !important;
+    border-radius: 12px !important; /* M3 Expressive squircle pill с референса */
+    font-size: 11.5px !important;
+    font-weight: 600 !important;
+    font-family: 'Google Sans', 'Roboto', sans-serif !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 4px !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    cursor: pointer !important;
+    transition: all 0.16s cubic-bezier(0.2, 0, 0, 1) !important;
+    user-select: none !important;
+    -webkit-tap-highlight-color: transparent !important;
+    outline: none !important;
+    box-sizing: border-box !important;
+
+    /* Светлая фирменная голубая палитра */
+    background: #e8f0fe !important;
+    color: #004a77 !important;
+    border: 1px solid rgba(26, 115, 232, 0.18) !important;
+}
+
+.search-tag-chip.chip-with-label {
+    flex: 1.45 1 0% !important; /* Чуть шире для кнопок с текстом, как в референсе */
+    padding: 0 6px !important;
 }
 
 .search-tag-chip svg {
-    width: 16px;
-    height: 16px;
-    flex-shrink: 0;
-    color: #1a73e8;
-    transition: transform 0.16s ease;
+    width: 17px !important;
+    height: 17px !important;
+    flex-shrink: 0 !important;
+    color: #1a73e8 !important;
 }
 
 .search-tag-chip:hover {
-    background: #d4e4fc;
-    color: #003355;
-    border-color: rgba(26, 115, 232, 0.35);
+    background: #d4e4fc !important;
+    color: #003355 !important;
 }
 
 .search-tag-chip:active {
-    transform: scale(0.95);
+    transform: scale(0.96) !important;
 }
 
-/* Активное состояние чипа (наш фирменный голубой / Google Blue акцент) */
+/* Активное состояние кнопки (наш фирменный акцент #1a73e8, как кнопка 1 на референсе) */
 .search-tag-chip.is-active {
     background: #1a73e8 !important;
     color: #ffffff !important;
     border-color: #1a73e8 !important;
-    box-shadow: 0 2px 8px rgba(26, 115, 232, 0.38) !important;
+    box-shadow: 0 2px 8px rgba(26, 115, 232, 0.35) !important;
 }
 
 .search-tag-chip.is-active svg {
     color: #ffffff !important;
 }
 
-/* Темная тема (Dark Theme) */
+/* Тёмная тема */
 [data-theme="dark"] .search-tag-chip {
-    background: #1c2635;
-    color: #93c5fd;
-    border: 1px solid rgba(56, 189, 248, 0.22);
+    background: #1c2635 !important;
+    color: #93c5fd !important;
+    border-color: rgba(56, 189, 248, 0.22) !important;
 }
 
 [data-theme="dark"] .search-tag-chip svg {
-    color: #38bdf8;
+    color: #38bdf8 !important;
 }
 
 [data-theme="dark"] .search-tag-chip:hover {
-    background: #253347;
-    color: #bae6fd;
-    border-color: rgba(56, 189, 248, 0.45);
+    background: #253347 !important;
+    color: #bae6fd !important;
 }
 
 [data-theme="dark"] .search-tag-chip.is-active {
     background: #1a73e8 !important;
     color: #ffffff !important;
     border-color: #38bdf8 !important;
-    box-shadow: 0 2px 12px rgba(26, 115, 232, 0.5) !important;
+    box-shadow: 0 2px 10px rgba(26, 115, 232, 0.5) !important;
 }
 
 [data-theme="dark"] .search-tag-chip.is-active svg {

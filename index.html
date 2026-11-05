@@ -210,9 +210,9 @@
             </button>
         </div>
 
-        <!-- Быстрые теги ключевых аудиторий с названиями (M3 Expressive Chips Bar) -->
-        <div class="m3-search-chips-bar flex flex-wrap sm:flex-wrap items-center gap-2 py-1 px-1 flex-shrink-0">
-            <button type="button" class="search-tag-chip" data-query="Столовая">
+        <!-- Быстрые кнопки M3 Expressive плотно в один ряд без прокрутки -->
+        <div class="m3-search-chips-bar flex flex-wrap sm:flex-wrap items-center w-full flex-shrink-0">
+            <button type="button" class="search-tag-chip is-active" data-query="Столовая" title="Столовая" aria-label="Столовая">
                 <svg class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M18 8h1a4 4 0 0 1 0 8h-1"></path>
                     <path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"></path>
@@ -220,50 +220,35 @@
                     <line x1="10" y1="1" x2="10" y2="4"></line>
                     <line x1="14" y1="1" x2="14" y2="4"></line>
                 </svg>
-                <span>Столовая</span>
             </button>
-            <button type="button" class="search-tag-chip" data-query="Библиотека">
+            <button type="button" class="search-tag-chip" data-query="Конференц-зал" title="Конференц-зал" aria-label="Конференц-зал">
+                <svg class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                    <line x1="8" y1="21" x2="16" y2="21"></line>
+                    <line x1="12" y1="17" x2="12" y2="21"></line>
+                </svg>
+            </button>
+            <button type="button" class="search-tag-chip chip-with-label" data-query="Библиотека" title="Библиотека" aria-label="Библиотека">
                 <svg class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
                     <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
                 </svg>
-                <span>Библиотека</span>
+                <span class="truncate">Библиотека</span>
             </button>
-            <button type="button" class="search-tag-chip" data-query="Актовый зал">
+            <button type="button" class="search-tag-chip chip-with-label" data-query="Актовый зал" title="Актовый зал" aria-label="Актовый зал">
                 <svg class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
                     <circle cx="9" cy="7" r="4"></circle>
                     <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
                     <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
                 </svg>
-                <span>Актовый зал</span>
+                <span class="truncate">Актовый зал</span>
             </button>
-            <button type="button" class="search-tag-chip" data-query="Конференц-зал">
-                <svg class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
-                    <line x1="8" y1="21" x2="16" y2="21"></line>
-                    <line x1="12" y1="17" x2="12" y2="21"></line>
-                </svg>
-                <span>Конференц-зал</span>
-            </button>
-            <button type="button" class="search-tag-chip" data-query="Учебная часть">
+            <button type="button" class="search-tag-chip" data-query="Учебная часть" title="Учебная часть" aria-label="Учебная часть">
                 <svg class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M22 10v6M2 10l10-5 10 5-10 5z"></path>
                     <path d="M6 12v5c3 3 9 3 12 0v-5"></path>
                 </svg>
-                <span>Учебная часть</span>
-            </button>
-            <button type="button" class="search-tag-chip" data-query="Гардероб">
-                <svg class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M12 2a3 3 0 0 0-3 3c0 .8.3 1.5.8 2.1L2 14.5A2 2 0 0 0 3.5 18h17a2 2 0 0 0 1.5-3.5L14.2 7.1c.5-.6.8-1.3.8-2.1a3 3 0 0 0-3-3z"></path>
-                </svg>
-                <span>Гардероб</span>
-            </button>
-            <button type="button" class="search-tag-chip" data-query="Санузел">
-                <svg class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M7 2v10M17 2v10M3 12h18v2a6 6 0 0 1-6 6H9a6 6 0 0 1-6-6v-2z"></path>
-                </svg>
-                <span>Санузел</span>
             </button>
         </div>
 
