@@ -1116,8 +1116,13 @@ function setupSearch() {
         }
     });
 
+    let searchDebounceTimer = null;
     btnClearSearch?.addEventListener("click", () => {
         if (searchInput) {
+            if (searchDebounceTimer) {
+                clearTimeout(searchDebounceTimer);
+                searchDebounceTimer = null;
+            }
             searchInput.value = "";
             searchInput.focus();
             btnClearSearch.classList.add("hidden");
@@ -1135,7 +1140,13 @@ function setupSearch() {
         document.querySelectorAll(".search-tag-chip").forEach(c => {
             c.classList.toggle("is-active", Boolean(val) && (c.dataset.query || "").toLowerCase() === val.toLowerCase());
         });
-        renderSearchResults(e.target.value);
+        if (searchDebounceTimer) {
+            clearTimeout(searchDebounceTimer);
+        }
+        const query = e.target.value;
+        searchDebounceTimer = setTimeout(() => {
+            renderSearchResults(query);
+        }, 150);
     });
 
     searchInput?.addEventListener("keydown", (e) => {
