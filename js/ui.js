@@ -292,6 +292,10 @@ function updateFloorInfo() {
 function setMode(newMode, shouldSave = true) {
     STATE.mode = newMode;
 
+    if (document.body) {
+        document.body.classList.toggle('mode-all-floors', newMode === 'all');
+    }
+
     document.querySelectorAll('.floor-btn').forEach(btn => {
         btn.classList.toggle('active', btn.dataset.floor === newMode);
     });
@@ -299,6 +303,7 @@ function setMode(newMode, shouldSave = true) {
     const btnAllFloors = document.getElementById('btn-toggle-all-floors');
     if (btnAllFloors) {
         btnAllFloors.classList.toggle('mode-active', newMode === 'all');
+        btnAllFloors.classList.toggle('active', newMode === 'all');
     }
 
     // Синхронизируем этажные таблетки в карточке активного маршрута
@@ -943,19 +948,33 @@ function setupSearch() {
         }
 
         // 1. Делаем модалку активной синхронно в DOM до любых других операций
-        searchModal?.classList.add("active");
-        searchBackdrop?.classList.add("active");
+        if (searchModal) {
+            searchModal.style.visibility = 'visible';
+            searchModal.classList.add("active");
+        }
+        if (searchBackdrop) {
+            searchBackdrop.classList.add("active");
+        }
         document.body.classList.add("search-open");
 
         // 2. МГНОВЕННЫЙ СИНХРОННЫЙ ВЫЗОВ focus() ДЛЯ ОТКРЫТИЯ КЛАВИАТУРЫ НА ТЕЛЕФОНЕ:
-        // Мобильные браузеры Chrome (Android) и Safari (iOS) активируют виртуальную клавиатуру ТОЛЬКО если
-        // focus() вызван строго синхронно в рамках пользовательского жеста ДО вызова history.pushState!
         if (shouldFocus && searchInput) {
             try {
                 searchInput.focus({ preventScroll: true });
             } catch (_) {
                 try { searchInput.focus(); } catch (_) {}
             }
+            try {
+                const len = searchInput.value ? searchInput.value.length : 0;
+                searchInput.setSelectionRange(len, len);
+            } catch (_) {}
+
+            // Страховочный повторный фокус в следующем тике, если браузер пересчитывал layout
+            setTimeout(() => {
+                if (searchModal?.classList.contains("active") && document.activeElement !== searchInput) {
+                    try { searchInput.focus({ preventScroll: true }); } catch (_) {}
+                }
+            }, 50);
         }
 
         // 3. Сохранение состояния навигации в history строго после фокусировки
@@ -983,8 +1002,11 @@ function setupSearch() {
             popOverlayState('search');
         }
         searchInput?.blur();
-        searchModal?.classList.remove("active");
-        searchModal?.classList.remove("route-pick-mode");
+        if (searchModal) {
+            searchModal.style.visibility = '';
+            searchModal.classList.remove("active");
+            searchModal.classList.remove("route-pick-mode");
+        }
         const btnPickMap = document.getElementById("btn-search-pick-map");
         if (btnPickMap) btnPickMap.classList.remove("is-route-pick");
         const pill = document.getElementById('search-route-target-pill');
@@ -1005,36 +1027,51 @@ function setupSearch() {
         }
     }
 
-    const triggerSearchFocusAndOpen = () => {
-        // Немедленно активируем модалку и инпут в DOM синхронно
-        if (searchModal) searchModal.classList.add("active");
-        if (searchBackdrop) searchBackdrop.classList.add("active");
-        document.body.classList.add("search-open");
-        if (searchInput) {
-            try {
-                searchInput.focus({ preventScroll: true });
-            } catch (_) {
-                try { searchInput.focus(); } catch (_) {}
+    let searchOpeningGesture = false;
+
+    function handleSearchOpenGesture(e) {
+        if (searchOpeningGesture) {
+            if (e && e.cancelable) e.preventDefault();
+            return;
+        }
+        searchOpeningGesture = true;
+        setTimeout(() => { searchOpeningGesture = false; }, 350);
+
+        if (e && e.cancelable) {
+            e.preventDefault();
+        }
+
+        // Предотвращаем удержание фокуса кнопкой, чтобы клик не перехватывал фокус у инпута
+        if (btnOpenSearch && typeof btnOpenSearch.blur === 'function') {
+            btnOpenSearch.blur();
+        }
+
+        openSearch(false, true);
+    }
+
+    btnOpenSearch?.addEventListener("click", handleSearchOpenGesture);
+    btnOpenSearch?.addEventListener("touchend", (e) => {
+        handleSearchOpenGesture(e);
+    });
+
+    const searchBarContainer = document.getElementById("bottom-search-bar")?.querySelector(".m3-search-bar");
+    searchBarContainer?.addEventListener("click", (e) => {
+        if (e.target !== btnOpenSearch && !btnOpenSearch?.contains(e.target)) {
+            handleSearchOpenGesture(e);
+        }
+    });
+
+    // Нажатие на плашку ввода в модалке всегда фокусирует инпут
+    const searchInputPill = searchModal?.querySelector(".m3-search-input-pill");
+    searchInputPill?.addEventListener("click", (e) => {
+        if (e.target !== btnCloseSearch && !btnCloseSearch?.contains(e.target) &&
+            e.target !== btnClearSearch && !btnClearSearch?.contains(e.target)) {
+            if (searchInput && document.activeElement !== searchInput) {
+                searchInput.focus();
             }
         }
-        openSearch(false, false);
-    };
+    });
 
-    btnOpenSearch?.addEventListener("pointerdown", () => {
-        // Подготавливаем видимость модального окна и вызываем фокус на первом касании пальцем
-        if (searchModal) searchModal.classList.add("active");
-        if (searchBackdrop) searchBackdrop.classList.add("active");
-        document.body.classList.add("search-open");
-        if (searchInput) {
-            try { searchInput.focus({ preventScroll: true }); } catch (_) {}
-        }
-    });
-    btnOpenSearch?.addEventListener("touchend", () => {
-        triggerSearchFocusAndOpen();
-    }, { passive: true });
-    btnOpenSearch?.addEventListener("click", () => {
-        triggerSearchFocusAndOpen();
-    });
     btnCloseSearch?.addEventListener("click", () => closeSearch());
     searchBackdrop?.addEventListener("click", () => closeSearch());
 
