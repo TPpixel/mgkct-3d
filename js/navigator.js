@@ -2838,12 +2838,19 @@
 
         if (!cameFrom.has(destId)) return null;
 
-        // Восстановление пути
+        // Восстановление пути с защитой от циклов и разрывов
         const path = [];
+        const visited = new Set();
         let curr = destId;
-        while (curr !== null) {
+        const maxSteps = (graph.nodes && graph.nodes.size) ? graph.nodes.size : 2000;
+        while (curr !== null && curr !== undefined && !visited.has(curr) && path.length < maxSteps) {
+            visited.add(curr);
             path.push(curr);
             curr = cameFrom.get(curr);
+        }
+        if (curr !== null) {
+            console.warn('[MGKCT Navigator] Предупреждение: обнаружен цикл или разрыв цепи при восстановлении пути для узла:', curr);
+            return null;
         }
         path.reverse();
 
