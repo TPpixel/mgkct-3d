@@ -43,13 +43,23 @@ function handleRequest(req, res) {
         const ext = path.extname(filePath).toLowerCase();
         const contentType = MIME[ext] || 'application/octet-stream';
 
-        res.writeHead(200, {
+        const isStaticAsset = filePath.includes(path.sep + 'vendor' + path.sep) ||
+            ['.png', '.jpg', '.jpeg', '.svg', '.woff', '.woff2', '.ttf', '.ico'].includes(ext);
+
+        const headers = {
             'Content-Type': contentType,
-            'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0',
-            'Pragma': 'no-cache',
-            'Expires': '0',
             'Access-Control-Allow-Origin': '*'
-        });
+        };
+
+        if (isStaticAsset) {
+            headers['Cache-Control'] = 'public, max-age=86400';
+        } else {
+            headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0';
+            headers['Pragma'] = 'no-cache';
+            headers['Expires'] = '0';
+        }
+
+        res.writeHead(200, headers);
 
         fs.createReadStream(filePath).pipe(res);
     });
