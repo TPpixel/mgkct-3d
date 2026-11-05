@@ -986,6 +986,14 @@ function setupSearch() {
         searchBackdrop?.classList.remove("active");
         document.body.classList.remove("search-open");
         quickButtons.forEach(b => b?.classList.remove("is-active"));
+        document.querySelectorAll(".search-tag-chip").forEach(c => c.classList.remove("is-active"));
+        const searchCard = document.querySelector(".m3-search-card");
+        if (searchCard) {
+            searchCard.classList.add("hidden");
+        }
+        if (searchInput) {
+            searchInput.placeholder = 'Поиск по колледжу...';
+        }
         if (!keepPickBanner && typeof window.hidePickBanner === 'function') {
             window.hidePickBanner();
         }
@@ -1044,17 +1052,21 @@ function setupSearch() {
             searchInput.value = "";
             searchInput.focus();
             btnClearSearch.classList.add("hidden");
+            document.querySelectorAll(".search-tag-chip").forEach(c => c.classList.remove("is-active"));
             renderSearchResults("");
         }
     });
 
     searchInput?.addEventListener("input", (e) => {
-        const val = e.target.value;
+        const val = (e.target.value || "").trim();
         if (btnClearSearch) {
             btnClearSearch.classList.toggle("hidden", !val);
         }
         quickButtons.forEach(b => b?.classList.remove("is-active"));
-        renderSearchResults(val);
+        document.querySelectorAll(".search-tag-chip").forEach(c => {
+            c.classList.toggle("is-active", Boolean(val) && (c.dataset.query || "").toLowerCase() === val.toLowerCase());
+        });
+        renderSearchResults(e.target.value);
     });
 
     searchInput?.addEventListener("keydown", (e) => {
@@ -1089,12 +1101,25 @@ function setupSearch() {
     document.querySelectorAll(".search-tag-chip").forEach(chip => {
         chip.addEventListener("click", () => {
             const q = chip.dataset.query || "";
-            if (searchInput) {
-                searchInput.value = q;
-                if (btnClearSearch) btnClearSearch.classList.remove("hidden");
-                searchInput.focus();
+            const isAlreadyActive = chip.classList.contains("is-active");
+
+            // Снимаем активность со всех чипов
+            document.querySelectorAll(".search-tag-chip").forEach(c => c.classList.remove("is-active"));
+
+            if (isAlreadyActive) {
+                // Повторный клик по активному чипу снимает фильтр
+                if (searchInput) searchInput.value = "";
+                if (btnClearSearch) btnClearSearch.classList.add("hidden");
+                renderSearchResults("");
+            } else {
+                chip.classList.add("is-active");
+                if (searchInput) {
+                    searchInput.value = q;
+                    if (btnClearSearch) btnClearSearch.classList.remove("hidden");
+                    searchInput.focus();
+                }
+                renderSearchResults(q);
             }
-            renderSearchResults(q);
         });
     });
 
@@ -1108,7 +1133,7 @@ function setupSearch() {
             return;
         }
 
-        const btn = e.target.closest('.room-search-item');
+        const btn = e.target.closest('.room-search-item, .m3-search-row');
         if (!btn) return;
 
         const f = parseInt(btn.dataset.floor, 10);
@@ -1116,7 +1141,7 @@ function setupSearch() {
         const x = parseFloat(btn.dataset.x);
         const z = parseFloat(btn.dataset.z);
         const t = btn.dataset.text;
-        closeSearch();
+        closeSearch(true);
 
         // Очищаем строку поиска после выбора найденного кабинета
         if (searchInput) {
@@ -1130,13 +1155,31 @@ function setupSearch() {
             renderSearchResults('');
         }
 
-        if (STATE.buildingFilter !== 'both' && typeof setBuildingFilter === 'function') {
-            setBuildingFilter('both', false);
+        if (typeof setBuildingFilter === "function") {
+            setBuildingFilter(String(b), false);
         }
         const roomInfo = { floor: f, building: b, x: x, z: z, text: t };
+
+        // Сохраняем в недавние поиски
+        if (typeof saveRecentSearch === "function") {
+            saveRecentSearch(roomInfo);
+        }
+
+        // Если активен маршрут и пользователь выбирает кабинет в поиске для смены в маршруте
+        if (window.NAV_STATE && (window.NAV_STATE.targetToChange || window.NAV_STATE.activeRoute || (document.getElementById('navigator-route-card') && !document.getElementById('navigator-route-card').classList.contains('hidden')))) {
+            const targetType = window.NAV_STATE.targetToChange || 'dest';
+            if (typeof window.applyRoomToActiveRoute === 'function') {
+                window.applyRoomToActiveRoute(roomInfo, targetType);
+            }
+            window.NAV_STATE.targetToChange = null;
+            if (typeof hideRoomContextPopup === 'function') {
+                hideRoomContextPopup(true);
+            }
+            return;
+        }
         selectRoom(roomInfo, true);
-        if (typeof showRoomContextPopup === 'function') {
-            showRoomContextPopup(roomInfo, window.innerWidth / 2, window.innerHeight * 0.42, false);
+        if (typeof showRoomContextPopup === "function") {
+            showRoomContextPopup(roomInfo, window.innerWidth / 2, window.innerHeight * 0.42, false, true);
         }
     });
 
@@ -1144,27 +1187,19 @@ function setupSearch() {
         if (!searchResults) return;
         query = (query || "").trim().toLowerCase().replace(/ё/g, "е");
 
-        const chipsBar = document.querySelector(".m3-search-chips-bar");
-        if (chipsBar) {
-            chipsBar.classList.toggle("hidden", Boolean(query));
+        const searchCard = document.querySelector(".m3-search-card");
+
+        // 1) Пустой поисковый запрос: скрываем карточку выдачи (чистый M3 Expressive вид над клавиатурой)
+        if (!query) {
+            if (searchCard) {
+                searchCard.classList.add("hidden");
+            }
+            searchResults.innerHTML = "";
+            return;
         }
 
-        // 1) Пустой поисковый запрос: приветственная подсказка быстрого поиска
-        if (!query) {
-            searchResults.innerHTML = `
-                <div class="text-center py-8 px-4 flex flex-col items-center justify-center gap-2 text-slate-400 dark:text-slate-500">
-                    <div class="w-10 h-10 rounded-full bg-black/5 dark:bg-white/5 flex items-center justify-center text-slate-500 mb-1">
-                        <svg class="w-5 h-5 text-sky-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                        </svg>
-                    </div>
-                    <div class="text-xs font-semibold text-slate-700 dark:text-slate-300">Быстрый поиск аудиторий</div>
-                    <div class="text-[11px] text-slate-400 dark:text-slate-500 max-w-[260px] leading-relaxed">
-                        Начните ввод номера кабинета или выберите категорию выше
-                    </div>
-                </div>
-            `;
-            return;
+        if (searchCard) {
+            searchCard.classList.remove("hidden");
         }
 
         if (typeof ROOMS_REGISTRY === "undefined" || ROOMS_REGISTRY.length === 0) {
@@ -1350,45 +1385,6 @@ function setupSearch() {
                     if (r !== btn) r.classList.remove("is-active");
                 });
                 btn.classList.add("is-active");
-            });
-
-            btn.addEventListener("click", () => {
-                const f = parseInt(btn.dataset.floor, 10);
-                const b = parseInt(btn.dataset.bldg, 10);
-                const x = parseFloat(btn.dataset.x);
-                const z = parseFloat(btn.dataset.z);
-                const t = btn.dataset.text;
-                closeSearch(true);
-                // Очищаем строку поиска после выбора найденного кабинета
-                if (searchInput) {
-                    searchInput.value = '';
-                }
-                if (btnClearSearch) {
-                    btnClearSearch.classList.add('hidden');
-                }
-                quickButtons.forEach(b => b?.classList.remove('is-active'));
-                if (typeof renderSearchResults === 'function') {
-                    renderSearchResults('');
-                }
-                if (typeof setBuildingFilter === "function") {
-                    setBuildingFilter(String(b), false);
-                }
-                const roomInfo = { floor: f, building: b, x: x, z: z, text: t };
-
-                // Если активен маршрут и пользователь выбирает кабинет в поиске для смены в маршруте
-                if (window.NAV_STATE && window.NAV_STATE.activeRoute && (window.NAV_STATE.targetToChange || document.getElementById('navigator-route-card')?.classList.contains('hidden') === false)) {
-                    const targetType = window.NAV_STATE.targetToChange || 'dest';
-                    if (typeof window.applyRoomToActiveRoute === 'function') {
-                        window.applyRoomToActiveRoute(roomInfo, targetType);
-                    }
-                    window.NAV_STATE.targetToChange = null;
-                    return;
-                }
-
-                selectRoom(roomInfo, true);
-                if (typeof showRoomContextPopup === "function") {
-                    showRoomContextPopup(roomInfo, window.innerWidth / 2, window.innerHeight * 0.42, false, true);
-                }
             });
         });
     }
@@ -1770,6 +1766,13 @@ function estimateWalkTime(roomInfo) {
 
 function showRoomContextPopup(roomInfo, clientX, clientY, shouldSelectAndFly = true, fromSearch = false) {
     if (!roomInfo) return;
+
+    // Не перекрываем активную карточку навигатора / маршрута
+    const routeCard = document.getElementById('navigator-route-card');
+    if ((window.NAV_STATE && window.NAV_STATE.activeRoute) || (routeCard && !routeCard.classList.contains('hidden'))) {
+        return;
+    }
+
     pushOverlayState('room-card', { fromSearch: Boolean(fromSearch) });
     currentPopupRoom = roomInfo;
 
