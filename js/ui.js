@@ -923,9 +923,6 @@ function setupSearch() {
 
     function openSearch(fromPopstate = false, shouldFocus = true) {
         hideRoomContextPopup(true);
-        if (!fromPopstate) {
-            pushOverlayState('search');
-        }
 
         // При открытии поиска ВСЕГДА скрываем верхний баннер карты, чтобы он не перекрывал поиск
         const pickBanner = document.getElementById('nav-pick-banner');
@@ -945,23 +942,32 @@ function setupSearch() {
             if (pill) pill.classList.add('hidden');
         }
 
+        // 1. Делаем модалку активной синхронно в DOM до любых других операций
         searchModal?.classList.add("active");
         searchBackdrop?.classList.add("active");
         document.body.classList.add("search-open");
+
+        // 2. МГНОВЕННЫЙ СИНХРОННЫЙ ВЫЗОВ focus() ДЛЯ ОТКРЫТИЯ КЛАВИАТУРЫ НА ТЕЛЕФОНЕ:
+        // Мобильные браузеры Chrome (Android) и Safari (iOS) активируют виртуальную клавиатуру ТОЛЬКО если
+        // focus() вызван строго синхронно в рамках пользовательского жеста ДО вызова history.pushState!
+        if (shouldFocus && searchInput) {
+            try {
+                searchInput.focus({ preventScroll: true });
+            } catch (_) {
+                try { searchInput.focus(); } catch (_) {}
+            }
+        }
+
+        // 3. Сохранение состояния навигации в history строго после фокусировки
+        if (!fromPopstate) {
+            pushOverlayState('search');
+        }
+
         const q = searchInput ? searchInput.value : "";
         if (btnClearSearch) {
             btnClearSearch.classList.toggle("hidden", !q);
         }
         renderSearchResults(q);
-
-        // МГНОВЕННЫЙ СИНХРОННЫЙ ВЫЗОВ focus() ДЛЯ ОТКРЫТИЯ КЛАВИАТУРЫ НА ТЕЛЕФОНЕ:
-        // Браузеры Chrome (Android) и Safari (iOS) блокируют вызов клавиатуры, если focus() отложен через setTimeout!
-        // Вызов focus() строго синхронно в рамках жеста пользователя моментально выдвигает экранную клавиатуру.
-        if (shouldFocus && searchInput) {
-            try {
-                searchInput.focus();
-            } catch (_) {}
-        }
 
         if (typeof updateVisualViewportVars === "function") updateVisualViewportVars();
         setTimeout(() => {
@@ -999,13 +1005,36 @@ function setupSearch() {
         }
     }
 
-    btnOpenSearch?.addEventListener("pointerdown", () => {
-        // При первом касании пальцем моментально фокусируем input, пока действует user gesture
+    const triggerSearchFocusAndOpen = () => {
+        // Немедленно активируем модалку и инпут в DOM синхронно
+        if (searchModal) searchModal.classList.add("active");
+        if (searchBackdrop) searchBackdrop.classList.add("active");
+        document.body.classList.add("search-open");
         if (searchInput) {
-            try { searchInput.focus(); } catch (_) {}
+            try {
+                searchInput.focus({ preventScroll: true });
+            } catch (_) {
+                try { searchInput.focus(); } catch (_) {}
+            }
+        }
+        openSearch(false, false);
+    };
+
+    btnOpenSearch?.addEventListener("pointerdown", () => {
+        // Подготавливаем видимость модального окна и вызываем фокус на первом касании пальцем
+        if (searchModal) searchModal.classList.add("active");
+        if (searchBackdrop) searchBackdrop.classList.add("active");
+        document.body.classList.add("search-open");
+        if (searchInput) {
+            try { searchInput.focus({ preventScroll: true }); } catch (_) {}
         }
     });
-    btnOpenSearch?.addEventListener("click", () => openSearch(false, true));
+    btnOpenSearch?.addEventListener("touchend", () => {
+        triggerSearchFocusAndOpen();
+    }, { passive: true });
+    btnOpenSearch?.addEventListener("click", () => {
+        triggerSearchFocusAndOpen();
+    });
     btnCloseSearch?.addEventListener("click", () => closeSearch());
     searchBackdrop?.addEventListener("click", () => closeSearch());
 
