@@ -316,6 +316,7 @@ function buildStairValidationAxes() {
 
         const boxGeom = new THREE.BoxGeometry(w, 1, d);
         const boxEdges = new THREE.EdgesGeometry(boxGeom);
+        boxGeom.dispose();
         const wireframeBox = new THREE.LineSegments(boxEdges, MATERIALS.stairBoxEdge);
         wireframeBox.position.set(cx, 1, cz);
         stairValidationGroup.add(wireframeBox);
