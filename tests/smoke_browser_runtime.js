@@ -110,6 +110,7 @@ async function runSmokeTest() {
     const browserArgs = [
         '--headless=new',
         `--remote-debugging-port=${debugPort}`,
+        '--remote-debugging-address=127.0.0.1',
         `--user-data-dir=${tempUserDataDir}`,
         '--no-first-run',
         '--no-default-browser-check',
@@ -120,15 +121,27 @@ async function runSmokeTest() {
         '--disable-default-apps',
         '--disable-sync',
         '--disable-extensions',
+        '--disable-gpu',
         '--enable-webgl',
         '--ignore-gpu-blocklist',
-        '--use-gl=angle',
-        '--use-angle=swiftshader',
         '--hide-scrollbars',
         'about:blank'
     ];
 
-    const browserProc = spawn(browserBin, browserArgs, { stdio: 'ignore' });
+    const browserLogs = [];
+    const browserProc = spawn(browserBin, browserArgs, { stdio: ['ignore', 'pipe', 'pipe'] });
+    browserProc.stderr.on('data', (d) => {
+        const s = d.toString().trim();
+        if (s && !s.includes('DevTools listening on')) {
+            // keep debug info if failure occurs
+            browserLogs.push(s);
+        }
+    });
+    browserProc.on('exit', (code, sig) => {
+        if (code !== null && code !== 0) {
+            browserLogs.push(`Browser process exited with code ${code} (signal ${sig})`);
+        }
+    });
     console.log(`[BROWSER] Headless process spawned (PID=${browserProc.pid}, debugPort=${debugPort})`);
 
     const cleanup = () => {
@@ -158,6 +171,9 @@ async function runSmokeTest() {
         }
 
         if (!wsUrl) {
+            if (browserLogs.length > 0) {
+                console.error('[BROWSER LOGS]\n' + browserLogs.join('\n'));
+            }
             throw new Error(`Failed to establish CDP connection on port ${debugPort}`);
         }
 
