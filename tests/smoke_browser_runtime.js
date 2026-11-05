@@ -23,6 +23,13 @@ const { spawn } = require('child_process');
 
 const REPO_ROOT = path.resolve(__dirname, '..');
 
+// Ensure WebSocket is available (Node 22 native, or Node 20 --experimental-websocket)
+const WSClient = globalThis.WebSocket;
+if (typeof WSClient === 'undefined') {
+    console.error('[ERROR] WebSocket is not available. Please run with Node 22+ or use --experimental-websocket.');
+    process.exit(1);
+}
+
 // Common browser binary locations
 function findBrowserBinary() {
     const isWin = process.platform === 'win32';
@@ -108,13 +115,17 @@ async function runSmokeTest() {
         '--no-default-browser-check',
         '--no-sandbox',
         '--disable-setuid-sandbox',
+        '--disable-dev-shm-usage',
         '--disable-background-networking',
         '--disable-default-apps',
         '--disable-sync',
         '--disable-extensions',
-        '--disable-gpu',
+        '--enable-webgl',
+        '--ignore-gpu-blocklist',
+        '--use-gl=angle',
+        '--use-angle=swiftshader',
         '--hide-scrollbars',
-        `http://127.0.0.1:${serverPort}/`
+        'about:blank'
     ];
 
     const browserProc = spawn(browserBin, browserArgs, { stdio: 'ignore' });
@@ -131,14 +142,15 @@ async function runSmokeTest() {
     try {
         // Wait for CDP to become available
         let wsUrl = null;
-        for (let i = 0; i < 30; i++) {
+        for (let i = 0; i < 40; i++) {
             await new Promise(r => setTimeout(r, 200));
             try {
                 const res = await fetch(`http://127.0.0.1:${debugPort}/json/list`);
                 if (res.ok) {
                     const pages = await res.json();
-                    if (pages.length > 0 && pages[0].webSocketDebuggerUrl) {
-                        wsUrl = pages[0].webSocketDebuggerUrl;
+                    const page = pages.find(p => p.type === 'page' && p.webSocketDebuggerUrl) || pages[0];
+                    if (page && page.webSocketDebuggerUrl) {
+                        wsUrl = page.webSocketDebuggerUrl;
                         break;
                     }
                 }
@@ -150,7 +162,7 @@ async function runSmokeTest() {
         }
 
         console.log('[CDP] Connected to Chrome DevTools Protocol');
-        const ws = new WebSocket(wsUrl);
+        const ws = new WSClient(wsUrl);
 
         await new Promise((resolve, reject) => {
             ws.onopen = resolve;
@@ -159,12 +171,18 @@ async function runSmokeTest() {
 
         let msgId = 1;
         const pendingCallbacks = new Map();
+        let pageLoadedResolve = null;
+        const pageLoadedPromise = new Promise(resolve => { pageLoadedResolve = resolve; });
 
         ws.onmessage = (event) => {
             const data = JSON.parse(event.data);
             if (data.id && pendingCallbacks.has(data.id)) {
                 pendingCallbacks.get(data.id)(data);
                 pendingCallbacks.delete(data.id);
+            }
+
+            if (data.method === 'Page.loadEventFired') {
+                if (pageLoadedResolve) pageLoadedResolve();
             }
 
             // Capture console.error
@@ -189,16 +207,27 @@ async function runSmokeTest() {
             ws.send(JSON.stringify({ id, method, params }));
         });
 
-        await sendCDP('Runtime.enable');
         await sendCDP('Page.enable');
+        await sendCDP('Runtime.enable');
 
-        // Allow app initialization & rendering loop
+        const targetUrl = `http://127.0.0.1:${serverPort}/index.html`;
+        console.log(`[NAVIGATE] Navigating to ${targetUrl}...`);
+        await sendCDP('Page.navigate', { url: targetUrl });
+
+        // Wait for page load event (or timeout after 5s)
+        await Promise.race([
+            pageLoadedPromise,
+            new Promise(r => setTimeout(r, 5000))
+        ]);
+
+        // Allow app initialization & 3D rendering loop
         console.log('[TEST] Waiting for 3D campus bootstrap and frame rendering...');
-        await new Promise(r => setTimeout(r, 2500));
+        await new Promise(r => setTimeout(r, 3000));
 
         // Evaluate global health
         const evalRes = await sendCDP('Runtime.evaluate', {
             expression: `({
+                url: window.location.href,
                 hasThree: typeof THREE !== 'undefined',
                 hasState: typeof STATE !== 'undefined',
                 hasNav: typeof NAV_STATE !== 'undefined',
