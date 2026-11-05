@@ -22,7 +22,13 @@ const MIME = {
 };
 
 function handleRequest(req, res) {
-    let reqPath = decodeURI(req.url.split('?')[0]);
+    let reqPath;
+    try {
+        reqPath = decodeURI(req.url.split('?')[0]);
+    } catch (e) {
+        res.writeHead(400, { 'Content-Type': 'text/plain; charset=utf-8' });
+        return res.end('Bad Request');
+    }
     if (reqPath === '/' || reqPath === '') {
         reqPath = '/index.html';
     }
