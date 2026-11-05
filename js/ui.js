@@ -889,7 +889,7 @@ function popOverlayState(name) {
             try {
                 history.back();
             } catch (_) {}
-            setTimeout(() => { isPoppingStateInternal = false; }, 200);
+            requestAnimationFrame(() => { isPoppingStateInternal = false; });
         }
     }
 }
@@ -1990,11 +1990,7 @@ function showRoomContextPopup(roomInfo, clientX, clientY, shouldSelectAndFly = t
     popup.classList.remove('hidden');
     document.body.classList.add('room-card-open');
 
-    requestAnimationFrame(() => {
-        updateAdaptiveFabPosition();
-        setTimeout(updateAdaptiveFabPosition, 50);
-        setTimeout(updateAdaptiveFabPosition, 180);
-    });
+    requestAnimationFrame(updateAdaptiveFabPosition);
 
     if (shouldSelectAndFly && typeof selectRoom === 'function') {
         selectRoom(roomInfo, true);
@@ -2011,7 +2007,7 @@ function hideRoomContextPopup(fromPopstate = false) {
                 } catch (_) {
                     history.back();
                 }
-                setTimeout(() => { isPoppingStateInternal = false; }, 200);
+                requestAnimationFrame(() => { isPoppingStateInternal = false; });
             } else {
                 popOverlayState('room-card');
             }
@@ -2031,6 +2027,11 @@ function hideRoomContextPopup(fromPopstate = false) {
 function setupRoomContextPopup() {
     const btnClose = document.getElementById('btn-close-room-popup');
     if (btnClose) btnClose.addEventListener('click', hideRoomContextPopup);
+
+    const popup = document.getElementById('room-context-popup');
+    if (popup) {
+        popup.addEventListener('transitionend', updateAdaptiveFabPosition);
+    }
 
     function getRoomNavPoint(r) {
         if (!r) return null;
