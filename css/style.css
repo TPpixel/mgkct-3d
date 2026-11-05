@@ -1183,7 +1183,7 @@ body.search-open #nav-pick-banner,
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.55);
 }
 
-/* Панель кнопок M3 Expressive: СТРОГО В ОДИН РЯД, БЕЗ ПРОКРУТОК, ПЛОТНО */
+/* Док быстрых кнопок M3 Expressive: СТРОГО В ОДИН РЯД, БЕЗ ПРОКРУТОК, ПЛОТНО */
 .m3-search-chips-bar {
     display: flex !important;
     flex-direction: row !important;
@@ -1197,6 +1197,7 @@ body.search-open #nav-pick-banner,
     padding: 0 !important;
     margin-bottom: 6px !important;
     flex-shrink: 0 !important;
+    border-radius: 9999px !important; /* Общий контур стадиона */
 }
 
 @media (max-width: 639px) {
@@ -1209,6 +1210,7 @@ body.search-open #nav-pick-banner,
         padding: 0 !important;
         width: 100% !important;
         margin-bottom: 4px !important;
+        border-radius: 9999px !important;
     }
 }
 
@@ -1216,23 +1218,16 @@ body.search-open #nav-pick-banner,
     max-height: min(390px, 50vh);
 }
 
-/* Кнопки M3 Expressive (плотно в ряд, точно по референсу в голубой палитре) */
+/* Иконочные кнопки M3 Expressive в доке (без текста) */
 .search-tag-chip {
     flex: 1 1 0% !important;
     min-width: 0 !important;
-    height: 38px !important;
-    padding: 0 4px !important;
-    border-radius: 12px !important; /* M3 Expressive squircle pill с референса */
-    font-size: 11.5px !important;
-    font-weight: 600 !important;
-    font-family: 'Google Sans', 'Roboto', sans-serif !important;
+    height: 42px !important; /* Комфортная высота под палец */
+    padding: 0 !important;
+    border-radius: 8px !important; /* Внутренние кнопки */
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
-    gap: 4px !important;
-    white-space: nowrap !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
     cursor: pointer !important;
     transition: all 0.16s cubic-bezier(0.2, 0, 0, 1) !important;
     user-select: none !important;
@@ -1246,16 +1241,32 @@ body.search-open #nav-pick-banner,
     border: 1px solid rgba(26, 115, 232, 0.18) !important;
 }
 
-.search-tag-chip.chip-with-label {
-    flex: 1.45 1 0% !important; /* Чуть шире для кнопок с текстом, как в референсе */
-    padding: 0 6px !important;
+/* Скругление слева как у поиска на левом конце дока */
+.search-tag-chip:first-child,
+.search-tag-chip.m3-dock-start {
+    border-top-left-radius: 9999px !important;
+    border-bottom-left-radius: 9999px !important;
+    border-top-right-radius: 8px !important;
+    border-bottom-right-radius: 8px !important;
+    padding-left: 4px !important;
+}
+
+/* Скругление справа как у поиска на правом конце дока */
+.search-tag-chip:last-child,
+.search-tag-chip.m3-dock-end {
+    border-top-left-radius: 8px !important;
+    border-bottom-left-radius: 8px !important;
+    border-top-right-radius: 9999px !important;
+    border-bottom-right-radius: 9999px !important;
+    padding-right: 4px !important;
 }
 
 .search-tag-chip svg {
-    width: 17px !important;
-    height: 17px !important;
+    width: 20px !important;
+    height: 20px !important;
     flex-shrink: 0 !important;
     color: #1a73e8 !important;
+    transition: transform 0.16s ease !important;
 }
 
 .search-tag-chip:hover {
@@ -1264,10 +1275,10 @@ body.search-open #nav-pick-banner,
 }
 
 .search-tag-chip:active {
-    transform: scale(0.96) !important;
+    transform: scale(0.95) !important;
 }
 
-/* Активное состояние кнопки (наш фирменный акцент #1a73e8, как кнопка 1 на референсе) */
+/* Активное состояние кнопки (наш фирменный акцент #1a73e8) */
 .search-tag-chip.is-active {
     background: #1a73e8 !important;
     color: #ffffff !important;
