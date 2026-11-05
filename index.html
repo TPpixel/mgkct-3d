@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
     <title>Интерактивная карта — Колледж МГКЦТ</title>
     <!-- Resource Hints & Preconnections -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -10,137 +10,208 @@
     <link rel="dns-prefetch" href="https://cdn.tailwindcss.com">
     <link rel="preload" href="js/vendor/three.min.js" as="script">
     <link rel="preload" href="js/vendor/OrbitControls.js" as="script">
-    <!-- Tailwind CSS & Google Fonts -->
+    <!-- Tailwind CSS & Google Fonts (Roboto, Google Sans) -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: ['selector', '[data-theme="dark"]']
+        };
+        (function() {
+            try {
+                var saved = localStorage.getItem('mgkct_theme');
+                var theme = (saved === 'dark' || saved === 'light') ? saved : ((window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light');
+                document.documentElement.setAttribute('data-theme', theme);
+            } catch (_) {}
+        })();
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     <!-- Three.js & OrbitControls -->
     <script src="js/vendor/three.min.js"></script>
     <script src="js/vendor/OrbitControls.js"></script>
     <!-- Стили -->
-    <link rel="stylesheet" href="css/style.css?v=15">
+    <link rel="stylesheet" href="css/style.css?v=80">
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
     <meta http-equiv="Pragma" content="no-cache" />
     <meta http-equiv="Expires" content="0" />
 </head>
-<body data-theme="light" class="overflow-hidden select-none">
+<body class="overflow-hidden select-none">
+    <script>
+        (function() {
+            try {
+                var saved = localStorage.getItem('mgkct_theme');
+                var theme = (saved === 'dark' || saved === 'light') ? saved : ((window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light');
+                document.body.setAttribute('data-theme', theme);
+            } catch (_) {}
+        })();
+    </script>
 
     <!-- Контейнер Three.js сцены -->
     <div id="canvas-container"></div>
     <!-- 2D Canvas для кристально чётких надписей номеров кабинетов (Screen-Space Retina) -->
     <canvas id="labels-overlay-canvas" style="position:fixed; top:0; left:0; width:100%; height:100%; z-index:15; pointer-events:none;"></canvas>
 
-    <!-- Верхняя панель навигации (на мобильном вверху, на ПК под поиском) -->
-    <header class="ui-overlay fixed top-2 left-2 right-2 sm:top-[68px] sm:left-4 sm:right-auto z-20 flex items-center pointer-events-none transition-all duration-200">
-        <div class="glass-panel rounded-2xl px-2 py-1.5 sm:px-2.5 sm:py-2 flex items-center gap-2 pointer-events-auto shadow-xl w-full sm:w-auto max-w-full overflow-hidden">
-            <!-- Слева в углу: переключатель темы (Светлая / Тёмная) -->
-            <button id="btn-toggle-theme" title="Сменить тему (Светлая / Тёмная)" class="btn-interactive theme-toggle-btn w-9 h-9 rounded-xl flex items-center justify-center transition shadow-sm flex-shrink-0">
-                <svg id="theme-icon-sun" class="w-4 h-4 text-amber-400 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
-                </svg>
-                <svg id="theme-icon-moon" class="w-4 h-4 text-sky-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
-                </svg>
+    <!-- Панель выбора корпусов (Компактный блок 1-4 и отдельная кнопка «Все» справа) -->
+    <header class="ui-overlay mobile-thumb-header fixed top-2 left-2 right-2 sm:top-[76px] sm:left-4 sm:right-auto z-20 flex items-center justify-center sm:justify-start pointer-events-none transition-all duration-200 gap-1.5">
+        <div class="bldg-pill-bar flex items-center justify-center pointer-events-auto" aria-label="Выбор корпуса">
+            <button id="btn-bldg-1" class="bldg-chip bldg-pill-btn" data-bldg="1" title="Корпус 1">
+                <span class="bldg-indicator">1</span>
             </button>
-
-            <!-- Горизонтальная строка выбора корпуса -->
-            <div class="flex-1 min-w-0 flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5">
-                <button id="btn-bldg-all" class="bldg-chip active" data-bldg="both">Все</button>
-                <button id="btn-bldg-1" class="bldg-chip" data-bldg="1">Корпус 1</button>
-                <button id="btn-bldg-2" class="bldg-chip" data-bldg="2">Корпус 2</button>
-                <button id="btn-bldg-3" class="bldg-chip" data-bldg="3">Корпус 3</button>
-                <button id="btn-bldg-4" class="bldg-chip" data-bldg="4">Корпус 4</button>
-            </div>
+            <button id="btn-bldg-2" class="bldg-chip bldg-pill-btn" data-bldg="2" title="Корпус 2">
+                <span class="bldg-indicator">2</span>
+            </button>
+            <button id="btn-bldg-3" class="bldg-chip bldg-pill-btn" data-bldg="3" title="Корпус 3">
+                <span class="bldg-indicator">3</span>
+            </button>
+            <button id="btn-bldg-4" class="bldg-chip bldg-pill-btn" data-bldg="4" title="Корпус 4">
+                <span class="bldg-indicator">4</span>
+            </button>
         </div>
+
+        <!-- Отдельная кнопка «Все корпуса» справа от блока с иконкой 4 квадратов -->
+        <button id="btn-bldg-all" class="bldg-chip bldg-all-btn pointer-events-auto active" data-bldg="both" title="Все корпуса" aria-label="Все корпуса">
+            <svg class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="3" width="7" height="7" rx="1.5"></rect>
+                <rect x="14" y="3" width="7" height="7" rx="1.5"></rect>
+                <rect x="14" y="14" width="7" height="7" rx="1.5"></rect>
+                <rect x="3" y="14" width="7" height="7" rx="1.5"></rect>
+            </svg>
+        </button>
     </header>
 
-    <!-- Панель поиска: на телефоне внизу, на ПК вверху слева (как в Яндекс.Картах) -->
-    <div id="bottom-search-bar" class="ui-overlay fixed bottom-3 left-2 right-2 sm:bottom-auto sm:top-3 sm:left-4 sm:right-auto sm:w-[440px] z-20 pointer-events-none transition-all duration-300">
-        <div class="glass-panel rounded-2xl p-2 flex items-center gap-2 pointer-events-auto shadow-2xl w-full">
-            <!-- Виджет поиска кабинетов -->
-            <button id="btn-open-search" class="btn-interactive flex-1 h-10 px-3.5 rounded-xl flex items-center gap-2.5 text-left min-w-0 transition">
-                <svg class="w-4 h-4 text-sky-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <!-- Панель поиска и кнопка переключения темы: на телефоне внизу, на ПК вверху слева (Google Maps Search & Theme Pill) -->
+    <div id="bottom-search-bar" class="ui-overlay fixed bottom-3 left-3 right-3 sm:bottom-auto sm:top-3 sm:left-4 sm:right-auto sm:w-[480px] z-20 pointer-events-none transition-all duration-300 flex items-center gap-2">
+        <!-- Виджет поиска кабинетов (отдельная плашка) -->
+        <div class="m3-search-bar flex-1 flex items-center min-w-0 pointer-events-auto">
+            <button id="btn-open-search" class="m3-search-input-btn w-full flex items-center gap-3 min-w-0" aria-label="Поиск по колледжу">
+                <svg class="w-5 h-5 m3-search-icon flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
-                <span id="search-widget-text" class="text-xs font-medium whitespace-nowrap overflow-hidden text-ellipsis">Поиск по колледжу...</span>
-            </button>
-
-            <!-- Кнопка навигатора (Маршрут) -->
-            <button id="btn-open-navigator" title="Построить маршрут (Навигатор)" class="btn-interactive h-10 px-3.5 sm:px-4 rounded-xl flex items-center gap-1.5 bg-sky-600 hover:bg-sky-500 text-white font-semibold text-xs border border-sky-400/30 transition shadow-md flex-shrink-0">
-                <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M9 20l-5.447-2.724A2 2 0 012.5 15.485V5.515a2 2 0 011.053-1.79L9 1m0 19l6-3m-6 3V1m6 16l5.447 2.724A2 2 0 0021.5 17.939V7.969a2 2 0 00-1.053-1.79L15 3.447m0 13.553V3.447m0 0L9 1" />
-                </svg>
-                <span>Маршрут</span>
+                <span id="search-widget-text" class="m3-search-placeholder truncate">Поиск по колледжу...</span>
             </button>
         </div>
+
+        <!-- Кнопка переключения темы оформления (Светлая / Тёмная) справа от строки поиска -->
+        <button id="btn-toggle-theme" class="m3-icon-pill-btn theme-toggle-btn pointer-events-auto flex-shrink-0" title="Сменить тему (Светлая / Тёмная)" aria-label="Сменить тему">
+            <svg id="theme-icon-sun" class="w-5 h-5 text-amber-500 hidden flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+            </svg>
+            <svg id="theme-icon-moon" class="w-5 h-5 text-[#1a73e8] dark:text-[#c2e7ff] flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+            </svg>
+        </button>
     </div>
 
-    <!-- Правый плавающий селектор этажей (как в 2GIS / Google Maps / Яндекс.Картах) -->
-    <nav class="ui-overlay floor-switcher-bar glass-panel" aria-label="Выбор этажа">
-        <span class="floor-switcher-label text-[9px] font-extrabold uppercase tracking-widest my-0.5">Эт</span>
-        <button id="floor-btn-7" class="floor-btn" data-floor="7" title="7 этаж">7</button>
-        <button id="floor-btn-6" class="floor-btn" data-floor="6" title="6 этаж">6</button>
-        <button id="floor-btn-5" class="floor-btn" data-floor="5" title="5 этаж">5</button>
-        <button id="floor-btn-4" class="floor-btn" data-floor="4" title="4 этаж">4</button>
-        <button id="floor-btn-3" class="floor-btn" data-floor="3" title="3 этаж">3</button>
-        <button id="floor-btn-2" class="floor-btn" data-floor="2" title="2 этаж">2</button>
-        <button id="floor-btn-1" class="floor-btn active" data-floor="1" title="1 этаж">1</button>
-    </nav>
 
-    <!-- Правые плавающие кнопки управления картой (Слои территории, 2D/3D, масштаб только на ПК) -->
-    <div class="ui-overlay map-fab-bar">
-        <!-- Кнопка переключения режима с прилегающей территорией (как слои в Яндекс/Google Картах) -->
-        <button id="btn-toggle-territory" class="map-fab-btn" title="Прилегающая территория (дороги, деревья, окружение)" aria-label="Переключить отображение территории">
-            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+
+    <!-- Правый плавающий селектор этажей (Google Maps Indoor Levels) -->
+    <div class="ui-overlay floor-switcher-group flex flex-col items-center gap-2" aria-label="Выбор этажа">
+        <!-- Отдельная кнопка «Все этажи» с иконкой слоёв/этажей -->
+        <button id="floor-btn-all" class="floor-btn floor-all-btn pointer-events-auto" data-floor="all" title="Все этажи (3D здание целиком)" aria-label="Все этажи">
+            <svg class="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+                <polyline points="2 17 12 22 22 17"></polyline>
+                <polyline points="2 12 12 17 22 12"></polyline>
             </svg>
         </button>
 
-        <!-- Кнопка переключения 2D вид сверху / 3D изометрия -->
+        <!-- Капсула с номерами этажей 7–1 -->
+        <nav class="floor-switcher-bar pointer-events-auto" aria-label="Этажи 1–7">
+            <button id="floor-btn-7" class="floor-btn" data-floor="7" title="7 этаж">7</button>
+            <button id="floor-btn-6" class="floor-btn" data-floor="6" title="6 этаж">6</button>
+            <button id="floor-btn-5" class="floor-btn" data-floor="5" title="5 этаж">5</button>
+            <button id="floor-btn-4" class="floor-btn" data-floor="4" title="4 этаж">4</button>
+            <button id="floor-btn-3" class="floor-btn" data-floor="3" title="3 этаж">3</button>
+            <button id="floor-btn-2" class="floor-btn" data-floor="2" title="2 этаж">2</button>
+            <button id="floor-btn-1" class="floor-btn active" data-floor="1" title="1 этаж">1</button>
+        </nav>
+    </div>
+
+    <!-- Правые плавающие кнопки управления картой (Все этажи, Слои территории, 2D/3D FAB) -->
+    <div class="ui-overlay map-fab-bar">
+        <!-- Кнопка «Все этажи» (показывается при активном маршруте сверху справа) -->
+        <button id="btn-toggle-all-floors" class="map-fab-btn route-only-fab" title="Все этажи" aria-label="Все этажи">
+            <svg class="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+                <polyline points="2 17 12 22 22 17"></polyline>
+                <polyline points="2 12 12 17 22 12"></polyline>
+            </svg>
+        </button>
+        <!-- Кнопка «Вид со спутника» -->
+        <button id="btn-toggle-territory" class="map-fab-btn" title="Прилегающая территория (дороги, окружение)" aria-label="Переключить отображение территории">
+            <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+        </button>
+        <!-- Кнопка «3D / 2D» -->
         <button id="btn-toggle-2d" class="map-fab-btn font-extrabold text-[12px]" title="Переключить 2D карта сверху / 3D ракурс">
             2D
         </button>
-
-        <!-- Кнопки масштабирования (скрыты на смартфонах, доступны только на ПК) -->
-        <div class="zoom-controls-group hidden sm:flex flex-col gap-0.5 glass-panel !rounded-xl p-0.5">
-            <button id="btn-zoom-in" class="map-fab-btn !w-9 !h-9 !rounded-lg !border-none !shadow-none !bg-transparent" title="Приблизить">
-                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M12 4v16m8-8H4" />
-                </svg>
-            </button>
-            <div class="zoom-divider h-[1px] mx-1.5"></div>
-            <button id="btn-zoom-out" class="map-fab-btn !w-9 !h-9 !rounded-lg !border-none !shadow-none !bg-transparent" title="Отдалить">
-                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M20 12H4" />
-                </svg>
-            </button>
-        </div>
+    </div>
+    <!-- Скрытые элементы масштабирования для обратной совместимости со скриптами -->
+    <div style="display:none">
+        <button id="btn-zoom-in"></button>
+        <button id="btn-zoom-out"></button>
     </div>
 
-    <!-- Модальное окно поиска кабинетов -->
+    <!-- Модальное окно поиска кабинетов (Google Maps Bottom Sheet / Dropdown) -->
     <div id="search-backdrop" class="drawer-backdrop"></div>
-    <div id="search-modal" class="search-modal glass-panel p-3.5 sm:p-4 flex flex-col gap-2.5 sm:gap-3">
-        <div class="flex items-center justify-between pb-1.5 border-b border-slate-700/60 flex-shrink-0">
-            <div class="flex items-center gap-2">
-                <svg class="w-4 h-4 text-sky-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
-                <span class="text-xs font-bold text-slate-200 uppercase tracking-wider">Поиск кабинета</span>
-            </div>
-            <button id="btn-close-search" class="text-slate-400 hover:text-slate-100 p-1 rounded-lg transition">
-                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-            </button>
+    <div id="search-modal" class="search-modal pointer-events-auto">
+        <!-- Пометка: выбор начального или конечного пункта маршрута -->
+        <div id="search-route-target-pill" class="hidden mb-2 px-3 py-1.5 rounded-full self-start inline-flex items-center gap-2 text-xs font-bold transition-all shadow-sm">
+            <span class="w-2.5 h-2.5 rounded-full bg-current animate-pulse"></span>
+            <span id="search-route-target-text">Выбор конечного пункта (Куда)</span>
         </div>
+        <!-- Нижняя строка: поисковая плашка + 3 быстрых кнопки (Столовая, Туалет, Справочная) -->
+        <div class="m3-search-bottom-bar flex items-center gap-1.5 sm:gap-2 w-full flex-shrink-0">
+            <!-- Поисковая плашка -->
+            <div class="m3-search-input-pill flex items-center justify-between flex-1 min-w-0">
+                <button id="btn-close-search" type="button" class="m3-search-nav-btn" aria-label="Назад" title="Закрыть поиск">
+                    <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                    </svg>
+                </button>
+                <form role="search" action="javascript:void(0);" method="get" autocomplete="off" onsubmit="return false;" class="m3-search-form flex-1 flex items-center min-w-0">
+                    <input id="search-input"
+                           type="search"
+                           name="search"
+                           autocomplete="off"
+                           autocorrect="off"
+                           autocapitalize="off"
+                           spellcheck="false"
+                           inputmode="search"
+                           enterkeyhint="search"
+                           role="searchbox"
+                           data-lpignore="true"
+                           data-1p-ignore="true"
+                           data-form-type="other"
+                           aria-autocomplete="none"
+                           aria-label="Поиск по кабинетам"
+                           placeholder="Поиск по кабинетам..." 
+                           class="m3-search-field flex-1 min-w-0 bg-transparent text-[15px] outline-none px-2 font-medium text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500">
+                </form>
 
-        <div class="relative flex-shrink-0">
-            <input id="search-input" type="text" autocomplete="off" autocorrect="off" spellcheck="false"
-                   placeholder="Введите номер (например, 2-102, 1-105, столовая)..." 
-                   class="w-full bg-slate-900/90 border border-slate-700/80 rounded-xl px-3.5 py-2.5 text-[16px] sm:text-xs text-slate-100 placeholder-slate-500 outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 transition">
+                <button id="btn-clear-search" type="button" class="m3-search-clear-btn flex items-center justify-center flex-shrink-0 hidden" aria-label="Очистить" title="Очистить">
+                    <svg class="w-4 h-4 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Кнопка «Карта» справа от поиска для выбора пункта прямо на 3D карте -->
+            <button id="btn-search-pick-map" type="button" class="m3-search-pick-map-btn" title="Выбрать кабинет на карте" aria-label="Выбрать кабинет на карте">
+                <svg class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"></polygon>
+                    <line x1="9" y1="3" x2="9" y2="18"></line>
+                    <line x1="15" y1="6" x2="15" y2="21"></line>
+                </svg>
+                <span>Карта</span>
+            </button>
         </div>
 
         <!-- Быстрые теги ключевых аудиторий с названиями -->
-        <div class="flex flex-wrap items-center gap-1.5 py-0.5 text-[11px] flex-shrink-0">
+        <div class="m3-search-chips-bar flex flex-wrap items-center gap-1.5 py-1 text-[11px] flex-shrink-0 px-1">
             <button class="search-tag-chip px-2.5 py-1 rounded-lg transition font-medium" data-query="Столовая">Столовая</button>
             <button class="search-tag-chip px-2.5 py-1 rounded-lg transition font-medium" data-query="Спортзал">Спортзал</button>
             <button class="search-tag-chip px-2.5 py-1 rounded-lg transition font-medium" data-query="Актовый зал">Актовый зал</button>
@@ -150,218 +221,487 @@
             <button class="search-tag-chip px-2.5 py-1 rounded-lg transition font-medium" data-query="С/У">Санузел</button>
         </div>
 
-        <!-- Список результатов -->
-        <div id="search-results" class="search-results-list overflow-y-auto custom-scroll flex flex-col gap-1 pr-1 min-h-0 flex-1">
-            <div class="text-center py-6 text-xs text-slate-500">Начните ввод номера аудитории...</div>
+        <!-- Карточка результатов поиска (Results Card с 3-колоночным списком Google) -->
+        <div class="m3-search-card flex flex-col overflow-hidden">
+            <!-- Список результатов в 3-колоночном стиле Google (Grid Results) -->
+            <div id="search-results" class="m3-search-results-list overflow-y-auto custom-scroll flex flex-col">
+                <div class="text-center py-8 text-xs text-slate-400">Начните ввод номера аудитории...</div>
+            </div>
         </div>
     </div>
 
     <!-- Модальное окно Навигатора (Маршрут в стиле Google Maps) -->
     <div id="navigator-backdrop"></div>
-    <div id="navigator-modal" class="glass-panel p-3.5 sm:p-4 flex flex-col gap-2.5 sm:gap-3">
-        <div class="flex items-center justify-between pb-1.5 border-b border-slate-700/60 flex-shrink-0">
-            <div class="flex items-center gap-2">
-                <svg class="w-4 h-4 text-sky-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M9 20l-5.447-2.724A2 2 0 012.5 15.485V5.515a2 2 0 011.053-1.79L9 1m0 19l6-3m-6 3V1m6 16l5.447 2.724A2 2 0 0021.5 17.939V7.969a2 2 0 00-1.053-1.79L15 3.447m0 13.553V3.447m0 0L9 1" />
-                </svg>
-                <span class="text-xs font-bold text-slate-100 uppercase tracking-wider">Маршрут по колледжу</span>
+    <div id="navigator-modal" class="p-4 sm:p-5 flex flex-col gap-3.5">
+        <!-- Шапка навигатора -->
+        <div class="flex items-center justify-between pb-2 border-b border-black/5 dark:border-white/10">
+            <div class="flex items-center gap-2.5">
+                <div class="w-9 h-9 rounded-2xl bg-[#c2e7ff] text-[#1a73e8] flex items-center justify-center flex-shrink-0 shadow-sm">
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M9 20l-5.447-2.724A2 2 0 012.5 15.485V5.515a2 2 0 011.053-1.79L9 1m0 19l6-3m-6 3V1m6 16l5.447 2.724A2 2 0 0021.5 17.939V7.969a2 2 0 00-1.053-1.79L15 3.447m0 13.553V3.447m0 0L9 1" />
+                    </svg>
+                </div>
+                <div>
+                    <div id="nav-modal-title" class="text-sm font-bold">Построить маршрут</div>
+                    <div id="nav-modal-sub" class="text-[11px] font-medium">Навигация по колледжу</div>
+                </div>
             </div>
-            <button id="btn-close-navigator" class="text-slate-400 hover:text-slate-100 p-1 rounded-lg transition">
+            <button id="btn-close-navigator" class="m3-icon-btn w-9 h-9 flex items-center justify-center text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-100 rounded-full" aria-label="Закрыть маршрут">
                 <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                 </svg>
             </button>
         </div>
 
-        <!-- Поля ввода маршрута (Google Maps стиль) -->
-        <div class="flex items-center gap-2 relative flex-shrink-0">
-            <div class="flex flex-col gap-2 flex-1 min-w-0">
+        <!-- Поля ввода маршрута (Google Maps стиль с бейджами "Отсюда" и "Сюда") -->
+        <div class="flex items-center gap-2.5 relative">
+            <div class="flex flex-col gap-2.5 flex-1 min-w-0">
                 <!-- Откуда (Точка А) -->
-                <div class="relative">
-                    <div class="absolute left-3 top-1/2 -translate-y-1/2 flex items-center pointer-events-none">
-                        <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 ring-2 ring-emerald-500/30"></span>
+                <div class="m3-nav-input-row">
+                    <div class="m3-input-badge-start">
+                        <svg class="w-3.5 h-3.5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="3"/>
+                            <line x1="12" y1="2" x2="12" y2="6"/>
+                            <line x1="12" y1="18" x2="12" y2="22"/>
+                            <line x1="2" y1="12" x2="6" y2="12"/>
+                            <line x1="18" y1="12" x2="22" y2="12"/>
+                        </svg>
+                        <span>Отсюда</span>
                     </div>
-                    <input id="nav-input-start" type="text" autocomplete="off" autocorrect="off" spellcheck="false"
-                           placeholder="Откуда: кабинет, зал, главный вход..." 
-                           class="w-full bg-slate-900/90 border border-slate-700/80 rounded-xl pl-8 pr-20 py-2 text-[16px] sm:text-xs text-slate-100 placeholder-slate-500 outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 transition">
-                    <button id="btn-clear-start" type="button" title="Очистить поле" class="absolute right-14 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200 px-1.5 py-1 rounded hidden text-xs transition">
+                    <input id="nav-input-start" type="search" name="nav_start" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" inputmode="search" enterkeyhint="search" role="searchbox" data-form-type="other" data-lpignore="true" placeholder="Кабинет, зал, главный вход..." 
+                           class="w-full">
+                    <button id="btn-clear-start" type="button" title="Очистить поле" class="w-6 h-6 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hidden text-xs transition flex-shrink-0 mr-1.5">
                         ✕
                     </button>
-                    <button id="btn-pick-start" title="Указать точку на карте" class="nav-pick-btn absolute right-1.5 top-1/2 -translate-y-1/2 px-2 py-1 rounded-lg text-[10px] font-semibold transition flex items-center gap-1">
-                        Карта
+                    <button id="btn-pick-start" title="Указать точку на карте" class="flex-shrink-0">
+                        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                            <path d="M12 21s-6-5.33-6-10a6 6 0 0 1 12 0c0 4.67-6 10-6 10z"/>
+                            <circle cx="12" cy="11" r="2"/>
+                        </svg>
+                        <span>Карта</span>
                     </button>
                     <!-- Выпадающий список автозаполнения Откуда -->
-                    <div id="nav-dropdown-start" class="nav-autocomplete-dropdown absolute left-0 right-0 top-full mt-1 rounded-xl shadow-2xl z-50 max-h-44 overflow-y-auto custom-scroll hidden"></div>
+                    <div id="nav-dropdown-start" class="absolute left-0 right-0 top-full mt-1.5 hidden custom-scroll"></div>
                 </div>
 
                 <!-- Куда (Точка Б) -->
-                <div class="relative">
-                    <div class="absolute left-3 top-1/2 -translate-y-1/2 flex items-center pointer-events-none">
-                        <span class="w-2.5 h-2.5 rounded-full bg-rose-500 ring-2 ring-rose-500/30"></span>
+                <div class="m3-nav-input-row">
+                    <div class="m3-input-badge-dest">
+                        <svg class="w-3.5 h-3.5 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+                        </svg>
+                        <span>Сюда</span>
                     </div>
-                    <input id="nav-input-dest" type="text" autocomplete="off" autocorrect="off" spellcheck="false"
-                           placeholder="Куда: номер кабинета, столовая, спортзал..." 
-                           class="w-full bg-slate-900/90 border border-slate-700/80 rounded-xl pl-8 pr-20 py-2 text-[16px] sm:text-xs text-slate-100 placeholder-slate-500 outline-none focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 transition">
-                    <button id="btn-clear-dest" type="button" title="Очистить поле" class="absolute right-14 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200 px-1.5 py-1 rounded hidden text-xs transition">
+                    <input id="nav-input-dest" type="search" name="nav_dest" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" inputmode="search" enterkeyhint="search" role="searchbox" data-form-type="other" data-lpignore="true" placeholder="Номер кабинета, столовая, спортзал..." 
+                           class="w-full">
+                    <button id="btn-clear-dest" type="button" title="Очистить поле" class="w-6 h-6 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hidden text-xs transition flex-shrink-0 mr-1.5">
                         ✕
                     </button>
-                    <button id="btn-pick-dest" title="Указать точку на карте" class="nav-pick-btn absolute right-1.5 top-1/2 -translate-y-1/2 px-2 py-1 rounded-lg text-[10px] font-semibold transition flex items-center gap-1">
-                        Карта
+                    <button id="btn-pick-dest" title="Указать точку на карте" class="flex-shrink-0">
+                        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                            <path d="M12 21s-6-5.33-6-10a6 6 0 0 1 12 0c0 4.67-6 10-6 10z"/>
+                            <circle cx="12" cy="11" r="2"/>
+                        </svg>
+                        <span>Карта</span>
                     </button>
                     <!-- Выпадающий список автозаполнения Куда -->
-                    <div id="nav-dropdown-dest" class="nav-autocomplete-dropdown absolute left-0 right-0 top-full mt-1 rounded-xl shadow-2xl z-50 max-h-44 overflow-y-auto custom-scroll hidden"></div>
+                    <div id="nav-dropdown-dest" class="absolute left-0 right-0 top-full mt-1.5 hidden custom-scroll"></div>
                 </div>
             </div>
 
             <!-- Кнопка инверсии точек -->
-            <button id="btn-nav-swap" title="Поменять местами" class="nav-swap-btn w-9 h-9 rounded-xl flex items-center justify-center transition self-center flex-shrink-0">
-                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <button id="btn-nav-swap" title="Поменять местами" class="flex-shrink-0 self-center">
+                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
                 </svg>
             </button>
         </div>
 
-        <!-- Переключатель лифтов: свич вкл/выкл -->
-        <label id="elevators-switch-label" for="toggle-elevators-switch" class="flex items-center justify-between py-2 px-3 rounded-xl bg-slate-900/80 border border-slate-700/80 cursor-pointer select-none hover:border-sky-500/50 transition flex-shrink-0">
-            <span class="text-xs font-semibold text-slate-100">Использовать лифты</span>
-            <div class="switch-control ml-3 flex-shrink-0">
-                <input type="checkbox" id="toggle-elevators-switch">
-                <span class="switch-slider"></span>
-            </div>
-        </label>
-        <!-- Скрытая совместимость для программных вызовов -->
-        <button id="btn-toggle-elevators" type="button" class="hidden"><span id="elevators-status-text">Без лифтов</span></button>
+        <!-- Быстрые направления и опции (только Google SVG иконки без эмодзи; лифт с подсветкой при выборе) -->
+        <div class="flex items-center justify-between gap-2 pt-1 pb-0.5">
+            <!-- Опция лифта: только иконка, загорается синим при выборе -->
+            <button id="btn-toggle-elevators-icon" type="button" 
+                    title="Использовать лифты" 
+                    aria-label="Использовать лифты"
+                    aria-pressed="false"
+                    class="m3-nav-icon-btn m3-elevator-toggle flex-1">
+                <svg class="w-5 h-5 pointer-events-none" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM8.5 6 11 10.5H6L8.5 6zm7 12L13 13.5h5L15.5 18z"/>
+                </svg>
+            </button>
+            <input type="checkbox" id="toggle-elevators-switch" class="hidden">
+            <button id="btn-toggle-elevators" type="button" class="hidden"><span id="elevators-status-text">Без лифтов</span></button>
 
-        <!-- Кнопки направлений: сбалансированная сетка из 6 кнопок -->
-        <div class="grid grid-cols-2 sm:grid-cols-3 gap-1.5 text-[11px] pt-0.5 flex-shrink-0">
-            <button id="btn-quick-toilet" type="button" title="Построить маршрут к ближайшему туалету" class="nav-quick-chip btn-interactive px-2 py-1.5 rounded-lg flex items-center justify-center transition font-medium w-full">
-                <span class="truncate">Ближайший туалет</span>
+            <!-- Тонкий разделитель между опцией и направлениями -->
+            <div class="w-px h-6 bg-black/10 dark:bg-white/10 flex-shrink-0 mx-0.5"></div>
+
+            <!-- Быстрые направления: только иконки без эмодзи -->
+            <button id="btn-quick-toilet" type="button" 
+                    title="Ближайший туалет" 
+                    aria-label="Ближайший туалет"
+                    class="nav-quick-chip m3-nav-icon-btn flex-1">
+                <svg class="w-5 h-5 pointer-events-none" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M5.5 21v-7.5H4V9c0-1.1.9-2 2-2h3c1.1 0 2 .9 2 2v5.5H9.5V21h-4zm2-15c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm9 15-2.5-8.5H12L14.5 21h2zm1.5 0v-6h1.5l-2-8.5c-.2-.6-.8-1-1.5-1s-1.3.4-1.5 1L13 15h1.5v6h3.5zm-2-15c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2z"/>
+                </svg>
             </button>
-            <button class="nav-quick-chip btn-interactive px-2 py-1.5 rounded-lg flex items-center justify-center transition font-medium w-full" data-target="Главный вход">
-                <span class="truncate">Главный вход</span>
+            <button class="nav-quick-chip m3-nav-icon-btn flex-1" 
+                    data-target="Главный вход" 
+                    title="Главный вход" 
+                    aria-label="Главный вход">
+                <svg class="w-5 h-5 pointer-events-none" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M19 19V5c0-1.1-.9-2-2-2H7c-1.1 0-2 .9-2 2v14H3v2h18v-2h-2zm-4-6h-2v-2h2v2z"/>
+                </svg>
             </button>
-            <button class="nav-quick-chip btn-interactive px-2 py-1.5 rounded-lg flex items-center justify-center transition font-medium w-full" data-target="Главный вход 2">
-                <span class="truncate">Главный вход 2</span>
+            <button class="nav-quick-chip m3-nav-icon-btn flex-1" 
+                    data-target="Столовая" 
+                    title="Столовая" 
+                    aria-label="Столовая">
+                <svg class="w-5 h-5 pointer-events-none" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M11 9H9V2H7v7H5V2H3v7c0 2.12 1.66 3.84 3.75 3.97V22h2.5v-9.03C11.34 12.84 13 11.12 13 9V2h-2v7zm5-3v8h2.5v8H21V2c-2.76 0-5 2.24-5 4z"/>
+                </svg>
             </button>
-            <button class="nav-quick-chip btn-interactive px-2 py-1.5 rounded-lg flex items-center justify-center transition font-medium w-full" data-target="Столовая">
-                <span class="truncate">Столовая</span>
+            <button class="nav-quick-chip m3-nav-icon-btn flex-1" 
+                    data-target="Спортзал" 
+                    title="Спортзал" 
+                    aria-label="Спортзал">
+                <svg class="w-5 h-5 pointer-events-none" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M20.57 14.86L22 13.43 20.57 12 17 15.57 8.43 7 12 3.43 10.57 2 9.14 3.43 7.71 2 5.57 4.14 4.14 2.71 2.71 4.14l1.43 1.43L2 7.71l1.43 1.43L2 10.57 3.43 12 7 8.43 15.57 17 12 20.57 13.43 22l1.43-1.43L16.29 22l2.14-2.14 1.43 1.43 1.43-1.43-1.43-1.43L22 16.29z"/>
+                </svg>
             </button>
-            <button class="nav-quick-chip btn-interactive px-2 py-1.5 rounded-lg flex items-center justify-center transition font-medium w-full" data-target="Спортзал">
-                <span class="truncate">Спортзал</span>
-            </button>
-            <button class="nav-quick-chip btn-interactive px-2 py-1.5 rounded-lg flex items-center justify-center transition font-medium w-full" data-target="Актовый зал">
-                <span class="truncate">Актовый зал</span>
+            <button class="nav-quick-chip m3-nav-icon-btn flex-1" 
+                    data-target="Актовый зал" 
+                    title="Актовый зал" 
+                    aria-label="Актовый зал">
+                <svg class="w-5 h-5 pointer-events-none" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M17 2H7C4.24 2 2 4.24 2 7v7c0 2.76 2.24 5 5 5h1v3l4-3h5c2.76 0 5-2.24 5-5V7c0-2.76-2.24-5-5-5zm-9 6a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3zm8 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3zm-4 8.5c-2.33 0-4.31-1.46-5.11-3.5h10.22c-.8 2.04-2.78 3.5-5.11 3.5z"/>
+                </svg>
             </button>
         </div>
 
-        <div class="flex items-center justify-between pt-1.5 border-t border-slate-700/60 flex-shrink-0">
-            <button id="btn-nav-clear" class="text-xs text-slate-400 hover:text-slate-200 transition py-1.5 px-2.5 rounded-lg hover:bg-slate-800/40">Сбросить</button>
-            <button id="btn-confirm-route" class="btn-interactive px-5 py-2 rounded-xl text-xs font-bold bg-sky-600 hover:bg-sky-500 text-white shadow-lg transition flex items-center gap-1.5">
+        <!-- Нижние кнопки действий: Сбросить (отдельная, но незаметная/tonal M3) и Построить маршрут -->
+        <div class="flex items-center justify-between gap-3 pt-2 border-t border-black/5 dark:border-white/10">
+            <button id="btn-nav-clear" type="button" title="Сбросить маршрут">
+                <svg class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+                    <path d="M3 3v5h5"/>
+                </svg>
+                <span>Сбросить</span>
+            </button>
+            <button id="btn-confirm-route" type="button" title="Построить маршрут">
                 <span>Построить маршрут</span>
-                <span class="text-xs">➔</span>
+                <svg class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                    <polyline points="12 5 19 12 12 19"></polyline>
+                </svg>
             </button>
         </div>
     </div>
 
-    <!-- Плавающий баннер режима указания точки на карте -->
-    <div id="nav-pick-banner" class="fixed top-16 sm:top-24 left-1/2 -translate-x-1/2 z-30 glass-panel px-4 py-2 rounded-2xl border border-sky-500/40 shadow-2xl flex items-center gap-3 hidden max-w-[92vw]">
-        <div class="w-2.5 h-2.5 rounded-full bg-sky-500 animate-pulse flex-shrink-0"></div>
-        <span id="nav-pick-text" class="text-xs font-medium text-slate-100 truncate">Нажмите на любой кабинет на карте</span>
-        <button id="btn-cancel-pick" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-[11px] font-semibold border border-slate-700/60 ml-1 flex-shrink-0">Отмена</button>
+    <!-- Плавающий баннер режима указания точки на карте (наверху экрана) -->
+    <div id="nav-pick-banner" class="fixed top-3.5 left-1/2 -translate-x-1/2 z-50 px-5 py-2.5 rounded-full border border-black/10 dark:border-white/10 shadow-2xl flex items-center gap-3 hidden transition-all duration-300">
+        <div id="nav-pick-dot" class="w-3 h-3 rounded-full bg-[#1a73e8] animate-ping"></div>
+        <span id="nav-pick-text" class="text-xs font-bold text-slate-900 dark:text-white">Нажмите на любой кабинет на карте</span>
+        <button id="btn-cancel-pick" class="px-3 py-1 rounded-full bg-[#c2e7ff] hover:opacity-90 text-[#1a73e8] text-xs font-bold transition ml-1">Отмена</button>
     </div>
 
-    <!-- Нижняя плавающая карточка активного маршрута -->
-    <div id="navigator-route-card" class="fixed bottom-4 left-2 right-2 sm:left-1/2 sm:-translate-x-1/2 sm:w-full sm:max-w-md z-30 glass-panel p-3.5 rounded-2xl border border-sky-500/40 shadow-2xl flex flex-col gap-2.5 hidden transition-all duration-300">
-        <div class="flex items-center justify-between gap-2">
-            <div class="flex items-center gap-2.5 min-w-0 flex-1">
-                <div class="min-w-0 flex-1">
-                    <div class="flex items-center gap-2">
-                        <span id="nav-card-time" class="text-xs font-extrabold text-white">~1 мин</span>
-                        <span class="text-slate-500 text-[10px]">•</span>
-                        <span id="nav-card-dist" class="text-xs font-medium text-slate-300">85 м</span>
+    <!-- Нижняя плавающая карточка активного маршрута (Google Maps Expressive Route Card) -->
+    <div id="navigator-route-card" class="fixed bottom-4 left-3 right-3 sm:left-1/2 sm:-translate-x-1/2 sm:w-full sm:max-w-md z-30 p-3.5 sm:p-4 rounded-[28px] hidden transition-all duration-300">
+        <div class="flex items-center justify-between gap-3">
+            <!-- Левая колонка: Вертикальный блок маршрута (Конечный кабинет ↑ Начальная точка) -->
+            <div id="nav-card-title" class="flex flex-col items-center justify-center flex-shrink-0 cursor-pointer select-none" title="Изменить точки маршрута">
+                <!-- Конечный кабинет (крупный синий бейдж) -->
+                <span id="nav-card-dest-badge" class="px-3 py-1 rounded-xl bg-[#1a73e8] text-white font-google font-extrabold text-lg sm:text-xl tracking-tight shadow-sm inline-flex items-center justify-center">3-111</span>
+                <!-- Стрелка направления снизу вверх -->
+                <div class="flex items-center justify-center my-0.5 text-slate-400 dark:text-slate-500">
+                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 19V5M5 12l7-7 7 7"/>
+                    </svg>
+                </div>
+                <!-- Точка отправления (светло-голубой бейдж) -->
+                <span id="nav-card-start-label" class="px-2.5 py-1 rounded-xl bg-[#c2e7ff] text-[#1a73e8] font-google font-bold text-xs truncate max-w-[125px] inline-flex items-center justify-center shadow-xs">Главный вход</span>
+            </div>
+
+            <!-- Правая колонка: Время и дистанция наверху, лестница и этажи внизу -->
+            <div class="flex flex-col justify-between self-stretch flex-1 min-w-0">
+                <!-- Верхняя строка: Время + Дистанция + Кнопки управления -->
+                <div class="flex items-center justify-between">
+                    <div class="flex items-baseline gap-2 min-w-0">
+                        <span id="nav-card-time" class="text-2xl sm:text-3xl font-extrabold font-google tracking-tight text-slate-900 dark:text-white leading-none">~1.9 мин</span>
+                        <span id="nav-card-dist" class="text-xs sm:text-sm font-semibold text-slate-500 dark:text-slate-400">133 м</span>
                     </div>
-                    <div id="nav-card-title" class="text-[11px] font-semibold text-sky-500 truncate cursor-pointer">105 ➔ 208</div>
+                    <div class="flex items-center gap-1 flex-shrink-0">
+                        <!-- Кнопка разворачивания пошаговых указаний -->
+                        <button id="btn-toggle-steps" title="Пошаговые инструкции" class="m3-icon-btn w-8 h-8 flex items-center justify-center text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 rounded-full" aria-label="Инструкции">
+                            <svg class="w-4 h-4 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </button>
+                        <!-- Кнопка закрытия маршрута -->
+                        <button id="btn-card-close" title="Закрыть маршрут" class="m3-icon-btn w-8 h-8 flex items-center justify-center text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 rounded-full" aria-label="Закрыть">
+                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Нижняя строка: Круглая иконка лестницы + капсула этажей со скруглением -->
+                <div class="flex items-center gap-2 pt-1">
+                    <div class="m3-nav-stairs-icon" title="Этажи маршрута">
+                        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M4 19h4v-4h4v-4h4V7h4"></path>
+                        </svg>
+                    </div>
+                    <!-- Капсула этажей со скруглением и цифрами -->
+                    <div id="nav-card-floors" class="m3-nav-floors-capsule overflow-x-auto no-scrollbar"></div>
                 </div>
             </div>
+        </div>
 
-            <div class="flex items-center gap-1.5 flex-shrink-0">
-                <!-- Кнопка разворачивания пошаговых инструкций -->
-                <button id="btn-toggle-steps" title="Пошаговые инструкции" class="btn-interactive w-8 h-8 rounded-lg flex items-center justify-center bg-slate-800/80 hover:bg-slate-700 text-slate-200 border border-slate-700/80 transition">
-                    <svg class="w-4 h-4 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M19 9l-7 7-7-7" />
-                    </svg>
-                </button>
-                <!-- Кнопка закрытия маршрута -->
-                <button id="btn-card-close" title="Закрыть маршрут" class="btn-interactive w-8 h-8 rounded-lg flex items-center justify-center bg-slate-800/80 hover:bg-slate-700 text-slate-300 border border-slate-700/80 transition">
+        <!-- Разворачиваемый блок пошаговых указаний -->
+        <div id="nav-steps-container" class="hidden pt-2 border-t border-black/5 dark:border-white/10 max-h-56 overflow-y-auto custom-scroll">
+            <ul id="nav-steps-list" class="flex flex-col gap-1.5"></ul>
+        </div>
+    </div>
+
+    <!-- Всплывающий контекстный виджет при клике на кабинет на карте (Google Maps Room Info Card & Buttons) -->
+    <div id="room-context-popup" class="fixed bottom-3 left-3 right-3 sm:bottom-6 sm:left-1/2 sm:-translate-x-1/2 sm:w-[420px] z-40 flex flex-col gap-2.5 hidden pointer-events-auto">
+        <!-- Верхняя карточка кабинета (стата наверху, текст кабинета внизу) -->
+        <div class="m3-room-card p-4 sm:p-5 rounded-[28px] flex flex-col gap-2.5 shadow-xl">
+            <!-- Верхний ряд: Номер кабинета + бейджи статы (Корпус, Этаж) + Кнопка закрытия -->
+            <div class="flex items-center justify-between w-full">
+                <div class="flex items-center gap-2.5 min-w-0 flex-wrap">
+                    <span id="popup-room-code" class="text-2xl sm:text-3xl font-bold font-google tracking-tight text-slate-900 dark:text-white select-none">102</span>
+                    <div class="flex items-center gap-1.5 flex-wrap">
+                        <span id="popup-room-bldg-badge" class="px-2.5 py-1 rounded-full text-xs font-semibold flex items-center gap-1.5" title="Корпус">
+                            <svg class="w-3.5 h-3.5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="4" y="3" width="7" height="18" rx="1"></rect>
+                                <rect x="11" y="9" width="6" height="12" rx="1"></rect>
+                            </svg>
+                            <span id="popup-room-bldg-num">1</span>
+                        </span>
+                        <span id="popup-room-floor-badge" class="px-2.5 py-1 rounded-full text-xs font-semibold flex items-center gap-1.5" title="Этаж">
+                            <svg class="w-3.5 h-3.5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M4 19h4v-4h4v-4h4V7h4"></path>
+                            </svg>
+                            <span id="popup-room-floor-num">1</span>
+                        </span>
+                    </div>
+                </div>
+                <button id="btn-close-room-popup" class="w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10 transition flex-shrink-0" title="Закрыть" aria-label="Закрыть">
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M6 18L18 6M6 6l12 12" />
                     </svg>
                 </button>
             </div>
+
+            <!-- Нижний блок: Название кабинета, предмет и преподаватель отдельными секциями -->
+            <div class="flex flex-col gap-1.5 min-w-0 pt-0.5">
+                <div id="popup-room-title" class="text-[16px] sm:text-[17px] font-semibold text-slate-900 dark:text-slate-100 leading-snug">
+                    Кабинет
+                </div>
+
+                <!-- Отдельные секции: Предмет (учебник) и Преподаватель (персона) -->
+                <div id="popup-room-details-container" class="flex flex-col gap-1.5 pt-0.5">
+                    <!-- Секция: Предмет (иконка учебника) -->
+                    <div id="popup-room-subject-row" class="m3-room-detail-chip">
+                        <div class="m3-room-detail-icon subject-icon" title="Учебный предмет">
+                            <svg class="w-3.5 h-3.5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+                            </svg>
+                        </div>
+                        <span id="popup-room-subject" class="truncate font-medium text-slate-800 dark:text-slate-200"></span>
+                    </div>
+
+                    <!-- Секция: Преподаватель (иконка преподавателя) -->
+                    <div id="popup-room-teacher-row" class="m3-room-detail-chip">
+                        <div class="m3-room-detail-icon teacher-icon" title="Преподаватель">
+                            <svg class="w-3.5 h-3.5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="12" cy="7" r="4"></circle>
+                            </svg>
+                        </div>
+                        <span id="popup-room-teacher" class="truncate font-medium text-slate-800 dark:text-slate-200"></span>
+                    </div>
+
+                    <!-- Резервная секция для общего описания (если нет предмета и педагога) -->
+                    <div id="popup-room-generic-row" class="m3-room-detail-chip hidden">
+                        <div class="m3-room-detail-icon teacher-icon">
+                            <svg class="w-3.5 h-3.5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="12" y1="16" x2="12" y2="12"></line>
+                                <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                            </svg>
+                        </div>
+                        <span id="popup-room-generic-text" class="truncate font-medium text-slate-500 dark:text-slate-400"></span>
+                    </div>
+                </div>
+
+                <div id="popup-room-subtitle" class="hidden"></div>
+                <span id="popup-room-name" class="hidden"></span>
+            </div>
         </div>
 
-        <!-- Поэтажный навигатор маршрута -->
-        <div class="flex items-center gap-1.5 pt-1.5 border-t border-slate-700/60">
-            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mr-1">Этажи:</span>
-            <div id="nav-card-floors" class="flex items-center gap-1.5 overflow-x-auto no-scrollbar"></div>
-        </div>
-
-        <!-- Разворачиваемый блок пошаговых указаний -->
-        <div id="nav-steps-container" class="hidden pt-2 border-t border-slate-700/60 max-h-48 overflow-y-auto custom-scroll">
-            <ul id="nav-steps-list" class="flex flex-col gap-1"></ul>
-        </div>
-    </div>
-
-    <!-- Всплывающий контекстный виджет при клике на кабинет на карте -->
-    <div id="room-context-popup" class="fixed z-40 glass-panel p-2.5 rounded-xl border border-slate-700/80 shadow-2xl flex flex-col gap-2 hidden pointer-events-auto min-w-[196px] max-w-[260px]">
-        <div class="flex items-center justify-between gap-2 pb-1 border-b border-slate-700/60">
-            <span id="popup-room-name" class="font-bold text-xs text-white truncate">Кабинет</span>
-            <button id="btn-close-room-popup" class="text-slate-400 hover:text-white p-0.5 flex-shrink-0">
-                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        <!-- Нижний ряд: две большие капсульные кнопки [Отсюда] [Сюда] -->
+        <div class="flex items-center gap-3 w-full">
+            <button id="btn-popup-from" class="m3-room-action-btn flex-1 h-14 rounded-full flex items-center justify-center gap-2 font-google font-semibold text-[15px] transition shadow-md active:scale-95" title="Маршрут отсюда">
+                <svg class="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="3"></circle>
+                    <path d="M12 2v3m0 14v3M2 12h3m14 0h3"></path>
                 </svg>
-            </button>
-        </div>
-        <div class="flex items-center gap-1.5">
-            <button id="btn-popup-from" class="btn-interactive flex-1 py-1.5 px-2.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-[11px] flex items-center justify-center shadow-sm transition">
                 <span>Отсюда</span>
             </button>
-            <button id="btn-popup-to" class="btn-interactive flex-1 py-1.5 px-2.5 rounded-lg bg-rose-600 hover:bg-rose-500 text-white font-semibold text-[11px] flex items-center justify-center shadow-sm transition">
+            <button id="btn-popup-to" class="m3-room-action-btn flex-1 h-14 rounded-full flex items-center justify-center gap-2 font-google font-semibold text-[15px] transition shadow-md active:scale-95" title="Маршрут сюда">
+                <svg class="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 21s-6-5.333-6-10a6 6 0 0 1 12 0c0 4.667-6 10-6 10z"></path>
+                    <circle cx="12" cy="11" r="2.5"></circle>
+                </svg>
                 <span>Сюда</span>
             </button>
         </div>
     </div>
 
-    <!-- Скрытые элементы для обратной совместимости -->
+    <!-- Боковая/нижняя шторка параметров (Settings Drawer) -->
+    <div id="settings-backdrop" class="drawer-backdrop"></div>
+    <aside id="settings-drawer" class="side-drawer p-4 sm:p-5 flex flex-col gap-4 text-xs overflow-y-auto custom-scroll" aria-label="Параметры отображения">
+        <!-- Шапка шторки -->
+        <div class="flex items-center justify-between pb-2 border-b border-slate-700/60">
+            <div class="flex items-center gap-2">
+                <svg class="w-4 h-4 text-[#1a73e8] dark:text-[#c2e7ff]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+                </svg>
+                <h2 class="font-bold text-slate-100 uppercase tracking-wider text-xs">Параметры карты</h2>
+            </div>
+            <button id="btn-close-settings" class="text-slate-400 hover:text-slate-100 p-1 rounded-lg">
+                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+
+        <!-- 1. Высота стен (минимальная для карты, либо высокая для 3D) -->
+        <div class="bg-slate-800/40 border border-slate-700/60 rounded-xl p-3 flex flex-col gap-2.5">
+            <div class="flex justify-between items-center text-[11px]">
+                <span class="text-slate-300 font-semibold uppercase tracking-wider">Высота стен</span>
+                <span id="wall-height-val" class="font-mono text-[#1a73e8] bg-[#c2e7ff] px-2 py-0.5 rounded font-bold">0.35 м</span>
+            </div>
+            <input id="slider-wall-height" type="range" min="0.15" max="3.0" step="0.05" value="0.35" class="w-full cursor-pointer">
+            <div class="grid grid-cols-3 gap-1.5 pt-1">
+                <button id="btn-wall-min" class="wall-preset-btn btn-interactive py-1 px-1.5 rounded-lg text-center font-medium text-[11px]">
+                    0.35 м (Карта)
+                </button>
+                <button id="btn-wall-mid" class="wall-preset-btn btn-interactive py-1 px-1.5 rounded-lg text-center font-medium text-[11px]">
+                    1.20 м
+                </button>
+                <button id="btn-wall-max" class="wall-preset-btn btn-interactive py-1 px-1.5 rounded-lg text-center font-medium text-[11px]">
+                    2.40 м (3D)
+                </button>
+            </div>
+        </div>
+
+        <!-- 2. Размер шрифта номеров кабинетов -->
+        <div class="bg-slate-800/40 border border-slate-700/60 rounded-xl p-3 flex flex-col gap-2">
+            <div class="text-slate-300 font-semibold uppercase tracking-wider text-[11px]">
+                Размер номеров кабинетов
+            </div>
+            <div class="grid grid-cols-3 gap-1.5">
+                <button id="btn-labelsize-normal" class="labelsize-btn btn-interactive py-1 px-1.5 rounded-lg text-center font-medium text-[11px]">
+                    Стандарт
+                </button>
+                <button id="btn-labelsize-large" class="labelsize-btn btn-interactive py-1 px-1.5 rounded-lg text-center font-medium text-[11px]">
+                    Крупный
+                </button>
+                <button id="btn-labelsize-xl" class="labelsize-btn btn-interactive py-1 px-1.5 rounded-lg text-center font-medium text-[11px]">
+                    Максимум
+                </button>
+            </div>
+        </div>
+
+        <!-- 3. Режимы просмотра -->
+        <div class="bg-slate-800/40 border border-slate-700/60 rounded-xl p-3 flex flex-col gap-2">
+            <div class="text-slate-300 font-semibold uppercase tracking-wider text-[11px]">
+                Ракурс камеры
+            </div>
+            <div class="grid grid-cols-2 gap-1.5">
+                <button id="btn-view-top" class="view-preset-btn btn-interactive py-1.5 px-2 rounded-lg font-medium text-center text-[11px]">
+                    Вид сверху (2D)
+                </button>
+                <button id="btn-view-3d" class="view-preset-btn btn-interactive py-1.5 px-2 rounded-lg font-medium text-center text-[11px]">
+                    3D Изометрия
+                </button>
+                <button id="btn-view-305" class="view-preset-btn btn-interactive py-1.5 px-2 rounded-lg font-medium text-center text-[11px]">
+                    Узел переходов
+                </button>
+                <button id="btn-view-side" class="view-preset-btn btn-interactive py-1.5 px-2 rounded-lg font-medium text-center text-[11px]">
+                    Сравнение рядом
+                </button>
+            </div>
+        </div>
+
+        <!-- 4. Срез этажей и разнос (для 3D режима) -->
+        <div class="bg-slate-800/40 border border-slate-700/60 rounded-xl p-3 flex flex-col gap-2.5">
+            <div class="flex justify-between items-center text-[11px]">
+                <span class="text-slate-300 font-semibold uppercase tracking-wider">Срез этажей (1–7)</span>
+                <span id="slice-val" class="font-mono text-slate-300 bg-slate-800 border border-slate-700 px-1.5 py-0.5 rounded text-[11px]">1–7 эт.</span>
+            </div>
+            <input id="slider-slice" type="range" min="1" max="7" step="1" value="7" class="w-full cursor-pointer">
+
+            <div class="flex justify-between items-center text-[11px] pt-1">
+                <span class="text-slate-300 font-semibold uppercase tracking-wider">Разнос этажей в 3D</span>
+                <span id="explode-val" class="font-mono text-slate-300 bg-slate-800 border border-slate-700 px-1.5 py-0.5 rounded text-[11px]">0.0 м</span>
+            </div>
+            <input id="slider-explode" type="range" min="0" max="14" step="0.2" value="0" class="w-full cursor-pointer">
+        </div>
+
+        <!-- 5. Слои и видимость -->
+        <div class="bg-slate-800/40 border border-slate-700/60 rounded-xl p-3 flex flex-col gap-2">
+            <div class="text-slate-300 font-semibold uppercase tracking-wider text-[11px]">
+                Слои и элементы
+            </div>
+            <label class="flex items-center justify-between cursor-pointer py-0.5">
+                <span class="text-slate-300">Номера кабинетов</span>
+                <input id="toggle-labels" type="checkbox" checked class="switch-input">
+                <div class="switch-track"><div class="switch-thumb"></div></div>
+            </label>
+            <label class="flex items-center justify-between cursor-pointer py-0.5">
+                <span class="text-slate-300">Двери и проходы</span>
+                <input id="toggle-doors" type="checkbox" checked class="switch-input">
+                <div class="switch-track"><div class="switch-thumb"></div></div>
+            </label>
+            <label class="flex items-center justify-between cursor-pointer py-0.5">
+                <span class="text-slate-300">Контуры чертежа (Edges)</span>
+                <input id="toggle-edges" type="checkbox" checked class="switch-input">
+                <div class="switch-track"><div class="switch-thumb"></div></div>
+            </label>
+            <label class="flex items-center justify-between cursor-pointer py-0.5">
+                <span class="text-slate-300">Мягкие тени</span>
+                <input id="toggle-shadows" type="checkbox" class="switch-input">
+                <div class="switch-track"><div class="switch-thumb"></div></div>
+            </label>
+            <label class="flex items-center justify-between cursor-pointer py-0.5">
+                <span class="text-slate-300">Прилегающая территория</span>
+                <input id="toggle-territory" type="checkbox" class="switch-input">
+                <div class="switch-track"><div class="switch-thumb"></div></div>
+            </label>
+            <label class="flex items-center justify-between cursor-pointer py-0.5">
+                <span class="text-slate-300">Крыша здания</span>
+                <input id="toggle-roof" type="checkbox" class="switch-input">
+                <div class="switch-track"><div class="switch-thumb"></div></div>
+            </label>
+        </div>
+
+        <!-- 6. Сброс настроек -->
+        <button id="btn-reset-settings" class="btn-interactive w-full py-2.5 px-3 rounded-xl font-semibold text-rose-300 bg-rose-950/30 hover:bg-rose-950/50 border border-rose-800/40 transition flex items-center justify-center gap-2 mt-auto">
+            <svg class="w-4 h-4 text-rose-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+            <span>Сбросить настройки карты</span>
+        </button>
+    </aside>
+
+    <!-- Скрытые элементы для совместимости со старыми вызовами -->
     <div style="display:none">
-        <button id="btn-open-settings"></button>
-        <button id="btn-close-settings"></button>
-        <div id="settings-backdrop"></div>
-        <aside id="settings-drawer">
-            <span id="wall-height-val">0.35 м</span>
-            <input id="slider-wall-height" type="range" min="0.15" max="3.0" step="0.05" value="0.35">
-            <button id="btn-wall-min"></button>
-            <button id="btn-wall-mid"></button>
-            <button id="btn-wall-max"></button>
-            <button id="btn-labelsize-normal"></button>
-            <button id="btn-labelsize-large"></button>
-            <button id="btn-labelsize-xl"></button>
-            <button id="btn-view-top"></button>
-            <button id="btn-view-3d"></button>
-            <button id="btn-view-305"></button>
-            <button id="btn-view-side"></button>
-            <span id="slice-val">1–7 эт.</span>
-            <input id="slider-slice" type="range" min="1" max="7" step="1" value="7">
-            <span id="explode-val">0.0 м</span>
-            <input id="slider-explode" type="range" min="0" max="14" step="0.2" value="0">
-            <input id="toggle-labels" type="checkbox" checked>
-            <input id="toggle-doors" type="checkbox" checked>
-            <input id="toggle-edges" type="checkbox" checked>
-            <input id="toggle-shadows" type="checkbox">
-            <input id="toggle-territory" type="checkbox">
-            <input id="toggle-roof" type="checkbox">
-            <button id="btn-reset-settings"></button>
-        </aside>
         <button id="btn-mode-all"></button>
         <button id="btn-mode-side"></button>
         <button id="btn-mode-1"></button>
@@ -384,7 +724,7 @@
     </div>
 
     <!-- Подключение JS модулей -->
-    <script src="js/state.js?v=15"></script>
+    <script src="js/state.js?v=53"></script>
     <script src="js/materials.js?v=15"></script>
     <script src="js/helpers.js?v=15"></script>
     <script src="js/buildings/building1.js?v=15"></script>
@@ -394,8 +734,8 @@
     <script src="js/buildings/building5.js?v=15"></script>
     <script src="js/territory.js?v=15"></script>
     <script src="js/controls.js?v=15"></script>
-    <script src="js/navigator.js?v=15"></script>
-    <script src="js/ui.js?v=15"></script>
-    <script src="js/main.js?v=15"></script>
+    <script src="js/navigator.js?v=73"></script>
+    <script src="js/ui.js?v=73"></script>
+    <script src="js/main.js?v=73"></script>
 </body>
 </html>

@@ -2782,7 +2782,7 @@
             return disp;
         }
         if (b > 0 && f > 0) {
-            return disp + ' (' + (b > 1 ? 'К-' + b + ', ' : '') + f + ' эт.)';
+            return disp + ' (' + (b > 1 ? 'Корпус ' + b + ', ' : '') + f + ' этаж)';
         }
         return disp;
     }
@@ -2865,7 +2865,7 @@
 
         instructions.push({
             type: 'start',
-            icon: '<svg class="w-3.5 h-3.5 text-sky-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7a4 4 0 11-8 0 4 4 0 018 0zM9 14a6 6 0 00-6 6v1h12v-1a6 6 0 00-6-6z" /></svg>',
+            icon: '<svg class="w-3.5 h-3.5 text-[#1a73e8] dark:text-[#c2e7ff]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7a4 4 0 11-8 0 4 4 0 018 0zM9 14a6 6 0 00-6 6v1h12v-1a6 6 0 00-6-6z" /></svg>',
             text: `Начните движение от: ${formatNavNodeName(startNode.label, startNode.bldg)}` + (startNode.bldg > 1 && !/^[2-4]-\d/.test(formatNavNodeName(startNode.label, startNode.bldg)) ? ` (Корпус ${startNode.bldg})` : ``) + `, Этаж ${startNode.floor}`,
             floor: startNode.floor,
             bldg: startNode.bldg,
@@ -2902,7 +2902,7 @@
 
                 instructions.push({
                     type: isUp ? 'stair_up' : 'stair_down',
-                    icon: isElev ? '<svg class="w-3.5 h-3.5 text-sky-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l4-4 4 4m0 6l-4 4-4-4" /></svg>' : '<svg class="w-3.5 h-3.5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 11l5-5m0 0l5 5m-5-5v12" /></svg>',
+                    icon: isElev ? '<svg class="w-3.5 h-3.5 text-[#1a73e8] dark:text-[#c2e7ff]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l4-4 4 4m0 6l-4 4-4-4" /></svg>' : '<svg class="w-3.5 h-3.5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 11l5-5m0 0l5 5m-5-5v12" /></svg>',
                     text: `${actionVerb} ${curr.floor} этаж (${stairName})`,
                     floor: curr.floor,
                     bldg: curr.bldg,
@@ -2963,7 +2963,7 @@
 
         instructions.push({
             type: 'destination',
-            icon: '<svg class="w-3.5 h-3.5 text-rose-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><circle cx="12" cy="11" r="3" fill="currentColor" /></svg>',
+            icon: '<svg class="w-3.5 h-3.5 text-[#1a73e8] dark:text-[#c2e7ff]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><circle cx="12" cy="11" r="3" fill="currentColor" /></svg>',
             text: `Вы прибыли: ${formatNavNodeName(destNode.label, destNode.bldg)}` + (destNode.bldg > 1 && !/^[2-4]-\d/.test(formatNavNodeName(destNode.label, destNode.bldg)) ? ` (Корпус ${destNode.bldg})` : ``) + `, Этаж ${destNode.floor}`,
             floor: destNode.floor,
             bldg: destNode.bldg,
@@ -3205,7 +3205,7 @@
 
     function createStairTransitionMarker(text, isUp = true) {
         const group = new THREE.Group();
-        const color = isUp ? 0x10b981 : 0x06b6d4;
+        const color = 0x38bdf8; // Голубой цвет лестницы
 
         // Кольцо у входа на лестницу
         const ringGeom = new THREE.RingGeometry(0.40, 0.55, 24);
@@ -3214,11 +3214,24 @@
             color,
             side: THREE.DoubleSide,
             transparent: true,
-            opacity: 0.85
+            opacity: 0.9
         });
         const ring = new THREE.Mesh(ringGeom, ringMat);
         ring.position.y = 0.06;
         group.add(ring);
+
+        // Внутренний диск
+        const diskGeom = new THREE.CircleGeometry(0.38, 24);
+        diskGeom.rotateX(-Math.PI / 2);
+        const diskMat = new THREE.MeshBasicMaterial({
+            color,
+            side: THREE.DoubleSide,
+            transparent: true,
+            opacity: 0.35
+        });
+        const disk = new THREE.Mesh(diskGeom, diskMat);
+        disk.position.y = 0.055;
+        group.add(disk);
 
         return group;
     }
@@ -3285,20 +3298,20 @@
             }
         }
 
-        // Маркер точки "А" (Откуда) — ярко-зелёный
+        // Маркер точки "А" (Откуда / первичный) — небесно-голубой
         const startNode = nodes[0];
         const startGroup = NAV_STATE.routeFloorGroups[startNode.floor];
         if (startGroup) {
-            const startMarker = createMarkerRing(0x10b981, 'A', true);
+            const startMarker = createMarkerRing(0x38bdf8, 'A', true);
             startMarker.position.set(startNode.x, 0.05, startNode.z);
             startGroup.add(startMarker);
         }
 
-        // Маркер точки "Б" (Куда) — ярко-коралловый/красный
+        // Маркер точки "Б" (Куда / конечный) — синий Google Blue
         const destNode = nodes[nodes.length - 1];
         const destGroup = NAV_STATE.routeFloorGroups[destNode.floor];
         if (destGroup) {
-            const destMarker = createMarkerRing(0xf43f5e, 'B', true);
+            const destMarker = createMarkerRing(0x1a73e8, 'B', true);
             destMarker.position.set(destNode.x, 0.05, destNode.z);
             destGroup.add(destMarker);
         }
@@ -3311,7 +3324,7 @@
                 const isUp = curr.floor > prev.floor;
                 const fg = NAV_STATE.routeFloorGroups[prev.floor];
                 if (fg) {
-                    const stairMarker = createStairTransitionMarker(isUp ? `↑ ${curr.floor} эт.` : `↓ ${curr.floor} эт.`, isUp);
+                    const stairMarker = createStairTransitionMarker(isUp ? `↑ ${curr.floor} этаж` : `↓ ${curr.floor} этаж`, isUp);
                     stairMarker.position.set(prev.x, 0.05, prev.z);
                     fg.add(stairMarker);
                 }
@@ -3340,7 +3353,7 @@
                     const stairCurve = new THREE.CatmullRomCurve3(stairPts);
                     const stairGeom = new THREE.TubeGeometry(stairCurve, 16, 0.16, 8, false);
                     const stairMat = new THREE.MeshBasicMaterial({
-                        color: (curr.floor > prev.floor) ? 0x10b981 : 0x06b6d4,
+                        color: 0x38bdf8,
                         transparent: true,
                         opacity: 0.95
                     });
@@ -3446,10 +3459,30 @@
     // SCREEN-SPACE RETINA БЕЙДЖИ ДЛЯ ТОЧЕК "А", "Б" И ЛЕСТНИЦ НА 2D CANVAS
     // ------------------------------------------------------------------------
     const _tempVec = new THREE.Vector3();
+    let renderedStairBadges = [];
     const _badgeWidthCache = new Map();
+
+    function checkStairBadgeClick(clientX, clientY) {
+        if (!renderedStairBadges || renderedStairBadges.length === 0) return false;
+        const hitMargin = 16;
+        for (let i = renderedStairBadges.length - 1; i >= 0; i--) {
+            const b = renderedStairBadges[i];
+            if (clientX >= b.x0 - hitMargin && clientX <= b.x1 + hitMargin &&
+                clientY >= b.y0 - hitMargin && clientY <= b.y1 + hitMargin) {
+                if (typeof setMode === 'function') {
+                    setMode(String(b.toFloor));
+                    if (typeof requestRender === 'function') requestRender(35);
+                }
+                return true;
+            }
+        }
+        return false;
+    }
 
     function renderNavigatorScreenBadges(ctx, dpr, width, height) {
         if (!NAV_STATE.activeRoute || !window.camera) return;
+
+        renderedStairBadges = [];
 
         const route = NAV_STATE.activeRoute;
         const mode = (typeof STATE !== 'undefined') ? STATE.mode : '1';
@@ -3459,7 +3492,7 @@
         const startNode = route.startNode;
         const destNode = route.destNode;
 
-        function drawScreenBadge(node, label, badgeColor, isDest = false) {
+        function drawScreenBadge(node, label, badgeColor, textColor = '#ffffff', borderColor = '#ffffff', isDest = false) {
             if (!node) return;
             if (isSingleFloor && node.floor !== activeFloor) return;
 
@@ -3500,14 +3533,14 @@
             ctx.roundRect(bx, by, bWidth, bHeight, 7);
             ctx.fill();
 
-            // Белая обводка
+            // Обводка бейджа
             ctx.shadowColor = 'transparent';
             ctx.lineWidth = 1.5;
-            ctx.strokeStyle = '#ffffff';
+            ctx.strokeStyle = borderColor;
             ctx.stroke();
 
-            // Иконка точки (кружочек с белой каймой)
-            ctx.fillStyle = '#ffffff';
+            // Иконка точки (кружочек с контрастной каймой)
+            ctx.fillStyle = textColor === '#ffffff' ? '#ffffff' : borderColor;
             ctx.beginPath();
             ctx.arc(bx + 14, by + bHeight / 2, 5, 0, Math.PI * 2);
             ctx.fill();
@@ -3518,7 +3551,7 @@
             ctx.fill();
 
             // Текст бейджа
-            ctx.fillStyle = '#ffffff';
+            ctx.fillStyle = textColor;
             ctx.textAlign = 'left';
             ctx.textBaseline = 'middle';
             ctx.fillText(label, bx + 24, by + bHeight / 2);
@@ -3532,13 +3565,24 @@
             ctx.closePath();
             ctx.fill();
 
+            // Обводка хвостика
+            if (borderColor && borderColor !== 'transparent') {
+                ctx.lineWidth = 1.2;
+                ctx.strokeStyle = borderColor;
+                ctx.beginPath();
+                ctx.moveTo(sx - 5, by + bHeight);
+                ctx.lineTo(sx, by + bHeight + 6);
+                ctx.lineTo(sx + 5, by + bHeight);
+                ctx.stroke();
+            }
+
             ctx.restore();
         }
 
-        // Рисуем бейдж Откуда
-        drawScreenBadge(startNode, `A: ${formatNavNodeName(startNode.label, startNode.bldg)}`, '#059669', false);
-        // Рисуем бейдж Куда
-        drawScreenBadge(destNode, `B: ${formatNavNodeName(destNode.label, destNode.bldg)}`, '#e11d48', true);
+        // Рисуем бейдж Откуда (первичный пункт — голубой)
+        drawScreenBadge(startNode, `A: ${formatNavNodeName(startNode.label, startNode.bldg)}`, '#c2e7ff', '#004a77', '#1a73e8', false);
+        // Рисуем бейдж Куда (конечный пункт — синий)
+        drawScreenBadge(destNode, `B: ${formatNavNodeName(destNode.label, destNode.bldg)}`, '#1a73e8', '#ffffff', '#ffffff', true);
 
         // Рисуем бейджи лестничных переходов
         if (route.stairTransitions) {
@@ -3562,29 +3606,70 @@
         const sy = (-_tempVec.y * 0.5 + 0.5) * height;
 
         ctx.save();
-        const text = st.isUp ? `↑ Лестница на ${st.toFloor} эт.` : `↓ Лестница на ${st.toFloor} эт.`;
+        const text = st.isUp ? `↑ Лестница на ${st.toFloor} этаж` : `↓ Лестница на ${st.toFloor} этаж`;
         ctx.font = 'bold 11px Inter, sans-serif';
         const tw = ctx.measureText(text).width;
-        const bw = tw + 18;
-        const bh = 22;
+        const bw = tw + 22;
+        const bh = 24;
         const bx = sx - bw / 2;
-        const by = sy - bh;
+        const by = sy - bh - 6;
 
-        ctx.fillStyle = st.isUp ? '#059669' : '#0284c7';
+        // Тень бейджа
+        ctx.shadowColor = 'rgba(0, 0, 0, 0.35)';
+        ctx.shadowBlur = 6;
+        ctx.shadowOffsetY = 2;
+
+        // Фон бейджа лестницы — ГОЛУБОЙ (Google Light Blue)
+        ctx.fillStyle = '#c2e7ff';
         ctx.beginPath();
-        ctx.roundRect(bx, by, bw, bh, 5);
+        ctx.roundRect(bx, by, bw, bh, 6);
         ctx.fill();
 
-        ctx.lineWidth = 1;
-        ctx.strokeStyle = '#ffffff';
+        // Обводка бейджа лестницы — синяя Google Blue
+        ctx.shadowColor = 'transparent';
+        ctx.lineWidth = 1.3;
+        ctx.strokeStyle = '#1a73e8';
         ctx.stroke();
 
-        ctx.fillStyle = '#ffffff';
-        ctx.textAlign = 'center';
+        // Точка-индикатор
+        ctx.fillStyle = '#1a73e8';
+        ctx.beginPath();
+        ctx.arc(bx + 11, by + bh / 2, 3.5, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Текст — темно-синий (#004a77) для максимального контраста
+        ctx.fillStyle = '#004a77';
+        ctx.textAlign = 'left';
         ctx.textBaseline = 'middle';
-        ctx.fillText(text, sx, by + bh / 2);
+        ctx.fillText(text, bx + 18, by + bh / 2);
+
+        // Хвостик указателя вниз
+        ctx.fillStyle = '#c2e7ff';
+        ctx.beginPath();
+        ctx.moveTo(sx - 4, by + bh);
+        ctx.lineTo(sx, by + bh + 5);
+        ctx.lineTo(sx + 4, by + bh);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.lineWidth = 1.0;
+        ctx.strokeStyle = '#1a73e8';
+        ctx.beginPath();
+        ctx.moveTo(sx - 4, by + bh);
+        ctx.lineTo(sx, by + bh + 5);
+        ctx.lineTo(sx + 4, by + bh);
+        ctx.stroke();
 
         ctx.restore();
+
+        renderedStairBadges.push({
+            x0: bx,
+            y0: by,
+            x1: bx + bw,
+            y1: by + bh + 5,
+            fromFloor: st.fromFloor,
+            toFloor: st.toFloor
+        });
     }
 
     // ------------------------------------------------------------------------
@@ -3646,24 +3731,31 @@
         NAV_STATE.startPoint = startPoint;
         NAV_STATE.destPoint = destPoint;
 
-        // Отрисовка в 3D
-        drawRoute3D(routeData);
+        if (typeof pushOverlayState === 'function') {
+            pushOverlayState('route');
+        }
 
-        // Обновление UI
-        updateRouteCardUI(routeData);
-
-        // Если маршрут охватывает корпус, который сейчас скрыт фильтром, переключаем фильтр на 'both'
+        // 1. Корпус: если маршрут охватывает корпус, который сейчас скрыт фильтром, переключаем фильтр на 'both'
         const bldgSet = new Set(nodes.map(n => n.bldg));
         if (bldgSet.size > 1 && typeof setBuildingFilter === 'function' && STATE.buildingFilter !== 'both') {
             setBuildingFilter('both', false);
+        } else if (startPoint.bldg && typeof setBuildingFilter === 'function' && STATE.buildingFilter !== 'both' && String(STATE.buildingFilter) !== String(startPoint.bldg)) {
+            setBuildingFilter(String(startPoint.bldg), false);
         }
 
-        // Переключаем этаж карты на этаж отправления
-        if (typeof setMode === 'function' && String(startPoint.floor) !== STATE.mode) {
-            setMode(String(startPoint.floor));
+        // 2. Этаж: переключаем этаж карты на этаж отправления ДО отрисовки UI карточки и сцены
+        const startFloor = String(startPoint.floor || (nodes[0] ? nodes[0].floor : 1));
+        if (typeof setMode === 'function') {
+            setMode(startFloor, false);
         }
 
-        // Фокусируем камеру на начальном отрезке пути
+        // 3. Отрисовка в 3D
+        drawRoute3D(routeData);
+
+        // 4. Обновление UI карточки маршрута (STATE.mode уже гарантированно равен startFloor!)
+        updateRouteCardUI(routeData);
+
+        // 5. Фокусируем камеру на начальном отрезке пути
         focusCameraOnSegment(nodes[0]);
 
         return routeData;
@@ -3689,33 +3781,113 @@
     }
 
     // ------------------------------------------------------------------------
-    // ОБРАБОТКА КЛИКОВ ПО КАРТЕ ДЛЯ ВЫБОРА ТОЧЕК МАРШРУТА
+    // ОБРАБОТКА КЛИКОВ ПО КАРТЕ ДЛЯ ВЫБОРА ТОЧЕК МАРШРУТА И ЛЕСТНИЦ
     // ------------------------------------------------------------------------
-    function handleNavigatorMapClick(event, preHitRoom = null) {
-        if (!NAV_STATE.pickingMode) return false;
+    function applyRoomToActiveRoute(roomInfo, targetType = 'dest') {
+        if (!roomInfo) return;
+        const g = NAV_STATE.graph || buildCollegeNavGraph();
+        NAV_STATE.graph = g;
 
-        if (preHitRoom) {
-            onLocationPicked(preHitRoom);
-            return true;
-        }
-
-        // Если есть бейдж кабинета под курсором
-        if (Array.isArray(window.renderedScreenBadges) && window.renderedScreenBadges.length > 0) {
-            const cx = event.clientX;
-            const cy = event.clientY;
-            const hitMargin = 14;
-
-            for (let i = window.renderedScreenBadges.length - 1; i >= 0; i--) {
-                const b = window.renderedScreenBadges[i];
-                if (cx >= b.x0 - hitMargin && cx <= b.x1 + hitMargin &&
-                    cy >= b.y0 - hitMargin && cy <= b.y1 + hitMargin) {
-                    onLocationPicked(b.room);
-                    return true;
-                }
+        // Находим соответствующий узел в графе
+        let matchedNodeId = null;
+        for (const [nid, n] of g.nodes.entries()) {
+            if (n.floor === roomInfo.floor && n.bldg === roomInfo.building &&
+                Math.hypot(n.x - roomInfo.x, n.z - roomInfo.z) < 0.2) {
+                matchedNodeId = nid;
+                break;
             }
         }
 
-        return true;
+        if (!matchedNodeId) {
+            const closest = g.findClosestNode(roomInfo.floor, roomInfo.building, roomInfo.x, roomInfo.z);
+            if (closest) matchedNodeId = closest.id;
+        }
+
+        const pointData = {
+            id: matchedNodeId,
+            text: roomInfo.text ? roomInfo.text.replace(/\n/g, ' ').trim() : 'Кабинет',
+            floor: roomInfo.floor,
+            building: roomInfo.building,
+            x: roomInfo.x,
+            z: roomInfo.z
+        };
+
+        if (targetType === 'start') {
+            NAV_STATE.startPoint = pointData;
+            const inputA = document.getElementById('nav-input-start');
+            if (inputA) inputA.value = formatNavInputString(pointData);
+        } else {
+            NAV_STATE.destPoint = pointData;
+            const inputB = document.getElementById('nav-input-dest');
+            if (inputB) inputB.value = formatNavInputString(pointData);
+        }
+
+        if (NAV_STATE.startPoint && NAV_STATE.destPoint) {
+            buildRoute(NAV_STATE.startPoint, NAV_STATE.destPoint);
+        }
+
+        hidePickBanner();
+    }
+
+    function handleNavigatorMapClick(event, preHitRoom = null) {
+        // 1. Проверяем клик по экранному бейджу лестницы маршрута на карте
+        if (checkStairBadgeClick(event.clientX, event.clientY)) {
+            return true;
+        }
+
+        // 2. Стандартный режим pickingMode из модалки навигатора
+        if (NAV_STATE.pickingMode) {
+            if (preHitRoom) {
+                onLocationPicked(preHitRoom);
+                return true;
+            }
+
+            // Если есть бейдж кабинета под курсором
+            if (Array.isArray(window.renderedScreenBadges) && window.renderedScreenBadges.length > 0) {
+                const cx = event.clientX;
+                const cy = event.clientY;
+                const hitMargin = 14;
+
+                for (let i = window.renderedScreenBadges.length - 1; i >= 0; i--) {
+                    const b = window.renderedScreenBadges[i];
+                    if (cx >= b.x0 - hitMargin && cx <= b.x1 + hitMargin &&
+                        cy >= b.y0 - hitMargin && cy <= b.y1 + hitMargin) {
+                        onLocationPicked(b.room);
+                        return true;
+                    }
+                }
+            }
+
+            return true;
+        }
+
+        // 3. Если маршрут активен и пользователь меняет кабинет (targetToChange) ИЛИ открыт поиск и кликнули по кабинету на карте
+        if (NAV_STATE.activeRoute && (NAV_STATE.targetToChange || (document.getElementById('search-modal') && document.getElementById('search-modal').classList.contains('active')))) {
+            let hitRoom = preHitRoom;
+            if (!hitRoom && Array.isArray(window.renderedScreenBadges) && window.renderedScreenBadges.length > 0) {
+                const cx = event.clientX;
+                const cy = event.clientY;
+                const hitMargin = 14;
+                for (let i = window.renderedScreenBadges.length - 1; i >= 0; i--) {
+                    const b = window.renderedScreenBadges[i];
+                    if (cx >= b.x0 - hitMargin && cx <= b.x1 + hitMargin &&
+                        cy >= b.y0 - hitMargin && cy <= b.y1 + hitMargin) {
+                        hitRoom = b.room;
+                        break;
+                    }
+                }
+            }
+            if (hitRoom) {
+                const targetType = NAV_STATE.targetToChange || 'dest';
+                applyRoomToActiveRoute(hitRoom, targetType);
+                NAV_STATE.targetToChange = null;
+                hidePickBanner();
+                if (typeof closeSearch === 'function') closeSearch(true);
+                return true;
+            }
+        }
+
+        return false;
     }
 
     function onLocationPicked(roomInfo) {
@@ -3780,8 +3952,17 @@
         if (!card) return;
 
         card.classList.remove('hidden');
+        document.body.classList.add('route-active');
         const bottomSearch = document.getElementById('bottom-search-bar');
         if (bottomSearch) bottomSearch.classList.add('route-active');
+
+        if (typeof window.updateAdaptiveFabPosition === 'function') {
+            requestAnimationFrame(() => {
+                window.updateAdaptiveFabPosition();
+                setTimeout(window.updateAdaptiveFabPosition, 50);
+                setTimeout(window.updateAdaptiveFabPosition, 180);
+            });
+        }
 
         // Дистанция и время
         const distEl = document.getElementById('nav-card-dist');
@@ -3792,41 +3973,142 @@
         if (distEl) distEl.textContent = `${route.totalDistance} м`;
         if (timeEl) timeEl.textContent = `~${route.durationMin} мин`;
         if (titleEl) {
-            titleEl.textContent = `${route.startNode.label} ➔ ${route.destNode.label}`;
-            titleEl.onclick = openNavigatorModal;
+            const startName = formatNavNodeName(route.startNode.label, route.startNode.bldg);
+            const destName = formatNavNodeName(route.destNode.label, route.destNode.bldg);
+
+            const startEl = document.getElementById('nav-card-start-label');
+            const destEl = document.getElementById('nav-card-dest-badge');
+            if (startEl && destEl) {
+                // Компактные подписи для карточки в стиле Google Expressive
+                const shortStart = startName.replace(/\s*\([^)]*\)/g, '').trim() || startName;
+                const shortDest = destName.replace(/^Кабинет\s*/i, '').replace(/\s*\([^)]*\)/g, '').trim() || destName;
+                startEl.textContent = shortStart;
+                startEl.title = `Откуда: ${startName} (нажмите для смены)`;
+                destEl.textContent = shortDest;
+                destEl.title = `Куда: ${destName} (нажмите для смены)`;
+
+                // Нажатие на кабинет открывает поиск для выбора нового конечного пункта
+                destEl.onclick = (e) => {
+                    e.stopPropagation();
+                    NAV_STATE.targetToChange = 'dest';
+                    resetRouteCardPicks();
+                    destEl.classList.add('ring-4', 'ring-white/80', 'ring-offset-2', 'ring-offset-[#1a73e8]', 'animate-pulse');
+
+                    if (typeof openSearch === 'function') {
+                        openSearch();
+                        const pill = document.getElementById('search-route-target-pill');
+                        const pillText = document.getElementById('search-route-target-text');
+                        if (pill && pillText) {
+                            pillText.textContent = 'Выбор конечного пункта (Куда)';
+                            pill.className = 'mb-2 px-3 py-1.5 rounded-full inline-flex items-center gap-2 text-xs font-bold transition-all shadow-sm bg-[#1a73e8] text-white';
+                            pill.classList.remove('hidden');
+                        }
+                        const sInput = document.getElementById('search-input');
+                        if (sInput) {
+                            sInput.placeholder = 'Куда: выберите конечный кабинет...';
+                            sInput.focus();
+                        }
+                    }
+                };
+
+                // Нажатие на начальную точку открывает поиск для выбора начального пункта
+                startEl.onclick = (e) => {
+                    e.stopPropagation();
+                    NAV_STATE.targetToChange = 'start';
+                    resetRouteCardPicks();
+                    startEl.classList.add('ring-4', 'ring-[#1a73e8]', 'ring-offset-2', 'ring-offset-[#c2e7ff]', 'animate-pulse');
+
+                    if (typeof openSearch === 'function') {
+                        openSearch();
+                        const pill = document.getElementById('search-route-target-pill');
+                        const pillText = document.getElementById('search-route-target-text');
+                        if (pill && pillText) {
+                            pillText.textContent = 'Выбор начального пункта (Откуда)';
+                            pill.className = 'mb-2 px-3 py-1.5 rounded-full inline-flex items-center gap-2 text-xs font-bold transition-all shadow-sm bg-[#c2e7ff] text-[#004a77] border border-[#1a73e8]';
+                            pill.classList.remove('hidden');
+                        }
+                        const sInput = document.getElementById('search-input');
+                        if (sInput) {
+                            sInput.placeholder = 'Откуда: выберите начальную точку...';
+                            sInput.focus();
+                        }
+                    }
+                };
+            } else {
+                titleEl.textContent = `${startName} ➔ ${destName}`;
+            }
+
+            titleEl.onclick = (e) => {
+                if (e.target !== destEl && e.target !== startEl) {
+                    if (destEl) {
+                        destEl.click();
+                    } else {
+                        openNavigatorModal();
+                    }
+                }
+            };
         }
 
-        // Этажные кнопки переключения
+        // Круглая иконка лестницы: по нажатию переход на следующий этаж маршрута
+        const stairsIconEl = card.querySelector('.m3-nav-stairs-icon');
+        if (stairsIconEl) {
+            stairsIconEl.style.cursor = 'pointer';
+            stairsIconEl.title = 'Перейти на следующий этаж';
+            stairsIconEl.onclick = (e) => {
+                e.stopPropagation();
+                if (route && route.involvedFloors && route.involvedFloors.length > 1) {
+                    const currF = parseInt(STATE.mode, 10);
+                    const idx = route.involvedFloors.indexOf(currF);
+                    const nextF = (idx !== -1 && idx < route.involvedFloors.length - 1)
+                        ? route.involvedFloors[idx + 1]
+                        : route.involvedFloors[0];
+                    if (typeof setMode === 'function') {
+                        setMode(String(nextF));
+                        const firstOnFloor = route.nodes.find(n => n.floor === nextF);
+                        if (firstOnFloor) focusCameraOnSegment(firstOnFloor);
+                        updateRouteCardUI(route);
+                    }
+                }
+            };
+        }
+
+        // Этажные кнопки переключения (круглые Google Maps Indoor Level Buttons, без "эт.")
         if (floorsContainer) {
             floorsContainer.innerHTML = '';
+            const activeFloorStr = (STATE && STATE.mode && STATE.mode !== 'all') ? String(STATE.mode) : String(route.startNode ? route.startNode.floor : '1');
             route.involvedFloors.forEach(f => {
                 const btn = document.createElement('button');
-                btn.className = `px-2.5 py-1 rounded-lg text-xs font-bold transition flex items-center gap-1 ${
-                    String(f) === STATE.mode ? 'bg-sky-600 text-white shadow-sm' : 'bg-slate-800/80 text-slate-300 hover:bg-slate-700/80 border border-slate-700/60'
-                }`;
-                btn.innerHTML = `<span>${f} эт.</span>`;
+                const isActive = String(f) === activeFloorStr;
+                btn.className = `m3-nav-floor-pill ${isActive ? 'active-pill' : ''}`;
+                btn.textContent = String(f);
+                btn.title = `Перейти на ${f} этаж`;
                 btn.onclick = () => {
                     if (typeof setMode === 'function') {
                         setMode(String(f));
                         // Перемещаем камеру к началу этого отрезка
                         const firstOnFloor = route.nodes.find(n => n.floor === f);
                         if (firstOnFloor) focusCameraOnSegment(firstOnFloor);
+                        updateRouteCardUI(route);
                     }
                 };
                 floorsContainer.appendChild(btn);
             });
         }
 
-        // Список пошаговых инструкций
+        // Список пошаговых инструкций (чистый M3 дизайн с поддержкой светлой и тёмной тем)
         const listEl = document.getElementById('nav-steps-list');
         if (listEl) {
             listEl.innerHTML = '';
             route.instructions.forEach((inst, idx) => {
                 const li = document.createElement('li');
-                li.className = 'flex items-start gap-2.5 py-1.5 px-2 rounded-lg hover:bg-slate-800/50 cursor-pointer text-xs text-slate-200 transition';
+                li.className = 'm3-step-item flex items-center gap-3 p-2.5 rounded-2xl cursor-pointer transition select-none';
                 li.innerHTML = `
-                    <span class="text-[11px] font-bold text-sky-400 mr-1.5">${idx + 1}.</span>
-                    <span class="flex-1 leading-tight">${inst.text}</span>
+                    <div class="w-6 h-6 rounded-full bg-[#1a73e8] text-white flex items-center justify-center text-[11px] font-bold flex-shrink-0 shadow-sm">
+                        ${idx + 1}
+                    </div>
+                    <div class="step-text flex-1 min-w-0 text-xs font-semibold leading-snug">
+                        ${inst.text}
+                    </div>
                 `;
                 li.onclick = () => {
                     if (typeof setMode === 'function' && String(inst.floor) !== STATE.mode) {
@@ -3841,9 +4123,18 @@
     }
 
     function openNavigatorModal() {
-        if (typeof hideRoomContextPopup === 'function') hideRoomContextPopup();
+        if (!NAV_STATE.isInitialized && typeof initNavigator === 'function') {
+            initNavigator();
+        }
+        if (typeof hideRoomContextPopup === 'function') hideRoomContextPopup(true);
+        if (typeof pushOverlayState === 'function') pushOverlayState('navigator');
         if (typeof updateVisualViewportVars === 'function') updateVisualViewportVars();
         setDefaultStartPoint();
+        const btnElevIcon = document.getElementById('btn-toggle-elevators-icon');
+        if (btnElevIcon) {
+            btnElevIcon.classList.toggle('active', !!NAV_STATE.allowElevators);
+            btnElevIcon.setAttribute('aria-pressed', NAV_STATE.allowElevators ? 'true' : 'false');
+        }
         const modal = document.getElementById('navigator-modal');
         const backdrop = document.getElementById('navigator-backdrop');
         if (modal && backdrop) {
@@ -3863,7 +4154,10 @@
         }
     }
 
-    function closeNavigatorModal() {
+    function closeNavigatorModal(fromPopstate = false) {
+        if (!fromPopstate && typeof popOverlayState === 'function') {
+            popOverlayState('navigator');
+        }
         const modal = document.getElementById('navigator-modal');
         const backdrop = document.getElementById('navigator-backdrop');
         if (modal && backdrop) {
@@ -3894,9 +4188,14 @@
         if (NAV_STATE.startPoint && NAV_STATE.destPoint) {
             buildRoute(NAV_STATE.startPoint, NAV_STATE.destPoint);
         }
+
+        hidePickBanner();
     }
 
-    function clearRoute() {
+    function clearRoute(fromPopstate = false) {
+        if (!fromPopstate && typeof popOverlayState === 'function') {
+            popOverlayState('route');
+        }
         NAV_STATE.startPoint = null;
         NAV_STATE.destPoint = null;
         NAV_STATE.activeRoute = null;
@@ -3908,8 +4207,12 @@
 
         const card = document.getElementById('navigator-route-card');
         if (card) card.classList.add('hidden');
+        document.body.classList.remove('route-active');
         const bottomSearch = document.getElementById('bottom-search-bar');
         if (bottomSearch) bottomSearch.classList.remove('route-active');
+        if (typeof window.updateAdaptiveFabPosition === 'function') {
+            window.updateAdaptiveFabPosition();
+        }
 
         clearRoute3D();
     }
@@ -4023,8 +4326,32 @@
             for (const [nid, n] of g.nodes.entries()) {
                 if (n.type === 'room' || n.type === 'entrance') {
                     const lbl = (n.label || '').toLowerCase();
-                    const alias = ROOM_ALIASES[nid] || '';
-                    if (lbl.includes(query) || `${n.bldg}-${lbl}`.includes(query) || alias.includes(query)) {
+                    const alias = (ROOM_ALIASES[nid] || '').toLowerCase();
+                    const formattedCode = formatNavNodeName(n.label, n.bldg).toLowerCase();
+
+                    let extraKeywords = '';
+                    if (typeof ROOMS_REGISTRY !== 'undefined' && Array.isArray(ROOMS_REGISTRY)) {
+                        const rMatch = ROOMS_REGISTRY.find(r => 
+                            r.building === n.bldg && 
+                            r.floor === n.floor && 
+                            (r.text === n.label || r.text.includes(n.label) || (n.bldg > 1 && r.text.includes(`${n.bldg}-${n.label}`)))
+                        );
+                        if (rMatch) {
+                            extraKeywords = (rMatch.text || '').toLowerCase();
+                            if (typeof getRoomSubjectAndTeacher === 'function') {
+                                const details = getRoomSubjectAndTeacher(n.bldg, n.floor, n.label, rMatch.text);
+                                if (details) {
+                                    extraKeywords += ' ' + (details.subject || '').toLowerCase() + ' ' + (details.teacher || '').toLowerCase();
+                                }
+                            }
+                        }
+                    }
+
+                    if (lbl.includes(query) || 
+                        `${n.bldg}-${lbl}`.includes(query) || 
+                        formattedCode.includes(query) || 
+                        alias.includes(query) ||
+                        (extraKeywords && extraKeywords.includes(query))) {
                         matches.push(n);
                         if (matches.length >= 8) break;
                     }
@@ -4032,7 +4359,7 @@
             }
 
             if (matches.length === 0) {
-                dropdown.innerHTML = '<div class="px-3 py-2 text-xs text-slate-400">Ничего не найдено</div>';
+                dropdown.innerHTML = '<div class="px-4 py-3 text-xs font-medium text-slate-400 dark:text-slate-500 text-center">Ничего не найдено</div>';
                 dropdown.classList.remove('hidden');
                 return;
             }
@@ -4045,26 +4372,99 @@
                 }
                 return 0;
             });
-            matches.forEach(item => {
-                const row = document.createElement('div');
-                row.className = 'px-3 py-2 hover:bg-slate-800/80 cursor-pointer flex items-center justify-between gap-2 text-xs text-slate-200 border-b border-slate-800/50 last:border-none transition overflow-hidden';
+            matches.forEach((item, index) => {
+                let codeLabel = formatNavNodeName(item.label, item.bldg);
+                let displayTitle = item.label;
+                let subtitle = `Корпус ${item.bldg} • ${item.floor} этаж`;
+
+                if (typeof formatSearchRoomBadgeAndTitle === 'function') {
+                    let rObj = null;
+                    if (typeof ROOMS_REGISTRY !== 'undefined' && Array.isArray(ROOMS_REGISTRY)) {
+                        rObj = ROOMS_REGISTRY.find(r => 
+                            r.building === item.bldg && 
+                            r.floor === item.floor && 
+                            (r.text === item.label || r.text.includes(item.label) || (item.bldg > 1 && r.text.includes(`${item.bldg}-${item.label}`)))
+                        );
+                    }
+                    const formatted = formatSearchRoomBadgeAndTitle(rObj || {
+                        building: item.bldg,
+                        floor: item.floor,
+                        text: item.label,
+                        rawText: item.label
+                    });
+                    if (formatted) {
+                        codeLabel = formatted.codeLabel || codeLabel;
+                        displayTitle = formatted.displayTitle || displayTitle;
+                        subtitle = formatted.subtitle || subtitle;
+                    }
+                }
+
+                const row = document.createElement('button');
+                row.type = 'button';
+                const isActive = index === 0 ? ' is-active' : '';
+                row.className = `m3-search-row flex items-stretch w-full transition text-left cursor-pointer${isActive}`;
                 row.innerHTML = `
-                    <div class="flex items-center gap-2 min-w-0 flex-1 overflow-hidden">
-                        <span class="w-2 h-2 rounded-full flex-shrink-0 ${item.type === 'entrance' ? 'bg-amber-400' : 'bg-sky-400'}"></span>
-                        <span class="font-semibold truncate">${formatNavNodeName(item.label, item.bldg)}</span>
+                    <!-- Колонка 1: Номер аудитории -->
+                    <div class="m3-search-col-num flex items-center justify-center font-bold text-slate-800 dark:text-slate-100 select-none">
+                        ${codeLabel}
                     </div>
-                    <span class="text-[10px] text-slate-400 flex-shrink-0 whitespace-nowrap">Корпус ${item.bldg}, ${item.floor} эт.</span>
+
+                    <!-- Колонка 2: Бейджи Корпуса и Этажа -->
+                    <div class="m3-search-col-badges flex flex-col justify-stretch p-0 m-0">
+                        <div class="m3-search-badge m3-badge-bldg flex items-center justify-center gap-1" title="Корпус ${item.bldg}">
+                            <svg class="w-3.5 h-3.5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="4" y="3" width="7" height="18" rx="1"></rect>
+                                <rect x="11" y="9" width="6" height="12" rx="1"></rect>
+                            </svg>
+                            <span class="m3-badge-num">${item.bldg}</span>
+                        </div>
+                        <div class="m3-search-badge m3-badge-floor flex items-center justify-center gap-1" title="${item.floor} этаж">
+                            <svg class="w-3.5 h-3.5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+                                <path d="M2 17l10 5 10-5"></path>
+                                <path d="M2 12l10 5 10-5"></path>
+                            </svg>
+                            <span class="m3-badge-num">${item.floor}</span>
+                        </div>
+                    </div>
+
+                    <!-- Колонка 3: Название кабинета + преподаватель / описание -->
+                    <div class="m3-search-col-info flex flex-col justify-center min-w-0 flex-1 overflow-hidden">
+                        <span class="m3-search-title truncate">${displayTitle}</span>
+                        <span class="m3-search-subtitle truncate">${subtitle}</span>
+                    </div>
                 `;
-                row.onclick = () => {
-                    input.value = `${item.label} (К-${item.bldg}, ${item.floor} эт.)`;
+
+                const handleSelect = (e) => {
+                    if (e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                    }
+                    input.value = formatNavInputString(item);
                     dropdown.classList.add('hidden');
+                    if (clearBtn) clearBtn.classList.remove('hidden');
                     onSelect(item);
                 };
+
+                row.onclick = handleSelect;
+                row._onItemClick = handleSelect;
                 dropdown.appendChild(row);
             });
 
             dropdown.classList.remove('hidden');
-        });
+        }, { signal });
+
+        // Клавиша Enter выбирает первый активный элемент из подсказок
+        // { signal } обеспечивает автоматическое снятие listener при вызове ac.abort()
+        input.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !dropdown.classList.contains('hidden')) {
+                const firstRow = dropdown.querySelector('.m3-search-row');
+                if (firstRow && firstRow._onItemClick) {
+                    e.preventDefault();
+                    firstRow._onItemClick();
+                }
+            }
+        }, { signal });
 
         // Закрытие выпадающего списка при клике вне.
         // { signal } обеспечивает автоматическое снятие listener при вызове ac.abort().
@@ -4147,23 +4547,29 @@
             });
         }
 
-        // Переключатель лифтов: свич вкл/выкл
+        // Переключатель лифтов: свич вкл/выкл и иконка
         const switchElev = document.getElementById('toggle-elevators-switch');
         const btnElev = document.getElementById('btn-toggle-elevators');
+        const btnElevIcon = document.getElementById('btn-toggle-elevators-icon');
         const elevText = document.getElementById('elevators-status-text');
 
         function setElevatorsState(enabled) {
             NAV_STATE.allowElevators = !!enabled;
             if (switchElev) switchElev.checked = NAV_STATE.allowElevators;
+            if (btnElevIcon) {
+                btnElevIcon.classList.toggle('active', NAV_STATE.allowElevators);
+                btnElevIcon.setAttribute('aria-pressed', NAV_STATE.allowElevators ? 'true' : 'false');
+                btnElevIcon.title = NAV_STATE.allowElevators ? 'Лифты включены (нажмите, чтобы выключить)' : 'Использовать лифты';
+            }
             const switchLabel = document.getElementById('elevators-switch-label');
             if (switchLabel) {
                 const isLight = document.body.getAttribute('data-theme') === 'light';
                 if (NAV_STATE.allowElevators) {
                     if (isLight) {
-                        switchLabel.style.borderColor = '#0284c7';
-                        switchLabel.style.backgroundColor = '#f0f9ff';
+                        switchLabel.style.borderColor = '#1a73e8';
+                        switchLabel.style.backgroundColor = '#c2e7ff';
                     } else {
-                        switchLabel.classList.add('border-sky-500', 'bg-sky-950/30');
+                        switchLabel.classList.add('border-[#1a73e8]', 'bg-[#1a73e8]/25');
                         switchLabel.classList.remove('bg-slate-900/80', 'border-slate-700/80');
                     }
                 } else {
@@ -4171,7 +4577,7 @@
                         switchLabel.style.borderColor = '#cbd5e1';
                         switchLabel.style.backgroundColor = '#ffffff';
                     } else {
-                        switchLabel.classList.remove('border-sky-500', 'bg-sky-950/30');
+                        switchLabel.classList.remove('border-[#1a73e8]', 'bg-[#1a73e8]/25');
                         switchLabel.classList.add('bg-slate-900/80', 'border-slate-700/80');
                     }
                 }
@@ -4187,6 +4593,11 @@
             }
         }
 
+        if (btnElevIcon) {
+            btnElevIcon.addEventListener('click', () => {
+                setElevatorsState(!NAV_STATE.allowElevators);
+            });
+        }
         if (switchElev) {
             switchElev.checked = NAV_STATE.allowElevators;
             switchElev.addEventListener('change', () => {
@@ -4206,7 +4617,7 @@
             if (toilet) {
                 NAV_STATE.destPoint = toilet;
                 if (inputDest) {
-                    inputDest.value = `${toilet.label} (К-${toilet.bldg}, ${toilet.floor} эт.)`;
+                    inputDest.value = `${toilet.label} (Корпус ${toilet.bldg}, ${toilet.floor} этаж)`;
                     if (btnClearDest) btnClearDest.classList.remove('hidden');
                 }
                 buildRoute(NAV_STATE.startPoint, NAV_STATE.destPoint);
@@ -4311,9 +4722,11 @@
         if (btnCancelPick) {
             btnCancelPick.addEventListener('click', () => {
                 NAV_STATE.pickingMode = null;
-                const banner = document.getElementById('nav-pick-banner');
-                if (banner) banner.classList.add('hidden');
-                openNavigatorModal();
+                NAV_STATE.targetToChange = null;
+                hidePickBanner();
+                if (!NAV_STATE.activeRoute) {
+                    openNavigatorModal();
+                }
             });
         }
 
@@ -4353,7 +4766,7 @@
                 if (targetNode) {
                     NAV_STATE.destPoint = targetNode;
                     const inputB = document.getElementById('nav-input-dest');
-                    if (inputB) inputB.value = `${targetNode.label} (К-${targetNode.bldg}, ${targetNode.floor} эт.)`;
+                    if (inputB) inputB.value = `${targetNode.label} (Корпус ${targetNode.bldg}, ${targetNode.floor} этаж)`;
 
                     // Если точка отправления не выбрана, ставим Главный вход
                     if (!NAV_STATE.startPoint) {
@@ -4446,13 +4859,36 @@
         }
     }
 
-    function showPickBanner(text) {
+    function resetRouteCardPicks() {
+        const startEl = document.getElementById('nav-card-start-label');
+        const destEl = document.getElementById('nav-card-dest-badge');
+        if (destEl) destEl.classList.remove('ring-4', 'ring-white/80', 'ring-offset-2', 'ring-offset-[#1a73e8]', 'animate-pulse');
+        if (startEl) startEl.classList.remove('ring-4', 'ring-[#1a73e8]', 'ring-offset-2', 'ring-offset-[#c2e7ff]', 'animate-pulse');
+    }
+
+    function showPickBanner(text, targetType = 'dest') {
         const banner = document.getElementById('nav-pick-banner');
         const textEl = document.getElementById('nav-pick-text');
+        const dotEl = document.getElementById('nav-pick-dot');
         if (banner && textEl) {
             textEl.textContent = text;
+            if (dotEl) {
+                dotEl.className = targetType === 'dest'
+                    ? 'w-3 h-3 rounded-full bg-[#1a73e8] animate-ping'
+                    : 'w-3 h-3 rounded-full bg-[#38bdf8] animate-ping';
+            }
             banner.classList.remove('hidden');
         }
+    }
+
+    function hidePickBanner() {
+        const banner = document.getElementById('nav-pick-banner');
+        if (banner) banner.classList.add('hidden');
+        const pill = document.getElementById('search-route-target-pill');
+        if (pill) pill.classList.add('hidden');
+        const sInput = document.getElementById('search-input');
+        if (sInput) sInput.placeholder = 'Поиск по кабинетам...';
+        resetRouteCardPicks();
     }
 
     // Экспорт глобальных функций
@@ -4470,5 +4906,11 @@
     window.aStarPath = aStarPath;
     window.NAV_STATE = NAV_STATE;
     window.doesIntersectWall = doesIntersectWall;
+    window.formatNavNodeName = formatNavNodeName;
+    window.formatNavInputString = formatNavInputString;
+    window.applyRoomToActiveRoute = applyRoomToActiveRoute;
+    window.checkStairBadgeClick = checkStairBadgeClick;
+    window.showPickBanner = showPickBanner;
+    window.hidePickBanner = hidePickBanner;
 
 })();
