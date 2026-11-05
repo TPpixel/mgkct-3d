@@ -1,3 +1,14 @@
+// Вспомогательная функция для безопасного экранирования HTML перед вставкой в innerHTML
+function escapeHtml(str) {
+    if (str === null || str === undefined) return '';
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
 // ==========================================
 // ОБРАБОТКА ПОЛЬЗОВАТЕЛЬСКОГО ИНТЕРФЕЙСА (UI)
 // ИНТЕРАКТИВНАЯ КАРТА КОЛЛЕДЖА (2D / 3D)
@@ -34,23 +45,31 @@ function setTheme(themeName, shouldSave = true) {
             if (MATERIALS.roof) MATERIALS.roof.color.setHex(0x1e293b);
             if (MATERIALS.edgeRoof) MATERIALS.edgeRoof.color.setHex(0x475569);
             if (MATERIALS.guideLine) MATERIALS.guideLine.color.setHex(0x475569);
-            if (MATERIALS.minimalRoadSurface) MATERIALS.minimalRoadSurface.color.setHex(0x131b26);
-            if (MATERIALS.roadContourLine) MATERIALS.roadContourLine.color.setHex(0x475569);
-            if (MATERIALS.roadCenterLine) MATERIALS.roadCenterLine.color.setHex(0x334155);
+            if (MATERIALS.minimalRoadSurface) MATERIALS.minimalRoadSurface.color.setHex(0x1e293b);
+            if (MATERIALS.roadContourLine) MATERIALS.roadContourLine.color.setHex(0x94a3b8);
+            if (MATERIALS.roadCenterLine) MATERIALS.roadCenterLine.color.setHex(0x475569);
             // Прилегающая территория в тёмной теме
-            if (MATERIALS.asphaltRoad) MATERIALS.asphaltRoad.color.setHex(0x1c222d);
-            if (MATERIALS.asphaltDriveway) MATERIALS.asphaltDriveway.color.setHex(0x232a36);
-            if (MATERIALS.curb) MATERIALS.curb.color.setHex(0x333d4d);
-            if (MATERIALS.sidewalk) MATERIALS.sidewalk.color.setHex(0x2c3545);
-            if (MATERIALS.lawn) MATERIALS.lawn.color.setHex(0x1d3528);
+            if (MATERIALS.asphaltRoad) MATERIALS.asphaltRoad.color.setHex(0x18202c);
+            if (MATERIALS.asphaltDriveway) MATERIALS.asphaltDriveway.color.setHex(0x1e293b);
+            if (MATERIALS.curb) MATERIALS.curb.color.setHex(0x475569);
+            if (MATERIALS.sidewalk) MATERIALS.sidewalk.color.setHex(0x2d3748);
+            if (MATERIALS.lawn) MATERIALS.lawn.color.setHex(0x16331a);
             if (MATERIALS.treeFoliage) MATERIALS.treeFoliage.color.setHex(0x1e4620);
             if (MATERIALS.treeFoliageLight) MATERIALS.treeFoliageLight.color.setHex(0x2d5a27);
+            if (MATERIALS.birchFoliage) MATERIALS.birchFoliage.color.setHex(0x2e541b);
+            if (MATERIALS.lindenFoliage) MATERIALS.lindenFoliage.color.setHex(0x224a1f);
+            if (MATERIALS.spruceNeedle) MATERIALS.spruceNeedle.color.setHex(0x183a1d);
+            if (MATERIALS.hedgeFoliage) MATERIALS.hedgeFoliage.color.setHex(0x1e3a24);
+            if (MATERIALS.soilMulch) MATERIALS.soilMulch.color.setHex(0x1f140e);
+            if (MATERIALS.steleGranite) MATERIALS.steleGranite.color.setHex(0x1f2937);
+            if (MATERIALS.forecourtPaverLight) MATERIALS.forecourtPaverLight.color.setHex(0x222d3d);
+            if (MATERIALS.forecourtPaverDark) MATERIALS.forecourtPaverDark.color.setHex(0x161e2a);
+            if (MATERIALS.campusBenchWood) MATERIALS.campusBenchWood.color.setHex(0x9a3412);
         } else {
-            // СВЕТЛАЯ ТЕМА:
-            if (MATERIALS.slab) MATERIALS.slab.color.setHex(0xf8fafc);
-            if (MATERIALS.coreSlab) MATERIALS.coreSlab.color.setHex(0xeef2f6);
-            if (MATERIALS.wall) MATERIALS.wall.color.setHex(0xffffff);
-            if (MATERIALS.stair) MATERIALS.stair.color.setHex(0xcbd5e1);
+            // Светлая тема:
+            if (typeof updateBuildingColors === 'function') {
+                updateBuildingColors();
+            }
             if (MATERIALS.elevatorCar) MATERIALS.elevatorCar.color.setHex(0xcbd5e1);
             if (MATERIALS.doorThin) MATERIALS.doorThin.color.setHex(0x94a3b8);
             if (MATERIALS.edgeMain) MATERIALS.edgeMain.color.setHex(0x475569);
@@ -58,17 +77,26 @@ function setTheme(themeName, shouldSave = true) {
             if (MATERIALS.roof) MATERIALS.roof.color.setHex(0x94a3b8);
             if (MATERIALS.edgeRoof) MATERIALS.edgeRoof.color.setHex(0x475569);
             if (MATERIALS.guideLine) MATERIALS.guideLine.color.setHex(0x94a3b8);
-            if (MATERIALS.minimalRoadSurface) MATERIALS.minimalRoadSurface.color.setHex(0xdce4ee);
-            if (MATERIALS.roadContourLine) MATERIALS.roadContourLine.color.setHex(0x64748b);
+            if (MATERIALS.minimalRoadSurface) MATERIALS.minimalRoadSurface.color.setHex(0xc8d1dc);
+            if (MATERIALS.roadContourLine) MATERIALS.roadContourLine.color.setHex(0x334155);
             if (MATERIALS.roadCenterLine) MATERIALS.roadCenterLine.color.setHex(0x94a3b8);
             // Прилегающая территория в светлой теме
-            if (MATERIALS.asphaltRoad) MATERIALS.asphaltRoad.color.setHex(0x475569);
-            if (MATERIALS.asphaltDriveway) MATERIALS.asphaltDriveway.color.setHex(0x64748b);
-            if (MATERIALS.curb) MATERIALS.curb.color.setHex(0x94a3b8);
-            if (MATERIALS.sidewalk) MATERIALS.sidewalk.color.setHex(0xcbd5e1);
-            if (MATERIALS.lawn) MATERIALS.lawn.color.setHex(0x86efac);
+            if (MATERIALS.asphaltRoad) MATERIALS.asphaltRoad.color.setHex(0x334155);
+            if (MATERIALS.asphaltDriveway) MATERIALS.asphaltDriveway.color.setHex(0x475569);
+            if (MATERIALS.curb) MATERIALS.curb.color.setHex(0x64748b);
+            if (MATERIALS.sidewalk) MATERIALS.sidewalk.color.setHex(0x94a3b8);
+            if (MATERIALS.lawn) MATERIALS.lawn.color.setHex(0x387a3e);
             if (MATERIALS.treeFoliage) MATERIALS.treeFoliage.color.setHex(0x22c55e);
             if (MATERIALS.treeFoliageLight) MATERIALS.treeFoliageLight.color.setHex(0x4ade80);
+            if (MATERIALS.birchFoliage) MATERIALS.birchFoliage.color.setHex(0x529432);
+            if (MATERIALS.lindenFoliage) MATERIALS.lindenFoliage.color.setHex(0x2e6f2b);
+            if (MATERIALS.spruceNeedle) MATERIALS.spruceNeedle.color.setHex(0x184223);
+            if (MATERIALS.hedgeFoliage) MATERIALS.hedgeFoliage.color.setHex(0x275e2c);
+            if (MATERIALS.soilMulch) MATERIALS.soilMulch.color.setHex(0x2a1d17);
+            if (MATERIALS.steleGranite) MATERIALS.steleGranite.color.setHex(0x475569);
+            if (MATERIALS.forecourtPaverLight) MATERIALS.forecourtPaverLight.color.setHex(0xf1f5f9);
+            if (MATERIALS.forecourtPaverDark) MATERIALS.forecourtPaverDark.color.setHex(0x64748b);
+            if (MATERIALS.campusBenchWood) MATERIALS.campusBenchWood.color.setHex(0xb45309);
         }
     }
 
@@ -94,7 +122,8 @@ const BUILDING_MAX_FLOORS = {
     '1': 7,
     '2': 3,
     '3': 2,
-    '4': 3
+    '4': 3,
+    '5': 1
 };
 
 const BUILDING_NAMES = {
@@ -102,7 +131,8 @@ const BUILDING_NAMES = {
     '1': 'Корпус 1',
     '2': 'Корпус 2',
     '3': 'Корпус 3',
-    '4': 'Корпус 4'
+    '4': 'Корпус 4',
+    '5': 'Гараж (Хозстроение)'
 };
 
 function updateTopFloorBadge() {
@@ -239,12 +269,9 @@ function setSliceFloor(newFloor) {
     if (newFloor === 7) {
         setMode('all');
     } else {
-        STATE.mode = 'slice';
-        document.querySelectorAll('.floor-btn').forEach(btn => btn.classList.remove('active'));
-        updateFloorInfo();
-        recalcTargetPositions();
-        updateAlignmentGuides();
-        updateStairValidationAxes();
+        // Используем setMode() чтобы корректно обновить кнопки, маршруты,
+        // dispatchEvent('floorChanged') и все сопряжённые подсистемы.
+        setMode('slice', false);
         saveSettings();
     }
 }
@@ -279,6 +306,9 @@ function setTerritoryMode(enabled, shouldSave = true) {
     }
     if (typeof updateTerritoryVisibility === 'function') {
         updateTerritoryVisibility();
+    }
+    if (typeof updateBuildingColors === 'function') {
+        updateBuildingColors();
     }
     if (shouldSave) saveSettings();
 }
@@ -419,6 +449,11 @@ function selectRoom(roomInfo, shouldFly = true) {
         setMode(String(roomInfo.floor));
     }
 
+    // Сохраняем в недавние поиски
+    if (typeof saveRecentSearch === 'function') {
+        saveRecentSearch(roomInfo);
+    }
+
     // Обновляем текст в поисковом виджете шапки
     const cleanName = roomInfo.text ? roomInfo.text.replace(/\n/g, ' ').trim() : 'Кабинет';
     const isNum = /^\d/.test(cleanName) || /^[2-4]-\d/.test(cleanName);
@@ -514,6 +549,55 @@ function formatSearchRoomBadgeAndTitle(item) {
     return { codeLabel: shortBadge, displayTitle: fullText };
 }
 
+// --- НЕДАВНИЕ ПОИСКИ (RECENT SEARCHES STORAGE) ---
+const RECENT_SEARCHES_STORAGE_KEY = 'mgkct_recent_searches';
+const MAX_RECENT_SEARCHES_COUNT = 8;
+
+function getRecentSearches() {
+    try {
+        const raw = localStorage.getItem(RECENT_SEARCHES_STORAGE_KEY);
+        if (!raw) return [];
+        const arr = JSON.parse(raw);
+        return Array.isArray(arr) ? arr : [];
+    } catch (e) {
+        return [];
+    }
+}
+
+function saveRecentSearch(roomInfo) {
+    if (!roomInfo || !roomInfo.text) return;
+    try {
+        const { codeLabel, displayTitle } = formatSearchRoomBadgeAndTitle(roomInfo);
+        const item = {
+            floor: roomInfo.floor,
+            building: roomInfo.building,
+            x: roomInfo.x,
+            z: roomInfo.z,
+            text: roomInfo.text,
+            codeLabel,
+            displayTitle,
+            timestamp: Date.now()
+        };
+        const current = getRecentSearches();
+        const filtered = current.filter(r => !(r.building === item.building && r.floor === item.floor && r.codeLabel === item.codeLabel));
+        filtered.unshift(item);
+        if (filtered.length > MAX_RECENT_SEARCHES_COUNT) {
+            filtered.length = MAX_RECENT_SEARCHES_COUNT;
+        }
+        localStorage.setItem(RECENT_SEARCHES_STORAGE_KEY, JSON.stringify(filtered));
+    } catch (e) {
+        console.warn('[MGKCT] saveRecentSearch: не удалось записать в localStorage:', e);
+    }
+}
+
+function clearRecentSearches() {
+    try {
+        localStorage.removeItem(RECENT_SEARCHES_STORAGE_KEY);
+    } catch (e) {
+        console.warn('[MGKCT] clearRecentSearches: не удалось очистить localStorage:', e);
+    }
+}
+
 // Поиск кабинетов
 function setupSearch() {
     const searchModal = document.getElementById('search-modal');
@@ -556,10 +640,107 @@ function setupSearch() {
         });
     });
 
+    // Делегированный обработчик клика для всех элементов выдачи поиска и кнопки очистки истории
+    searchResults?.addEventListener('click', (e) => {
+        const clearBtn = e.target.closest('#btn-clear-recent');
+        if (clearBtn) {
+            e.stopPropagation();
+            clearRecentSearches();
+            renderSearchResults('');
+            return;
+        }
+
+        const btn = e.target.closest('.room-search-item');
+        if (!btn) return;
+
+        const f = parseInt(btn.dataset.floor, 10);
+        const b = parseInt(btn.dataset.bldg, 10);
+        const x = parseFloat(btn.dataset.x);
+        const z = parseFloat(btn.dataset.z);
+        const t = btn.dataset.text;
+        closeSearch();
+
+        if (STATE.buildingFilter !== 'both' && typeof setBuildingFilter === 'function') {
+            setBuildingFilter('both', false);
+        }
+        const roomInfo = { floor: f, building: b, x: x, z: z, text: t };
+        saveRecentSearch(roomInfo);
+        selectRoom(roomInfo, true);
+        if (typeof showRoomContextPopup === 'function') {
+            showRoomContextPopup(roomInfo, window.innerWidth / 2, window.innerHeight * 0.42, false);
+        }
+    });
+
     function renderSearchResults(query) {
         if (!searchResults) return;
         query = (query || '').trim().toLowerCase();
 
+
+
+        // 1) Пустой поисковый запрос: показываем историю недавних поисков
+        if (!query) {
+            const recent = getRecentSearches();
+            if (recent.length > 0) {
+                let html = `
+                    <div class="flex items-center justify-between px-1 py-1.5 text-slate-400 text-[11px] font-semibold flex-shrink-0 border-b border-slate-700/40 mb-1">
+                        <span class="flex items-center gap-1.5 text-slate-300">
+                            <svg class="w-3.5 h-3.5 text-sky-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            Недавние поиски
+                        </span>
+                        <button id="btn-clear-recent" class="text-slate-400 hover:text-sky-400 transition text-[11px] font-medium hover:underline p-0.5">
+                            Очистить историю
+                        </button>
+                    </div>
+                `;
+                recent.forEach(item => {
+                    const bldgLabel = `Корпус ${item.building}`;
+                    const floorLabel = `${item.floor} этаж`;
+                    const dataText = escapeHtml((item.text || '').replace(/\n/g, ' '));
+                    const safeCode = escapeHtml(item.codeLabel);
+                    const safeTitle = escapeHtml(item.displayTitle);
+                    html += `
+                        <button class="room-search-item flex items-center justify-between gap-2.5 p-2 rounded-xl hover:bg-slate-800/80 border border-transparent hover:border-slate-700/60 transition text-left w-full group overflow-hidden flex-shrink-0"
+                                data-floor="${item.floor}" data-bldg="${item.building}" data-x="${item.x}" data-z="${item.z}" data-text="${dataText}">
+                            <div class="flex items-center gap-2.5 min-w-0 flex-1 overflow-hidden">
+                                <div class="room-search-badge min-w-[3.25rem] max-w-[4.75rem] px-2 h-8 rounded-lg border flex items-center justify-center font-extrabold text-xs tracking-tight flex-shrink-0 overflow-hidden text-ellipsis whitespace-nowrap">
+                                    ${safeCode}
+                                </div>
+                                <div class="min-w-0 flex-1 flex flex-col justify-center overflow-hidden py-0.5">
+                                    <div class="room-search-title font-bold text-slate-200 text-xs truncate group-hover:text-sky-400 transition leading-snug py-0.5">${safeTitle}</div>
+                                    <div class="room-search-sub text-[10px] text-slate-400 truncate leading-none mt-0.5">${bldgLabel} • ${floorLabel}</div>
+                                </div>
+                            </div>
+                            <svg class="w-4 h-4 text-slate-500 group-hover:text-sky-400 transition flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                            </svg>
+                        </button>
+                    `;
+                });
+                searchResults.innerHTML = html;
+
+
+                return;
+            } else {
+                searchResults.innerHTML = `
+                    <div class="text-center py-8 px-4 flex flex-col items-center justify-center gap-2 text-slate-400">
+                        <div class="w-10 h-10 rounded-full bg-slate-800/80 flex items-center justify-center text-slate-500 mb-1">
+                            <svg class="w-5 h-5 text-sky-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
+                        </div>
+                        <div class="text-xs font-semibold text-slate-200">Быстрый поиск аудиторий</div>
+                        <div class="text-[11px] text-slate-400 max-w-[260px] leading-relaxed">
+                            Выберите категорию из кнопок выше или начните ввод номера кабинета
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+        }
+
+        // 2) Активный поиск по запросу
         if (typeof ROOMS_REGISTRY === 'undefined' || ROOMS_REGISTRY.length === 0) {
             searchResults.innerHTML = '<div class="text-center py-4 text-xs text-slate-500">Загрузка базы кабинетов...</div>';
             return;
@@ -585,12 +766,6 @@ function setupSearch() {
 
         const filtered = ROOMS_REGISTRY.filter(r => {
             const rawOrig = (r.rawText || r.text || '').toLowerCase();
-            // Скрываем чисто архитектурные подписи («Второй свет», «Витраж», «Переход...»), если пользователь не ищет их специально
-            if (!query && (/второй свет|витраж|переход/i.test(rawOrig))) {
-                return false;
-            }
-            if (!query) return true;
-
             const roomText = r.text.toLowerCase();
             const cleanText = rawOrig.replace(/\n/g, ' ').toLowerCase();
             const bldg = r.building;
@@ -648,7 +823,7 @@ function setupSearch() {
         const displayItems = filtered.slice(0, 30);
 
         if (displayItems.length === 0) {
-            searchResults.innerHTML = `<div class="text-center py-6 text-xs text-slate-500">По запросу «${query}» ничего не найдено</div>`;
+            searchResults.innerHTML = `<div class="text-center py-6 text-xs text-slate-500">По запросу &laquo;${escapeHtml(query)}&raquo; ничего не найдено</div>`;
             return;
         }
 
@@ -657,17 +832,19 @@ function setupSearch() {
             const bldgLabel = `Корпус ${item.building}`;
             const floorLabel = `${item.floor} этаж`;
             const { codeLabel, displayTitle } = formatSearchRoomBadgeAndTitle(item);
-            const dataText = (item.text || '').replace(/\n/g, ' ');
+            const dataText = escapeHtml((item.text || '').replace(/\n/g, ' '));
+            const safeCode = escapeHtml(codeLabel);
+            const safeTitle = escapeHtml(displayTitle);
             html += `
-                <button class="room-search-item flex items-center justify-between gap-2 p-2.5 rounded-xl hover:bg-slate-800/80 border border-transparent hover:border-slate-700/60 transition text-left w-full group overflow-hidden"
+                <button class="room-search-item flex items-center justify-between gap-2.5 p-2 rounded-xl hover:bg-slate-800/80 border border-transparent hover:border-slate-700/60 transition text-left w-full group overflow-hidden flex-shrink-0"
                         data-floor="${item.floor}" data-bldg="${item.building}" data-x="${item.x}" data-z="${item.z}" data-text="${dataText}">
                     <div class="flex items-center gap-2.5 min-w-0 flex-1 overflow-hidden">
                         <div class="room-search-badge min-w-[3.25rem] max-w-[4.75rem] px-2 h-8 rounded-lg border flex items-center justify-center font-extrabold text-xs tracking-tight flex-shrink-0 overflow-hidden text-ellipsis whitespace-nowrap">
-                            ${codeLabel}
+                            ${safeCode}
                         </div>
-                        <div class="min-w-0 flex-1 overflow-hidden">
-                            <div class="font-bold text-slate-200 text-xs truncate group-hover:text-sky-400 transition">${displayTitle}</div>
-                            <div class="text-[10px] text-slate-400 truncate">${bldgLabel} • ${floorLabel}</div>
+                        <div class="min-w-0 flex-1 flex flex-col justify-center overflow-hidden py-0.5">
+                            <div class="room-search-title font-bold text-slate-200 text-xs truncate group-hover:text-sky-400 transition leading-snug py-0.5">${safeTitle}</div>
+                            <div class="room-search-sub text-[10px] text-slate-400 truncate leading-none mt-0.5">${bldgLabel} • ${floorLabel}</div>
                         </div>
                     </div>
                     <svg class="w-4 h-4 text-slate-500 group-hover:text-sky-400 transition flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -677,25 +854,6 @@ function setupSearch() {
             `;
         });
         searchResults.innerHTML = html;
-
-        searchResults.querySelectorAll('.room-search-item').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const f = parseInt(btn.dataset.floor, 10);
-                const b = parseInt(btn.dataset.bldg, 10);
-                const x = parseFloat(btn.dataset.x);
-                const z = parseFloat(btn.dataset.z);
-                const t = btn.dataset.text;
-                closeSearch();
-                if (typeof setBuildingFilter === 'function') {
-                    setBuildingFilter(String(b), false);
-                }
-                const roomInfo = { floor: f, building: b, x: x, z: z, text: t };
-                selectRoom(roomInfo, true);
-                if (typeof showRoomContextPopup === 'function') {
-                    showRoomContextPopup(roomInfo, window.innerWidth / 2, window.innerHeight * 0.42, false);
-                }
-            });
-        });
     }
 }
 
@@ -725,6 +883,38 @@ function setupVisualViewportHandler() {
 function setupSettingsDrawer() {
     // Шторка настроек убрана из основного UI; оставляем безопасную заглушку
 }
+
+
+
+// ==========================================
+// Переключатель архитектурных палитр здания (только для спутникового вида)
+// ==========================================
+function updateBuildingColors() {
+    if (typeof MATERIALS === 'undefined') return;
+    if (STATE.theme === 'dark') return;
+
+    if (STATE.showTerritory) {
+        // Спутниковый / 3D режим с территорией: фиксированная палитра (Шалфейный гранит)
+        const p = (typeof DEFAULT_CAMPUS_COLORS !== 'undefined') ? DEFAULT_CAMPUS_COLORS : {
+            slab: 0x9faea0,
+            coreSlab: 0x9faea0,
+            wall: 0x5b6c5d,
+            stair: 0x7d5336
+        };
+        if (MATERIALS.slab) MATERIALS.slab.color.setHex(p.slab);
+        if (MATERIALS.coreSlab) MATERIALS.coreSlab.color.setHex(p.coreSlab);
+        if (MATERIALS.wall) MATERIALS.wall.color.setHex(p.wall);
+        if (MATERIALS.stair) MATERIALS.stair.color.setHex(p.stair);
+    } else {
+        // Обычный 2D/3D вид: светлая минималистичная гамма
+        if (MATERIALS.slab) MATERIALS.slab.color.setHex(0xf8fafc);
+        if (MATERIALS.coreSlab) MATERIALS.coreSlab.color.setHex(0xf8fafc);
+        if (MATERIALS.wall) MATERIALS.wall.color.setHex(0xffffff);
+        if (MATERIALS.stair) MATERIALS.stair.color.setHex(0xcbd5e1);
+    }
+}
+
+window.updateBuildingColors = updateBuildingColors;
 
 function saveSettings() {
     try {
@@ -762,17 +952,33 @@ function restoreSavedSettings() {
         if (!raw) return;
         const s = JSON.parse(raw);
         if (typeof s.is2D === 'boolean') STATE.is2D = s.is2D;
+        // wallHeight вычисляем из is2D — не доверяем сохранённому значению
         STATE.wallHeight = STATE.is2D ? BASE_WALL_HEIGHT : 1.50;
-        STATE.showDoors = true;
-        STATE.showLabels = true;
-        STATE.showEdges = true;
-        STATE.showRoof = false;
+        // Восстанавливаем все сохранённые булевы настройки
+        if (typeof s.showDoors === 'boolean') STATE.showDoors = s.showDoors;
+        if (typeof s.showLabels === 'boolean') STATE.showLabels = s.showLabels;
+        if (typeof s.showEdges === 'boolean') STATE.showEdges = s.showEdges;
+        if (typeof s.showRoof === 'boolean') STATE.showRoof = s.showRoof;
         if (typeof s.showTerritory === 'boolean') STATE.showTerritory = s.showTerritory;
+        if (typeof s.showStairAxes === 'boolean') STATE.showStairAxes = s.showStairAxes;
+        if (typeof s.showGuides === 'boolean') STATE.showGuides = s.showGuides;
+        if (typeof s.smartLabelOcclusion === 'boolean') STATE.smartLabelOcclusion = s.smartLabelOcclusion;
+        // Числовые настройки с санитарными проверками диапазона
+        if (typeof s.labelScale === 'number' && s.labelScale >= 0.5 && s.labelScale <= 3.0) STATE.labelScale = s.labelScale;
+        if (typeof s.slabOpacity === 'number' && s.slabOpacity >= 0.1 && s.slabOpacity <= 1.0) STATE.slabOpacity = s.slabOpacity;
+        if (typeof s.explodeGap === 'number' && s.explodeGap >= 0 && s.explodeGap <= 14) STATE.explodeGap = s.explodeGap;
+        if (typeof s.exploded === 'boolean') STATE.exploded = s.exploded;
+        if (typeof s.sliceMaxFloor === 'number' && s.sliceMaxFloor >= 1 && s.sliceMaxFloor <= 7) STATE.sliceMaxFloor = s.sliceMaxFloor;
+        // preset восстанавливается только если это валидный вариант
+        if (s.preset === 'eco' || s.preset === 'balance' || s.preset === 'ultra') STATE.preset = s.preset;
         if (typeof s.buildingFilter === 'string') STATE.buildingFilter = s.buildingFilter;
-        if (typeof s.mode === 'string' && /^[1-7]$/.test(s.mode)) STATE.mode = s.mode;
+        // mode: принимаем числовой этаж или системные режимы
+        if (typeof s.mode === 'string' && (/^[1-7]$/.test(s.mode) || s.mode === 'all' || s.mode === 'sideBySide' || s.mode === 'slice')) {
+            STATE.mode = s.mode;
+        }
         if (s.theme === 'dark' || s.theme === 'light') STATE.theme = s.theme;
     } catch (e) {
-        console.warn('LocalStorage load error:', e);
+        console.warn('[MGKCT] restoreSavedSettings: не удалось разобрать localStorage:', e);
     }
 }
 
@@ -1035,12 +1241,12 @@ function setupRoomContextPopup() {
 
                     const g = NAV_STATE.graph;
                     if (!NAV_STATE.startPoint && g) {
-                        const entrance = g.getNode('b1_f1_entrance_main');
+                        const entrance = g.getNode('b3_f1_entrance_west') || g.getNode('b1_f1_entrance_main');
                         if (entrance) {
                             NAV_STATE.startPoint = entrance;
                             const inputA = document.getElementById('nav-input-start');
                             if (inputA) {
-                                inputA.value = 'Главный вход (Корпус 1)';
+                                inputA.value = 'Главный вход (Корпус 3 / Западный)';
                                 inputA.setAttribute('data-is-default', 'true');
                             }
                         }

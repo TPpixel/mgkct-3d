@@ -6,6 +6,9 @@ let raycaster = null;
 let mouseVec = null;
 let floorPlane = null;
 let isCtrlZooming = false;
+const _zoomHitVec = new THREE.Vector3();
+const _zoomCamOffset = new THREE.Vector3();
+const _zoomTargetOffset = new THREE.Vector3();
 
 function resetControlsMomentum() {
     if (!controls) return;
@@ -26,6 +29,7 @@ function initControls(camera, domElement) {
     controls.minDistance = 10;
     controls.maxDistance = 115;
     controls.screenSpacePanning = true; // Важно для плавного перемещения карты
+    controls.enableZoom = false; // Исключаем двойное зумирование OrbitControls при скролле колесиком
 
     const cx = (typeof getActiveCenterX === 'function') ? getActiveCenterX() : 24.0;
     const cz = (typeof getActiveCenterZ === 'function') ? getActiveCenterZ() : -22.0;
@@ -39,6 +43,19 @@ function initControls(camera, domElement) {
 
     // Зум к позиции курсора (BIM / CAD Zoom to Pointer)
     domElement.addEventListener('wheel', onPointerZoom, { passive: false });
+
+    // Включаем зум OrbitControls исключительно для двухпальцевого жеста pinch на смартфонах
+    domElement.addEventListener('touchstart', (e) => {
+        if (e.touches && e.touches.length >= 2 && controls) {
+            controls.enableZoom = true;
+        }
+    }, { passive: true });
+    domElement.addEventListener('touchend', () => {
+        if (controls) controls.enableZoom = false;
+    }, { passive: true });
+    domElement.addEventListener('touchcancel', () => {
+        if (controls) controls.enableZoom = false;
+    }, { passive: true });
 
     // Клик / тап по карте для выбора кабинета
     let pointerDownPos = { x: 0, y: 0 };
@@ -64,10 +81,6 @@ function initControls(camera, domElement) {
 
     // Оповещение цикла рендеринга о движении камеры (On-Demand Render)
     controls.addEventListener('change', () => {
-        // Защита камеры от проваливания под уровень перекрытий (Camera floor clipping)
-        if (camera && camera.position.y < 0.35) {
-            camera.position.y = 0.35;
-        }
         if (typeof requestRender === 'function') {
             requestRender(20);
         }
@@ -126,9 +139,9 @@ function zoomIn() {
     STATE.targetControlsCenter = null;
     resetControlsMomentum();
     const factor = 0.80;
-    const camToTarget = camera.position.clone().sub(controls.target);
-    if (camToTarget.length() * factor >= controls.minDistance) {
-        camera.position.copy(controls.target).addScaledVector(camToTarget, factor);
+    _zoomCamOffset.subVectors(camera.position, controls.target);
+    if (_zoomCamOffset.length() * factor >= controls.minDistance) {
+        camera.position.copy(controls.target).addScaledVector(_zoomCamOffset, factor);
         controls.update();
         if (typeof requestRender === 'function') requestRender(25);
     }
@@ -140,11 +153,11 @@ function zoomOut() {
     STATE.targetControlsCenter = null;
     resetControlsMomentum();
     const factor = 1.25;
-    const camToTarget = camera.position.clone().sub(controls.target);
-    const currDist = camToTarget.length();
+    _zoomCamOffset.subVectors(camera.position, controls.target);
+    const currDist = _zoomCamOffset.length();
     if (currDist >= controls.maxDistance) return;
     const newDist = Math.min(currDist * factor, controls.maxDistance);
-    camera.position.copy(controls.target).add(camToTarget.normalize().multiplyScalar(newDist));
+    camera.position.copy(controls.target).add(_zoomCamOffset.normalize().multiplyScalar(newDist));
     controls.update();
     if (typeof requestRender === 'function') requestRender(25);
 }
@@ -181,8 +194,10 @@ function findRoomAtScreenPoint(clientX, clientY) {
     const x = ((clientX - rect.left) / rect.width) * 2 - 1;
     const y = -((clientY - rect.top) / rect.height) * 2 + 1;
 
-    const clickRaycaster = new THREE.Raycaster();
-    clickRaycaster.setFromCamera(new THREE.Vector2(x, y), camera);
+    if (!raycaster) raycaster = new THREE.Raycaster();
+    if (!mouseVec) mouseVec = new THREE.Vector2();
+    mouseVec.set(x, y);
+    raycaster.setFromCamera(mouseVec, camera);
 
     const activeFloor = (STATE.mode !== 'all' && STATE.mode !== 'sideBySide' && STATE.mode !== 'slice')
         ? parseInt(STATE.mode, 10)
@@ -201,7 +216,7 @@ function findRoomAtScreenPoint(clientX, clientY) {
         })
         .map(l => l.mesh);
 
-    const intersects = clickRaycaster.intersectObjects(visibleLabelMeshes, false);
+    const intersects = raycaster.intersectObjects(visibleLabelMeshes, false);
     if (intersects.length > 0) {
         const hitMesh = intersects[0].object;
         if (hitMesh.userData && hitMesh.userData.roomInfo) {
@@ -242,57 +257,90 @@ function handleMapClick(event) {
 }
 
 function onPointerZoom(event) {
-    if (!controls || !camera) return;
+    if (!controls || !camera || !renderer) return;
 
     // Предотвращаем дефолтный скролл страницы
     event.preventDefault();
 
     STATE.targetCamPos = null;
     STATE.targetControlsCenter = null;
+    resetControlsMomentum();
 
     const domElement = renderer.domElement;
     const rect = domElement.getBoundingClientRect();
+    if (!mouseVec) mouseVec = new THREE.Vector2();
     mouseVec.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
     mouseVec.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
 
+    if (!raycaster) raycaster = new THREE.Raycaster();
     raycaster.setFromCamera(mouseVec, camera);
 
-    const targets = Array.isArray(slabMeshes) && slabMeshes.length > 0 ? slabMeshes : scene.children;
-    const intersects = raycaster.intersectObjects(targets, false);
+    const activeFloorY = (controls.target && !isNaN(controls.target.y)) ? controls.target.y : 0;
+    if (!floorPlane) floorPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
+    floorPlane.constant = -activeFloorY;
+
+    // Ищем точку пересечения луча курсора с плоскостью этажа
     let hitPoint = null;
-
-    for (let i = 0; i < intersects.length; i++) {
-        const hit = intersects[i];
-        if (hit.object && hit.object.visible && hit.point) {
-            hitPoint = hit.point.clone();
-            break;
+    if (raycaster.ray.intersectPlane(floorPlane, _zoomHitVec)) {
+        // Проверяем, что точка находится в пределах территории колледжа, а не на горизонте
+        const campusCx = (typeof getActiveCenterX === 'function') ? getActiveCenterX() : 16.0;
+        const campusCz = (typeof getActiveCenterZ === 'function') ? getActiveCenterZ() : -18.0;
+        if (Math.hypot(_zoomHitVec.x - campusCx, _zoomHitVec.z - campusCz) < 350) {
+            hitPoint = _zoomHitVec;
         }
     }
 
+    // Если курсор смотрит в бесконечность или мимо кампуса, зумируем относительно текущего центра
     if (!hitPoint) {
-        floorPlane.constant = -controls.target.y;
-        const pt = new THREE.Vector3();
-        if (raycaster.ray.intersectPlane(floorPlane, pt)) {
-            hitPoint = pt;
-        }
+        _zoomHitVec.copy(controls.target);
+        _zoomHitVec.y = activeFloorY;
+        hitPoint = _zoomHitVec;
     }
 
-    if (hitPoint) {
-        const zoomIn = event.deltaY < 0;
-        const factor = zoomIn ? 0.86 : 1.16;
+    const zoomIn = event.deltaY < 0;
+    let factor = zoomIn ? 0.85 : 1.18;
 
-        const camToHit = camera.position.clone().sub(hitPoint);
-        const targetToHit = controls.target.clone().sub(hitPoint);
+    // Корректная проверка дистанции до цели (controls.target)
+    const currentDist = camera.position.distanceTo(controls.target);
+    const targetDist = currentDist * factor;
 
-        const newDist = camToHit.length() * factor;
+    const minD = controls.minDistance || 10;
+    const maxD = controls.maxDistance || 115;
 
-        if (newDist >= controls.minDistance && newDist <= controls.maxDistance) {
-            camera.position.copy(hitPoint).addScaledVector(camToHit, factor);
-            controls.target.copy(hitPoint).addScaledVector(targetToHit, factor);
+    if (targetDist < minD) {
+        factor = minD / currentDist;
+    } else if (targetDist > maxD) {
+        factor = maxD / currentDist;
+    }
 
-            if (typeof requestRender === 'function') {
-                requestRender(20);
-            }
-        }
+    if (Math.abs(factor - 1.0) < 0.001) {
+        return; // Достигнут лимит приближения/отдаления
+    }
+
+    // Зум к точке курсора: точка hitPoint на экране остаётся неподвижной
+    _zoomCamOffset.subVectors(camera.position, hitPoint).multiplyScalar(factor);
+    _zoomTargetOffset.subVectors(controls.target, hitPoint).multiplyScalar(factor);
+
+    camera.position.addVectors(hitPoint, _zoomCamOffset);
+    controls.target.addVectors(hitPoint, _zoomTargetOffset);
+
+    // Гарантируем, что target.y строго лежит на плоскости этажа
+    controls.target.y = activeFloorY;
+
+    // Ограничиваем смещение target границами территории колледжа, чтобы не потерять карту
+    controls.target.x = THREE.MathUtils.clamp(controls.target.x, -35.0, 95.0);
+    controls.target.z = THREE.MathUtils.clamp(controls.target.z, -80.0, 35.0);
+
+    // Ограничиваем минимальную высоту камеры над полом
+    const minCamY = activeFloorY + (STATE.is2D ? 10.0 : 0.80);
+    if (camera.position.y < minCamY) {
+        camera.position.y = minCamY;
+    }
+
+    // Синхронизируем OrbitControls
+    controls.update();
+
+    if (typeof requestRender === 'function') {
+        requestRender(20);
     }
 }

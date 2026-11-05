@@ -10,6 +10,7 @@ const bldg1FloorGroups = {};
 const bldg2FloorGroups = {};
 const bldg3FloorGroups = {};
 const bldg4FloorGroups = {};
+const bldg5FloorGroups = {};
 let alignmentGuidesGroup;
 let stairValidationGroup;
 let territoryGroup;
@@ -37,6 +38,11 @@ window.WALLS_REGISTRY = WALLS_REGISTRY;
 const BASE_WALL_HEIGHT = 0.35; // Минимальная высота стен для удобного чтения карты (вид сверху)
 const BASE_FLOOR_STEP = 2.65;
 const WALL_SINK = 0.025;
+const OUTER_T = 0.24;
+const INNER_T = 0.18;
+
+window.OUTER_T = OUTER_T;
+window.INNER_T = INNER_T;
 
 // Габариты Корпуса 2
 const B2_X_START = 20.4;
@@ -77,7 +83,7 @@ const B4_LK3_X1 = 61.4, B4_LK3_X2 = 69.0, B4_LK3_Z1 = -49.8, B4_LK3_Z2 = -45.4;
 const B4_LK1_X1 = 38.8, B4_LK1_X2 = 42.4, B4_LK1_Z1 = -31.2, B4_LK1_Z2 = -24.4;
 
 // Режим минимализма (1 = включен: контурная дорога по умолчанию, 3D территория скрыта; 0 = выключен: 3D территория видна сразу)
-const ROAD_3D_MINIMALISM = 1;
+const ROAD_3D_MINIMALISM = 0;
 // Осевая пунктирная разметка на минималистичной дороге (1 = включена, 0 = отключена)
 const ROAD_SHOW_CENTERLINE = 1;
 
@@ -125,6 +131,7 @@ window.bldg1FloorGroups = bldg1FloorGroups;
 window.bldg2FloorGroups = bldg2FloorGroups;
 window.bldg3FloorGroups = bldg3FloorGroups;
 window.bldg4FloorGroups = bldg4FloorGroups;
+window.bldg5FloorGroups = bldg5FloorGroups;
 window.territoryGroup = territoryGroup;
 window.roadNetworkGroup = roadNetworkGroup;
 window.wallMeshes = wallMeshes;
@@ -170,6 +177,7 @@ function getActiveCenterX() {
     if (STATE.buildingFilter === '2') return 44.2;
     if (STATE.buildingFilter === '3') return 5.9;
     if (STATE.buildingFilter === '4') return 48.5;
+    if (STATE.buildingFilter === '5') return 6.0;
     return 16.0;
 }
 
@@ -178,5 +186,16 @@ function getActiveCenterZ() {
     if (STATE.buildingFilter === '2') return -5.1;
     if (STATE.buildingFilter === '3') return -40.2;
     if (STATE.buildingFilter === '4') return -44.5;
+    if (STATE.buildingFilter === '5') return -68.75;
     return -18.0;
 }
+
+function isBuildingVisible(bldgId) {
+    if (!STATE || !STATE.buildingFilter || STATE.buildingFilter === 'both') return true;
+    const filter = String(STATE.buildingFilter);
+    const b = String(bldgId);
+    if (filter === b) return true;
+    if (filter === '3' && b === '5') return true;
+    return false;
+}
+window.isBuildingVisible = isBuildingVisible;
