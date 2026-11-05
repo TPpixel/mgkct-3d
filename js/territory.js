@@ -1113,7 +1113,9 @@ function buildForecourtAndPlaza(group) {
 // ==========================================
 
 // 1. ЭРГОНОМИЧНАЯ ПАРКОВАЯ СКАМЬЯ С ФАСОЧНЫМИ ЛАМЕЛЯМИ И ЧУГУННЫМИ ОПОРАМИ
+let _cachedCampusBenchGeoms = null;
 function getCampusBenchGeometries() {
+    if (_cachedCampusBenchGeoms) return _cachedCampusBenchGeoms;
     // Деревянные ламели (10 штук: 5 сиденье с waterfall, 5 спинка с поясничным изгибом)
     const slatShape = new THREE.Shape();
     slatShape.moveTo(-0.0325, -0.014);
@@ -1255,10 +1257,11 @@ function getCampusBenchGeometries() {
         woodMerged.translate(0, dy, 0);
     }
 
-    return {
+    _cachedCampusBenchGeoms = {
         woodGeom: woodMerged,
         metalGeom: metalMerged
     };
+    return _cachedCampusBenchGeoms;
 }
 
 function buildCampusBench(group, x, z, rotY = 0, yGround = 0.06) {
@@ -1283,7 +1286,9 @@ function buildCampusBench(group, x, z, rotY = 0, yGround = 0.06) {
 }
 
 // 2. ПАРКОВАЯ МЕТАЛЛИЧЕСКАЯ УРНА С КУПОЛЬНОЙ КРЫШКОЙ И РЕБРИСТЫМ КОРПУСОМ
+let _cachedParkWasteBinGeoms = null;
 function getParkWasteBinSubGeometries() {
+    if (_cachedParkWasteBinGeoms) return _cachedParkWasteBinGeoms;
     const bodyGeoms = [];
 
     // Главная цилиндрическая обечайка корпуса урны
@@ -1373,10 +1378,11 @@ function getParkWasteBinSubGeometries() {
     innerLiner.translate(0, 0.456, 0);
     metalGeoms.push(innerLiner);
 
-    return {
+    _cachedParkWasteBinGeoms = {
         bodyGeom: mergeBufferGeometriesVanilla(bodyGeoms),
         metalGeom: mergeBufferGeometriesVanilla(metalGeoms)
     };
+    return _cachedParkWasteBinGeoms;
 }
 
 function buildParkWasteBin(group, x, z, rotY = 0, yGround = 0.06) {
@@ -1430,7 +1436,9 @@ function createSheffieldHoopPath(w = 0.76, h = 0.86, r = 0.13, yBottom = 0.0) {
     return path;
 }
 
+let _cachedBicycleStationGeom = null;
 function getBicycleStationSubGeometries() {
+    if (_cachedBicycleStationGeom) return _cachedBicycleStationGeom;
     const stationGeoms = [];
     const hoopSpacing = 0.95;
     const hoopCount = 5;
@@ -1484,7 +1492,8 @@ function getBicycleStationSubGeometries() {
         stationGeoms.push(rail);
     });
 
-    return mergeBufferGeometriesVanilla(stationGeoms);
+    _cachedBicycleStationGeom = mergeBufferGeometriesVanilla(stationGeoms);
+    return _cachedBicycleStationGeom;
 }
 
 function buildBicycleStation(group, x, z, rotY = 0, yGround = 0.06) {
@@ -2154,7 +2163,134 @@ function createBirchClusterGeometry(baseR, scaleX = 1.0, scaleY = 1.0, scaleZ = 
     return geom;
 }
 
+let _cachedBirchGeoms = null;
+function getBaseBirchGeometries() {
+    if (_cachedBirchGeoms) return _cachedBirchGeoms;
+    const scale = 1.0;
+    const trunkH = 5.2;
+    const radialSegs = 12;
+    const heightSegs = 16;
+    const rBase = 0.14;
+    const rTop = 0.035;
+
+    const trunkGeom = new THREE.CylinderGeometry(rTop, rBase, trunkH, radialSegs, heightSegs);
+    const tPos = trunkGeom.attributes.position;
+    for (let i = 0; i < tPos.count; i++) {
+        const yOrig = tPos.getY(i);
+        const t = (yOrig + trunkH / 2) / trunkH;
+        let x = tPos.getX(i);
+        let z = tPos.getZ(i);
+
+        if (t < 0.18) {
+            const flare = Math.pow(1.0 - t / 0.18, 2) * 0.065;
+            const curR = Math.sqrt(x * x + z * z);
+            if (curR > 0.0001) {
+                x += (x / curR) * flare;
+                z += (z / curR) * flare;
+            }
+        }
+
+        const dx = (0.22 * Math.sin(Math.PI * t * 0.85) + 0.10 * t * t);
+        const dz = (0.15 * Math.sin(Math.PI * t * 1.20) - 0.06 * t);
+        tPos.setXYZ(i, x + dx, yOrig, z + dz);
+    }
+    trunkGeom.computeVertexNormals();
+    trunkGeom.translate(0, trunkH / 2, 0);
+
+    const woodGeometries = [trunkGeom];
+
+    function addLimb(tNorm, azimuth, pitchDeg, length, bRadius, tipRadius, curveDroop = 0.15) {
+        const yStart = tNorm * trunkH;
+        const dxStart = (0.22 * Math.sin(Math.PI * tNorm * 0.85) + 0.10 * tNorm * tNorm);
+        const dzStart = (0.15 * Math.sin(Math.PI * tNorm * 1.20) - 0.06 * tNorm);
+
+        const bGeom = new THREE.CylinderGeometry(tipRadius, bRadius, length, 8, 4);
+        const bp = bGeom.attributes.position;
+        for (let i = 0; i < bp.count; i++) {
+            const s = (bp.getY(i) + length / 2) / length;
+            const droopOff = Math.sin(s * Math.PI) * curveDroop;
+            bp.setZ(i, bp.getZ(i) - droopOff);
+        }
+        bGeom.computeVertexNormals();
+        bGeom.translate(0, length / 2, 0);
+
+        const pitchRad = (pitchDeg * Math.PI) / 180;
+        bGeom.rotateX(Math.PI / 2 - pitchRad);
+        bGeom.rotateY(azimuth);
+        bGeom.translate(dxStart, yStart, dzStart);
+
+        woodGeometries.push(bGeom);
+    }
+
+    addLimb(0.42, 0.25, 48, 1.85, 0.038, 0.016, 0.18);
+    addLimb(0.58, 2.15, 52, 1.60, 0.032, 0.014, 0.15);
+    addLimb(0.70, 4.10, 58, 1.35, 0.026, 0.012, 0.12);
+    addLimb(0.82, 5.70, 64, 1.10, 0.022, 0.010, 0.09);
+
+    const lightClusters = [];
+    const darkClusters = [];
+
+    const c1 = createBirchClusterGeometry(0.95, 0.88, 1.25, 0.88, 0.15);
+    c1.translate(0.18, 5.0, -0.12);
+    lightClusters.push(c1);
+
+    const c2 = createBirchClusterGeometry(0.90, 1.05, 0.85, 1.00, 0.28);
+    c2.translate(0.80, 4.35, -0.45);
+    lightClusters.push(c2);
+
+    const c3 = createBirchClusterGeometry(1.10, 1.10, 0.85, 1.05, 0.25);
+    c3.translate(-0.85, 3.80, 0.55);
+    darkClusters.push(c3);
+
+    const c4 = createBirchClusterGeometry(1.15, 1.05, 0.90, 1.10, 0.22);
+    c4.translate(0.35, 3.60, 0.85);
+    darkClusters.push(c4);
+
+    const c5 = createBirchClusterGeometry(1.05, 1.15, 0.78, 1.10, 0.35);
+    c5.translate(1.35, 2.75, 0.25);
+    lightClusters.push(c5);
+
+    const c6 = createBirchClusterGeometry(1.00, 1.12, 0.80, 1.08, 0.35);
+    c6.translate(-1.20, 2.55, -0.45);
+    lightClusters.push(c6);
+
+    const c7 = createBirchClusterGeometry(1.25, 1.10, 0.95, 1.10, 0.18);
+    c7.translate(0.05, 3.30, 0.05);
+    darkClusters.push(c7);
+
+    _cachedBirchGeoms = {
+        wood: mergeBufferGeometriesVanilla(woodGeometries),
+        lightFoliage: mergeBufferGeometriesVanilla(lightClusters),
+        darkFoliage: mergeBufferGeometriesVanilla(darkClusters)
+    };
+    return _cachedBirchGeoms;
+}
+
 function createWhiteBirchTree(scale = 1.0, rotY = 0) {
+    const treeGroup = new THREE.Group();
+    treeGroup.rotation.y = rotY;
+    treeGroup.scale.set(scale, scale, scale);
+
+    const geoms = getBaseBirchGeometries();
+    const trunkMesh = new THREE.Mesh(geoms.wood, MATERIALS.birchBark || MATERIALS.treeTrunk);
+    trunkMesh.castShadow = true;
+    trunkMesh.receiveShadow = true;
+    treeGroup.add(trunkMesh);
+
+    const lightMesh = new THREE.Mesh(geoms.lightFoliage, MATERIALS.birchFoliageLight || MATERIALS.treeFoliageLight);
+    lightMesh.castShadow = true;
+    lightMesh.receiveShadow = true;
+    treeGroup.add(lightMesh);
+
+    const darkMesh = new THREE.Mesh(geoms.darkFoliage, MATERIALS.birchFoliage || MATERIALS.treeFoliage);
+    darkMesh.castShadow = true;
+    darkMesh.receiveShadow = true;
+    treeGroup.add(darkMesh);
+
+    return treeGroup;
+}
+
+function _legacyCreateWhiteBirchTree(scale = 1.0, rotY = 0) {
     const treeGroup = new THREE.Group();
     treeGroup.rotation.y = rotY;
 
