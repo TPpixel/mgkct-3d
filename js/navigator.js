@@ -4196,6 +4196,7 @@
         const modal = document.getElementById('navigator-modal');
         const backdrop = document.getElementById('navigator-backdrop');
         if (modal && backdrop) {
+            document.body.classList.add('navigator-open');
             modal.classList.add('open', 'active');
             backdrop.classList.add('open', 'active');
             modal.style.visibility = 'visible';
@@ -4216,6 +4217,7 @@
         if (!fromPopstate && typeof popOverlayState === 'function') {
             popOverlayState('navigator');
         }
+        document.body.classList.remove('navigator-open');
         const modal = document.getElementById('navigator-modal');
         const backdrop = document.getElementById('navigator-backdrop');
         if (modal && backdrop) {
@@ -4720,6 +4722,16 @@
             backdrop.addEventListener('click', closeNavigatorModal);
         }
 
+        // Закрытие модалки по клавише Escape
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                const modal = document.getElementById('navigator-modal');
+                if (modal && (modal.classList.contains('open') || modal.classList.contains('active'))) {
+                    closeNavigatorModal();
+                }
+            }
+        });
+
         // Кнопка инверсии точек
         const btnSwap = document.getElementById('btn-nav-swap');
         if (btnSwap) {
@@ -4919,6 +4931,8 @@
                             if (entrance) buildRoute(entrance, toNode);
                         }
                     }, 500);
+                } else if (urlParams.has('nav') || urlParams.has('navigator')) {
+                    openNavigatorModal();
                 }
             } catch (err) {
                 console.warn('Navigator URL params parse error:', err);

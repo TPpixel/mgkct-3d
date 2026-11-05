@@ -939,12 +939,12 @@ input[type="search"] {
 
 .search-modal {
     position: fixed;
-    top: 12px;
+    top: 14px;
     left: 16px;
     bottom: auto;
-    width: 460px;
+    width: 480px;
     max-width: calc(100vw - 32px);
-    max-height: calc(100vh - 24px);
+    max-height: calc(100vh - 28px);
     z-index: 50;
     opacity: 0;
     visibility: hidden;
@@ -964,8 +964,21 @@ input[type="search"] {
     transition: opacity 0.22s cubic-bezier(0.2, 0, 0, 1), transform 0.22s cubic-bezier(0.2, 0, 0, 1), visibility 0s 0s !important;
 }
 
-/* Скрытие дефолтной плашки при открытом поиске */
-body.search-open #bottom-search-bar {
+/* Скрытие дефолтной плашки поиска и бар корпусов при открытом поиске или навигаторе */
+body.search-open #bottom-search-bar,
+body.navigator-open #bottom-search-bar,
+body:has(#navigator-modal.open) #bottom-search-bar,
+body:has(#navigator-modal.active) #bottom-search-bar {
+    opacity: 0 !important;
+    pointer-events: none !important;
+    transform: translateY(12px) !important;
+}
+
+body.search-open .mobile-thumb-header,
+body:has(.search-modal.active) .mobile-thumb-header,
+body.navigator-open .mobile-thumb-header,
+body:has(#navigator-modal.open) .mobile-thumb-header,
+body:has(#navigator-modal.active) .mobile-thumb-header {
     opacity: 0 !important;
     pointer-events: none !important;
     transform: translateY(12px) !important;
@@ -1684,18 +1697,42 @@ body.search-open #nav-pick-banner,
 
 @media (min-width: 640px) {
     #navigator-modal {
-        top: 50%;
-        left: 50%;
-        bottom: auto;
-        right: auto;
-        width: 470px;
-        max-width: calc(100vw - 32px);
-        transform: translate(-50%, -50%) scale(0.96);
+        top: 14px !important;
+        left: 16px !important;
+        bottom: auto !important;
+        right: auto !important;
+        width: 480px !important;
+        max-width: calc(100vw - 32px) !important;
+        max-height: calc(100vh - 28px) !important;
+        transform: translateY(-8px) scale(0.98);
+        border-radius: 28px !important;
     }
 
     #navigator-modal.open,
     #navigator-modal.active {
-        transform: translate(-50%, -50%) scale(1) !important;
+        transform: translateY(0) scale(1) !important;
+    }
+
+    /* На ПК карта остаётся интерактивной без затемнения и блюра */
+    #navigator-backdrop {
+        display: none !important;
+    }
+
+    #search-backdrop {
+        background: transparent !important;
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+    }
+
+    /* На ПК карточка маршрута расположена по центру внизу, поэтому FAB-кнопки остаются вертикальными справа */
+    body.route-active .map-fab-bar,
+    body:has(#bottom-search-bar.route-active) .map-fab-bar,
+    body.room-card-open .map-fab-bar,
+    body:has(#room-context-popup:not(.hidden)) .map-fab-bar {
+        bottom: 24px !important;
+        right: 14px !important;
+        flex-direction: column !important;
+        width: 44px !important;
     }
 }
 

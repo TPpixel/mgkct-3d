@@ -1027,6 +1027,9 @@ function setupSearch() {
         }
     }
 
+    window.openSearch = openSearch;
+    window.closeSearch = closeSearch;
+
     let searchOpeningGesture = false;
 
     function handleSearchOpenGesture(e) {
@@ -1458,13 +1461,11 @@ function setupSearch() {
     try {
         const urlParams = new URLSearchParams(window.location.search);
         if (urlParams.has("search")) {
-            setTimeout(() => {
-                openSearch();
-                const cat = urlParams.get("cat");
-                if (cat === "canteen") btnQuickCanteen?.click();
-                else if (cat === "toilet") btnQuickToilet?.click();
-                else if (cat === "info") btnQuickInfo?.click();
-            }, 300);
+            openSearch();
+            const cat = urlParams.get("cat");
+            if (cat === "canteen") btnQuickCanteen?.click();
+            else if (cat === "toilet") btnQuickToilet?.click();
+            else if (cat === "info") btnQuickInfo?.click();
         }
     } catch (_) {}
 }
@@ -1766,13 +1767,19 @@ function setupUI() {
         setTheme(nextTheme, true);
     });
 
-    // Горячая клавиша H — скрыть интерфейс
+    // Горячая клавиша H — скрыть интерфейс, / или Ctrl/Cmd+K — открыть поиск
     window.addEventListener('keydown', e => {
         if (e.target && (e.target.tagName === 'TEXTAREA' || e.target.tagName === 'INPUT')) {
             return;
         }
         if (e.code === 'KeyH' || e.key === 'h' || e.key === 'H' || e.key === 'р' || e.key === 'Р') {
             document.body.classList.toggle('ui-hidden');
+            return;
+        }
+        if (e.key === '/' || (e.key.toLowerCase() === 'k' && (e.ctrlKey || e.metaKey))) {
+            e.preventDefault();
+            if (typeof openSearch === 'function') openSearch();
+            return;
         }
     });
 
