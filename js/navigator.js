@@ -116,11 +116,12 @@ if (typeof window !== 'undefined' && !window.escapeHtml) {
         constructor() {
             this.nodes = new Map(); // id -> node
             this.adj = new Map();   // id -> [{ to, weight }]
+            this.nodesByFloor = new Map(); // floor -> node[] для O(1) пространственной выборки
         }
 
         addNode(id, floor, bldg, x, z, type = 'corridor', label = '') {
             if (!this.nodes.has(id)) {
-                this.nodes.set(id, {
+                const nodeObj = {
                     id,
                     floor: parseInt(floor, 10),
                     bldg: parseInt(bldg, 10),
@@ -128,8 +129,15 @@ if (typeof window !== 'undefined' && !window.escapeHtml) {
                     z: Math.round(z * 100) / 100,
                     type,
                     label: label || ''
-                });
+                };
+                this.nodes.set(id, nodeObj);
                 this.adj.set(id, []);
+                let floorList = this.nodesByFloor.get(nodeObj.floor);
+                if (!floorList) {
+                    floorList = [];
+                    this.nodesByFloor.set(nodeObj.floor, floorList);
+                }
+                floorList.push(nodeObj);
             }
             return id;
         }
@@ -163,31 +171,38 @@ if (typeof window !== 'undefined' && !window.escapeHtml) {
             return this.nodes.get(id);
         }
 
-        // Поиск ближайшего узла графа к заданным координатам на том же этаже и корпусе
+        // Поиск ближайшего узла графа к заданным координатам через индекс этажей nodesByFloor
         findClosestNode(floor, bldg, x, z, allowedTypes = ['corridor', 'door', 'stair', 'bridge', 'entrance']) {
             let bestNode = null;
-            let bestDist = Infinity;
+            let bestDistSq = Infinity;
+            const floorNum = parseInt(floor, 10);
+            const candidates = this.nodesByFloor.get(floorNum) || [];
+            const typeSet = (Array.isArray(allowedTypes) && allowedTypes.length > 0) ? new Set(allowedTypes) : null;
 
-            for (const node of this.nodes.values()) {
-                if (node.floor !== floor) continue;
+            for (let i = 0; i < candidates.length; i++) {
+                const node = candidates[i];
                 if (bldg !== null && bldg !== undefined && node.bldg !== bldg) continue;
-                if (allowedTypes && !allowedTypes.includes(node.type)) continue;
+                if (typeSet && !typeSet.has(node.type)) continue;
 
-                const d = Math.hypot(node.x - x, node.z - z);
-                if (d < bestDist) {
-                    bestDist = d;
+                const dx = node.x - x;
+                const dz = node.z - z;
+                const dSq = dx * dx + dz * dz;
+                if (dSq < bestDistSq) {
+                    bestDistSq = dSq;
                     bestNode = node;
                 }
             }
 
             // Если в рамках одного корпуса не нашли, пробуем любой узел на этом этаже
             if (!bestNode) {
-                for (const node of this.nodes.values()) {
-                    if (node.floor !== floor) continue;
-                    if (allowedTypes && !allowedTypes.includes(node.type)) continue;
-                    const d = Math.hypot(node.x - x, node.z - z);
-                    if (d < bestDist) {
-                        bestDist = d;
+                for (let i = 0; i < candidates.length; i++) {
+                    const node = candidates[i];
+                    if (typeSet && !typeSet.has(node.type)) continue;
+                    const dx = node.x - x;
+                    const dz = node.z - z;
+                    const dSq = dx * dx + dz * dz;
+                    if (dSq < bestDistSq) {
+                        bestDistSq = dSq;
                         bestNode = node;
                     }
                 }
