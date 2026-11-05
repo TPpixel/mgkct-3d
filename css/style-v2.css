@@ -308,31 +308,37 @@ body[data-theme="dark"] .bldg-all-btn.active {
 
 /* Круглая кнопка темы (Google Maps Icon Circle, без розового) */
 .m3-icon-pill-btn {
-    width: 44px;
-    height: 44px;
+    width: 52px;
+    height: 52px;
+    min-width: 52px;
+    min-height: 52px;
     border-radius: 9999px;
     background: var(--m3-surface);
-    border: 1px solid var(--m3-outline-variant);
-    box-shadow: 0 2px 8px rgba(60, 64, 67, 0.15);
-    display: flex;
+    border: 1.5px solid var(--m3-outline-variant);
+    box-shadow: 0 4px 14px rgba(60, 64, 67, 0.14), 0 1px 3px rgba(60, 64, 67, 0.08);
+    display: inline-flex;
     align-items: center;
     justify-content: center;
     color: var(--m3-on-surface-variant);
     cursor: pointer;
     transition: all 0.16s ease;
     outline: none;
+    box-sizing: border-box !important;
+    flex-shrink: 0 !important;
+    -webkit-tap-highlight-color: transparent;
 }
 
 body[data-theme="dark"] .m3-icon-pill-btn {
     background: var(--m3-surface);
-    border: 1px solid var(--m3-outline-variant);
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.6);
+    border: 1.5px solid var(--m3-outline-variant);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
     color: var(--m3-on-surface-variant);
 }
 
 .m3-icon-pill-btn:hover {
     background: var(--m3-surface-container-high);
     color: var(--m3-on-surface);
+    border-color: #1a73e8;
 }
 
 body[data-theme="dark"] .m3-icon-pill-btn:hover {
@@ -341,7 +347,7 @@ body[data-theme="dark"] .m3-icon-pill-btn:hover {
 }
 
 .m3-icon-pill-btn:active {
-    transform: scale(0.92);
+    opacity: 0.85;
 }
 
 /* Совместимость со старым стилем чипсов */

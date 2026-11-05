@@ -88,8 +88,16 @@ function getSystemTheme() {
     return 'light';
 }
 
+function getInitialTheme() {
+    try {
+        const saved = localStorage.getItem('mgkct_theme');
+        if (saved === 'dark' || saved === 'light') return saved;
+    } catch (_) {}
+    return getSystemTheme();
+}
+
 const STATE = {
-    theme: getSystemTheme(),
+    theme: getInitialTheme(),
     buildingFilter: 'both',    // 'both' | '1' | '2' | '3' | '4'
     mode: '1',                 // По умолчанию 1-й этаж как в картах (1..7, 'all', 'sideBySide', 'slice')
     sliceMaxFloor: 7,          // 1..7

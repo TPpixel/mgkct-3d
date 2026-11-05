@@ -25,7 +25,7 @@
     <script src="js/vendor/three.min.js"></script>
     <script src="js/vendor/OrbitControls.js"></script>
     <!-- Стили -->
-    <link rel="stylesheet" href="css/style-v2.css?v=76">
+    <link rel="stylesheet" href="css/style-v2.css?v=77">
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
     <meta http-equiv="Pragma" content="no-cache" />
     <meta http-equiv="Expires" content="0" />
@@ -74,8 +74,8 @@
         </button>
     </header>
 
-    <!-- Панель поиска и отдельная кнопка маршрута: на телефоне внизу, на ПК вверху слева (Google Maps Search & Route Pill) -->
-    <div id="bottom-search-bar" class="ui-overlay fixed bottom-3 left-3 right-3 sm:bottom-auto sm:top-3 sm:left-4 sm:right-auto sm:w-[480px] z-20 pointer-events-none transition-all duration-300 flex items-center gap-2.5">
+    <!-- Панель поиска и кнопка переключения темы: на телефоне внизу, на ПК вверху слева (Google Maps Search & Theme Pill) -->
+    <div id="bottom-search-bar" class="ui-overlay fixed bottom-3 left-3 right-3 sm:bottom-auto sm:top-3 sm:left-4 sm:right-auto sm:w-[480px] z-20 pointer-events-none transition-all duration-300 flex items-center gap-2">
         <!-- Виджет поиска кабинетов (отдельная плашка) -->
         <div class="m3-search-bar flex-1 flex items-center min-w-0 pointer-events-auto">
             <button id="btn-open-search" class="m3-search-input-btn w-full flex items-center gap-3 min-w-0" aria-label="Поиск по колледжу">
@@ -85,6 +85,16 @@
                 <span id="search-widget-text" class="m3-search-placeholder truncate">Поиск по колледжу...</span>
             </button>
         </div>
+
+        <!-- Кнопка переключения темы оформления (Светлая / Тёмная) справа от строки поиска -->
+        <button id="btn-toggle-theme" class="m3-icon-pill-btn theme-toggle-btn pointer-events-auto flex-shrink-0" title="Сменить тему (Светлая / Тёмная)" aria-label="Сменить тему">
+            <svg id="theme-icon-sun" class="w-5 h-5 text-amber-500 hidden flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+            </svg>
+            <svg id="theme-icon-moon" class="w-5 h-5 text-[#1a73e8] dark:text-[#c2e7ff] flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+            </svg>
+        </button>
     </div>
 
 
@@ -702,7 +712,6 @@
     <script src="js/territory.js?v=11"></script>
     <script src="js/controls.js?v=11"></script>
     <script src="js/navigator.js?v=71"></script>
-    <script src="data/teachers.js?v=53"></script>
     <script src="js/ui.js?v=71"></script>
     <script src="js/main.js?v=71"></script>
 </body>

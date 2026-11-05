@@ -101,10 +101,15 @@ function setTheme(themeName, shouldSave = false) {
 }
 
 // Автоматическое динамическое переключение темы при смене системной темы на телефоне / ПК
+// (применяется только если пользователь явно не выбрал тему вручную)
 if (typeof window !== 'undefined' && window.matchMedia) {
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
     const handleSystemThemeChange = (e) => {
-        setTheme(e.matches ? 'dark' : 'light', false);
+        let hasUserTheme = false;
+        try { hasUserTheme = Boolean(localStorage.getItem('mgkct_theme')); } catch (_) {}
+        if (!hasUserTheme) {
+            setTheme(e.matches ? 'dark' : 'light', false);
+        }
     };
     if (mediaQuery.addEventListener) {
         mediaQuery.addEventListener('change', handleSystemThemeChange);
@@ -112,14 +117,22 @@ if (typeof window !== 'undefined' && window.matchMedia) {
         mediaQuery.addListener(handleSystemThemeChange);
     }
 
-    // Проверка актуальной темы при возврате во вкладку / разблокировке телефона
+    // Проверка актуальной темы при возврате во вкладку / разблокировке телефона (только если нет ручного выбора)
     document.addEventListener('visibilitychange', () => {
         if (!document.hidden) {
-            setTheme(getSystemTheme(), false);
+            let hasUserTheme = false;
+            try { hasUserTheme = Boolean(localStorage.getItem('mgkct_theme')); } catch (_) {}
+            if (!hasUserTheme) {
+                setTheme(getSystemTheme(), false);
+            }
         }
     });
     window.addEventListener('focus', () => {
-        setTheme(getSystemTheme(), false);
+        let hasUserTheme = false;
+        try { hasUserTheme = Boolean(localStorage.getItem('mgkct_theme')); } catch (_) {}
+        if (!hasUserTheme) {
+            setTheme(getSystemTheme(), false);
+        }
     });
 }
 window.setTheme = setTheme;
@@ -1483,6 +1496,13 @@ function setupUI() {
     });
     document.getElementById('btn-center-view')?.addEventListener('click', resetToNorth);
 
+    // Кнопка переключения темы оформления (Светлая / Тёмная)
+    document.getElementById('btn-toggle-theme')?.addEventListener('click', () => {
+        const current = STATE.theme || (document.body.getAttribute('data-theme') === 'dark' ? 'dark' : 'light');
+        const nextTheme = current === 'dark' ? 'light' : 'dark';
+        setTheme(nextTheme, true);
+    });
+
     // Горячая клавиша H — скрыть интерфейс
     window.addEventListener('keydown', e => {
         if (e.target && (e.target.tagName === 'TEXTAREA' || e.target.tagName === 'INPUT')) {
@@ -1499,7 +1519,12 @@ function setupUI() {
     setViewMode(STATE.is2D, false);
     setTerritoryMode(STATE.showTerritory, false);
     setLabelScale(STATE.labelScale || 1.0);
-    setTheme(getSystemTheme(), false);
+    
+    let initialTheme = (typeof STATE !== 'undefined' && STATE.theme) ? STATE.theme : null;
+    if (!initialTheme) {
+        try { initialTheme = localStorage.getItem('mgkct_theme'); } catch (_) {}
+    }
+    setTheme(initialTheme || getSystemTheme(), false);
 }
 
 
