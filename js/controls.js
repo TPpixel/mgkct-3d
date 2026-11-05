@@ -48,7 +48,11 @@ function initControls(camera, domElement) {
 
     // Отслеживание мультитач-жестов: отсекаем ложные клики по кабинетам при двухпальцевом зуме/панорамировании
     let activeTouches = 0;
-    let wasMultiTouch = false;
+    // Временная метка последнего мультитач-жеста (performance.now()).
+    // Используется вместо wasMultiTouch + setTimeout, чтобы исключить race condition
+    // на экранах с разной частотой обновления (60/120 Гц).
+    let lastMultiTouchTime = -Infinity;
+    const MULTI_TOUCH_GUARD_MS = 200; // окно блокировки ложных кликов после pinch
     let pointerDownPos = { x: 0, y: 0 };
 
     domElement.addEventListener('touchstart', (e) => {
@@ -56,7 +60,7 @@ function initControls(camera, domElement) {
         // Во время активного касания пальцем увеличиваем демпфирование для мгновенного отклика 1:1
         if (controls) controls.dampingFactor = 0.24;
         if (activeTouches >= 2) {
-            wasMultiTouch = true;
+            lastMultiTouchTime = performance.now();
         }
         if (STATE.targetCamPos || STATE.targetControlsCenter) {
             STATE.targetCamPos = null;
@@ -71,36 +75,21 @@ function initControls(camera, domElement) {
         // При отпускании пальца возвращаем демпфер для естественного скольжения по инерции
         if (controls) controls.dampingFactor = 0.12;
         if (activeTouches === 1 && controls && controls.enabled) {
-            // Бесшовный переход: если оторвали 1 палец из 2, продолжаем панорамирование оставшимся пальцем
+            // Бесшовный переход: если оторвали 1 палец из 2, обновляем базовую точку
+            // для корректного определения клика/свайпа оставшимся пальцем.
+            // Синтетический dispatchEvent(touchstart) убран: он нарушал внутреннее
+            // состояние OrbitControls и провоцировал рывки камеры.
             const remTouch = e.touches[0];
             pointerDownPos = { x: remTouch.clientX, y: remTouch.clientY };
-            try {
-                const simTouch = new Touch({
-                    identifier: remTouch.identifier,
-                    target: domElement,
-                    clientX: remTouch.clientX,
-                    clientY: remTouch.clientY,
-                    pageX: remTouch.pageX,
-                    pageY: remTouch.pageY
-                });
-                const simEvent = new TouchEvent('touchstart', {
-                    touches: [simTouch],
-                    targetTouches: [simTouch],
-                    changedTouches: [simTouch],
-                    bubbles: true,
-                    cancelable: true
-                });
-                domElement.dispatchEvent(simEvent);
-            } catch (err) {}
         } else if (activeTouches === 0) {
-            setTimeout(() => { wasMultiTouch = false; }, 80);
+            lastMultiTouchTime = performance.now();
         }
     }, { passive: true });
 
     domElement.addEventListener('touchcancel', () => {
         activeTouches = 0;
         if (controls) controls.dampingFactor = 0.12;
-        setTimeout(() => { wasMultiTouch = false; }, 80);
+        lastMultiTouchTime = performance.now();
     }, { passive: true });
 
     // Клик / тап по карте для выбора кабинета
@@ -117,7 +106,7 @@ function initControls(camera, domElement) {
     }, { passive: true });
 
     domElement.addEventListener('pointerup', (e) => {
-        if (e.isPrimary === false || wasMultiTouch) {
+        if (e.isPrimary === false || (performance.now() - lastMultiTouchTime < MULTI_TOUCH_GUARD_MS)) {
             return;
         }
         const dx = Math.abs(e.clientX - pointerDownPos.x);
@@ -144,6 +133,10 @@ function apply2DControls(is2D) {
 
     // Сбрасываем инерцию демпфирования, чтобы исключить паразитное вращение
     resetControlsMomentum();
+
+    // В 2D (вид строго сверху) screenSpacePanning=true обязателен:
+    // иначе вертикальное панорамирование карты будет заблокировано или нелинейно.
+    controls.screenSpacePanning = is2D;
 
     if (is2D) {
         controls.mouseButtons = {

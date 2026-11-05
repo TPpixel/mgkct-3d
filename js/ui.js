@@ -896,18 +896,27 @@ function updateBuildingColors() {
     if (typeof MATERIALS === 'undefined') return;
     if (STATE.theme === 'dark') return;
 
-    // Полноценная архитектурная палитра кампуса (Шалфейный гранит) используется как в 3D, так и в 2D режиме
-    const p = (typeof DEFAULT_CAMPUS_COLORS !== 'undefined') ? DEFAULT_CAMPUS_COLORS : {
-        slab: 0x9faea0,
-        coreSlab: 0x9faea0,
-        wall: 0x5b6c5d,
-        stair: 0x7d5336
-    };
-    if (MATERIALS.slab) MATERIALS.slab.color.setHex(p.slab);
-    if (MATERIALS.coreSlab) MATERIALS.coreSlab.color.setHex(p.coreSlab);
-    if (MATERIALS.wall) MATERIALS.wall.color.setHex(p.wall);
-    if (MATERIALS.stair) MATERIALS.stair.color.setHex(p.stair);
+    if (STATE.is2D) {
+        // Светлая 2D-палитра чертежа: высокий контраст, читаемость линий перегородок
+        if (MATERIALS.slab) MATERIALS.slab.color.setHex(0xdde3ea);
+        if (MATERIALS.coreSlab) MATERIALS.coreSlab.color.setHex(0xcfd6de);
+        if (MATERIALS.wall) MATERIALS.wall.color.setHex(0x5b6c5d);
+        if (MATERIALS.stair) MATERIALS.stair.color.setHex(0xa8927e);
+    } else {
+        // Объёмная 3D-палитра кампуса
+        const p = (typeof DEFAULT_CAMPUS_COLORS !== 'undefined') ? DEFAULT_CAMPUS_COLORS : {
+            slab: 0x9faea0,
+            coreSlab: 0x9faea0,
+            wall: 0x5b6c5d,
+            stair: 0x7d5336
+        };
+        if (MATERIALS.slab) MATERIALS.slab.color.setHex(p.slab);
+        if (MATERIALS.coreSlab) MATERIALS.coreSlab.color.setHex(p.coreSlab);
+        if (MATERIALS.wall) MATERIALS.wall.color.setHex(p.wall);
+        if (MATERIALS.stair) MATERIALS.stair.color.setHex(p.stair);
+    }
 }
+
 
 window.updateBuildingColors = updateBuildingColors;
 
