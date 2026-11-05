@@ -3299,10 +3299,10 @@ if (typeof window !== 'undefined' && !window.escapeHtml) {
     function drawRoute3D(routeResult) {
         clearRoute3D();
         if (!routeResult || !routeResult.path || routeResult.path.length < 2) return;
-        NAV_STATE.activeRoute = routeResult;
 
-        const g = NAV_STATE.graph;
-        const nodes = routeResult.path.map(id => g.getNode(id));
+        try {
+            const g = NAV_STATE.graph;
+            const nodes = routeResult.path.map(id => g.getNode(id));
 
         // Группируем последовательные отрезки пути по этажам
         const floorSegments = {};
@@ -3426,9 +3426,15 @@ if (typeof window !== 'undefined' && !window.escapeHtml) {
             NAV_STATE.globalRouteGroup = globalGroup;
         }
 
+        // Атомарно мутируем состояние активного маршрута строго после успешной генерации 3D-мешей
+        NAV_STATE.activeRoute = routeResult;
         updateRouteVisibilityForCurrentMode();
         if (typeof requestRender === 'function') requestRender(30);
+    } catch (err) {
+        clearRoute3D();
+        console.error('Ошибка генерации 3D-маршрута:', err);
     }
+}
 
     // ------------------------------------------------------------------------
     // ОБНОВЛЕНИЕ ВИДИМОСТИ И ЦВЕТА ПУТИ ВО ВСЕХ РЕЖИМАХ ОТОБРАЖЕНИЯ КАРТЫ
@@ -3817,13 +3823,8 @@ if (typeof window !== 'undefined' && !window.escapeHtml) {
             stairTransitions
         };
 
-        NAV_STATE.activeRoute = routeData;
         NAV_STATE.startPoint = startPoint;
         NAV_STATE.destPoint = destPoint;
-
-        if (typeof pushOverlayState === 'function') {
-            pushOverlayState('route');
-        }
 
         // 1. Корпус: если маршрут охватывает корпус, который сейчас скрыт фильтром, переключаем фильтр на 'both'
         const bldgSet = new Set(nodes.map(n => n.bldg));
@@ -3839,8 +3840,15 @@ if (typeof window !== 'undefined' && !window.escapeHtml) {
             setMode(startFloor, false);
         }
 
-        // 3. Отрисовка в 3D
+        // 3. Отрисовка в 3D (атомарно устанавливает NAV_STATE.activeRoute при успехе)
         drawRoute3D(routeData);
+        if (!NAV_STATE.activeRoute) {
+            return null;
+        }
+
+        if (typeof pushOverlayState === 'function') {
+            pushOverlayState('route');
+        }
 
         // 4. Обновление UI карточки маршрута (STATE.mode уже гарантированно равен startFloor!)
         updateRouteCardUI(routeData);
