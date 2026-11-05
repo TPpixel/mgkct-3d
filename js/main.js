@@ -291,6 +291,10 @@ function init() {
         loadTimetableTexturesAsync();
     }
 
+    if (animFrameId !== null) {
+        cancelAnimationFrame(animFrameId);
+        animFrameId = null;
+    }
     animate();
 }
 
@@ -946,8 +950,13 @@ function applyPreset(presetName, shouldSave = true) {
     }
 }
 
+let animFrameId = null;
+
 function animate(currentTime = 0) {
-    requestAnimationFrame(animate);
+    if (animFrameId !== null) {
+        cancelAnimationFrame(animFrameId);
+    }
+    animFrameId = requestAnimationFrame(animate);
 
     // В фоновой вкладке полностью усыпляем рендерер (0% нагрузки на CPU/GPU)
     if (document.hidden) return;
