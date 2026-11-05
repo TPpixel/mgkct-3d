@@ -2,6 +2,9 @@
 // КОРПУС 1 (Этажи 1–7)
 // ==========================================
 
+const OUTER_T = 0.24;
+const INNER_T = 0.18;
+
         function buildCommonStructure(targetGroup, floorNum, hasRightExtension = false, topWallOpenings = []) {
             const OUTER_T = 0.24;
             const INNER_T = 0.18;
