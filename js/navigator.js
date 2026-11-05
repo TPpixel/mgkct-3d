@@ -3132,6 +3132,7 @@
         });
         const baseMesh = new THREE.Mesh(baseGeom, baseMat);
         baseMesh.renderOrder = 20;
+        baseMesh.userData = { isRouteRibbonBase: true };
         group.add(baseMesh);
 
         // 2. Внутренняя контрастная сердцевина (ширина 0.12м, Y = 0.085)
@@ -3146,6 +3147,7 @@
             });
             const coreMesh = new THREE.Mesh(coreGeom, coreMat);
             coreMesh.renderOrder = 21;
+            coreMesh.userData = { isRouteRibbonCore: true };
             group.add(coreMesh);
         }
 
@@ -3371,7 +3373,7 @@
     }
 
     // ------------------------------------------------------------------------
-    // ОБНОВЛЕНИЕ ВИДИМОСТИ ПУТИ ВО ВСЕХ РЕЖИМАХ ОТОБРАЖЕНИЯ КАРТЫ
+    // ОБНОВЛЕНИЕ ВИДИМОСТИ И ЦВЕТА ПУТИ ВО ВСЕХ РЕЖИМАХ ОТОБРАЖЕНИЯ КАРТЫ
     // ------------------------------------------------------------------------
     function updateRouteVisibilityForCurrentMode() {
         if (!NAV_STATE.activeRoute) return;
@@ -3380,6 +3382,13 @@
         const isSingleFloor = (mode !== 'all' && mode !== 'sideBySide' && mode !== 'slice');
         const activeFloor = isSingleFloor ? parseInt(mode, 10) : 1;
         const maxFloor = (mode === 'slice') ? STATE.sliceMaxFloor : 7;
+        const isAllFloors = (mode === 'all');
+        const isDark = (typeof STATE !== 'undefined' && STATE.theme === 'dark');
+
+        // Цвет маршрута: при просмотре всех этажей — нейтрально серый, на отдельном этаже — фирменный голубой/синий
+        const ribbonColor = isAllFloors ? (isDark ? 0x71717a : 0x94a3b8) : (isDark ? 0x38bdf8 : 0x0284c7);
+        const coreColor = isAllFloors ? (isDark ? 0xa1a1aa : 0xe2e8f0) : (isDark ? 0xf0f9ff : 0xffffff);
+        const stairColor = isAllFloors ? (isDark ? 0x71717a : 0x94a3b8) : 0x38bdf8;
 
         for (let f = 1; f <= 7; f++) {
             const rGroup = NAV_STATE.routeFloorGroups[f];
@@ -3394,12 +3403,30 @@
                 // 'all' или 'sideBySide'
                 rGroup.visible = true;
             }
+
+            // Динамически обновляем цвета полосы маршрута в зависимости от режима всех этажей
+            rGroup.traverse(child => {
+                if (child.isMesh && child.material && child.material.color) {
+                    if (child.userData && child.userData.isRouteRibbonBase) {
+                        child.material.color.setHex(ribbonColor);
+                    } else if (child.userData && child.userData.isRouteRibbonCore) {
+                        child.material.color.setHex(coreColor);
+                    }
+                }
+            });
         }
 
         if (NAV_STATE.globalRouteGroup) {
             // Межэтажные вертикальные 3D-марши показываем только в общем 3D режиме 'all'
-            NAV_STATE.globalRouteGroup.visible = (mode === 'all');
+            NAV_STATE.globalRouteGroup.visible = isAllFloors;
+            NAV_STATE.globalRouteGroup.traverse(child => {
+                if (child.isMesh && child.material && child.material.color) {
+                    child.material.color.setHex(stairColor);
+                }
+            });
         }
+
+        if (typeof requestRender === 'function') requestRender(30);
     }
 
     // ------------------------------------------------------------------------
@@ -4169,6 +4196,7 @@
         const modal = document.getElementById('navigator-modal');
         const backdrop = document.getElementById('navigator-backdrop');
         if (modal && backdrop) {
+            document.body.classList.add('navigator-open');
             modal.classList.add('open', 'active');
             backdrop.classList.add('open', 'active');
             modal.style.visibility = 'visible';
@@ -4189,6 +4217,7 @@
         if (!fromPopstate && typeof popOverlayState === 'function') {
             popOverlayState('navigator');
         }
+        document.body.classList.remove('navigator-open');
         const modal = document.getElementById('navigator-modal');
         const backdrop = document.getElementById('navigator-backdrop');
         if (modal && backdrop) {
@@ -4693,6 +4722,16 @@
             backdrop.addEventListener('click', closeNavigatorModal);
         }
 
+        // Закрытие модалки по клавише Escape
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                const modal = document.getElementById('navigator-modal');
+                if (modal && (modal.classList.contains('open') || modal.classList.contains('active'))) {
+                    closeNavigatorModal();
+                }
+            }
+        });
+
         // Кнопка инверсии точек
         const btnSwap = document.getElementById('btn-nav-swap');
         if (btnSwap) {
@@ -4892,6 +4931,8 @@
                             if (entrance) buildRoute(entrance, toNode);
                         }
                     }, 500);
+                } else if (urlParams.has('nav') || urlParams.has('navigator')) {
+                    openNavigatorModal();
                 }
             } catch (err) {
                 console.warn('Navigator URL params parse error:', err);
