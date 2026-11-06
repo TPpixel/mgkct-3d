@@ -99,6 +99,7 @@ function init() {
     scene.add(stairValidationGroup);
 
     territoryGroup = new THREE.Group();
+    window.territoryGroup = territoryGroup;
     scene.add(territoryGroup);
 
     roadNetworkGroup = new THREE.Group();

@@ -11,6 +11,7 @@ let _cachedControlsDomRect = null;
 let _lastControlsDomRectTime = 0;
 if (typeof window !== 'undefined') {
     window.addEventListener('resize', () => { _cachedControlsDomRect = null; }, { passive: true });
+    window.addEventListener('scroll', () => { _cachedControlsDomRect = null; }, { passive: true });
 }
 const _zoomHitVec = new THREE.Vector3();
 const _zoomCamOffset = new THREE.Vector3();

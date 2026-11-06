@@ -378,9 +378,18 @@ function solveCampusJunctions(targetGroup, pendingLines) {
     }
 
     function wallContinuesThrough(fixedCoord, axisCoord, isH) {
-        const k = getCollinearKey(isH, fixedCoord);
-        const candidates = collinearMap.get(k);
-        if (!candidates) return null;
+        const prefix = isH ? 'H_' : 'V_';
+        const b = Math.round(fixedCoord * 20);
+        const candidates = [];
+        for (let db = -1; db <= 1; db++) {
+            const list = collinearMap.get(prefix + (b + db));
+            if (list) {
+                for (let li = 0; li < list.length; li++) {
+                    candidates.push(list[li]);
+                }
+            }
+        }
+        if (candidates.length === 0) return null;
         for (let idx = 0; idx < candidates.length; idx++) {
             const other = candidates[idx];
             if (Math.abs(other.fixedCoord - fixedCoord) < 0.05) {
@@ -1639,6 +1648,7 @@ function renderScreenSpaceLabels() {
         };
     }
 
+    let _labelQueryStamp = 0;
     // Пространственная 2D-сетка (Spatial Grid) для детекции коллизий бейджей с O(N) вместо O(N^2)
     const GRID_CELL_SIZE = 96;
     const gridCols = Math.max(1, Math.ceil(w / GRID_CELL_SIZE) + 2);
@@ -1739,15 +1749,15 @@ function renderScreenSpaceLabels() {
 
         const checkCells = getGridCellIndices(x0 - margin, y0 - margin, x1 + margin, y1 + margin);
         let overlap = false;
-        const testedBoxes = new Set();
+        _labelQueryStamp++;
 
         for (let c = 0; c < checkCells.length; c++) {
             const cellBoxes = spatialGrid.get(checkCells[c]);
             if (!cellBoxes) continue;
             for (let b = 0; b < cellBoxes.length; b++) {
                 const db = cellBoxes[b];
-                if (testedBoxes.has(db)) continue;
-                testedBoxes.add(db);
+                if (db._stamp === _labelQueryStamp) continue;
+                db._stamp = _labelQueryStamp;
                 if (!(x1 + margin < db.x0 || x0 - margin > db.x1 || y1 + margin < db.y0 || y0 - margin > db.y1)) {
                     overlap = true;
                     break;

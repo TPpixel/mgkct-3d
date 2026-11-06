@@ -1218,7 +1218,7 @@ function loadTimetableTexturesAsync() {
         if ('requestIdleCallback' in window) {
             window.requestIdleCallback(doLoad, { timeout: 2000 });
         } else if ('requestAnimationFrame' in window) {
-            window.requestAnimationFrame(() => setTimeout(doLoad, 50));
+            window.requestAnimationFrame(() => doLoad());
         } else {
             doLoad();
         }

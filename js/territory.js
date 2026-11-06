@@ -1,9 +1,24 @@
 let _curbBatch = null;
 
+function isCachedTerritoryGeometry(geom) {
+    if (!geom) return false;
+    if (typeof _cachedCampusBenchGeoms !== 'undefined' && _cachedCampusBenchGeoms && 
+        (geom === _cachedCampusBenchGeoms.woodGeom || geom === _cachedCampusBenchGeoms.metalGeom)) return true;
+    if (typeof _cachedParkWasteBinGeoms !== 'undefined' && _cachedParkWasteBinGeoms && 
+        (geom === _cachedParkWasteBinGeoms.bodyGeom || geom === _cachedParkWasteBinGeoms.metalGeom)) return true;
+    if (typeof _cachedBicycleStationGeom !== 'undefined' && _cachedBicycleStationGeom && 
+        geom === _cachedBicycleStationGeom) return true;
+    if (typeof _cachedBirchGeoms !== 'undefined' && _cachedBirchGeoms && 
+        (geom === _cachedBirchGeoms.wood || geom === _cachedBirchGeoms.lightFoliage || geom === _cachedBirchGeoms.darkFoliage)) return true;
+    return false;
+}
+
 function disposeTerritoryHierarchy(obj) {
     if (!obj) return;
     if (obj.geometry && typeof obj.geometry.dispose === 'function') {
-        obj.geometry.dispose();
+        if (!isCachedTerritoryGeometry(obj.geometry)) {
+            obj.geometry.dispose();
+        }
     }
     if (obj.material) {
         const isShared = (typeof MATERIALS !== 'undefined') && Object.values(MATERIALS).includes(obj.material);
