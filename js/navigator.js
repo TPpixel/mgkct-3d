@@ -12,6 +12,13 @@ if (typeof window !== 'undefined' && !window.escapeHtml) {
     window.escapeHtml = escapeHtml;
 }
 
+function calculateWalkTime(totalDistance, stairTransitionsCount = 0) {
+    const stairDelaySec = (stairTransitionsCount || 0) * 45;
+    const totalWalkSec = (totalDistance / 1.15) + stairDelaySec;
+    return Math.max(1, Math.round((totalWalkSec / 60) * 10) / 10);
+}
+window.calculateWalkTime = calculateWalkTime;
+
 // ============================================================================
 // МОДУЛЬ НАВИГАТОРА И ПОСТРОЕНИЯ КРАТЧАЙШИХ МАРШРУТОВ ПО КОЛЛЕДЖУ (A*)
 // Полнофункциональная сквозная навигация: кабинеты, коридоры, лестницы, переходы

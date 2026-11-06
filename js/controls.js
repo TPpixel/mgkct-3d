@@ -198,8 +198,8 @@ function apply2DControls(is2D) {
     if (!controls) return;
     controls.enableRotate = !is2D;
 
-    // Сбрасываем инерцию демпфирования, чтобы исключить паразитное вращение
-    resetControlsMomentum();
+    // Сбрасываем состояние и инерцию контроллера при переключении проекции
+    resetControlsState();
 
     // В 2D (вид строго сверху) screenSpacePanning=true обязателен:
     // иначе вертикальное панорамирование карты будет заблокировано или нелинейно.
