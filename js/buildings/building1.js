@@ -1,3 +1,6 @@
+(function() {
+    'use strict';
+
 // ==========================================
 // КОРПУС 1 (Этажи 1–7)
 // ==========================================
@@ -885,3 +888,5 @@ window.buildFloor4 = buildFloor4;
 window.buildFloor5 = buildFloor5;
 window.buildFloor6 = buildFloor6;
 window.buildFloor7 = buildFloor7;
+
+})();

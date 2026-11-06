@@ -2,8 +2,9 @@
 /**
  * check_syntax.js
  *
- * Authoritative V8 JavaScript syntax and parsing check across all project files.
- * Verifies that all JS code passes V8 compilation without syntax or lexical errors.
+ * Authoritative V8 JavaScript syntax, lexical, and cross-script scope collision check.
+ * Verifies that all JS code passes V8 compilation both individually AND combined
+ * in sequential browser load order without identifier collisions.
  *
  * Usage:
  *   node tests/check_syntax.js
@@ -51,7 +52,7 @@ for (const dirName of SCAN_DIRS) {
     allFiles = allFiles.concat(getJsFiles(path.join(ROOT_DIR, dirName)));
 }
 
-console.log(`Checking JavaScript syntax across ${allFiles.length} files...`);
+console.log(`Checking individual JavaScript syntax across ${allFiles.length} files...`);
 
 let hasError = false;
 let passedCount = 0;
@@ -60,7 +61,6 @@ for (const filePath of allFiles) {
     const relPath = path.relative(ROOT_DIR, filePath);
     try {
         const code = fs.readFileSync(filePath, 'utf8');
-        // V8 script compilation test
         new vm.Script(code, { filename: relPath });
         passedCount++;
     } catch (err) {
@@ -73,10 +73,39 @@ for (const filePath of allFiles) {
     }
 }
 
+// -----------------------------------------------------------------------------
+// Cross-script Shared Scope V8 Compilation Check
+// Extracts index.html script tags and compiles them as a combined global script
+// to ensure no global const / let collisions exist between separate files.
+// -----------------------------------------------------------------------------
+console.log('Checking cross-script identifier collisions across index.html script chain...');
+try {
+    const htmlContent = fs.readFileSync(path.join(ROOT_DIR, 'index.html'), 'utf8');
+    const scriptRegex = /<script\s+src=["']([^"']+)["']/g;
+    const projectScripts = [];
+    let match;
+    while ((match = scriptRegex.exec(htmlContent)) !== null) {
+        const src = match[1].split('?')[0];
+        if (!src.startsWith('http') && !src.includes('vendor') && src.endsWith('.js')) {
+            projectScripts.push(src);
+        }
+    }
+
+    const combinedCode = projectScripts
+        .map(src => fs.readFileSync(path.join(ROOT_DIR, src), 'utf8'))
+        .join('\n;\n');
+
+    new vm.Script(combinedCode, { filename: 'combined_index_scripts.js' });
+    console.log(`\x1b[32mPASSED: All ${projectScripts.length} application scripts compile together in a single V8 global scope without identifier collisions.\x1b[0m`);
+} catch (err) {
+    console.error(`\x1b[31m[CROSS-SCRIPT COLLISION ERROR]\x1b[0m ${err.message}`);
+    hasError = true;
+}
+
 if (hasError) {
-    console.error(`\n\x1b[31mFAILED: Syntax errors encountered in one or more files.\x1b[0m`);
+    console.error(`\n\x1b[31mFAILED: Syntax errors or collisions encountered.\x1b[0m`);
     process.exit(1);
 } else {
-    console.log(`\x1b[32mPASSED: All ${passedCount} JS files parsed successfully with V8.\x1b[0m`);
+    console.log(`\x1b[32mALL CHECKS PASSED: Individual and cross-script V8 compilation successful.\x1b[0m`);
     process.exit(0);
 }

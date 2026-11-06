@@ -41,15 +41,24 @@ function handleRequest(req, res) {
     }
 
     fs.stat(filePath, (err, stats) => {
-        if (err || !stats.isFile()) {
+        if (err) {
             res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
             return res.end('File not found: ' + reqPath);
         }
 
-        const ext = path.extname(filePath).toLowerCase();
+        let actualFilePath = filePath;
+        if (stats.isDirectory()) {
+            actualFilePath = path.join(filePath, 'index.html');
+            if (!fs.existsSync(actualFilePath)) {
+                res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
+                return res.end('File not found: ' + reqPath);
+            }
+        }
+
+        const ext = path.extname(actualFilePath).toLowerCase();
         const contentType = MIME[ext] || 'application/octet-stream';
 
-        const isStaticAsset = filePath.includes(path.sep + 'vendor' + path.sep) ||
+        const isStaticAsset = actualFilePath.includes(path.sep + 'vendor' + path.sep) ||
             ['.png', '.jpg', '.jpeg', '.svg', '.woff', '.woff2', '.ttf', '.ico'].includes(ext);
 
         const headers = {
@@ -67,7 +76,7 @@ function handleRequest(req, res) {
 
         res.writeHead(200, headers);
 
-        const fileStream = fs.createReadStream(filePath);
+        const fileStream = fs.createReadStream(actualFilePath);
         fileStream.on('error', () => {
             if (!res.headersSent) {
                 res.writeHead(500, { 'Content-Type': 'text/plain; charset=utf-8' });

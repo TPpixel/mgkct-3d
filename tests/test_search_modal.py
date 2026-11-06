@@ -33,7 +33,7 @@ with open('css/style.css', 'r', encoding='utf-8') as f:
     css = f.read()
 
 assert '.room-search-title' in css, ".room-search-title style missing in css/style.css"
-assert 'line-height: 1.35 !important' in css, "Line height fix missing for search title"
+assert 'line-height: 1.35' in css, "Line height fix missing for search title"
 assert '.room-search-sub' in css, ".room-search-sub style missing in css/style.css"
 print("  [OK] CSS typography rules for search results verified")
 

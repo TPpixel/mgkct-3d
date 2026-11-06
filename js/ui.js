@@ -337,7 +337,6 @@ function setMode(newMode, shouldSave = true) {
     recalcTargetPositions();
     updateAlignmentGuides();
     updateStairValidationAxes();
-    updateExplodeButtonStyle();
 
     if (typeof updateRouteVisibilityForCurrentMode === 'function') {
         updateRouteVisibilityForCurrentMode();
@@ -366,16 +365,7 @@ function setSliceFloor(newFloor) {
     }
 }
 
-function updateExplodeButtonStyle() {
-    const btnExplode = document.getElementById('btn-explode');
-    if (!btnExplode) return;
 
-    if (STATE.exploded && (STATE.mode === 'all' || STATE.mode === 'slice') && STATE.explodeGap > 0.2) {
-        btnExplode.classList.add('explode-btn-active');
-    } else {
-        btnExplode.classList.remove('explode-btn-active');
-    }
-}
 
 function toggle2DView() {
     setViewMode(!STATE.is2D);
@@ -602,6 +592,11 @@ function loadRoomDisciplines() {
             if (data && typeof data === 'object') {
                 ROOM_DISCIPLINES = data;
                 if (typeof window !== 'undefined') window.ROOM_DISCIPLINES = data;
+                if (typeof NAV_STATE !== 'undefined' && NAV_STATE && NAV_STATE.graph && NAV_STATE.graph.nodes) {
+                    for (const node of NAV_STATE.graph.nodes.values()) {
+                        node._searchKeywords = null;
+                    }
+                }
                 const searchInput = document.getElementById('search-input');
                 if (typeof renderSearchResults === 'function') {
                     renderSearchResults(searchInput ? searchInput.value : '');
@@ -1858,18 +1853,17 @@ function estimateWalkTime(roomInfo) {
     if (!roomInfo) return "1м";
     const f = parseInt(roomInfo.floor, 10) || 1;
     const b = parseInt(roomInfo.building, 10) || 1;
-
-    let baseSeconds = 60;
-    if (b === 2) baseSeconds += 60;
-    else if (b === 3) baseSeconds += 90;
-    else if (b === 4) baseSeconds += 120;
-
-    // Добавляем +45 секунд на каждый межэтажный переход
-    if (f > 1) {
-        baseSeconds += (f - 1) * 45;
+    let estDistance = 35;
+    if (b === 2) estDistance = 75;
+    else if (b === 3) estDistance = 110;
+    else if (b === 4) estDistance = 145;
+    const floorDiff = Math.abs(f - 1);
+    if (typeof calculateWalkTime === 'function') {
+        const mins = calculateWalkTime(estDistance, floorDiff);
+        return `${mins}м`;
     }
-
-    const mins = Math.max(1, Math.round(baseSeconds / 60));
+    const totalSec = (estDistance / 1.15) + (floorDiff * 45);
+    const mins = Math.max(1, Math.round((totalSec / 60) * 10) / 10);
     return `${mins}м`;
 }
 

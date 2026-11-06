@@ -33,6 +33,17 @@ function resetControlsMomentum() {
 }
 window.resetControlsMomentum = resetControlsMomentum;
 
+function resetControlsState(resetCamera = false) {
+    isCtrlZooming = false;
+    lastZoomTime = -Infinity;
+    _cachedControlsDomRect = null;
+    resetControlsMomentum();
+    if (resetCamera && controls && typeof controls.reset === 'function') {
+        controls.reset();
+    }
+}
+window.resetControlsState = resetControlsState;
+
 function initControls(camera, domElement) {
     controls = new THREE.OrbitControls(camera, domElement);
     controls.enableDamping = true;
@@ -48,6 +59,7 @@ function initControls(camera, domElement) {
     const cz = (typeof getActiveCenterZ === 'function') ? getActiveCenterZ() : -22.0;
     controls.target.set(cx, 0, cz);
 
+    controls.resetState = resetControlsState;
     apply2DControls(STATE.is2D);
 
     // Зум к позиции курсора (BIM / CAD Zoom to Pointer) перехватываем в фазе захвата (capture),
