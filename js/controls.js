@@ -2,9 +2,17 @@
 // УПРАВЛЕНИЕ КАМЕРОЙ И ЗУМ К ТОЧКЕ КУРСОРА (POINTER ZOOM)
 // ==========================================
 
-let raycaster = null;
-let mouseVec = null;
-let floorPlane = null;
+// Независимые рейкастеры и векторы для предотвращения взаимной мутации состояния
+const _pickRaycaster = new THREE.Raycaster();
+const _pickMouseVec = new THREE.Vector2();
+
+const _zoomRaycaster = new THREE.Raycaster();
+const _zoomMouseVec = new THREE.Vector2();
+const _zoomFloorPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
+const _zoomHitVec = new THREE.Vector3();
+const _zoomCamOffset = new THREE.Vector3();
+const _zoomTargetOffset = new THREE.Vector3();
+
 let isCtrlZooming = false;
 let lastZoomTime = -Infinity;
 let _cachedControlsDomRect = null;
@@ -13,9 +21,6 @@ if (typeof window !== 'undefined') {
     window.addEventListener('resize', () => { _cachedControlsDomRect = null; }, { passive: true });
     window.addEventListener('scroll', () => { _cachedControlsDomRect = null; }, { passive: true });
 }
-const _zoomHitVec = new THREE.Vector3();
-const _zoomCamOffset = new THREE.Vector3();
-const _zoomTargetOffset = new THREE.Vector3();
 
 function resetControlsMomentum() {
     if (!controls) return;
@@ -44,10 +49,6 @@ function initControls(camera, domElement) {
     controls.target.set(cx, 0, cz);
 
     apply2DControls(STATE.is2D);
-
-    raycaster = new THREE.Raycaster();
-    mouseVec = new THREE.Vector2();
-    floorPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
 
     // Зум к позиции курсора (BIM / CAD Zoom to Pointer) перехватываем в фазе захвата (capture),
     // чтобы изолировать колесико мыши от OrbitControls и исключить двойной зум
@@ -292,10 +293,8 @@ function findRoomAtScreenPoint(clientX, clientY) {
     const x = ((clientX - rect.left) / rect.width) * 2 - 1;
     const y = -((clientY - rect.top) / rect.height) * 2 + 1;
 
-    if (!raycaster) raycaster = new THREE.Raycaster();
-    if (!mouseVec) mouseVec = new THREE.Vector2();
-    mouseVec.set(x, y);
-    raycaster.setFromCamera(mouseVec, camera);
+    _pickMouseVec.set(x, y);
+    _pickRaycaster.setFromCamera(_pickMouseVec, camera);
 
     const activeFloor = (STATE.mode !== 'all' && STATE.mode !== 'sideBySide' && STATE.mode !== 'slice')
         ? parseInt(STATE.mode, 10)
@@ -314,7 +313,7 @@ function findRoomAtScreenPoint(clientX, clientY) {
         })
         .map(l => l.mesh);
 
-    const intersects = raycaster.intersectObjects(visibleLabelMeshes, false);
+    const intersects = _pickRaycaster.intersectObjects(visibleLabelMeshes, false);
     if (intersects.length > 0) {
         const hitMesh = intersects[0].object;
         if (hitMesh.userData && hitMesh.userData.roomInfo) {
@@ -373,20 +372,17 @@ function onPointerZoom(event) {
         _lastControlsDomRectTime = now;
     }
     const rect = _cachedControlsDomRect;
-    if (!mouseVec) mouseVec = new THREE.Vector2();
-    mouseVec.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
-    mouseVec.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+    _zoomMouseVec.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+    _zoomMouseVec.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
 
-    if (!raycaster) raycaster = new THREE.Raycaster();
-    raycaster.setFromCamera(mouseVec, camera);
+    _zoomRaycaster.setFromCamera(_zoomMouseVec, camera);
 
     const activeFloorY = (controls.target && !isNaN(controls.target.y)) ? controls.target.y : 0;
-    if (!floorPlane) floorPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
-    floorPlane.constant = -activeFloorY;
+    _zoomFloorPlane.constant = -activeFloorY;
 
     // Ищем точку пересечения луча курсора с плоскостью этажа
     let hitPoint = null;
-    if (raycaster.ray.intersectPlane(floorPlane, _zoomHitVec)) {
+    if (_zoomRaycaster.ray.intersectPlane(_zoomFloorPlane, _zoomHitVec)) {
         // Проверяем, что точка находится в пределах территории колледжа, а не на горизонте
         const campusCx = (typeof getActiveCenterX === 'function') ? getActiveCenterX() : 16.0;
         const campusCz = (typeof getActiveCenterZ === 'function') ? getActiveCenterZ() : -18.0;

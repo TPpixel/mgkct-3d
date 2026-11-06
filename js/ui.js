@@ -311,9 +311,17 @@ function setMode(newMode, shouldSave = true) {
         btn.classList.toggle('active-pill', btn.textContent.trim() === String(newMode));
     });
 
-    // Скрываем контекстный попап кабинета, если переключили на другой этаж
-    if (currentPopupRoom && String(currentPopupRoom.floor) !== String(newMode)) {
-        hideRoomContextPopup();
+    // Скрываем контекстный попап кабинета, только если выбранный этаж стал невидим
+    if (currentPopupRoom) {
+        let roomIsVisible = true;
+        if (newMode === 'slice') {
+            roomIsVisible = (currentPopupRoom.floor <= (STATE.sliceMaxFloor || 7));
+        } else if (newMode !== 'all' && newMode !== 'sideBySide') {
+            roomIsVisible = (String(currentPopupRoom.floor) === String(newMode));
+        }
+        if (!roomIsVisible) {
+            hideRoomContextPopup();
+        }
     }
 
     // При выборе режима «Все этажи» переводим камеру на комфортный общий ракурс 3D здания
@@ -580,14 +588,22 @@ function selectRoom(roomInfo, shouldFly = true) {
 // Загружается динамически из локального файла (без хардкода в коде репозитория)
 // ============================================================================
 let ROOM_DISCIPLINES = (typeof window !== 'undefined' && window.ROOM_DISCIPLINES) ? window.ROOM_DISCIPLINES : {};
+let roomDisciplinesAbortController = null;
 
 function loadRoomDisciplines() {
     if (ROOM_DISCIPLINES && Object.keys(ROOM_DISCIPLINES).length > 0) {
         return;
     }
-    fetch('data/teachers.json?v=' + Date.now())
+    if (roomDisciplinesAbortController) {
+        roomDisciplinesAbortController.abort();
+    }
+    roomDisciplinesAbortController = new AbortController();
+    const signal = roomDisciplinesAbortController.signal;
+
+    fetch('data/teachers.json', { signal })
         .then(res => res.ok ? res.json() : null)
         .then(data => {
+            if (signal.aborted) return;
             if (data && typeof data === 'object') {
                 ROOM_DISCIPLINES = data;
                 if (typeof window !== 'undefined') window.ROOM_DISCIPLINES = data;
@@ -599,7 +615,8 @@ function loadRoomDisciplines() {
                 }
             }
         })
-        .catch(() => {
+        .catch(err => {
+            if (err && err.name === 'AbortError') return;
             // Файл отсутствует в публичном репозитории — работаем в штатном режиме
         });
 }
@@ -881,11 +898,16 @@ window.pushOverlayState = pushOverlayState;
 window.popOverlayState = popOverlayState;
 window.initHistoryManager = initHistoryManager;
 
+let _searchSetupDone = false;
 function setupSearch() {
+    if (_searchSetupDone) return;
+    _searchSetupDone = true;
+
     const searchModal = document.getElementById("search-modal");
     const searchBackdrop = document.getElementById("search-backdrop");
     const searchInput = document.getElementById("search-input");
     const searchResults = document.getElementById("search-results");
+    const searchTagChips = document.querySelectorAll(".search-tag-chip");
     const btnOpenSearch = document.getElementById("btn-open-search");
     const btnCloseSearch = document.getElementById("btn-close-search");
     const btnClearSearch = document.getElementById("btn-clear-search");
@@ -1116,12 +1138,17 @@ function setupSearch() {
         }
     });
 
+    let searchDebounceTimer = null;
     btnClearSearch?.addEventListener("click", () => {
         if (searchInput) {
+            if (searchDebounceTimer) {
+                clearTimeout(searchDebounceTimer);
+                searchDebounceTimer = null;
+            }
             searchInput.value = "";
             searchInput.focus();
             btnClearSearch.classList.add("hidden");
-            document.querySelectorAll(".search-tag-chip").forEach(c => c.classList.remove("is-active"));
+            searchTagChips.forEach(c => c.classList.remove("is-active"));
             renderSearchResults("");
         }
     });
@@ -1132,10 +1159,16 @@ function setupSearch() {
             btnClearSearch.classList.toggle("hidden", !val);
         }
         quickButtons.forEach(b => b?.classList.remove("is-active"));
-        document.querySelectorAll(".search-tag-chip").forEach(c => {
+        searchTagChips.forEach(c => {
             c.classList.toggle("is-active", Boolean(val) && (c.dataset.query || "").toLowerCase() === val.toLowerCase());
         });
-        renderSearchResults(e.target.value);
+        if (searchDebounceTimer) {
+            clearTimeout(searchDebounceTimer);
+        }
+        const query = e.target.value;
+        searchDebounceTimer = setTimeout(() => {
+            renderSearchResults(query);
+        }, 150);
     });
 
     searchInput?.addEventListener("keydown", (e) => {
@@ -1144,6 +1177,11 @@ function setupSearch() {
             return;
         }
         if (e.key === "Enter") {
+            if (searchDebounceTimer) {
+                clearTimeout(searchDebounceTimer);
+                searchDebounceTimer = null;
+                renderSearchResults(searchInput.value);
+            }
             const activeRow = searchResults?.querySelector(".m3-search-row.is-active") || searchResults?.querySelector(".m3-search-row");
             if (activeRow) {
                 e.preventDefault();
@@ -1826,15 +1864,18 @@ function estimateWalkTime(roomInfo) {
     const f = parseInt(roomInfo.floor, 10) || 1;
     const b = parseInt(roomInfo.building, 10) || 1;
 
-    let baseMins = 1;
-    if (b === 2) baseMins += 1;
-    else if (b === 3) baseMins += 1;
-    else if (b === 4) baseMins += 2;
+    let baseSeconds = 60;
+    if (b === 2) baseSeconds += 60;
+    else if (b === 3) baseSeconds += 90;
+    else if (b === 4) baseSeconds += 120;
 
-    if (f >= 5) baseMins += 2;
-    else if (f >= 3) baseMins += 1;
+    // Добавляем +45 секунд на каждый межэтажный переход
+    if (f > 1) {
+        baseSeconds += (f - 1) * 45;
+    }
 
-    return `${baseMins}м`;
+    const mins = Math.max(1, Math.round(baseSeconds / 60));
+    return `${mins}м`;
 }
 
 function showRoomContextPopup(roomInfo, clientX, clientY, shouldSelectAndFly = true, fromSearch = false) {

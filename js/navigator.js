@@ -2761,8 +2761,8 @@ if (typeof window !== 'undefined' && !window.escapeHtml) {
             const floorDiff = Math.abs(node.floor - startFloor);
             const bldgDiff = (node.bldg === startBldg) ? 0 : 1;
             const geomDist = Math.hypot(node.x - startX, node.z - startZ);
-            // Штраф за смену этажа (20м) и переход в другой корпус (35м)
-            const score = geomDist + floorDiff * 20.0 + bldgDiff * 35.0;
+            // Штраф за смену этажа (50м) и переход в другой корпус (80м) для приоритета текущего этажа
+            const score = geomDist + floorDiff * 50.0 + bldgDiff * 80.0;
             if (score < bestScore) {
                 bestScore = score;
                 bestNode = node;
@@ -3044,7 +3044,7 @@ if (typeof window !== 'undefined' && !window.escapeHtml) {
             });
         }
 
-        // Удаляем объекты пути с каждого этажа
+        // Удаляем объекты пути с каждого этажа и отсоединяем пустые группы
         for (let f = 1; f <= 7; f++) {
             const fg = NAV_STATE.routeFloorGroups[f];
             if (fg) {
@@ -3053,8 +3053,12 @@ if (typeof window !== 'undefined' && !window.escapeHtml) {
                     disposeHierarchy(obj);
                     fg.remove(obj);
                 }
+                if (fg.parent) {
+                    fg.parent.remove(fg);
+                }
             }
         }
+        NAV_STATE.routeFloorGroups = {};
 
         // Удаляем глобальную группу межэтажных переходов в режиме 'all'
         if (NAV_STATE.globalRouteGroup && window.scene) {
@@ -3295,10 +3299,10 @@ if (typeof window !== 'undefined' && !window.escapeHtml) {
     function drawRoute3D(routeResult) {
         clearRoute3D();
         if (!routeResult || !routeResult.path || routeResult.path.length < 2) return;
-        NAV_STATE.activeRoute = routeResult;
 
-        const g = NAV_STATE.graph;
-        const nodes = routeResult.path.map(id => g.getNode(id));
+        try {
+            const g = NAV_STATE.graph;
+            const nodes = routeResult.path.map(id => g.getNode(id));
 
         // Группируем последовательные отрезки пути по этажам
         const floorSegments = {};
@@ -3329,24 +3333,26 @@ if (typeof window !== 'undefined' && !window.escapeHtml) {
             floorSegments[currentFloor].push(currentPoints);
         }
 
-        // Рендерим 3D-путь на каждом этаже и прикрепляем в соответствующий floorGroups[f]
-        for (let f = 1; f <= 7; f++) {
-            if (!NAV_STATE.routeFloorGroups[f]) {
-                NAV_STATE.routeFloorGroups[f] = new THREE.Group();
-                NAV_STATE.routeFloorGroups[f].name = `routeGroup_floor_${f}`;
+        function getOrCreateFloorRouteGroup(floorNum) {
+            if (!NAV_STATE.routeFloorGroups[floorNum]) {
+                const grp = new THREE.Group();
+                grp.name = `routeGroup_floor_${floorNum}`;
+                NAV_STATE.routeFloorGroups[floorNum] = grp;
             }
-
-            const rGroup = NAV_STATE.routeFloorGroups[f];
-
-            // Прикрепляем к системной группе этажа Three.js
-            if (window.floorGroups && window.floorGroups[f]) {
-                if (rGroup.parent !== window.floorGroups[f]) {
-                    window.floorGroups[f].add(rGroup);
+            const rGroup = NAV_STATE.routeFloorGroups[floorNum];
+            if (window.floorGroups && window.floorGroups[floorNum]) {
+                if (rGroup.parent !== window.floorGroups[floorNum]) {
+                    window.floorGroups[floorNum].add(rGroup);
                 }
             }
+            return rGroup;
+        }
 
+        // Лениво рендерим 3D-путь только на тех этажах, где действительно есть геометрия
+        for (let f = 1; f <= 7; f++) {
             const segs = floorSegments[f];
             if (segs && segs.length > 0) {
+                const rGroup = getOrCreateFloorRouteGroup(f);
                 for (const pts of segs) {
                     const mesh = createLuminousRouteMesh(pts);
                     if (mesh) rGroup.add(mesh);
@@ -3356,8 +3362,8 @@ if (typeof window !== 'undefined' && !window.escapeHtml) {
 
         // Маркер точки "А" (Откуда / первичный) — небесно-голубой
         const startNode = nodes[0];
-        const startGroup = NAV_STATE.routeFloorGroups[startNode.floor];
-        if (startGroup) {
+        if (startNode) {
+            const startGroup = getOrCreateFloorRouteGroup(startNode.floor);
             const startMarker = createMarkerRing(0x38bdf8, 'A', true);
             startMarker.position.set(startNode.x, 0.05, startNode.z);
             startGroup.add(startMarker);
@@ -3365,8 +3371,8 @@ if (typeof window !== 'undefined' && !window.escapeHtml) {
 
         // Маркер точки "Б" (Куда / конечный) — синий Google Blue
         const destNode = nodes[nodes.length - 1];
-        const destGroup = NAV_STATE.routeFloorGroups[destNode.floor];
-        if (destGroup) {
+        if (destNode) {
+            const destGroup = getOrCreateFloorRouteGroup(destNode.floor);
             const destMarker = createMarkerRing(0x1a73e8, 'B', true);
             destMarker.position.set(destNode.x, 0.05, destNode.z);
             destGroup.add(destMarker);
@@ -3378,12 +3384,10 @@ if (typeof window !== 'undefined' && !window.escapeHtml) {
             const curr = nodes[i];
             if (curr.floor !== prev.floor) {
                 const isUp = curr.floor > prev.floor;
-                const fg = NAV_STATE.routeFloorGroups[prev.floor];
-                if (fg) {
-                    const stairMarker = createStairTransitionMarker(isUp ? `↑ ${curr.floor} этаж` : `↓ ${curr.floor} этаж`, isUp);
-                    stairMarker.position.set(prev.x, 0.05, prev.z);
-                    fg.add(stairMarker);
-                }
+                const fg = getOrCreateFloorRouteGroup(prev.floor);
+                const stairMarker = createStairTransitionMarker(isUp ? `↑ ${curr.floor} этаж` : `↓ ${curr.floor} этаж`, isUp);
+                stairMarker.position.set(prev.x, 0.05, prev.z);
+                fg.add(stairMarker);
             }
         }
 
@@ -3422,9 +3426,15 @@ if (typeof window !== 'undefined' && !window.escapeHtml) {
             NAV_STATE.globalRouteGroup = globalGroup;
         }
 
+        // Атомарно мутируем состояние активного маршрута строго после успешной генерации 3D-мешей
+        NAV_STATE.activeRoute = routeResult;
         updateRouteVisibilityForCurrentMode();
         if (typeof requestRender === 'function') requestRender(30);
+    } catch (err) {
+        clearRoute3D();
+        console.error('Ошибка генерации 3D-маршрута:', err);
     }
+}
 
     // ------------------------------------------------------------------------
     // ОБНОВЛЕНИЕ ВИДИМОСТИ И ЦВЕТА ПУТИ ВО ВСЕХ РЕЖИМАХ ОТОБРАЖЕНИЯ КАРТЫ
@@ -3434,7 +3444,8 @@ if (typeof window !== 'undefined' && !window.escapeHtml) {
 
         const mode = (typeof STATE !== 'undefined') ? STATE.mode : '1';
         const isSingleFloor = (mode !== 'all' && mode !== 'sideBySide' && mode !== 'slice');
-        const activeFloor = isSingleFloor ? parseInt(mode, 10) : 1;
+        const parsedFloor = parseInt(mode, 10);
+        const activeFloor = (isSingleFloor && Number.isFinite(parsedFloor)) ? parsedFloor : 1;
         const maxFloor = (mode === 'slice') ? STATE.sliceMaxFloor : 7;
         const isAllFloors = (mode === 'all');
         const isDark = (typeof STATE !== 'undefined' && STATE.theme === 'dark');
@@ -3566,7 +3577,8 @@ if (typeof window !== 'undefined' && !window.escapeHtml) {
         const route = NAV_STATE.activeRoute;
         const mode = (typeof STATE !== 'undefined') ? STATE.mode : '1';
         const isSingleFloor = (mode !== 'all' && mode !== 'sideBySide' && mode !== 'slice');
-        const activeFloor = isSingleFloor ? parseInt(mode, 10) : 1;
+        const parsedFloor = parseInt(mode, 10);
+        const activeFloor = (isSingleFloor && Number.isFinite(parsedFloor)) ? parsedFloor : 1;
 
         const startNode = route.startNode;
         const destNode = route.destNode;
@@ -3794,8 +3806,10 @@ if (typeof window !== 'undefined' && !window.escapeHtml) {
             }
         }
 
-        // Оценка времени пешком (скорость ~1.15 м/с)
-        const durationMin = Math.max(1, Math.round((result.totalDistance / 1.15) / 60 * 10) / 10);
+        // Оценка времени пешком (скорость ~1.15 м/с) + 45 сек на каждый межэтажный лестничный переход
+        const stairDelaySec = (stairTransitions ? stairTransitions.length : 0) * 45;
+        const totalWalkSec = (result.totalDistance / 1.15) + stairDelaySec;
+        const durationMin = Math.max(1, Math.round((totalWalkSec / 60) * 10) / 10);
 
         const routeData = {
             path: result.path,
@@ -3809,13 +3823,8 @@ if (typeof window !== 'undefined' && !window.escapeHtml) {
             stairTransitions
         };
 
-        NAV_STATE.activeRoute = routeData;
         NAV_STATE.startPoint = startPoint;
         NAV_STATE.destPoint = destPoint;
-
-        if (typeof pushOverlayState === 'function') {
-            pushOverlayState('route');
-        }
 
         // 1. Корпус: если маршрут охватывает корпус, который сейчас скрыт фильтром, переключаем фильтр на 'both'
         const bldgSet = new Set(nodes.map(n => n.bldg));
@@ -3831,8 +3840,15 @@ if (typeof window !== 'undefined' && !window.escapeHtml) {
             setMode(startFloor, false);
         }
 
-        // 3. Отрисовка в 3D
+        // 3. Отрисовка в 3D (атомарно устанавливает NAV_STATE.activeRoute при успехе)
         drawRoute3D(routeData);
+        if (!NAV_STATE.activeRoute) {
+            return null;
+        }
+
+        if (typeof pushOverlayState === 'function') {
+            pushOverlayState('route');
+        }
 
         // 4. Обновление UI карточки маршрута (STATE.mode уже гарантированно равен startFloor!)
         updateRouteCardUI(routeData);
@@ -3873,11 +3889,11 @@ if (typeof window !== 'undefined' && !window.escapeHtml) {
         const g = NAV_STATE.graph || buildCollegeNavGraph();
         NAV_STATE.graph = g;
 
-        // Находим соответствующий узел в графе
+        // Находим соответствующий узел в графе с учетом погрешности координат
         let matchedNodeId = null;
         for (const [nid, n] of g.nodes.entries()) {
             if (n.floor === roomInfo.floor && n.bldg === roomInfo.building &&
-                Math.hypot(n.x - roomInfo.x, n.z - roomInfo.z) < 0.2) {
+                Math.hypot(n.x - roomInfo.x, n.z - roomInfo.z) < 0.20) {
                 matchedNodeId = nid;
                 break;
             }
@@ -3985,11 +4001,11 @@ if (typeof window !== 'undefined' && !window.escapeHtml) {
         const g = NAV_STATE.graph || buildCollegeNavGraph();
         NAV_STATE.graph = g;
 
-        // Находим соответствующий узел комнаты в графе
+        // Находим соответствующий узел комнаты в графе с учетом погрешности координат
         let matchedNodeId = null;
         for (const [nid, n] of g.nodes.entries()) {
             if (n.floor === roomInfo.floor && n.bldg === roomInfo.building &&
-                Math.hypot(n.x - roomInfo.x, n.z - roomInfo.z) < 0.2) {
+                Math.hypot(n.x - roomInfo.x, n.z - roomInfo.z) < 0.20) {
                 matchedNodeId = nid;
                 break;
             }
@@ -4003,7 +4019,7 @@ if (typeof window !== 'undefined' && !window.escapeHtml) {
 
         const pointData = {
             id: matchedNodeId,
-            text: roomInfo.text ? roomInfo.text.replace('\n', ' ') : 'Кабинет',
+            text: roomInfo.text ? roomInfo.text.replace(/\n/g, ' ').trim() : 'Кабинет',
             floor: roomInfo.floor,
             building: roomInfo.building,
             x: roomInfo.x,
@@ -4856,7 +4872,13 @@ if (typeof window !== 'undefined' && !window.escapeHtml) {
             });
         }
 
-        // Быстрые чипы популярных направлений
+        // Быстрые чипы популярных направлений: используем AbortController для защиты от дублирования
+        if (NAV_STATE._chipsAbortController) {
+            NAV_STATE._chipsAbortController.abort();
+        }
+        NAV_STATE._chipsAbortController = new AbortController();
+        const chipsSignal = NAV_STATE._chipsAbortController.signal;
+
         const chips = document.querySelectorAll('.nav-quick-chip');
         chips.forEach(chip => {
             chip.addEventListener('click', () => {
@@ -4913,7 +4935,7 @@ if (typeof window !== 'undefined' && !window.escapeHtml) {
                         closeNavigatorModal();
                     }
                 }
-            });
+            }, { signal: chipsSignal });
         });
 
         // Кнопка "Свернуть/Развернуть подробный маршрут"

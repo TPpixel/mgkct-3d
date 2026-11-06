@@ -223,8 +223,10 @@ function init() {
         }
         // Наложение эталонного чертежа БТИ прямо на плоскость пола при ?bti=1 или ?debug=1
         if (STATE.showBtiOverlay && urlParams.has('bldg')) {
-            const b = parseInt(urlParams.get('bldg'), 10);
-            const f = parseInt(urlParams.get('floor') || STATE.mode || '1', 10);
+            const rawB = parseInt(urlParams.get('bldg'), 10);
+            const b = Number.isFinite(rawB) ? rawB : 1;
+            const rawF = parseInt(urlParams.get('floor') || (STATE && STATE.mode) || '1', 10);
+            const f = Number.isFinite(rawF) ? rawF : 1;
             const btiBounds = {
                 1: { x1: -14.0, x2: (f <= 3 ? 20.4 : 16.0), z1: -14.0, z2: 14.0, grp: bldg1FloorGroups[f] },
                 2: { x1: 20.4, x2: 68.0, z1: -13.8, z2: 3.5, grp: bldg2FloorGroups[f] },
