@@ -16,12 +16,7 @@ function escapeHtml(str) {
 
 const SETTINGS_KEY = 'college_3d_map_settings_v3';
 
-function getSystemTheme() {
-    if (typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-        return 'dark';
-    }
-    return 'light';
-}
+// getSystemTheme импортирован из единого источника истины в js/state.js
 
 function setTheme(themeName, shouldSave = false) {
     if (themeName !== 'dark' && themeName !== 'light') {
@@ -1990,11 +1985,7 @@ function showRoomContextPopup(roomInfo, clientX, clientY, shouldSelectAndFly = t
     popup.classList.remove('hidden');
     document.body.classList.add('room-card-open');
 
-    requestAnimationFrame(() => {
-        updateAdaptiveFabPosition();
-        setTimeout(updateAdaptiveFabPosition, 50);
-        setTimeout(updateAdaptiveFabPosition, 180);
-    });
+    requestAnimationFrame(updateAdaptiveFabPosition);
 
     if (shouldSelectAndFly && typeof selectRoom === 'function') {
         selectRoom(roomInfo, true);
@@ -2031,6 +2022,11 @@ function hideRoomContextPopup(fromPopstate = false) {
 function setupRoomContextPopup() {
     const btnClose = document.getElementById('btn-close-room-popup');
     if (btnClose) btnClose.addEventListener('click', hideRoomContextPopup);
+
+    const popup = document.getElementById('room-context-popup');
+    if (popup) {
+        popup.addEventListener('transitionend', updateAdaptiveFabPosition);
+    }
 
     function getRoomNavPoint(r) {
         if (!r) return null;

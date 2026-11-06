@@ -88,7 +88,8 @@
             addFloorRect(targetGroup, x1, zLandingNorth, x2, B2_Z_TOP, true);
 
             // Ступени спускаются на север строго до края бордюра дороги (бордюр на Z = -16.3)!
-            const zStepsEnd = -16.2;
+            const B2_PORCH_Z_END = -16.2;
+            const zStepsEnd = B2_PORCH_Z_END;
             const steps = 5;
             const totalStepsDepth = Math.abs(zLandingNorth - zStepsEnd);
             const sDepth = totalStepsDepth / steps;

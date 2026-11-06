@@ -1217,118 +1217,7 @@ body.search-open #nav-pick-banner,
     color: var(--m3-on-surface) !important;
 }
 
-/* Кластер кнопок в стиле Google Material 3 (Connected Segmented Action Capsule) */
-.m3-quick-cat-cluster {
-    display: flex;
-    align-items: center;
-    gap: 0 !important;
-    border-radius: 28px !important;
-    background-color: #f0f4f9;
-    border: 1px solid var(--m3-outline-variant) !important;
-    overflow: hidden !important;
-    box-shadow: 0 1px 2px rgba(60, 64, 67, 0.08);
-}
 
-.m3-quick-cat-btn {
-    width: 48px;
-    height: 56px;
-    border-radius: 0 !important;
-    background: transparent !important;
-    border: none !important;
-    border-right: 1px solid var(--m3-outline-variant) !important;
-    color: #444746;
-    cursor: pointer;
-    transition: all 0.18s cubic-bezier(0.2, 0, 0, 1);
-    outline: none;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0;
-}
-
-.m3-quick-cat-btn.m3-btn-start {
-    border-radius: 28px 0 0 28px !important;
-}
-
-.m3-quick-cat-btn.m3-btn-mid {
-    border-radius: 0 !important;
-}
-
-.m3-quick-cat-btn.m3-btn-end {
-    border-radius: 0 28px 28px 0 !important;
-    border-right: none !important;
-}
-
-.m3-quick-cat-btn svg {
-    width: 20px;
-    height: 20px;
-    flex-shrink: 0;
-    transition: transform 0.15s ease;
-}
-
-.m3-quick-cat-btn:hover {
-    background-color: #e2e7ef !important;
-    color: #1f1f1f !important;
-}
-
-.m3-quick-cat-btn:active {
-    transform: scale(0.95);
-}
-
-/* Активное состояние кнопки (строго #1a73e8 с белым текстом) */
-.m3-quick-cat-btn.is-active {
-    background-color: #1a73e8 !important;
-    color: #ffffff !important;
-}
-
-/* Темная тема Google M3 */
-[data-theme="dark"] .m3-quick-cat-cluster {
-    background-color: #2b2d30 !important;
-    border-color: rgba(255, 255, 255, 0.14) !important;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
-}
-
-[data-theme="dark"] .m3-quick-cat-btn {
-    border-right-color: rgba(255, 255, 255, 0.14) !important;
-    color: #c4c7c5 !important;
-}
-
-[data-theme="dark"] .m3-quick-cat-btn:hover {
-    background-color: #3b3d40 !important;
-    color: #e3e3e3 !important;
-}
-
-[data-theme="dark"] .m3-quick-cat-btn.is-active {
-    background-color: #1a73e8 !important;
-    color: #ffffff !important;
-}
-
-@media (max-width: 390px) {
-    .m3-quick-cat-cluster {
-        border-radius: 26px !important;
-    }
-    .m3-quick-cat-btn {
-        width: 44px !important;
-        height: 52px !important;
-    }
-    .m3-quick-cat-btn.m3-btn-start {
-        border-radius: 26px 0 0 26px !important;
-    }
-    .m3-quick-cat-btn.m3-btn-mid {
-        border-radius: 0 !important;
-    }
-    .m3-quick-cat-btn.m3-btn-end {
-        border-radius: 0 26px 26px 0 !important;
-        border-right: none !important;
-    }
-    .m3-quick-cat-btn svg {
-        width: 18px !important;
-        height: 18px !important;
-    }
-    .m3-search-input-pill {
-        height: 52px !important;
-    }
-}
 
 /* Карточка результатов поиска */
 .m3-search-card {
@@ -2680,25 +2569,7 @@ input[type="range"]::-webkit-slider-thumb:hover {
     transform: scale(1.15);
 }
 
-/* ============================================================================
-   ПЛАВАЮЩИЙ СЕЛЕКТОР ВЕРСИЙ (UI: v1 | v2)
-   ============================================================================ */
 
-.m3-subtle-capsule {
-    background: var(--m3-surface-container);
-    border: 1px solid var(--m3-outline-variant);
-    border-radius: 9999px;
-    box-shadow: var(--m3-shadow-sm);
-}
-
-.m3-text-muted {
-    color: var(--m3-on-surface-variant);
-}
-
-.m3-pill-active {
-    background: var(--m3-primary-container);
-    color: var(--m3-on-primary-container);
-}
 
 /* Вспомогательные классы */
 .custom-scroll::-webkit-scrollbar {

@@ -1,3 +1,5 @@
+const EAST_ROAD_X2 = 77.0;
+
 let _curbBatch = null;
 
 function isCachedTerritoryGeometry(geom) {
@@ -763,8 +765,7 @@ function buildLargeShelter(group, cx, cz) {
         parent.add(benchGroup);
     }
 
-    // Shelter bench removed per user request
-    // Shelter bench removed per user request
+
 
     // ----------------------------------------------------
     // 7. СОВРЕМЕННЫЕ УРНЫ ИЗ ШЛИФОВАННОЙ НЕРЖАВЕЮЩЕЙ СТАЛИ
@@ -827,7 +828,7 @@ function buildLargeShelter(group, cx, cz) {
 // ----------------------------------------------------
 function buildDrivewaysAndInnerRoads(group) {
     const roadX1 = 72.0;
-    const roadX2 = 77.0;
+    const roadX2 = EAST_ROAD_X2;
     const roadW = roadX2 - roadX1; // 5.0 м
     const roadMidX = (roadX1 + roadX2) / 2; // 74.5
     const drivewayGeoms = [];
@@ -1008,7 +1009,7 @@ function buildForecourtDualTonePaving(group) {
     const paveGeoms = [];
     const mapWestX = -25.0;
     const mapEastX = 92.0;
-    const roadX2 = 77.0;
+    const roadX2 = EAST_ROAD_X2;
     const zRoadNorth = 28.2;
     const zPocketEdge = 25.4;
     const xBayStart = -6.0;
@@ -1526,10 +1527,7 @@ function buildBicycleStation(group, x, z, rotY = 0, yGround = 0.06) {
     return stationGroup;
 }
 
-// 4. ВХОДНАЯ АРХИТЕКТУРНАЯ СТЕЛА КОЛЛЕДЖА
-function buildEntranceStele(group, x, z, rotY = 0, yGround = 0.06) {
-    return null;
-}
+
 
 // 5. ДЕКОРАТИВНЫЕ ПЕШЕХОДНЫЕ БОЛЛАРДЫ (ЧЕРЕЗ INSTANCEDMESH)
 function buildPedestrianBollards(group, positions, yGround = 0.06) {
@@ -1595,8 +1593,7 @@ function buildPedestrianBollards(group, positions, yGround = 0.06) {
 function buildPromenadeAndForecourtAmenities(group) {
     const yPave = 0.06;
 
-    // --- 1. СКАМЬИ (4 на променаде + 2 на парадной площади = 6 шт) ---
-    // Benches removed per user request
+    // --- 1. УРНЫ И МАФ ---
     const binPositions = [
         { x: 26.2, z: 17.8 },
         { x: 38.2, z: 17.8 },
@@ -2020,41 +2017,7 @@ function addTactileWarningStrip(group, x1, x2, z1, z2) {
     group.add(stripMesh);
 }
 
-// ПРАВИЛЬНАЯ ЗЕБРА (1.14.1): Полосы идут ВДОЛЬ направления движения (по оси X)
-function addZebraCrossingCorrect(group, x1, x2, z1, z2) {
-    const xMin = Math.min(x1, x2);
-    const xMax = Math.max(x1, x2);
-    const stripeLengthX = xMax - xMin; // длина перехода (ширина пешеходной зоны 4.0 м)
 
-    const stripeThicknessZ = 0.50; // ширина белой полосы
-    const stripeGapZ = 0.50; // зазор между полосами
-    const stepZ = stripeThicknessZ + stripeGapZ;
-
-    const zMin = Math.min(z1, z2);
-    const zMax = Math.max(z1, z2);
-
-    let curZ = zMin + stripeThicknessZ / 2;
-    while (curZ <= zMax - stripeThicknessZ / 2) {
-        const geom = new THREE.PlaneGeometry(stripeLengthX, stripeThicknessZ);
-        const mesh = new THREE.Mesh(geom, MATERIALS.roadMarkingWhite);
-        mesh.rotation.x = -Math.PI / 2;
-        mesh.position.set((xMin + xMax) / 2, 0.026, curZ);
-        mesh.receiveShadow = true;
-        group.add(mesh);
-
-        curZ += stepZ;
-    }
-
-    // Поперечные стоп-линии (разметка 1.12) перед пешеходным переходом (СТБ 1300-2014)
-    // 1) Для полос восточного направления (южная половина дороги, Z: 35.65..42.35): стоп-линия ПЕРЕД переходом на X = 52.0 (xMin - 2.0)
-    addRoadStripe(group, xMin - 2.0, 35.65, xMin - 2.0, 42.35, 0.40, MATERIALS.roadMarkingWhite);
-    // 2) Для полос западного направления (северная половина дороги, Z: 28.65..35.35): стоп-линия ПЕРЕД переходом на X = 60.0 (xMax + 2.0)
-    addRoadStripe(group, xMax + 2.0, 28.65, xMax + 2.0, 35.35, 0.40, MATERIALS.roadMarkingWhite);
-
-    // Тактильная предупреждающая плитка (СТБ П 2443 / ГОСТ Р 52875) на тротуарах у съездов к переходу
-    addTactileWarningStrip(group, xMin - 0.2, xMax + 0.2, zMin - 0.65, zMin - 0.15); // Северный тротуар
-    addTactileWarningStrip(group, xMin - 0.2, xMax + 0.2, zMax + 0.15, zMax + 0.65); // Южный тротуар
-}
 
 function addBusStopYellowZigzag(group, x1, x2, z1, z2) {
     // Желтая зигзагообразная разметка 1.17 (СТБ 1300-2014) строго в границах кармана
@@ -3211,7 +3174,6 @@ window.addDecorativeShrub = addDecorativeShrub;
 window.buildCampusBench = buildCampusBench;
 window.buildParkWasteBin = buildParkWasteBin;
 window.buildBicycleStation = buildBicycleStation;
-window.buildEntranceStele = buildEntranceStele;
 window.buildPedestrianBollards = buildPedestrianBollards;
 window.buildForecourtDualTonePaving = buildForecourtDualTonePaving;
 window.buildPromenadeAndForecourtAmenities = buildPromenadeAndForecourtAmenities;

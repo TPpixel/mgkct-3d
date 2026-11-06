@@ -181,7 +181,8 @@ function init() {
             let offsetZ = (bldg === 'both') ? 22 : 24;
 
             if (urlParams.has('top') || urlParams.get('view') === 'top') {
-                offsetZ = 0.001; // Строгий 2D вид сверху без наклона
+                const EPSILON_GIMBAL = 0.001; // Предотвращение блокировки кардана (Gimbal Lock) камеры
+                offsetZ = EPSILON_GIMBAL;
                 if (bldg === '3') {
                     cx = 6.2;
                     cz = -37.8;

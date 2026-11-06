@@ -93,6 +93,7 @@ function getSystemTheme() {
     }
     return 'light';
 }
+window.getSystemTheme = getSystemTheme;
 
 function getInitialTheme() {
     try {

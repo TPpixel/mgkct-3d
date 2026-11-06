@@ -1,6 +1,7 @@
 // ==========================================
 // КОРПУС 1 (Этажи 1–7)
 // ==========================================
+// Примечание: OUTER_T и INNER_T экспортированы глобально из js/state.js
 
         function buildCommonStructure(targetGroup, floorNum, hasRightExtension = false, topWallOpenings = []) {
             const OUTER_T = 0.24;

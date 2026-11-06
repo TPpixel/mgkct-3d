@@ -1,3 +1,18 @@
+// Единоразовый полифилл roundRect на прототипе CanvasRenderingContext2D
+if (typeof CanvasRenderingContext2D !== 'undefined' && !CanvasRenderingContext2D.prototype.roundRect) {
+    CanvasRenderingContext2D.prototype.roundRect = function(x, y, rw, rh, rad) {
+        const r = typeof rad === 'number' ? rad : (Array.isArray(rad) ? rad[0] : 0);
+        this.beginPath();
+        this.moveTo(x + r, y);
+        this.arcTo(x + rw, y, x + rw, y + rh, r);
+        this.arcTo(x + rw, y + rh, x, y + rh, r);
+        this.arcTo(x, y + rh, x, y, r);
+        this.arcTo(x, y, x + rw, y, r);
+        this.closePath();
+        return this;
+    };
+}
+
 const _registeredMiterJoints = [];
 
 function registerMiterJoint(targetGroup, x, z, thickness) {
@@ -1632,19 +1647,7 @@ function renderScreenSpaceLabels() {
         return a.room.z - b.room.z;
     });
 
-    // Однократный полифилл roundRect на прототипе CanvasRenderingContext2D
-    if (!CanvasRenderingContext2D.prototype.roundRect && !overlayCtx.roundRect) {
-        overlayCtx.roundRect = function(x, y, rw, rh, rad) {
-            this.beginPath();
-            this.moveTo(x + rad, y);
-            this.arcTo(x + rw, y, x + rw, y + rh, rad);
-            this.arcTo(x + rw, y + rh, x, y + rh, rad);
-            this.arcTo(x, y + rh, x, y, rad);
-            this.arcTo(x, y, x + rw, y, rad);
-            this.closePath();
-            return this;
-        };
-    }
+
 
     let _labelQueryStamp = 0;
     // Пространственная 2D-сетка (Spatial Grid) для детекции коллизий бейджей с O(N) вместо O(N^2)
@@ -1957,12 +1960,10 @@ function registerDynamicStairStep(targetGroup, geom, sx, cz, heightRatio, yOffse
     }
 }
 
-function buildStaircaseUnit(targetGroup, zTop, zBottom, zMid, isUpperStaircase) {
-    addWallLine(targetGroup, 10.2, zMid, 14.6, zMid, [], 0.08);
+function buildStaircaseUnit(targetGroup, zTop, zBottom, zMid, isUpperStaircase, startX = 10.2, endX = 14.6, landingX = 15.3) {
+    addWallLine(targetGroup, startX, zMid, endX, zMid, [], 0.08);
 
     const stepsCount = 10;
-    const startX = 10.2;
-    const endX = 14.6;
     const stepDepth = (endX - startX) / stepsCount;
 
     const flights = [
@@ -1986,7 +1987,7 @@ function buildStaircaseUnit(targetGroup, zTop, zBottom, zMid, isUpperStaircase) 
 
     // Межэтажная разворотная площадка у наружной стены
     const landingGeom = new THREE.BoxGeometry(1.4, 1, Math.abs(zBottom - zTop));
-    registerDynamicStairStep(targetGroup, landingGeom, 15.3, (zTop + zBottom) / 2, 0.26, 0);
+    registerDynamicStairStep(targetGroup, landingGeom, landingX, (zTop + zBottom) / 2, 0.26, 0);
 }
 
 function buildCorridorStepsRight(targetGroup) {
