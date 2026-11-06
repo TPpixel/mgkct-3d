@@ -337,6 +337,9 @@ function updateFloorInfo() {
 }
 
 function resolveSingleFloorTarget() {
+    if (currentPopupRoom && currentPopupRoom.floor) {
+        return String(currentPopupRoom.floor);
+    }
     if (window.NAV_STATE && window.NAV_STATE.activeRoute && Array.isArray(window.NAV_STATE.activeRoute.involvedFloors) && window.NAV_STATE.activeRoute.involvedFloors.length > 0) {
         return String(window.NAV_STATE.activeRoute.involvedFloors[0]);
     }
@@ -347,7 +350,13 @@ function resolveSingleFloorTarget() {
 
 function toggleAllFloorsMode() {
     if (STATE.mode === 'all') {
-        setMode(resolveSingleFloorTarget());
+        const targetFloor = resolveSingleFloorTarget();
+        if (currentPopupRoom) {
+            setMode(targetFloor, true, false);
+            selectRoom(currentPopupRoom, true);
+        } else {
+            setMode(targetFloor);
+        }
     } else {
         setMode('all');
     }
