@@ -250,6 +250,14 @@
 
 			}();
 
+			this.resetMomentum = function () {
+
+				sphericalDelta.set( 0, 0, 0 );
+				panOffset.set( 0, 0, 0 );
+				scale = 1;
+
+			};
+
 			this.dispose = function () {
 
 				scope.domElement.removeEventListener( 'contextmenu', onContextMenu );

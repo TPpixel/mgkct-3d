@@ -140,11 +140,13 @@
             window.bldg2FloorGroups[f] = new THREE.Group();
             window.bldg3FloorGroups[f] = new THREE.Group();
             window.bldg4FloorGroups[f] = new THREE.Group();
+            window.bldg5FloorGroups[f] = new THREE.Group();
 
             window.floorGroups[f].add(window.bldg1FloorGroups[f]);
             window.floorGroups[f].add(window.bldg2FloorGroups[f]);
             window.floorGroups[f].add(window.bldg3FloorGroups[f]);
             window.floorGroups[f].add(window.bldg4FloorGroups[f]);
+            window.floorGroups[f].add(window.bldg5FloorGroups[f]);
 
             masterMapGroup.add(window.floorGroups[f]);
         }
@@ -171,6 +173,7 @@
             if (typeof buildBuilding4Floor1 === 'function') buildBuilding4Floor1(window.bldg4FloorGroups[1]);
             if (typeof buildBuilding4Floor2 === 'function') buildBuilding4Floor2(window.bldg4FloorGroups[2]);
             if (typeof buildBuilding4Floor3 === 'function') buildBuilding4Floor3(window.bldg4FloorGroups[3]);
+            if (typeof buildBuilding5Floor1 === 'function') buildBuilding5Floor1(window.bldg5FloorGroups[1]);
 
             if (typeof flushAllPendingWalls === 'function') {
                 flushAllPendingWalls();
@@ -814,6 +817,7 @@
                 if (window.bldg2FloorGroups[f]) window.bldg2FloorGroups[f].visible = visible;
                 if (window.bldg3FloorGroups[f]) window.bldg3FloorGroups[f].visible = visible;
                 if (window.bldg4FloorGroups[f]) window.bldg4FloorGroups[f].visible = visible;
+                if (window.bldg5FloorGroups && window.bldg5FloorGroups[f]) window.bldg5FloorGroups[f].visible = visible;
             }
         });
 

@@ -592,6 +592,11 @@ function loadRoomDisciplines() {
             if (data && typeof data === 'object') {
                 ROOM_DISCIPLINES = data;
                 if (typeof window !== 'undefined') window.ROOM_DISCIPLINES = data;
+                if (typeof ROOMS_REGISTRY !== 'undefined' && Array.isArray(ROOMS_REGISTRY)) {
+                    for (let i = 0; i < ROOMS_REGISTRY.length; i++) {
+                        ROOMS_REGISTRY[i]._searchCache = null;
+                    }
+                }
                 if (typeof NAV_STATE !== 'undefined' && NAV_STATE && NAV_STATE.graph && NAV_STATE.graph.nodes) {
                     for (const node of NAV_STATE.graph.nodes.values()) {
                         node._searchKeywords = null;
@@ -653,8 +658,11 @@ function getRoomSubjectAndTeacher(building, floor, code, rawText) {
     return { subject: "", teacher: "" };
 }
 
-// Форматирование короткого бейджа и заголовка кабинета для поиска (Предмет + ФИО преподавателя)
+// Форматирование короткого бейджа и заголовка кабинета для поиска (Предмет + ФИО преподавателя) с кэшированием
 function formatSearchRoomBadgeAndTitle(item) {
+    if (item && item._searchCache) {
+        return item._searchCache;
+    }
     const rawOrig = (item.rawText || item.text || "").trim();
     const lines = rawOrig.split("\n").map(s => s.trim()).filter(Boolean);
     const firstLine = lines[0] || "";
@@ -763,7 +771,21 @@ function formatSearchRoomBadgeAndTitle(item) {
         }
     }
 
-    return { codeLabel: codeNum, displayTitle: title, subtitle: subtitle };
+    const res = {
+        codeLabel: codeNum,
+        displayTitle: title,
+        subtitle: subtitle,
+        _codeLower: (codeNum || "").toLowerCase().replace(/ё/g, "е"),
+        _titleLower: (title || "").toLowerCase().replace(/ё/g, "е"),
+        _subLower: (subtitle || "").toLowerCase().replace(/ё/g, "е"),
+        _rawLower: rawOrig.toLowerCase().replace(/ё/g, "е"),
+        _cleanLower: rawOrig.toLowerCase().replace(/ё/g, "е").replace(/\n/g, " "),
+        _roomTextLower: (item.text || "").toLowerCase().replace(/ё/g, "е")
+    };
+    if (item && typeof item === 'object') {
+        item._searchCache = res;
+    }
+    return res;
 }
 
 // =====================================================================
@@ -1323,20 +1345,20 @@ function setupSearch() {
         }
 
         const filtered = ROOMS_REGISTRY.filter(r => {
-            const rawOrig = (r.rawText || r.text || "").toLowerCase().replace(/ё/g, "е");
+            const itemInfo = formatSearchRoomBadgeAndTitle(r);
+            const rawOrig = itemInfo._rawLower;
             // Скрываем чисто архитектурные подписи («Второй свет», «Витраж», «Переход...»), если пользователь не ищет их специально
             if (!query && (/второй свет|витраж|переход/i.test(rawOrig))) {
                 return false;
             }
             if (!query) return true;
 
-            const roomText = r.text.toLowerCase().replace(/ё/g, "е");
-            const cleanText = rawOrig.replace(/\n/g, " ");
+            const roomText = itemInfo._roomTextLower;
+            const cleanText = itemInfo._cleanLower;
             const bldg = r.building;
-            const itemInfo = formatSearchRoomBadgeAndTitle(r);
-            const titleLower = (itemInfo.displayTitle || "").toLowerCase().replace(/ё/g, "е");
-            const subLower = (itemInfo.subtitle || "").toLowerCase().replace(/ё/g, "е");
-            const codeLower = (itemInfo.codeLabel || "").toLowerCase().replace(/ё/g, "е");
+            const titleLower = itemInfo._titleLower;
+            const subLower = itemInfo._subLower;
+            const codeLower = itemInfo._codeLower;
 
             let alias = "";
             if (bldg === 4 && r.floor === 1 && (cleanText.includes("102") || cleanText.includes("столов"))) alias = "столовая буфет обед еда 102";
@@ -1388,16 +1410,16 @@ function setupSearch() {
         });
 
         filtered.sort((a, b) => {
-            const aRaw = (a.rawText || a.text || "").trim().toLowerCase();
-            const bRaw = (b.rawText || b.text || "").trim().toLowerCase();
             const aInfo = formatSearchRoomBadgeAndTitle(a);
             const bInfo = formatSearchRoomBadgeAndTitle(b);
-            const aCode = (aInfo.codeLabel || "").toLowerCase();
-            const bCode = (bInfo.codeLabel || "").toLowerCase();
-            const aTitle = (aInfo.displayTitle || "").toLowerCase();
-            const bTitle = (bInfo.displayTitle || "").toLowerCase();
-            const aSub = (aInfo.subtitle || "").toLowerCase();
-            const bSub = (bInfo.subtitle || "").toLowerCase();
+            const aRaw = aInfo._rawLower;
+            const bRaw = bInfo._rawLower;
+            const aCode = aInfo._codeLower;
+            const bCode = bInfo._codeLower;
+            const aTitle = aInfo._titleLower;
+            const bTitle = bInfo._titleLower;
+            const aSub = aInfo._subLower;
+            const bSub = bInfo._subLower;
             const q = targetBldg !== null ? targetRoomQuery : query;
 
             if (q) {

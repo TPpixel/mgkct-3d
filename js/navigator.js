@@ -239,14 +239,48 @@ window.calculateWalkTime = calculateWalkTime;
         return false;
     }
 
-    function doesIntersectWall(floor, bldg, x1, z1, x2, z2) {
-        if (typeof WALLS_REGISTRY === 'undefined' || !Array.isArray(WALLS_REGISTRY) || WALLS_REGISTRY.length === 0) {
-            return false;
+    let _wallsIndexMap = null;
+    let _wallsIndexedCount = -1;
+
+    function getWallsSpatialIndex() {
+        if (typeof WALLS_REGISTRY === 'undefined' || !Array.isArray(WALLS_REGISTRY)) {
+            return null;
         }
+        if (_wallsIndexMap && _wallsIndexedCount === WALLS_REGISTRY.length) {
+            return _wallsIndexMap;
+        }
+        _wallsIndexMap = new Map();
         for (let i = 0; i < WALLS_REGISTRY.length; i++) {
             const w = WALLS_REGISTRY[i];
-            if (w.floor !== floor) continue;
-            if (bldg !== null && bldg !== undefined && w.building !== bldg) continue;
+            const fKey = `f_${w.floor}`;
+            let fList = _wallsIndexMap.get(fKey);
+            if (!fList) {
+                fList = [];
+                _wallsIndexMap.set(fKey, fList);
+            }
+            fList.push(w);
+
+            const bfKey = `bf_${w.building}_${w.floor}`;
+            let bfList = _wallsIndexMap.get(bfKey);
+            if (!bfList) {
+                bfList = [];
+                _wallsIndexMap.set(bfKey, bfList);
+            }
+            bfList.push(w);
+        }
+        _wallsIndexedCount = WALLS_REGISTRY.length;
+        return _wallsIndexMap;
+    }
+
+    function doesIntersectWall(floor, bldg, x1, z1, x2, z2) {
+        const idx = getWallsSpatialIndex();
+        if (!idx) return false;
+        const key = (bldg !== null && bldg !== undefined) ? `bf_${bldg}_${floor}` : `f_${floor}`;
+        const walls = idx.get(key);
+        if (!walls || walls.length === 0) return false;
+
+        for (let i = 0; i < walls.length; i++) {
+            const w = walls[i];
             if (segmentsIntersect(x1, z1, x2, z2, w.x1, w.z1, w.x2, w.z2)) {
                 return true;
             }

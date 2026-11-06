@@ -163,6 +163,97 @@ html, body {
     transform: scale(0.92);
 }
 
+/* Отключение любых CSS-переходов и анимаций до полной отрисовки первого кадра (исключает пролаги и прыжки UI при загрузке) */
+body:not(.ui-ready) *,
+body:not(.ui-ready) *::before,
+body:not(.ui-ready) *::after {
+    transition: none !important;
+    animation: none !important;
+}
+
+/* Мгновенное переключение иконок темы через CSS без ожидания JS */
+:root[data-theme="dark"] #theme-icon-sun,
+body[data-theme="dark"] #theme-icon-sun {
+    display: block !important;
+}
+:root[data-theme="dark"] #theme-icon-moon,
+body[data-theme="dark"] #theme-icon-moon {
+    display: none !important;
+}
+:root[data-theme="light"] #theme-icon-sun,
+body[data-theme="light"] #theme-icon-sun {
+    display: none !important;
+}
+:root[data-theme="light"] #theme-icon-moon,
+body[data-theme="light"] #theme-icon-moon {
+    display: block !important;
+}
+
+/* Критичные правила позиционирования до инициализации Tailwind CDN (защита от FOUC и прыжков UI) */
+.hidden {
+    display: none !important;
+}
+
+.w-3 { width: 0.75rem; }
+.h-3 { height: 0.75rem; }
+.w-3\.5 { width: 0.875rem; }
+.h-3\.5 { height: 0.875rem; }
+.w-4 { width: 1rem; }
+.h-4 { height: 1rem; }
+.w-5 { width: 1.25rem; }
+.h-5 { height: 1.25rem; }
+.w-6 { width: 1.5rem; }
+.h-6 { height: 1.5rem; }
+.flex-shrink-0 { flex-shrink: 0; }
+.pointer-events-none { pointer-events: none; }
+.pointer-events-auto { pointer-events: auto; }
+
+.mobile-thumb-header {
+    position: fixed !important;
+    top: 76px;
+    left: 16px;
+    right: auto;
+    z-index: var(--z-hud);
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 6px;
+    pointer-events: none;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+#bottom-search-bar {
+    position: fixed !important;
+    top: 12px;
+    left: 16px;
+    right: auto;
+    bottom: auto;
+    width: 480px;
+    max-width: calc(100vw - 32px);
+    z-index: var(--z-hud);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    pointer-events: none;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+#bottom-search-bar .m3-search-bar {
+    flex: 1 1 0%;
+    display: flex;
+    align-items: center;
+    min-width: 0;
+    pointer-events: auto;
+}
+
+#bottom-search-bar .m3-search-input-btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+}
+
 /* ============================================================================
    GOOGLE MATERIAL 3 EXPRESSIVE ПЛАШКА КОРПУСОВ
    ============================================================================ */
@@ -544,8 +635,9 @@ body[data-theme="dark"] .m3-nav-pill-btn:hover {
 .floor-switcher-group {
     position: fixed;
     right: 14px;
-    top: 50%;
-    transform: translateY(-50%);
+    top: auto;
+    bottom: max(136px, calc(50% - 165px));
+    transform: none;
     z-index: var(--z-panel);
     display: flex;
     flex-direction: column;
@@ -841,6 +933,7 @@ body:has(#room-context-popup:not(.hidden)) .map-fab-bar {
 @media (max-width: 639px) {
     /* Панель поиска в самом низу с отступом под жестовую полосу */
     #bottom-search-bar {
+        top: auto !important;
         bottom: max(12px, env(safe-area-inset-bottom, 12px)) !important;
         left: 12px !important;
         right: 12px !important;
@@ -851,7 +944,7 @@ body:has(#room-context-popup:not(.hidden)) .map-fab-bar {
     /* Панель выбора корпусов парит строго над строкой поиска по центру */
     .mobile-thumb-header {
         top: auto !important;
-        bottom: calc(max(12px, env(safe-area-inset-bottom, 12px)) + 74px) !important;
+        bottom: calc(max(12px, env(safe-area-inset-bottom, 12px)) + 70px) !important;
         left: 0 !important;
         right: 0 !important;
         width: 100% !important;
@@ -861,18 +954,17 @@ body:has(#room-context-popup:not(.hidden)) .map-fab-bar {
         gap: 6px !important;
     }
 
-    /* Кнопки 2D/3D и территории справа под большим пальцем */
+    /* Кнопки 2D/3D и территории справа под большим пальцем (высота 2 кнопок 44+8+44 = 96px -> верх на +232px) */
     .map-fab-bar {
-        bottom: calc(max(12px, env(safe-area-inset-bottom, 12px)) + 144px) !important;
+        bottom: calc(max(12px, env(safe-area-inset-bottom, 12px)) + 136px) !important;
         right: 14px !important;
     }
 
-    /* Селектор этажей строго в правой части над FAB */
-    .floor-switcher-group,
-    .floor-switcher-bar {
+    /* Селектор этажей строго в правой части с чистым зазором 12px НАД кнопкой внешней территории (+244px) */
+    .floor-switcher-group {
         top: auto !important;
         transform: none !important;
-        bottom: calc(max(12px, env(safe-area-inset-bottom, 12px)) + 252px) !important;
+        bottom: calc(max(12px, env(safe-area-inset-bottom, 12px)) + 244px) !important;
         right: 14px !important;
     }
 
@@ -896,21 +988,22 @@ body:has(#room-context-popup:not(.hidden)) .map-fab-bar {
 
 @media (max-width: 639px) and (max-height: 750px) {
     .floor-switcher-group {
-        bottom: calc(max(12px, env(safe-area-inset-bottom, 12px)) + 220px) !important;
-        gap: 5px !important;
+        bottom: calc(max(12px, env(safe-area-inset-bottom, 12px)) + 242px) !important;
+        gap: 6px !important;
     }
+    .floor-btn.floor-all-btn,
     .floor-all-btn {
-        width: 40px !important;
-        height: 40px !important;
+        width: 38px !important;
+        height: 38px !important;
     }
     .floor-switcher-bar {
         padding: 3px !important;
         gap: 2px !important;
     }
-    .floor-btn {
-        width: 36px !important;
-        height: 36px !important;
-        font-size: 13.5px !important;
+    .floor-switcher-bar .floor-btn {
+        width: 32px !important;
+        height: 32px !important;
+        font-size: 12.5px !important;
     }
 }
 
