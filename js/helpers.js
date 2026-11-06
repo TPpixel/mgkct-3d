@@ -1247,7 +1247,7 @@ function addRoomLabel3D(targetGroup, floorNum, text, x, z, isSmall = false, isWi
     // Увеличенные комфортные габариты плашки в 3D пространстве (без создания 250 тяжелых CanvasTexture, т.к. рендер идет через 2D Screen-Space Overlay)
     const baseW = isWide ? 6.4 : (isSmall ? 2.8 : 4.0);
     const scaleMult = (typeof STATE !== 'undefined' && STATE.labelScale) ? STATE.labelScale : 1.0;
-    const planeW = baseW * customScale * scaleMult;
+    const planeW = baseW * customScale;
     const planeH = planeW * (height / width);
     const geom = new THREE.PlaneGeometry(planeW, planeH);
 
@@ -1266,6 +1266,7 @@ function addRoomLabel3D(targetGroup, floorNum, text, x, z, isSmall = false, isWi
     mesh.rotation.x = -Math.PI / 2;
     // Плашка приподнята над полом комнаты (y = 0.04)
     mesh.position.set(x, 0.04, z);
+    mesh.scale.set(scaleMult, scaleMult, 1);
     mesh.userData.isInterior = true;
     mesh.userData.isRoomLabel = true;
     // 3D-меш скрываем из WebGL рендера, так как надписи отрисовываются

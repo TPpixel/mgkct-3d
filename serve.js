@@ -67,7 +67,14 @@ function handleRequest(req, res) {
 
         res.writeHead(200, headers);
 
-        fs.createReadStream(filePath).pipe(res);
+        const fileStream = fs.createReadStream(filePath);
+        fileStream.on('error', () => {
+            if (!res.headersSent) {
+                res.writeHead(500, { 'Content-Type': 'text/plain; charset=utf-8' });
+            }
+            res.end('Internal Server Error');
+        });
+        fileStream.pipe(res);
     });
 }
 

@@ -966,7 +966,7 @@ function animate(currentTime = 0) {
     const targetFps = (STATE.preset === 'eco') ? 30 : 60;
     const interval = 1000 / targetFps;
     const delta = currentTime - lastRenderTime;
-    if (delta < interval - 1) {
+    if (lastRenderTime !== 0 && delta < interval - 1) {
         return;
     }
 

@@ -1,3 +1,17 @@
+// Безопасное экранирование HTML для предотвращения XSS-инъекций в автокомплите и навигаторе
+function escapeHtml(str) {
+    if (str === null || str === undefined) return '';
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+if (typeof window !== 'undefined' && !window.escapeHtml) {
+    window.escapeHtml = escapeHtml;
+}
+
 // ============================================================================
 // МОДУЛЬ НАВИГАТОРА И ПОСТРОЕНИЯ КРАТЧАЙШИХ МАРШРУТОВ ПО КОЛЛЕДЖУ (A*)
 // Полнофункциональная сквозная навигация: кабинеты, коридоры, лестницы, переходы
@@ -4166,7 +4180,7 @@
                         ${idx + 1}
                     </div>
                     <div class="step-text flex-1 min-w-0 text-xs font-semibold leading-snug">
-                        ${inst.text}
+                        ${escapeHtml(inst.text)}
                     </div>
                 `;
                 li.onclick = () => {
@@ -4482,32 +4496,32 @@
                 row.innerHTML = `
                     <!-- Колонка 1: Номер аудитории -->
                     <div class="m3-search-col-num flex items-center justify-center font-bold text-slate-800 dark:text-slate-100 select-none">
-                        ${codeLabel}
+                        ${escapeHtml(codeLabel)}
                     </div>
 
                     <!-- Колонка 2: Бейджи Корпуса и Этажа -->
                     <div class="m3-search-col-badges flex flex-col justify-stretch p-0 m-0">
-                        <div class="m3-search-badge m3-badge-bldg flex items-center justify-center gap-1" title="Корпус ${item.bldg}">
+                        <div class="m3-search-badge m3-badge-bldg flex items-center justify-center gap-1" title="Корпус ${escapeHtml(item.bldg)}">
                             <svg class="w-3.5 h-3.5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                                 <rect x="4" y="3" width="7" height="18" rx="1"></rect>
                                 <rect x="11" y="9" width="6" height="12" rx="1"></rect>
                             </svg>
-                            <span class="m3-badge-num">${item.bldg}</span>
+                            <span class="m3-badge-num">${escapeHtml(item.bldg)}</span>
                         </div>
-                        <div class="m3-search-badge m3-badge-floor flex items-center justify-center gap-1" title="${item.floor} этаж">
+                        <div class="m3-search-badge m3-badge-floor flex items-center justify-center gap-1" title="${escapeHtml(item.floor)} этаж">
                             <svg class="w-3.5 h-3.5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
                                 <path d="M2 17l10 5 10-5"></path>
                                 <path d="M2 12l10 5 10-5"></path>
                             </svg>
-                            <span class="m3-badge-num">${item.floor}</span>
+                            <span class="m3-badge-num">${escapeHtml(item.floor)}</span>
                         </div>
                     </div>
 
                     <!-- Колонка 3: Название кабинета + преподаватель / описание -->
                     <div class="m3-search-col-info flex flex-col justify-center min-w-0 flex-1 overflow-hidden">
-                        <span class="m3-search-title truncate">${displayTitle}</span>
-                        <span class="m3-search-subtitle truncate">${subtitle}</span>
+                        <span class="m3-search-title truncate">${escapeHtml(displayTitle)}</span>
+                        <span class="m3-search-subtitle truncate">${escapeHtml(subtitle)}</span>
                     </div>
                 `;
 
