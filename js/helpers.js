@@ -1850,12 +1850,6 @@ function updateRoomLabelsScale() {
         item.currentH = planeH;
         item.mesh.scale.set(scaleMult, scaleMult, 1);
     });
-    if (typeof lastAdaptiveDist !== 'undefined') {
-        lastAdaptiveDist = -1;
-    }
-    if (typeof updateAdaptiveLabelScaling === 'function') {
-        updateAdaptiveLabelScaling();
-    }
     if (typeof requestRender === 'function') requestRender(25);
 }
 
@@ -1947,7 +1941,9 @@ function registerDynamicStairStep(targetGroup, geom, sx, cz, heightRatio, yOffse
     mesh.userData.isExterior = effectiveIsExterior;
     mesh.userData.isStair = true;
 
-    const edges = new THREE.EdgesGeometry(geom);
+    const edges = (geom.parameters && geom.parameters.width)
+        ? getCachedEdgesGeometry(geom, geom.parameters.width, geom.parameters.height || 1, geom.parameters.depth)
+        : new THREE.EdgesGeometry(geom);
     const edgeLine = new THREE.LineSegments(edges, MATERIALS.edgeMain);
     edgeLine.userData.isInterior = !effectiveIsExterior;
     edgeLine.userData.isExterior = effectiveIsExterior;
@@ -1980,13 +1976,13 @@ function buildStaircaseUnit(targetGroup, zTop, zBottom, zMid, isUpperStaircase, 
             const heightRatio = ratio * 0.52;
             const sx = startX + (i + 0.5) * stepDepth;
 
-            const geom = new THREE.BoxGeometry(stepDepth * 0.96, 1, flightW);
+            const geom = getCachedBoxGeometry(stepDepth * 0.96, 1, flightW);
             registerDynamicStairStep(targetGroup, geom, sx, cz, heightRatio, 0);
         }
     });
 
     // Межэтажная разворотная площадка у наружной стены
-    const landingGeom = new THREE.BoxGeometry(1.4, 1, Math.abs(zBottom - zTop));
+    const landingGeom = getCachedBoxGeometry(1.4, 1, Math.abs(zBottom - zTop));
     registerDynamicStairStep(targetGroup, landingGeom, landingX, (zTop + zBottom) / 2, 0.26, 0);
 }
 
@@ -2000,7 +1996,7 @@ function buildCorridorStepsRight(targetGroup) {
     for (let i = 0; i < 3; i++) {
         const sx = 14.3 + i * stepW;
         const heightRatio = 0.055 * (i + 1);
-        const geom = new THREE.BoxGeometry(stepW * 0.95, 1, depthZ);
+        const geom = getCachedBoxGeometry(stepW * 0.95, 1, depthZ);
         registerDynamicStairStep(targetGroup, geom, sx, cz, heightRatio, 0);
     }
 }

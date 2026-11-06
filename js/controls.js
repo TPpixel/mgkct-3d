@@ -24,6 +24,9 @@ if (typeof window !== 'undefined') {
 
 function resetControlsMomentum() {
     if (!controls) return;
+    if (typeof controls.resetMomentum === 'function') {
+        controls.resetMomentum();
+    }
     if (controls.sphericalDelta) {
         controls.sphericalDelta.set(0, 0, 0);
     }
@@ -32,6 +35,52 @@ function resetControlsMomentum() {
     }
 }
 window.resetControlsMomentum = resetControlsMomentum;
+
+const MAP_BOUNDS = {
+    minX: -35.0,
+    maxX: 95.0,
+    minZ: -85.0,
+    maxZ: 40.0
+};
+
+function clampCameraBounds() {
+    if (!controls || !camera) return;
+    if (typeof STATE !== 'undefined' && STATE.mode === 'sideBySide') return;
+
+    // 1. В 2D-режиме или режиме одиночного этажа жестко фиксируем target.y = 0,
+    // чтобы камера никогда не проваливалась под плоскость карты
+    const isMultiFloor3D = typeof STATE !== 'undefined' && !STATE.is2D && (STATE.mode === 'all' || STATE.mode === 'slice');
+    const minTargetY = 0;
+    const maxTargetY = isMultiFloor3D ? 25.0 : 0;
+    const clampedY = THREE.MathUtils.clamp(controls.target.y, minTargetY, maxTargetY);
+    const dy = clampedY - controls.target.y;
+    if (Math.abs(dy) > 1e-5) {
+        controls.target.y = clampedY;
+        camera.position.y += dy;
+    }
+
+    // 2. Симметрично ограничиваем горизонтальные границы карты (X и Z),
+    // сдвигая и controls.target, и camera.position на одинаковую дельту (dx, dz),
+    // чтобы вектор смещения камеры (и угол наклона в 2D/3D) никогда не ломался!
+    const clampedX = THREE.MathUtils.clamp(controls.target.x, MAP_BOUNDS.minX, MAP_BOUNDS.maxX);
+    const clampedZ = THREE.MathUtils.clamp(controls.target.z, MAP_BOUNDS.minZ, MAP_BOUNDS.maxZ);
+    const dx = clampedX - controls.target.x;
+    const dz = clampedZ - controls.target.z;
+
+    if (Math.abs(dx) > 1e-5 || Math.abs(dz) > 1e-5) {
+        controls.target.x = clampedX;
+        controls.target.z = clampedZ;
+        camera.position.x += dx;
+        camera.position.z += dz;
+    }
+
+    // 3. Гарантируем минимальную высоту камеры над уровнем этажа
+    const minCamY = controls.target.y + ((typeof STATE !== 'undefined' && STATE.is2D) ? 10.0 : 0.80);
+    if (camera.position.y < minCamY) {
+        camera.position.y = minCamY;
+    }
+}
+window.clampCameraBounds = clampCameraBounds;
 
 function resetControlsState(resetCamera = false) {
     isCtrlZooming = false;
@@ -184,8 +233,14 @@ function initControls(camera, domElement) {
         handleMapClick(e);
     });
 
-    // Оповещение цикла рендеринга о движении камеры (On-Demand Render)
+    // Оповещение цикла рендеринга о движении камеры (On-Demand Render) и удержание в границах карты
+    let _isClampingBounds = false;
     controls.addEventListener('change', () => {
+        if (!_isClampingBounds && (!STATE.targetCamPos && !STATE.targetControlsCenter)) {
+            _isClampingBounds = true;
+            clampCameraBounds();
+            _isClampingBounds = false;
+        }
         if (typeof requestRender === 'function') {
             requestRender(20);
         }
@@ -201,9 +256,9 @@ function apply2DControls(is2D) {
     // Сбрасываем инерцию демпфирования, чтобы исключить паразитное вращение
     resetControlsMomentum();
 
-    // В 2D (вид строго сверху) screenSpacePanning=true обязателен:
-    // иначе вертикальное панорамирование карты будет заблокировано или нелинейно.
-    controls.screenSpacePanning = is2D;
+    // Всегда держим screenSpacePanning = false:
+    // тогда panUp перемещает камеру строго в горизонтальной плоскости пола (XZ) без ухода target.y под землю!
+    controls.screenSpacePanning = false;
 
     if (is2D) {
         controls.mouseButtons = {
@@ -218,6 +273,21 @@ function apply2DControls(is2D) {
         // Жестко блокируем азимут на Север (0) — любое вращение в 2D физически исключено
         controls.minAzimuthAngle = 0;
         controls.maxAzimuthAngle = 0;
+
+        // Жестко фиксируем полярный угол 2D-режима, чтобы 2D никогда не заваливался в 3D
+        if (camera && controls.target) {
+            const dx = camera.position.x - controls.target.x;
+            const dy = Math.max(10.0, camera.position.y - controls.target.y);
+            const dz = camera.position.z - controls.target.z;
+            const radius = Math.hypot(dx, dy, dz);
+            const phi2D = radius > 0.001 ? Math.acos(THREE.MathUtils.clamp(dy / radius, -1, 1)) : 0.31;
+            const safePhi = THREE.MathUtils.clamp(phi2D, 0.001, 0.42);
+            controls.minPolarAngle = safePhi;
+            controls.maxPolarAngle = safePhi;
+        } else {
+            controls.minPolarAngle = 0.31;
+            controls.maxPolarAngle = 0.31;
+        }
 
         // Фиксация максимального отдаления в 2D для защиты от мерцания и сливания иконок
         controls.maxDistance = 110;
@@ -437,18 +507,9 @@ function onPointerZoom(event) {
     camera.position.addVectors(hitPoint, _zoomCamOffset);
     controls.target.addVectors(hitPoint, _zoomTargetOffset);
 
-    // Гарантируем, что target.y строго лежит на плоскости этажа
+    // Гарантируем, что target.y строго лежит на плоскости этажа, и симметрично ограничиваем границы
     controls.target.y = activeFloorY;
-
-    // Ограничиваем смещение target границами территории колледжа, чтобы не потерять карту
-    controls.target.x = THREE.MathUtils.clamp(controls.target.x, -35.0, 95.0);
-    controls.target.z = THREE.MathUtils.clamp(controls.target.z, -80.0, 35.0);
-
-    // Ограничиваем минимальную высоту камеры над полом
-    const minCamY = activeFloorY + (STATE.is2D ? 10.0 : 0.80);
-    if (camera.position.y < minCamY) {
-        camera.position.y = minCamY;
-    }
+    clampCameraBounds();
 
     // Синхронизируем OrbitControls
     controls.update();

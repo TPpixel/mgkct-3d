@@ -7,15 +7,11 @@
     <!-- Resource Hints & Preconnections -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="dns-prefetch" href="https://cdn.tailwindcss.com">
-    <link rel="preload" href="js/vendor/three.min.js" as="script">
-    <link rel="preload" href="js/vendor/OrbitControls.js" as="script">
-    <!-- Tailwind CSS & Google Fonts (Roboto, Google Sans) -->
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="css/tailwind.min.css?v=88">
+    <link rel="stylesheet" href="css/style.css?v=88">
+    <link rel="preload" href="js/vendor/three.min.js?v=88" as="script">
+    <link rel="preload" href="js/vendor/OrbitControls.js?v=88" as="script">
     <script>
-        tailwind.config = {
-            darkMode: ['selector', '[data-theme="dark"]']
-        };
         (function() {
             try {
                 var saved = localStorage.getItem('mgkct_theme');
@@ -34,11 +30,6 @@
         })();
     </script>
     <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
-    <!-- Three.js & OrbitControls -->
-    <script src="js/vendor/three.min.js"></script>
-    <script src="js/vendor/OrbitControls.js"></script>
-    <!-- Стили -->
-    <link rel="stylesheet" href="css/style.css?v=83">
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
     <meta http-equiv="Pragma" content="no-cache" />
     <meta http-equiv="Expires" content="0" />
@@ -50,7 +41,7 @@
     <canvas id="labels-overlay-canvas" style="position:fixed; top:0; left:0; width:100%; height:100%; z-index:15; pointer-events:none;"></canvas>
 
     <!-- Панель выбора корпусов (Компактный блок 1-4 и отдельная кнопка «Все» справа) -->
-    <nav aria-label="Панель переключения корпусов" class="ui-overlay mobile-thumb-header fixed top-2 left-2 right-2 sm:top-[76px] sm:left-4 sm:right-auto z-20 flex items-center justify-center sm:justify-start pointer-events-none transition-all duration-200 gap-1.5">
+    <nav aria-label="Панель переключения корпусов" class="ui-overlay mobile-thumb-header fixed sm:top-[76px] sm:left-4 sm:right-auto z-20 flex items-center justify-center sm:justify-start pointer-events-none gap-1.5">
         <div class="bldg-pill-bar flex items-center justify-center pointer-events-auto" role="group" aria-label="Выбор корпуса">
             <button id="btn-bldg-1" type="button" class="bldg-chip bldg-pill-btn" data-bldg="1" title="Корпус 1" aria-label="Корпус 1">
                 <span class="bldg-indicator">1</span>
@@ -90,7 +81,7 @@
     </aside>
 
     <!-- Панель поиска и кнопка переключения темы: на телефоне внизу, на ПК вверху слева (Google Maps Search & Theme Pill) -->
-    <div id="bottom-search-bar" class="ui-overlay fixed bottom-3 left-3 right-3 sm:bottom-auto sm:top-3 sm:left-4 sm:right-auto sm:w-[480px] z-20 pointer-events-none transition-all duration-300 flex items-center gap-2">
+    <div id="bottom-search-bar" class="ui-overlay fixed bottom-3 left-3 right-3 sm:bottom-auto sm:top-3 sm:left-4 sm:right-auto sm:w-[480px] z-20 pointer-events-none flex items-center gap-2">
         <!-- Виджет поиска кабинетов (отдельная плашка) -->
         <div class="m3-search-bar flex-1 flex items-center min-w-0 pointer-events-auto">
             <button id="btn-open-search" class="m3-search-input-btn w-full flex items-center gap-3 min-w-0" aria-label="Поиск по колледжу">
@@ -156,6 +147,42 @@
             2D
         </button>
     </div>
+    <script>
+        /* Мгновенная синхронизация активных кнопок HUD из localStorage и URL до первого рендера кадра (0 мс задержки) */
+        (function() {
+            try {
+                var raw = localStorage.getItem("college_3d_map_settings_v3");
+                var s = raw ? JSON.parse(raw) : {};
+                var params = new URLSearchParams(window.location.search);
+                var bldg = params.get("bldg") || s.buildingFilter || "both";
+                var mode = params.get("floor") || s.mode || "1";
+                var is2D = (typeof s.is2D === "boolean") ? s.is2D : true;
+                if (mode === "all") is2D = false;
+                var showTerr = params.has("territory") ? (params.get("territory") !== "0") : Boolean(s.showTerritory);
+                var maxFloors = { both: 7, "1": 7, "2": 3, "3": 2, "4": 3, "5": 1 }[bldg] || 7;
+                if (/^[1-7]$/.test(mode) && parseInt(mode, 10) > maxFloors) mode = String(maxFloors);
+                document.querySelectorAll(".bldg-chip").forEach(function(b) {
+                    b.classList.toggle("active", b.dataset.bldg === bldg);
+                });
+                for (var f = 1; f <= 7; f++) {
+                    var fBtn = document.getElementById("floor-btn-" + f);
+                    if (fBtn) {
+                        fBtn.classList.toggle("disabled", f > maxFloors);
+                        fBtn.classList.toggle("active", String(f) === String(mode));
+                    }
+                }
+                var allBtn = document.getElementById("floor-btn-all");
+                if (allBtn) allBtn.classList.toggle("active", mode === "all");
+                var btn2D = document.getElementById("btn-toggle-2d");
+                if (btn2D) {
+                    btn2D.textContent = is2D ? "2D" : "3D";
+                    btn2D.classList.toggle("mode-active", !is2D);
+                }
+                var btnTerr = document.getElementById("btn-toggle-territory");
+                if (btnTerr) btnTerr.classList.toggle("mode-active", showTerr);
+            } catch (_) {}
+        })();
+    </script>
     <!-- Скрытые элементы масштабирования для обратной совместимости со скриптами -->
     <div style="display:none">
         <button id="btn-zoom-in"></button>
@@ -439,14 +466,14 @@
     </div>
 
     <!-- Плавающий баннер режима указания точки на карте (наверху экрана) -->
-    <div id="nav-pick-banner" class="fixed top-3.5 left-1/2 -translate-x-1/2 z-50 px-5 py-2.5 rounded-full border border-black/10 dark:border-white/10 shadow-2xl flex items-center gap-3 hidden transition-all duration-300">
+    <div id="nav-pick-banner" class="fixed top-3.5 left-1/2 -translate-x-1/2 z-50 px-5 py-2.5 rounded-full border border-black/10 dark:border-white/10 shadow-2xl flex items-center gap-3 hidden">
         <div id="nav-pick-dot" class="w-3 h-3 rounded-full bg-[#1a73e8] animate-ping"></div>
         <span id="nav-pick-text" class="text-xs font-bold text-slate-900 dark:text-white">Нажмите на любой кабинет на карте</span>
         <button id="btn-cancel-pick" class="px-3 py-1 rounded-full bg-[#c2e7ff] hover:opacity-90 text-[#1a73e8] text-xs font-bold transition ml-1">Отмена</button>
     </div>
 
     <!-- Нижняя плавающая карточка активного маршрута (Google Maps Expressive Route Card) -->
-    <div id="navigator-route-card" class="fixed bottom-4 left-3 right-3 sm:left-1/2 sm:-translate-x-1/2 sm:w-full sm:max-w-md z-30 p-3.5 sm:p-4 rounded-[28px] hidden transition-all duration-300">
+    <div id="navigator-route-card" class="fixed bottom-4 left-3 right-3 sm:left-1/2 sm:-translate-x-1/2 sm:w-full sm:max-w-md z-30 p-3.5 sm:p-4 rounded-[28px] hidden">
         <div class="flex items-center justify-between gap-3">
             <!-- Левая колонка: Вертикальный блок маршрута (Конечный кабинет ↑ Начальная точка) -->
             <div id="nav-card-title" class="flex flex-col items-center justify-center flex-shrink-0 cursor-pointer select-none" title="Изменить точки маршрута">
@@ -603,160 +630,22 @@
         </div>
     </div>
 
-    <!-- Боковая/нижняя шторка параметров (Settings Drawer) -->
-    <div id="settings-backdrop" class="drawer-backdrop"></div>
-    <aside id="settings-drawer" class="side-drawer p-4 sm:p-5 flex flex-col gap-4 text-xs overflow-y-auto custom-scroll" aria-label="Параметры отображения">
-        <!-- Шапка шторки -->
-        <div class="flex items-center justify-between pb-2 border-b border-slate-700/60">
-            <div class="flex items-center gap-2">
-                <svg class="w-4 h-4 text-[#1a73e8] dark:text-[#c2e7ff]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
-                </svg>
-                <h2 class="font-bold text-slate-100 uppercase tracking-wider text-xs">Параметры карты</h2>
-            </div>
-            <button id="btn-close-settings" class="text-slate-400 hover:text-slate-100 p-1 rounded-lg">
-                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-            </button>
-        </div>
-
-        <!-- 1. Высота стен (минимальная для карты, либо высокая для 3D) -->
-        <div class="bg-slate-800/40 border border-slate-700/60 rounded-xl p-3 flex flex-col gap-2.5">
-            <div class="flex justify-between items-center text-[11px]">
-                <span class="text-slate-300 font-semibold uppercase tracking-wider">Высота стен</span>
-                <span id="wall-height-val" class="font-mono text-[#1a73e8] bg-[#c2e7ff] px-2 py-0.5 rounded font-bold">0.35 м</span>
-            </div>
-            <input id="slider-wall-height" type="range" min="0.15" max="3.0" step="0.05" value="0.35" class="w-full cursor-pointer">
-            <div class="grid grid-cols-3 gap-1.5 pt-1">
-                <button id="btn-wall-min" class="wall-preset-btn btn-interactive py-1 px-1.5 rounded-lg text-center font-medium text-[11px]">
-                    0.35 м (Карта)
-                </button>
-                <button id="btn-wall-mid" class="wall-preset-btn btn-interactive py-1 px-1.5 rounded-lg text-center font-medium text-[11px]">
-                    1.20 м
-                </button>
-                <button id="btn-wall-max" class="wall-preset-btn btn-interactive py-1 px-1.5 rounded-lg text-center font-medium text-[11px]">
-                    2.40 м (3D)
-                </button>
-            </div>
-        </div>
-
-        <!-- 2. Размер шрифта номеров кабинетов -->
-        <div class="bg-slate-800/40 border border-slate-700/60 rounded-xl p-3 flex flex-col gap-2">
-            <div class="text-slate-300 font-semibold uppercase tracking-wider text-[11px]">
-                Размер номеров кабинетов
-            </div>
-            <div class="grid grid-cols-3 gap-1.5">
-                <button id="btn-labelsize-normal" class="labelsize-btn btn-interactive py-1 px-1.5 rounded-lg text-center font-medium text-[11px]">
-                    Стандарт
-                </button>
-                <button id="btn-labelsize-large" class="labelsize-btn btn-interactive py-1 px-1.5 rounded-lg text-center font-medium text-[11px]">
-                    Крупный
-                </button>
-                <button id="btn-labelsize-xl" class="labelsize-btn btn-interactive py-1 px-1.5 rounded-lg text-center font-medium text-[11px]">
-                    Максимум
-                </button>
-            </div>
-        </div>
-
-        <!-- 3. Режимы просмотра -->
-        <div class="bg-slate-800/40 border border-slate-700/60 rounded-xl p-3 flex flex-col gap-2">
-            <div class="text-slate-300 font-semibold uppercase tracking-wider text-[11px]">
-                Ракурс камеры
-            </div>
-            <div class="grid grid-cols-2 gap-1.5">
-                <button id="btn-view-top" class="view-preset-btn btn-interactive py-1.5 px-2 rounded-lg font-medium text-center text-[11px]">
-                    Вид сверху (2D)
-                </button>
-                <button id="btn-view-3d" class="view-preset-btn btn-interactive py-1.5 px-2 rounded-lg font-medium text-center text-[11px]">
-                    3D Изометрия
-                </button>
-                <button id="btn-view-305" class="view-preset-btn btn-interactive py-1.5 px-2 rounded-lg font-medium text-center text-[11px]">
-                    Узел переходов
-                </button>
-                <button id="btn-view-side" class="view-preset-btn btn-interactive py-1.5 px-2 rounded-lg font-medium text-center text-[11px]">
-                    Сравнение рядом
-                </button>
-            </div>
-        </div>
-
-        <!-- 4. Срез этажей и разнос (для 3D режима) -->
-        <div class="bg-slate-800/40 border border-slate-700/60 rounded-xl p-3 flex flex-col gap-2.5">
-            <div class="flex justify-between items-center text-[11px]">
-                <span class="text-slate-300 font-semibold uppercase tracking-wider">Срез этажей (1–7)</span>
-                <span id="slice-val" class="font-mono text-slate-300 bg-slate-800 border border-slate-700 px-1.5 py-0.5 rounded text-[11px]">1–7 эт.</span>
-            </div>
-            <input id="slider-slice" type="range" min="1" max="7" step="1" value="7" class="w-full cursor-pointer">
-
-            <div class="flex justify-between items-center text-[11px] pt-1">
-                <span class="text-slate-300 font-semibold uppercase tracking-wider">Разнос этажей в 3D</span>
-                <span id="explode-val" class="font-mono text-slate-300 bg-slate-800 border border-slate-700 px-1.5 py-0.5 rounded text-[11px]">0.0 м</span>
-            </div>
-            <input id="slider-explode" type="range" min="0" max="14" step="0.2" value="0" class="w-full cursor-pointer">
-        </div>
-
-        <!-- 5. Слои и видимость -->
-        <div class="bg-slate-800/40 border border-slate-700/60 rounded-xl p-3 flex flex-col gap-2">
-            <div class="text-slate-300 font-semibold uppercase tracking-wider text-[11px]">
-                Слои и элементы
-            </div>
-            <label class="flex items-center justify-between cursor-pointer py-0.5">
-                <span class="text-slate-300">Номера кабинетов</span>
-                <input id="toggle-labels" type="checkbox" checked class="switch-input">
-                <div class="switch-track"><div class="switch-thumb"></div></div>
-            </label>
-            <label class="flex items-center justify-between cursor-pointer py-0.5">
-                <span class="text-slate-300">Двери и проходы</span>
-                <input id="toggle-doors" type="checkbox" checked class="switch-input">
-                <div class="switch-track"><div class="switch-thumb"></div></div>
-            </label>
-            <label class="flex items-center justify-between cursor-pointer py-0.5">
-                <span class="text-slate-300">Контуры чертежа (Edges)</span>
-                <input id="toggle-edges" type="checkbox" checked class="switch-input">
-                <div class="switch-track"><div class="switch-thumb"></div></div>
-            </label>
-            <label class="flex items-center justify-between cursor-pointer py-0.5">
-                <span class="text-slate-300">Мягкие тени</span>
-                <input id="toggle-shadows" type="checkbox" class="switch-input">
-                <div class="switch-track"><div class="switch-thumb"></div></div>
-            </label>
-            <label class="flex items-center justify-between cursor-pointer py-0.5">
-                <span class="text-slate-300">Прилегающая территория</span>
-                <input id="toggle-territory" type="checkbox" class="switch-input">
-                <div class="switch-track"><div class="switch-thumb"></div></div>
-            </label>
-            <label class="flex items-center justify-between cursor-pointer py-0.5">
-                <span class="text-slate-300">Крыша здания</span>
-                <input id="toggle-roof" type="checkbox" class="switch-input">
-                <div class="switch-track"><div class="switch-thumb"></div></div>
-            </label>
-        </div>
-
-        <!-- 6. Сброс настроек -->
-        <button id="btn-reset-settings" class="btn-interactive w-full py-2.5 px-3 rounded-xl font-semibold text-rose-300 bg-rose-950/30 hover:bg-rose-950/50 border border-rose-800/40 transition flex items-center justify-center gap-2 mt-auto">
-            <svg class="w-4 h-4 text-rose-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-            </svg>
-            <span>Сбросить настройки карты</span>
-        </button>
-    </aside>
-
-
-
-    <!-- Подключение JS модулей -->
-    <script src="js/state.js?v=83"></script>
-    <script src="js/materials.js?v=83"></script>
-    <script src="js/helpers.js?v=83"></script>
-    <script src="js/buildings/building1.js?v=83"></script>
-    <script src="js/buildings/building2.js?v=83"></script>
-    <script src="js/buildings/building3.js?v=83"></script>
-    <script src="js/buildings/building4.js?v=83"></script>
-    <script src="js/buildings/building5.js?v=83"></script>
-    <script src="js/territory.js?v=83"></script>
-    <script src="js/controls.js?v=83"></script>
-    <script src="js/navigator.js?v=83"></script>
-    <script src="js/ui.js?v=83"></script>
-    <script src="js/main.js?v=83"></script>
-    <script src="js/telemetry.js?v=83"></script>
+    <!-- Подключение Three.js и JS модулей -->
+    <script src="js/vendor/three.min.js?v=88"></script>
+    <script src="js/vendor/OrbitControls.js?v=88"></script>
+    <script src="js/state.js?v=88"></script>
+    <script src="js/materials.js?v=88"></script>
+    <script src="js/helpers.js?v=88"></script>
+    <script src="js/buildings/building1.js?v=88"></script>
+    <script src="js/buildings/building2.js?v=88"></script>
+    <script src="js/buildings/building3.js?v=88"></script>
+    <script src="js/buildings/building4.js?v=88"></script>
+    <script src="js/buildings/building5.js?v=88"></script>
+    <script src="js/territory.js?v=88"></script>
+    <script src="js/controls.js?v=88"></script>
+    <script src="js/navigator.js?v=88"></script>
+    <script src="js/ui.js?v=88"></script>
+    <script src="js/main.js?v=88"></script>
+    <script src="js/telemetry.js?v=88"></script>
 </body>
 </html>

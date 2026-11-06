@@ -217,6 +217,11 @@ function init() {
                 camera.position.set(cx, distY, cz + offsetZ);
                 controls.target.set(cx, 0, cz);
                 camera.lookAt(cx, 0, cz);
+                if (urlParams.has('top') || urlParams.get('view') === 'top') {
+                    controls.minPolarAngle = 0;
+                    controls.maxPolarAngle = Math.PI / 2 - 0.01;
+                    controls.maxDistance = 1200;
+                }
                 controls.update();
                 STATE.targetCamPos = null;
                 STATE.targetControlsCenter = null;
@@ -300,6 +305,11 @@ function init() {
         animFrameId = null;
     }
     animate();
+    requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+            if (document.body) document.body.classList.add('ui-ready');
+        });
+    });
 }
 
 function buildStairValidationAxes() {
@@ -694,7 +704,7 @@ function updateFloorsInteriorVisibility() {
             if (child.userData.sharedBoundaryWith !== undefined) {
                 if (hideSharedBoundary) {
                     child.visible = false;
-                    return;
+                    continue;
                 }
             }
 
@@ -711,19 +721,19 @@ function updateFloorsInteriorVisibility() {
                         child.visible = showInterior;
                     }
                 }
-                return;
+                continue;
             }
 
             // КОНТУРЫ / РЁБРА (LineSegments): строго подчиняются переключателю STATE.showEdges!
             if (child.isLineSegments) {
                 child.visible = STATE.showEdges;
-                return;
+                continue;
             }
 
             // КРЫША: управляется исключительно переключателем STATE.showRoof
             if (child.userData.isRoof === true) {
                 child.visible = STATE.showRoof;
-                return;
+                continue;
             }
 
             // ВНЕШНИЕ ЭЛЕМЕНТЫ, ДВУСВЕТНЫЕ ПРОСТРАНСТВА И СТУПЕНИ ЛЕСТНИЦ ВСЕГДА ВИДНЫ!
@@ -733,7 +743,7 @@ function updateFloorsInteriorVisibility() {
                 } else {
                     child.visible = true;
                 }
-                return;
+                continue;
             }
 
             // Скрываем/показываем ТОЛЬКО внутренние перегородки, межкомнатные двери, внутренние ступени и таблички кабинетов
@@ -1047,16 +1057,19 @@ function animate(currentTime = 0) {
                 if (typeof resetControlsMomentum === "function") {
                     resetControlsMomentum();
                 }
-                controls.update();
                 if (typeof apply2DControls === "function") {
                     apply2DControls(STATE.is2D);
                 }
+                controls.update();
             }
         }
     } else if (controls) {
         const controlsMoved = controls.update();
         if (controlsMoved) {
             isCamMoving = true;
+        }
+        if (typeof clampCameraBounds === 'function') {
+            clampCameraBounds();
         }
     }
 
@@ -1090,11 +1103,6 @@ function animate(currentTime = 0) {
         }
         if (STATE.showStairAxes && isFloorsMoving) {
             updateStairValidationAxes();
-        }
-        // updateAdaptiveLabelScaling зависит от расстояния камеры.
-        // Вызываем только если камера или этажи движутся — экономим ~20 вызовов/сек в idle.
-        if (typeof updateAdaptiveLabelScaling === 'function' && (isCamMoving || isFloorsMoving)) {
-            updateAdaptiveLabelScaling();
         }
     }
 
