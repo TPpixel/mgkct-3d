@@ -1336,9 +1336,10 @@ function formatRoomDisplayName(text, buildingNum) {
     if (!text) return '';
     const b = parseInt(buildingNum, 10);
     const raw = String(text).trim();
+    if (/^с\/у/i.test(raw)) return raw.replace(/^с\/у/i, 'WC');
     if (b <= 1 || isNaN(b)) return raw;
     if (raw.startsWith('2-') || raw.startsWith('3-') || raw.startsWith('4-') || raw.startsWith('5-')) return raw;
-    if (raw.startsWith('С/У') || raw.startsWith('С/У')) return raw;
+    if (/^wc\b/i.test(raw)) return raw;
     const numPrefixMatch = raw.match(/^(\d+[а-яa-z]?)(.*)$/i);
     if (numPrefixMatch) {
         return b + '-' + numPrefixMatch[1] + numPrefixMatch[2];
@@ -1353,7 +1354,7 @@ function computeRoomLabelPriority(textStr) {
     if (/^\d+[\u0400-\u04FFA-Za-z]?$/.test(t)) return 1;
     if (t.includes('\n') || t.length > 3) return 2;
     if (t.startsWith('ЛК') || t.startsWith('\u041B\u041A')) return 3;
-    if (t.startsWith('С/У') || t.startsWith('\u0421/\u0423')) return 4;
+    if (/^(?:wc|с\/у)/i.test(t)) return 4;
     return 2;
 }
 
@@ -1796,8 +1797,8 @@ function renderScreenSpaceLabels() {
 
         // Определение гендерного санузла (М / Ж)
         const rawWcText = (r.rawText || r.text || '');
-        const isMaleWc = /с\/у\s*\(?м\)?/i.test(rawWcText);
-        const isFemaleWc = /с\/у\s*\(?ж\)?/i.test(rawWcText);
+        const isMaleWc = /(?:wc|с\/у)\s*\(?м\)?/i.test(rawWcText);
+        const isFemaleWc = /(?:wc|с\/у)\s*\(?ж\)?/i.test(rawWcText);
         const isWcIcon = isMaleWc || isFemaleWc;
 
         // Отступы пропорционально сжимаются при отдалении камеры

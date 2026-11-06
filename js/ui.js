@@ -798,11 +798,11 @@ function formatSearchRoomBadgeAndTitle(item) {
         codeNum = "209";
         title = "Учебная часть";
         subtitle = "Учебная часть колледжа";
-    } else if (/^с\/у/i.test(rawOrig)) {
+    } else if (/^(?:wc|с\/у)/i.test(rawOrig)) {
         const isM = /м|муж/i.test(rawOrig);
         const isF = /ж|жен/i.test(rawOrig);
         codeNum = "WC";
-        title = isM ? "Санузел (мужской)" : (isF ? "Санузел (женский)" : "Санузел");
+        title = isM ? "WC (мужской)" : (isF ? "WC (женский)" : "WC");
         subtitle = isM ? "Мужской туалет" : (isF ? "Женский туалет" : "Уборная");
     } else if (/^лк\s*№?\s*(\d+)/i.test(rawOrig)) {
         const m = rawOrig.match(/^лк\s*№?\s*(\d+)/i);
@@ -1066,7 +1066,7 @@ function setupSearch() {
     });
 
     btnQuickToilet?.addEventListener("click", () => {
-        toggleQuickCategory(btnQuickToilet, "С/У");
+        toggleQuickCategory(btnQuickToilet, "WC");
     });
 
     btnQuickInfo?.addEventListener("click", () => {
@@ -1492,7 +1492,7 @@ function setupSearch() {
             if (bldg === 2 && r.floor === 3 && (cleanText.includes("308") || cleanText.includes("спорт"))) alias = "спортзал спортивный зал спорт 308";
             if (bldg === 2 && r.floor === 3 && (cleanText.includes("312") || cleanText.includes("конференц"))) alias = "конференц-зал конференц зал собрания 312";
             if (bldg === 2 && r.floor === 2 && (cleanText.includes("209") || cleanText.includes("учебн"))) alias = "учебная часть учебная 209 2-209";
-            if (/^с\/у/i.test(cleanText)) {
+            if (/^(?:wc|с\/у)/i.test(cleanText)) {
                 const isM = /м|муж/i.test(cleanText);
                 const isF = /ж|жен/i.test(cleanText);
                 alias = "туалет санузел уборная wc с/у" + (isM ? " мужской м" : "") + (isF ? " женский ж" : "");

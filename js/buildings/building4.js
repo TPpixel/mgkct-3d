@@ -755,8 +755,8 @@
             addRoomLabel(targetGroup, 2, 'ЛК№2', 30.1, -48.3, true, false, 4, 0.85);
             addRoomLabel(targetGroup, 2, 'Переход\nК3 ↔ К4', 24.0, -45.4, false, true, 4, 0.85);
             addRoomLabel(targetGroup, 2, 'Переход\nК4 ↔ К2', 37.4, -20.6, false, true, 4, 0.85);
-            addRoomLabel(targetGroup, 2, 'С/У (М)', 43.8, -49.1, true, false, 4, 0.72);
-            addRoomLabel(targetGroup, 2, 'С/У (Ж)', 43.8, -46.0, true, false, 4, 0.72);
+            addRoomLabel(targetGroup, 2, 'WC (М)', 43.8, -49.1, true, false, 4, 0.72);
+            addRoomLabel(targetGroup, 2, 'WC (Ж)', 43.8, -46.0, true, false, 4, 0.72);
             addRoomLabel(targetGroup, 2, 'Служеб.\nпом.', 48.3, -47.6, true, false, 4, 0.88);
             addRoomLabel(targetGroup, 2, '210', 52.7, -47.6, true, false, 4, 0.88);
             addRoomLabel(targetGroup, 2, '211', 56.2, -48.2, true, false, 4, 0.85);
@@ -1016,8 +1016,8 @@
             addRoomLabel(targetGroup, 3, '311', 47.2, -28.4, true, false, 4, 0.85);
             addRoomLabel(targetGroup, 3, '310', 43.9, -28.5, true, false, 4, 0.88);
 
-            addRoomLabel(targetGroup, 3, 'С/у', 42.3, -40.5, true, false, 4, 0.72);
-            addRoomLabel(targetGroup, 3, 'С/у', 42.3, -38.3, true, false, 4, 0.72);
+            addRoomLabel(targetGroup, 3, 'WC', 42.3, -40.5, true, false, 4, 0.72);
+            addRoomLabel(targetGroup, 3, 'WC', 42.3, -38.3, true, false, 4, 0.72);
 
             addRoomLabel(targetGroup, 3, '306', 34.2, -44.2, true, false, 4, 0.90);
             addRoomLabel(targetGroup, 3, '304', 34.2, -39.4, true, false, 4, 0.90);
