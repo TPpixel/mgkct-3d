@@ -126,16 +126,21 @@ window.calculateWalkTime = calculateWalkTime;
             this.nodesByFloor = new Map(); // floor -> node[] для O(1) пространственной выборки
         }
 
-        addNode(id, floor, bldg, x, z, type = 'corridor', label = '') {
+        addNode(id, floor, bldg, x, z, type = 'corridor', label = '', meta = null) {
             if (!this.nodes.has(id)) {
+                const bldgNum = parseInt(bldg, 10);
+                const isOutdoor = (meta && meta.isOutdoor !== undefined)
+                    ? Boolean(meta.isOutdoor)
+                    : (bldgNum === 0);
                 const nodeObj = {
                     id,
                     floor: parseInt(floor, 10),
-                    bldg: parseInt(bldg, 10),
+                    bldg: bldgNum,
                     x: Math.round(x * 100) / 100,
                     z: Math.round(z * 100) / 100,
                     type,
-                    label: label || ''
+                    label: label || '',
+                    isOutdoor
                 };
                 this.nodes.set(id, nodeObj);
                 this.adj.set(id, []);
@@ -2750,8 +2755,8 @@ window.calculateWalkTime = calculateWalkTime;
         // узлы недостижимыми через findClosestNode при фильтрации по корпусу).
         g.addNode("b5_f1_interior", 1, 5, 11.0, -68.7, "corridor", "Гараж");
         g.addNode("b5_f1_gate", 1, 5, 14.0, -68.7, "door", "Въезд в гараж");
-        g.addNode("outdoor_b5_apron", 1, 5, 16.5, -68.7, "corridor", "Подъезд к гаражу");
-        g.addNode("outdoor_b5_junc", 1, 5, 19.0, -68.7, "corridor", "Проезд к гаражу");
+        g.addNode("outdoor_b5_apron", 1, 5, 16.5, -68.7, "corridor", "Подъезд к гаражу", { isOutdoor: true });
+        g.addNode("outdoor_b5_junc", 1, 5, 19.0, -68.7, "corridor", "Проезд к гаражу", { isOutdoor: true });
 
         g.addEdge("outdoor_court_north", "outdoor_b5_junc", 23.5);
         g.addEdge("outdoor_b5_junc", "outdoor_b5_apron", 2.5);
@@ -3123,6 +3128,13 @@ window.calculateWalkTime = calculateWalkTime;
         if (typeof requestRender === 'function') requestRender(20);
     }
 
+    function getRouteNodeBaseY(node) {
+        const indoorY = (typeof ROUTE_INDOOR_Y === 'number') ? ROUTE_INDOOR_Y : 0.08;
+        const curbTopY = (typeof CURB_TOP_Y === 'number') ? CURB_TOP_Y : 0.12;
+        const clearance = (typeof ROUTE_OUTDOOR_CLEARANCE === 'number') ? ROUTE_OUTDOOR_CLEARANCE : 0.012;
+        return (node && node.isOutdoor) ? (curbTopY + clearance) : indoorY;
+    }
+
     function simplifyRoutePoints(points) {
         if (!points || points.length <= 2) return points || [];
         const clean = [points[0]];
@@ -3139,9 +3151,17 @@ window.calculateWalkTime = calculateWalkTime;
             const l1 = Math.hypot(dx1, dz1);
             const l2 = Math.hypot(dx2, dz2);
 
-            // Пропускаем дубликаты точек ближе 4 см
-            if (l1 < 0.04) continue;
-            if (l2 < 0.04) continue;
+            // Пропускаем дубликаты точек ближе 4 см, если высота не меняется
+            const dy1 = Math.abs((curr.y || 0) - (prev.y || 0));
+            const dy2 = Math.abs((next.y || 0) - (curr.y || 0));
+            if (l1 < 0.04 && dy1 < 0.001) continue;
+            if (l2 < 0.04 && dy2 < 0.001) continue;
+
+            // Сохраняем перелом высоты между внутренними помещениями и уличным полотном
+            if (dy1 > 0.001 || dy2 > 0.001) {
+                clean.push(curr);
+                continue;
+            }
 
             const dot = (dx1 * dx2 + dz1 * dz2) / (l1 * l2);
             // Если вектор направления не меняется — схлопываем промежуточную точку!
@@ -3154,13 +3174,14 @@ window.calculateWalkTime = calculateWalkTime;
         return clean;
     }
 
-    function createFlatRibbonGeometry(pts, width, yElevation) {
+    function createFlatRibbonGeometry(pts, width, yOffset = 0) {
         if (!pts || pts.length < 2) return null;
         const halfW = width / 2;
+        const defaultIndoorY = (typeof ROUTE_INDOOR_Y === 'number') ? ROUTE_INDOOR_Y : 0.08;
         const positions = [];
         const indices = [];
 
-        // 1. Прямоугольные отрезки постоянной ширины вдоль всей траектории
+        // 1. Прямоугольные отрезки постоянной ширины вдоль всей траектории с учётом высоты каждой вершины
         for (let i = 0; i < pts.length - 1; i++) {
             const p0 = pts[i];
             const p1 = pts[i + 1];
@@ -3169,14 +3190,16 @@ window.calculateWalkTime = calculateWalkTime;
             const len = Math.hypot(dx, dz);
             if (len < 1e-4) continue;
 
+            const y0 = (typeof p0.y === 'number' ? p0.y : defaultIndoorY) + yOffset;
+            const y1 = (typeof p1.y === 'number' ? p1.y : defaultIndoorY) + yOffset;
             const nx = (-dz / len) * halfW;
             const nz = (dx / len) * halfW;
             const baseIdx = positions.length / 3;
 
-            positions.push(p0.x + nx, yElevation, p0.z + nz);
-            positions.push(p0.x - nx, yElevation, p0.z - nz);
-            positions.push(p1.x + nx, yElevation, p1.z + nz);
-            positions.push(p1.x - nx, yElevation, p1.z - nz);
+            positions.push(p0.x + nx, y0, p0.z + nz);
+            positions.push(p0.x - nx, y0, p0.z - nz);
+            positions.push(p1.x + nx, y1, p1.z + nz);
+            positions.push(p1.x - nx, y1, p1.z - nz);
 
             indices.push(baseIdx, baseIdx + 1, baseIdx + 2);
             indices.push(baseIdx + 1, baseIdx + 3, baseIdx + 2);
@@ -3187,14 +3210,15 @@ window.calculateWalkTime = calculateWalkTime;
         const circleSegments = 16;
         for (let i = 0; i < pts.length; i++) {
             const center = pts[i];
+            const yc = (typeof center.y === 'number' ? center.y : defaultIndoorY) + yOffset;
             const centerIdx = positions.length / 3;
-            positions.push(center.x, yElevation, center.z);
+            positions.push(center.x, yc, center.z);
 
             for (let s = 0; s <= circleSegments; s++) {
                 const angle = (s / circleSegments) * Math.PI * 2;
                 const rx = center.x + Math.cos(angle) * halfW;
                 const rz = center.z + Math.sin(angle) * halfW;
-                positions.push(rx, yElevation, rz);
+                positions.push(rx, yc, rz);
             }
 
             for (let s = 0; s < circleSegments; s++) {
@@ -3221,8 +3245,8 @@ window.calculateWalkTime = calculateWalkTime;
 
         const group = new THREE.Group();
 
-        // 1. Основная плоская светящаяся полоса на полу (ширина 0.34м, Y = 0.08)
-        const baseGeom = createFlatRibbonGeometry(points, 0.34, 0.08);
+        // 1. Основная плоская светящаяся полоса (ширина 0.34м, высота по узлам pt.y + 0)
+        const baseGeom = createFlatRibbonGeometry(points, 0.34, 0);
         if (!baseGeom) return null;
 
         const baseMat = new THREE.MeshBasicMaterial({
@@ -3237,8 +3261,8 @@ window.calculateWalkTime = calculateWalkTime;
         baseMesh.userData = { isRouteRibbonBase: true };
         group.add(baseMesh);
 
-        // 2. Внутренняя контрастная сердцевина (ширина 0.12м, Y = 0.085)
-        const coreGeom = createFlatRibbonGeometry(points, 0.12, 0.085);
+        // 2. Внутренняя контрастная сердцевина (ширина 0.12м, +0.005м над основой)
+        const coreGeom = createFlatRibbonGeometry(points, 0.12, 0.005);
         if (coreGeom) {
             const coreMat = new THREE.MeshBasicMaterial({
                 color: coreColor,
@@ -3355,14 +3379,14 @@ window.calculateWalkTime = calculateWalkTime;
         }
 
         let currentFloor = nodes[0].floor;
-        let currentPoints = [new THREE.Vector3(nodes[0].x, 0.14, nodes[0].z)];
+        let currentPoints = [new THREE.Vector3(nodes[0].x, getRouteNodeBaseY(nodes[0]), nodes[0].z)];
 
         for (let i = 1; i < nodes.length; i++) {
             const prev = nodes[i - 1];
             const curr = nodes[i];
 
             if (curr.floor === prev.floor) {
-                currentPoints.push(new THREE.Vector3(curr.x, 0.14, curr.z));
+                currentPoints.push(new THREE.Vector3(curr.x, getRouteNodeBaseY(curr), curr.z));
             } else {
                 // Завершаем текущий отрезок на этом этаже
                 if (currentPoints.length >= 2) {
@@ -3370,7 +3394,7 @@ window.calculateWalkTime = calculateWalkTime;
                 }
                 // Начинаем отрезок на новом этаже
                 currentFloor = curr.floor;
-                currentPoints = [new THREE.Vector3(curr.x, 0.14, curr.z)];
+                currentPoints = [new THREE.Vector3(curr.x, getRouteNodeBaseY(curr), curr.z)];
             }
         }
         if (currentPoints.length >= 2) {
@@ -3404,12 +3428,15 @@ window.calculateWalkTime = calculateWalkTime;
             }
         }
 
+        const indoorRefY = (typeof ROUTE_INDOOR_Y === 'number') ? ROUTE_INDOOR_Y : 0.08;
+
         // Маркер точки "А" (Откуда / первичный) — небесно-голубой
         const startNode = nodes[0];
         if (startNode) {
             const startGroup = getOrCreateFloorRouteGroup(startNode.floor);
             const startMarker = createMarkerRing(0x38bdf8, 'A', true);
-            startMarker.position.set(startNode.x, 0.05, startNode.z);
+            const startDeltaY = getRouteNodeBaseY(startNode) - indoorRefY;
+            startMarker.position.set(startNode.x, 0.05 + startDeltaY, startNode.z);
             startGroup.add(startMarker);
         }
 
@@ -3418,7 +3445,8 @@ window.calculateWalkTime = calculateWalkTime;
         if (destNode) {
             const destGroup = getOrCreateFloorRouteGroup(destNode.floor);
             const destMarker = createMarkerRing(0x1a73e8, 'B', true);
-            destMarker.position.set(destNode.x, 0.05, destNode.z);
+            const destDeltaY = getRouteNodeBaseY(destNode) - indoorRefY;
+            destMarker.position.set(destNode.x, 0.05 + destDeltaY, destNode.z);
             destGroup.add(destMarker);
         }
 
