@@ -15,3 +15,4 @@ verification_screenshots/
 tests/snap_*.py
 tests/capture_*.py
 tests/inspect_*.py
+.wrangler/
