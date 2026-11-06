@@ -336,7 +336,30 @@ function updateFloorInfo() {
     updateTopFloorBadge();
 }
 
-function setMode(newMode, shouldSave = true) {
+function resolveSingleFloorTarget() {
+    if (window.NAV_STATE && window.NAV_STATE.activeRoute && Array.isArray(window.NAV_STATE.activeRoute.involvedFloors) && window.NAV_STATE.activeRoute.involvedFloors.length > 0) {
+        return String(window.NAV_STATE.activeRoute.involvedFloors[0]);
+    }
+    const maxAllowed = BUILDING_MAX_FLOORS[STATE.buildingFilter] || 7;
+    const lastF = parseInt(STATE.lastSingleFloor, 10) || 1;
+    return String(Math.min(Math.max(1, lastF), maxAllowed));
+}
+
+function toggleAllFloorsMode() {
+    if (STATE.mode === 'all') {
+        setMode(resolveSingleFloorTarget());
+    } else {
+        setMode('all');
+    }
+}
+window.toggleAllFloorsMode = toggleAllFloorsMode;
+
+function setMode(newMode, shouldSave = true, shouldAnimateCam = true) {
+    const prevMode = STATE.mode;
+    const isNewSingleFloor = /^[1-7]$/.test(String(newMode));
+    if (isNewSingleFloor) {
+        STATE.lastSingleFloor = String(newMode);
+    }
     STATE.mode = newMode;
 
     if (document.body) {
@@ -376,13 +399,20 @@ function setMode(newMode, shouldSave = true) {
         if (STATE.is2D && typeof setViewMode === 'function') {
             setViewMode(false, false);
         }
-        if (typeof resetControlsMomentum === 'function') resetControlsMomentum();
-        const cx = getActiveCenterX();
-        const cz = getActiveCenterZ();
-        const isMobile = window.innerWidth < 768;
-        const distY = isMobile ? 65 : 55;
-        STATE.targetControlsCenter = new THREE.Vector3(cx, 6, cz);
-        STATE.targetCamPos = new THREE.Vector3(cx - 30, distY, cz + (isMobile ? 55 : 65));
+        if (shouldAnimateCam) {
+            if (typeof resetControlsMomentum === 'function') resetControlsMomentum();
+            const cx = getActiveCenterX();
+            const cz = getActiveCenterZ();
+            const isMobile = window.innerWidth < 768;
+            const distY = isMobile ? 65 : 55;
+            STATE.targetControlsCenter = new THREE.Vector3(cx, 6, cz);
+            STATE.targetCamPos = new THREE.Vector3(cx - 30, distY, cz + (isMobile ? 55 : 65));
+        }
+    } else if ((prevMode === 'all' || prevMode === 'slice') && isNewSingleFloor) {
+        // При выходе из режима слоёв («Все этажи» / «Срез») на конкретный этаж автоматически возвращаем 2D-режим
+        if (!STATE.is2D && typeof setViewMode === 'function') {
+            setViewMode(true, shouldAnimateCam);
+        }
     }
 
     updateFloorInfo();
@@ -579,9 +609,9 @@ function setLabelScale(scale) {
 function selectRoom(roomInfo, shouldFly = true) {
     if (!roomInfo) return;
 
-    // Включаем нужный этаж
+    // Включаем нужный этаж без промежуточного сброса камеры (selectRoom сам наведёт камеру на кабинет)
     if (String(roomInfo.floor) !== String(STATE.mode)) {
-        setMode(String(roomInfo.floor));
+        setMode(String(roomInfo.floor), true, false);
     }
 
     // Очищаем поисковую строку после найденного кабинета
@@ -1858,11 +1888,16 @@ function setupUI() {
     setupSettingsDrawer();
     setupRoomContextPopup();
 
-    // Селектор этажей (кнопки 1–7)
+    // Селектор этажей (кнопки 1–7 и Все этажи)
     document.querySelectorAll('.floor-btn').forEach(btn => {
         btn.addEventListener('click', () => {
             const f = btn.dataset.floor;
-            if (f) setMode(f);
+            if (!f) return;
+            if (f === 'all') {
+                toggleAllFloorsMode();
+            } else {
+                setMode(f);
+            }
         });
     });
 
@@ -1879,17 +1914,7 @@ function setupUI() {
         setBuildingFilter('both');
     });
 
-    document.getElementById('btn-toggle-all-floors')?.addEventListener('click', () => {
-        if (STATE.mode === 'all') {
-            if (window.NAV_STATE && window.NAV_STATE.activeRoute && Array.isArray(window.NAV_STATE.activeRoute.involvedFloors) && window.NAV_STATE.activeRoute.involvedFloors.length > 0) {
-                setMode(String(window.NAV_STATE.activeRoute.involvedFloors[0]));
-            } else {
-                setMode('1');
-            }
-        } else {
-            setMode('all');
-        }
-    });
+    document.getElementById('btn-toggle-all-floors')?.addEventListener('click', toggleAllFloorsMode);
 
     document.getElementById('btn-toggle-territory')?.addEventListener('click', toggleTerritoryView);
     document.getElementById('btn-toggle-2d')?.addEventListener('click', toggle2DView);
