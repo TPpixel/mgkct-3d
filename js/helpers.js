@@ -35,10 +35,13 @@ function clearHelpersGeometryCaches() {
 window.clearHelpersGeometryCaches = clearHelpersGeometryCaches;
 
 function getCachedBoxGeometry(w, h, d) {
-    const key = `${Math.round(w * 1000)}_${Math.round(h * 1000)}_${Math.round(d * 1000)}`;
+    const safeW = Math.max(w, 0.001);
+    const safeH = Math.max(h, 0.001);
+    const safeD = Math.max(d, 0.001);
+    const key = `${Math.round(safeW * 1000)}_${Math.round(safeH * 1000)}_${Math.round(safeD * 1000)}`;
     let geom = _boxGeomCache.get(key);
     if (!geom) {
-        geom = new THREE.BoxGeometry(w, h, d);
+        geom = new THREE.BoxGeometry(safeW, safeH, safeD);
         _boxGeomCache.set(key, geom);
     }
     return geom;
@@ -358,14 +361,45 @@ function solveCampusJunctions(targetGroup, pendingLines) {
         origC2: d.c2
     }));
 
+    // Пространственный индекс для ускорения поиска коллинеарных стен с O(N) до O(1)
+    const collinearMap = new Map();
+    function getCollinearKey(isH, fixedCoord) {
+        return (isH ? 'H_' : 'V_') + Math.round(fixedCoord * 20);
+    }
+    for (let idx = 0; idx < solved.length; idx++) {
+        const w = solved[idx];
+        const k = getCollinearKey(w.isHorizontal, w.fixedCoord);
+        let list = collinearMap.get(k);
+        if (!list) {
+            list = [];
+            collinearMap.set(k, list);
+        }
+        list.push(w);
+    }
+
     function wallContinuesThrough(fixedCoord, axisCoord, isH) {
-        for (const other of solved) {
-            if (other.isHorizontal === isH && Math.abs(other.fixedCoord - fixedCoord) < 0.05) {
+        const prefix = isH ? 'H_' : 'V_';
+        const b = Math.round(fixedCoord * 20);
+        const candidates = [];
+        for (let db = -1; db <= 1; db++) {
+            const list = collinearMap.get(prefix + (b + db));
+            if (list) {
+                for (let li = 0; li < list.length; li++) {
+                    candidates.push(list[li]);
+                }
+            }
+        }
+        if (candidates.length === 0) return null;
+        for (let idx = 0; idx < candidates.length; idx++) {
+            const other = candidates[idx];
+            if (Math.abs(other.fixedCoord - fixedCoord) < 0.05) {
                 if (axisCoord > other.origC1 + 0.06 && axisCoord < other.origC2 - 0.06) {
                     return other;
                 }
-                for (const o2 of solved) {
-                    if (o2 !== other && o2.isHorizontal === isH && Math.abs(o2.fixedCoord - fixedCoord) < 0.05) {
+                for (let idx2 = 0; idx2 < candidates.length; idx2++) {
+                    if (idx === idx2) continue;
+                    const o2 = candidates[idx2];
+                    if (Math.abs(o2.fixedCoord - fixedCoord) < 0.05) {
                         if (Math.abs(other.origC2 - axisCoord) <= 0.06 && Math.abs(o2.origC1 - axisCoord) <= 0.06) {
                             return other;
                         }
@@ -376,14 +410,20 @@ function solveCampusJunctions(targetGroup, pendingLines) {
         return null;
     }
 
-    for (let i = 0; i < solved.length; i++) {
-        const A = solved[i];
-        for (let j = 0; j < solved.length; j++) {
-            if (i === j) continue;
-            const B = solved[j];
+    // Разделение стен по ориентации для исключения избыточных парных проверок
+    const hWalls = [];
+    const vWalls = [];
+    for (let idx = 0; idx < solved.length; idx++) {
+        if (solved[idx].isHorizontal) hWalls.push(solved[idx]);
+        else vWalls.push(solved[idx]);
+    }
 
-            if (A.isHorizontal && !B.isHorizontal) {
-                const x0 = B.fixedCoord;
+    for (let i = 0; i < hWalls.length; i++) {
+        const A = hWalls[i];
+        for (let j = 0; j < vWalls.length; j++) {
+            const B = vWalls[j];
+
+            const x0 = B.fixedCoord;
                 const z0 = A.fixedCoord;
 
                 const xInA = (x0 >= A.origC1 - 0.06 && x0 <= A.origC2 + 0.06);
@@ -479,7 +519,6 @@ function solveCampusJunctions(targetGroup, pendingLines) {
                 }
             }
         }
-    }
 
     // Финальный проход де-оверлапа: гарантирует 0 взаимных проникновений 3D-боксов стен внутри группы
     let overlapChanged = true;
@@ -1593,8 +1632,8 @@ function renderScreenSpaceLabels() {
         return a.room.z - b.room.z;
     });
 
-    // Полифилл roundRect для 100% совместимости
-    if (!overlayCtx.roundRect) {
+    // Однократный полифилл roundRect на прототипе CanvasRenderingContext2D
+    if (!CanvasRenderingContext2D.prototype.roundRect && !overlayCtx.roundRect) {
         overlayCtx.roundRect = function(x, y, rw, rh, rad) {
             this.beginPath();
             this.moveTo(x + rad, y);
@@ -1607,7 +1646,26 @@ function renderScreenSpaceLabels() {
         };
     }
 
-    const drawnBoxes = [];
+    let _labelQueryStamp = 0;
+    // Пространственная 2D-сетка (Spatial Grid) для детекции коллизий бейджей с O(N) вместо O(N^2)
+    const GRID_CELL_SIZE = 96;
+    const gridCols = Math.max(1, Math.ceil(w / GRID_CELL_SIZE) + 2);
+    const gridRows = Math.max(1, Math.ceil(h / GRID_CELL_SIZE) + 2);
+    const spatialGrid = new Map();
+
+    function getGridCellIndices(bx0, by0, bx1, by1) {
+        const cMinX = Math.max(0, Math.floor((bx0 + 80) / GRID_CELL_SIZE));
+        const cMaxX = Math.min(gridCols - 1, Math.floor((bx1 + 80) / GRID_CELL_SIZE));
+        const cMinY = Math.max(0, Math.floor((by0 + 40) / GRID_CELL_SIZE));
+        const cMaxY = Math.min(gridRows - 1, Math.floor((by1 + 40) / GRID_CELL_SIZE));
+        const indices = [];
+        for (let cy = cMinY; cy <= cMaxY; cy++) {
+            for (let cx = cMinX; cx <= cMaxX; cx++) {
+                indices.push(cy * gridCols + cx);
+            }
+        }
+        return indices;
+    }
 
     for (let i = 0; i < candidateRooms.length; i++) {
         const { room: r, fg } = candidateRooms[i];
@@ -1653,7 +1711,10 @@ function renderScreenSpaceLabels() {
             const mKey = fontSize + '|' + lines[l];
             let lw = _textWidthCache.get(mKey);
             if (lw === undefined) {
-                if (_textWidthCache.size > 2000) _textWidthCache.clear();
+                if (_textWidthCache.size > 2000) {
+                    const oldestKey = _textWidthCache.keys().next().value;
+                    _textWidthCache.delete(oldestKey);
+                }
                 lw = overlayCtx.measureText(lines[l]).width;
                 _textWidthCache.set(mKey, lw);
             }
@@ -1678,26 +1739,43 @@ function renderScreenSpaceLabels() {
         const x1 = x0 + badgeW;
         const y1 = y0 + badgeH;
 
-        // 3. Строгая проверка наложения с гарантированным зазором:
-        // Минимальный зазор гарантирует, что внешняя обводка (1.3-2.0px) и тень (размытие 4px)
-        // ни при каких условиях не пересекаются и не наползают друг на друга
+        // 3. Строгая проверка наложения с гарантированным зазором через пространственную сетку:
         const badgeKey = `${r.building}-${r.floor}-${r.text}-${Math.round(r.x * 10)}-${Math.round(r.z * 10)}`;
         const wasVisible = activeBadgeKeys.has(badgeKey);
         const baseMargin = Math.max(1.6, Math.min(2.8, 2.6 * zoomScale));
         const margin = wasVisible ? Math.max(0.8, 1.0 * zoomScale) : baseMargin;
 
+        const checkCells = getGridCellIndices(x0 - margin, y0 - margin, x1 + margin, y1 + margin);
         let overlap = false;
-        for (let b = 0; b < drawnBoxes.length; b++) {
-            const db = drawnBoxes[b];
-            if (!(x1 + margin < db.x0 || x0 - margin > db.x1 || y1 + margin < db.y0 || y0 - margin > db.y1)) {
-                overlap = true;
-                break;
+        _labelQueryStamp++;
+
+        for (let c = 0; c < checkCells.length; c++) {
+            const cellBoxes = spatialGrid.get(checkCells[c]);
+            if (!cellBoxes) continue;
+            for (let b = 0; b < cellBoxes.length; b++) {
+                const db = cellBoxes[b];
+                if (db._stamp === _labelQueryStamp) continue;
+                db._stamp = _labelQueryStamp;
+                if (!(x1 + margin < db.x0 || x0 - margin > db.x1 || y1 + margin < db.y0 || y0 - margin > db.y1)) {
+                    overlap = true;
+                    break;
+                }
             }
+            if (overlap) break;
         }
         if (overlap) continue;
 
         nextActiveBadgeKeys.add(badgeKey);
-        drawnBoxes.push({ x0, y0, x1, y1 });
+        const boxObj = { x0, y0, x1, y1 };
+        for (let c = 0; c < checkCells.length; c++) {
+            const cIdx = checkCells[c];
+            let cellList = spatialGrid.get(cIdx);
+            if (!cellList) {
+                cellList = [];
+                spatialGrid.set(cIdx, cellList);
+            }
+            cellList.push(boxObj);
+        }
         renderedScreenBadges.push({ room: r, x0, y0, x1, y1 });
 
         // 4. Отрисовка плашки номера кабинета (Тёмная / Светлая тема):

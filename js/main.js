@@ -99,6 +99,7 @@ function init() {
     scene.add(stairValidationGroup);
 
     territoryGroup = new THREE.Group();
+    window.territoryGroup = territoryGroup;
     scene.add(territoryGroup);
 
     roadNetworkGroup = new THREE.Group();
@@ -650,16 +651,21 @@ function updateEdgesVisibility() {
     wallEdges.forEach(applyEdgeVisibility);
     doorEdges.forEach(applyEdgeVisibility);
 
-    // Второй проход ловит LineSegments-объекты, не попавшие в wallEdges/doorEdges
-    // (вспомогательные линии, оси, направляющие внутри floorGroups).
-    for (let f = 1; f <= 7; f++) {
-        if (floorGroups[f]) {
-            floorGroups[f].traverse(child => {
-                if (child.isLineSegments && !handled.has(child)) {
-                    applyEdgeVisibility(child);
-                }
-            });
+    // Кэшированный список вспомогательных LineSegments (без рекурсивного traverse каждого этажа)
+    if (!window._auxEdgesList) {
+        window._auxEdgesList = [];
+        for (let f = 1; f <= 7; f++) {
+            if (floorGroups[f]) {
+                floorGroups[f].traverse(child => {
+                    if (child.isLineSegments && !handled.has(child)) {
+                        window._auxEdgesList.push(child);
+                    }
+                });
+            }
         }
+    }
+    for (let i = 0; i < window._auxEdgesList.length; i++) {
+        applyEdgeVisibility(window._auxEdgesList[i]);
     }
     requestRender(20);
 }
@@ -673,8 +679,15 @@ function updateFloorsInteriorVisibility() {
         const showInterior = !isStack || isTopFloor;
 
         const hideSharedBoundary = (STATE.buildingFilter === 'both');
-        group.traverse(child => {
-            if (!child.userData) return;
+        if (!group._interiorElements) {
+            group._interiorElements = [];
+            group.traverse(child => {
+                if (child.userData) group._interiorElements.push(child);
+            });
+        }
+        const elements = group._interiorElements;
+        for (let eIdx = 0; eIdx < elements.length; eIdx++) {
+            const child = elements[eIdx];
             if (child.userData.sharedBoundaryWith !== undefined) {
                 if (hideSharedBoundary) {
                     child.visible = false;
@@ -736,7 +749,7 @@ function updateFloorsInteriorVisibility() {
                     child.visible = true;
                 }
             }
-        });
+        }
     }
 
     const maxF = STATE.mode === 'slice' ? STATE.sliceMaxFloor : 7;
@@ -972,19 +985,22 @@ function animate(currentTime = 0) {
 
     // 1. Проверяем анимацию этажей (интерполяция)
     let isFloorsMoving = false;
+    let shadowNeedsUpdate = false;
     for (let f = 1; f <= 7; f++) {
         if (floorGroups[f] && STATE.targetPos[f]) {
             if (floorGroups[f].position.distanceToSquared(STATE.targetPos[f]) > 0.0001) {
                 isFloorsMoving = true;
                 floorGroups[f].position.lerp(STATE.targetPos[f], 0.15);
-                if (renderer.shadowMap && renderer.shadowMap.enabled) {
-                    renderer.shadowMap.needsUpdate = true;
-                }
+                shadowNeedsUpdate = true;
             } else if (!floorGroups[f].position.equals(STATE.targetPos[f])) {
                 floorGroups[f].position.copy(STATE.targetPos[f]);
                 isFloorsMoving = true;
+                shadowNeedsUpdate = true;
             }
         }
+    }
+    if (shadowNeedsUpdate && renderer && renderer.shadowMap && renderer.shadowMap.enabled) {
+        renderer.shadowMap.needsUpdate = true;
     }
 
     // 2. Проверяем синхронную анимацию камеры и центра вращения (без конфликта с инерцией OrbitControls)

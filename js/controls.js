@@ -7,6 +7,12 @@ let mouseVec = null;
 let floorPlane = null;
 let isCtrlZooming = false;
 let lastZoomTime = -Infinity;
+let _cachedControlsDomRect = null;
+let _lastControlsDomRectTime = 0;
+if (typeof window !== 'undefined') {
+    window.addEventListener('resize', () => { _cachedControlsDomRect = null; }, { passive: true });
+    window.addEventListener('scroll', () => { _cachedControlsDomRect = null; }, { passive: true });
+}
 const _zoomHitVec = new THREE.Vector3();
 const _zoomCamOffset = new THREE.Vector3();
 const _zoomTargetOffset = new THREE.Vector3();
@@ -90,7 +96,7 @@ function initControls(camera, domElement) {
         if (activeTouches === 0) {
             lastMultiTouchTime = performance.now();
             setTimeout(() => {
-                if (!e.touches || e.touches.length === 0) {
+                if (activeTouches === 0) {
                     multiTouchActive = false;
                 }
             }, MULTI_TOUCH_GUARD_MS);
@@ -361,7 +367,12 @@ function onPointerZoom(event) {
     resetControlsMomentum();
 
     const domElement = renderer.domElement;
-    const rect = domElement.getBoundingClientRect();
+    const now = performance.now();
+    if (!_cachedControlsDomRect || (now - _lastControlsDomRectTime > 200)) {
+        _cachedControlsDomRect = domElement.getBoundingClientRect();
+        _lastControlsDomRectTime = now;
+    }
+    const rect = _cachedControlsDomRect;
     if (!mouseVec) mouseVec = new THREE.Vector2();
     mouseVec.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
     mouseVec.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;

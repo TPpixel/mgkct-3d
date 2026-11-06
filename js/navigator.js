@@ -116,11 +116,12 @@ if (typeof window !== 'undefined' && !window.escapeHtml) {
         constructor() {
             this.nodes = new Map(); // id -> node
             this.adj = new Map();   // id -> [{ to, weight }]
+            this.nodesByFloor = new Map(); // floor -> node[] для O(1) пространственной выборки
         }
 
         addNode(id, floor, bldg, x, z, type = 'corridor', label = '') {
             if (!this.nodes.has(id)) {
-                this.nodes.set(id, {
+                const nodeObj = {
                     id,
                     floor: parseInt(floor, 10),
                     bldg: parseInt(bldg, 10),
@@ -128,8 +129,15 @@ if (typeof window !== 'undefined' && !window.escapeHtml) {
                     z: Math.round(z * 100) / 100,
                     type,
                     label: label || ''
-                });
+                };
+                this.nodes.set(id, nodeObj);
                 this.adj.set(id, []);
+                let floorList = this.nodesByFloor.get(nodeObj.floor);
+                if (!floorList) {
+                    floorList = [];
+                    this.nodesByFloor.set(nodeObj.floor, floorList);
+                }
+                floorList.push(nodeObj);
             }
             return id;
         }
@@ -163,31 +171,38 @@ if (typeof window !== 'undefined' && !window.escapeHtml) {
             return this.nodes.get(id);
         }
 
-        // Поиск ближайшего узла графа к заданным координатам на том же этаже и корпусе
+        // Поиск ближайшего узла графа к заданным координатам через индекс этажей nodesByFloor
         findClosestNode(floor, bldg, x, z, allowedTypes = ['corridor', 'door', 'stair', 'bridge', 'entrance']) {
             let bestNode = null;
-            let bestDist = Infinity;
+            let bestDistSq = Infinity;
+            const floorNum = parseInt(floor, 10);
+            const candidates = this.nodesByFloor.get(floorNum) || [];
+            const typeSet = (Array.isArray(allowedTypes) && allowedTypes.length > 0) ? new Set(allowedTypes) : null;
 
-            for (const node of this.nodes.values()) {
-                if (node.floor !== floor) continue;
+            for (let i = 0; i < candidates.length; i++) {
+                const node = candidates[i];
                 if (bldg !== null && bldg !== undefined && node.bldg !== bldg) continue;
-                if (allowedTypes && !allowedTypes.includes(node.type)) continue;
+                if (typeSet && !typeSet.has(node.type)) continue;
 
-                const d = Math.hypot(node.x - x, node.z - z);
-                if (d < bestDist) {
-                    bestDist = d;
+                const dx = node.x - x;
+                const dz = node.z - z;
+                const dSq = dx * dx + dz * dz;
+                if (dSq < bestDistSq) {
+                    bestDistSq = dSq;
                     bestNode = node;
                 }
             }
 
             // Если в рамках одного корпуса не нашли, пробуем любой узел на этом этаже
             if (!bestNode) {
-                for (const node of this.nodes.values()) {
-                    if (node.floor !== floor) continue;
-                    if (allowedTypes && !allowedTypes.includes(node.type)) continue;
-                    const d = Math.hypot(node.x - x, node.z - z);
-                    if (d < bestDist) {
-                        bestDist = d;
+                for (let i = 0; i < candidates.length; i++) {
+                    const node = candidates[i];
+                    if (typeSet && !typeSet.has(node.type)) continue;
+                    const dx = node.x - x;
+                    const dz = node.z - z;
+                    const dSq = dx * dx + dz * dz;
+                    if (dSq < bestDistSq) {
+                        bestDistSq = dSq;
                         bestNode = node;
                     }
                 }
@@ -2818,17 +2833,27 @@ if (typeof window !== 'undefined' && !window.escapeHtml) {
         cameFrom.set(startId, null);
         costSoFar.set(startId, 0);
 
+        const destX = destNode.x;
+        const destZ = destNode.z;
+        const destFloor = destNode.floor;
+
         function heuristic(uId) {
             const u = graph.getNode(uId);
-            const dx = u.x - destNode.x;
-            const dz = u.z - destNode.z;
-            const df = Math.abs(u.floor - destNode.floor);
+            if (!u) return 0;
+            const dx = u.x - destX;
+            const dz = u.z - destZ;
+            const df = Math.abs(u.floor - destFloor);
             return Math.hypot(dx, dz) + df * 5.0;
         }
+
+        const settled = new Set();
 
         while (!frontier.isEmpty()) {
             const current = frontier.pop();
             if (current === destId) break;
+            // Ленивое удаление дубликатов из MinHeap: исключаем повторное раскрытие уже посещенных вершин
+            if (settled.has(current)) continue;
+            settled.add(current);
 
             const neighbors = graph.adj.get(current) || [];
             const currentCost = costSoFar.get(current);
@@ -3490,24 +3515,22 @@ if (typeof window !== 'undefined' && !window.escapeHtml) {
             return;
         }
 
-        // Fallback: traverse если кэш не заполнен (обратная совместимость).
+        // Fallback: наполняем кэш _pulsingObjects один раз, предотвращая 60 обходов дерева в секунду
+        if (!NAV_STATE._pulsingObjects) {
+            NAV_STATE._pulsingObjects = [];
+        }
         for (let f = 1; f <= 7; f++) {
             const rGroup = NAV_STATE.routeFloorGroups[f];
-            if (!rGroup || !rGroup.visible) continue;
+            if (!rGroup) continue;
 
             rGroup.traverse((child) => {
                 if (child.userData && child.userData.isPulsing) {
-                    if (child.userData.ring) {
-                        child.userData.ring.scale.set(scalePulse, scalePulse, scalePulse);
-                        if (child.userData.ring.material) {
-                            child.userData.ring.material.opacity = opacityPulse;
-                        }
-                    }
-                    if (child.userData.disk && child.userData.disk.material) {
-                        child.userData.disk.material.opacity = 0.25 + opacityPulse * 0.2;
-                    }
+                    NAV_STATE._pulsingObjects.push(child);
                 }
             });
+        }
+        if (NAV_STATE._pulsingObjects.length > 0) {
+            updateNavigatorAnimation(delta);
         }
     }
 
