@@ -50,24 +50,24 @@
     <canvas id="labels-overlay-canvas" style="position:fixed; top:0; left:0; width:100%; height:100%; z-index:15; pointer-events:none;"></canvas>
 
     <!-- Панель выбора корпусов (Компактный блок 1-4 и отдельная кнопка «Все» справа) -->
-    <header class="ui-overlay mobile-thumb-header fixed top-2 left-2 right-2 sm:top-[76px] sm:left-4 sm:right-auto z-20 flex items-center justify-center sm:justify-start pointer-events-none transition-all duration-200 gap-1.5">
-        <div class="bldg-pill-bar flex items-center justify-center pointer-events-auto" aria-label="Выбор корпуса">
-            <button id="btn-bldg-1" class="bldg-chip bldg-pill-btn" data-bldg="1" title="Корпус 1">
+    <nav aria-label="Панель переключения корпусов" class="ui-overlay mobile-thumb-header fixed top-2 left-2 right-2 sm:top-[76px] sm:left-4 sm:right-auto z-20 flex items-center justify-center sm:justify-start pointer-events-none transition-all duration-200 gap-1.5">
+        <div class="bldg-pill-bar flex items-center justify-center pointer-events-auto" role="group" aria-label="Выбор корпуса">
+            <button id="btn-bldg-1" type="button" class="bldg-chip bldg-pill-btn" data-bldg="1" title="Корпус 1" aria-label="Корпус 1">
                 <span class="bldg-indicator">1</span>
             </button>
-            <button id="btn-bldg-2" class="bldg-chip bldg-pill-btn" data-bldg="2" title="Корпус 2">
+            <button id="btn-bldg-2" type="button" class="bldg-chip bldg-pill-btn" data-bldg="2" title="Корпус 2" aria-label="Корпус 2">
                 <span class="bldg-indicator">2</span>
             </button>
-            <button id="btn-bldg-3" class="bldg-chip bldg-pill-btn" data-bldg="3" title="Корпус 3">
+            <button id="btn-bldg-3" type="button" class="bldg-chip bldg-pill-btn" data-bldg="3" title="Корпус 3" aria-label="Корпус 3">
                 <span class="bldg-indicator">3</span>
             </button>
-            <button id="btn-bldg-4" class="bldg-chip bldg-pill-btn" data-bldg="4" title="Корпус 4">
+            <button id="btn-bldg-4" type="button" class="bldg-chip bldg-pill-btn" data-bldg="4" title="Корпус 4" aria-label="Корпус 4">
                 <span class="bldg-indicator">4</span>
             </button>
         </div>
 
         <!-- Отдельная кнопка «Все корпуса» справа от блока с иконкой 4 квадратов -->
-        <button id="btn-bldg-all" class="bldg-chip bldg-all-btn pointer-events-auto active" data-bldg="both" title="Все корпуса" aria-label="Все корпуса">
+        <button id="btn-bldg-all" type="button" class="bldg-chip bldg-all-btn pointer-events-auto active" data-bldg="both" title="Все корпуса" aria-label="Все корпуса">
             <svg class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                 <rect x="3" y="3" width="7" height="7" rx="1.5"></rect>
                 <rect x="14" y="3" width="7" height="7" rx="1.5"></rect>
@@ -75,7 +75,7 @@
                 <rect x="3" y="14" width="7" height="7" rx="1.5"></rect>
             </svg>
         </button>
-    </header>
+    </nav>
 
     <!-- Кнопка переключения темы оформления (Светлая / Тёмная) в правом верхнем углу -->
     <aside class="ui-overlay theme-toggle-container fixed z-30 pointer-events-auto" aria-label="Переключение темы">
@@ -125,13 +125,13 @@
 
         <!-- Капсула с номерами этажей 7–1 -->
         <nav class="floor-switcher-bar pointer-events-auto" aria-label="Этажи 1–7">
-            <button id="floor-btn-7" class="floor-btn" data-floor="7" title="7 этаж">7</button>
-            <button id="floor-btn-6" class="floor-btn" data-floor="6" title="6 этаж">6</button>
-            <button id="floor-btn-5" class="floor-btn" data-floor="5" title="5 этаж">5</button>
-            <button id="floor-btn-4" class="floor-btn" data-floor="4" title="4 этаж">4</button>
-            <button id="floor-btn-3" class="floor-btn" data-floor="3" title="3 этаж">3</button>
-            <button id="floor-btn-2" class="floor-btn" data-floor="2" title="2 этаж">2</button>
-            <button id="floor-btn-1" class="floor-btn active" data-floor="1" title="1 этаж">1</button>
+            <button id="floor-btn-7" type="button" class="floor-btn" data-floor="7" title="7 этаж" aria-label="7 этаж">7</button>
+            <button id="floor-btn-6" type="button" class="floor-btn" data-floor="6" title="6 этаж" aria-label="6 этаж">6</button>
+            <button id="floor-btn-5" type="button" class="floor-btn" data-floor="5" title="5 этаж" aria-label="5 этаж">5</button>
+            <button id="floor-btn-4" type="button" class="floor-btn" data-floor="4" title="4 этаж" aria-label="4 этаж">4</button>
+            <button id="floor-btn-3" type="button" class="floor-btn" data-floor="3" title="3 этаж" aria-label="3 этаж">3</button>
+            <button id="floor-btn-2" type="button" class="floor-btn" data-floor="2" title="2 этаж" aria-label="2 этаж">2</button>
+            <button id="floor-btn-1" type="button" class="floor-btn active" data-floor="1" title="1 этаж" aria-label="1 этаж">1</button>
         </nav>
     </div>
 
@@ -179,7 +179,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                     </svg>
                 </button>
-                <form role="search" action="javascript:void(0);" method="get" autocomplete="off" onsubmit="return false;" class="m3-search-form flex-1 flex items-center min-w-0">
+                <form role="search" method="get" autocomplete="off" class="m3-search-form flex-1 flex items-center min-w-0">
                     <input id="search-input"
                            type="search"
                            name="search"
