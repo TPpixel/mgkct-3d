@@ -1177,6 +1177,11 @@ function setupSearch() {
             return;
         }
         if (e.key === "Enter") {
+            if (searchDebounceTimer) {
+                clearTimeout(searchDebounceTimer);
+                searchDebounceTimer = null;
+                renderSearchResults(searchInput.value);
+            }
             const activeRow = searchResults?.querySelector(".m3-search-row.is-active") || searchResults?.querySelector(".m3-search-row");
             if (activeRow) {
                 e.preventDefault();

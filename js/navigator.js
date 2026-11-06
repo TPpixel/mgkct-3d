@@ -3893,7 +3893,7 @@ if (typeof window !== 'undefined' && !window.escapeHtml) {
         let matchedNodeId = null;
         for (const [nid, n] of g.nodes.entries()) {
             if (n.floor === roomInfo.floor && n.bldg === roomInfo.building &&
-                Math.hypot(n.x - roomInfo.x, n.z - roomInfo.z) < 0.05) {
+                Math.hypot(n.x - roomInfo.x, n.z - roomInfo.z) < 0.20) {
                 matchedNodeId = nid;
                 break;
             }
@@ -4005,7 +4005,7 @@ if (typeof window !== 'undefined' && !window.escapeHtml) {
         let matchedNodeId = null;
         for (const [nid, n] of g.nodes.entries()) {
             if (n.floor === roomInfo.floor && n.bldg === roomInfo.building &&
-                Math.hypot(n.x - roomInfo.x, n.z - roomInfo.z) < 0.05) {
+                Math.hypot(n.x - roomInfo.x, n.z - roomInfo.z) < 0.20) {
                 matchedNodeId = nid;
                 break;
             }
