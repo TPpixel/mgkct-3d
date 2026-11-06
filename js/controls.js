@@ -33,12 +33,12 @@ function resetControlsMomentum() {
 }
 window.resetControlsMomentum = resetControlsMomentum;
 
-function resetControlsState() {
+function resetControlsState(resetCamera = false) {
     isCtrlZooming = false;
     lastZoomTime = -Infinity;
     _cachedControlsDomRect = null;
     resetControlsMomentum();
-    if (controls && typeof controls.reset === 'function') {
+    if (resetCamera && controls && typeof controls.reset === 'function') {
         controls.reset();
     }
 }
@@ -198,8 +198,8 @@ function apply2DControls(is2D) {
     if (!controls) return;
     controls.enableRotate = !is2D;
 
-    // Сбрасываем состояние и инерцию контроллера при переключении проекции
-    resetControlsState();
+    // Сбрасываем инерцию демпфирования, чтобы исключить паразитное вращение
+    resetControlsMomentum();
 
     // В 2D (вид строго сверху) screenSpacePanning=true обязателен:
     // иначе вертикальное панорамирование карты будет заблокировано или нелинейно.
