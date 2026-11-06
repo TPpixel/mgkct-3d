@@ -2,7 +2,7 @@
 
 Веб-сервис внутренней навигации и поэтажных планов Минского государственного колледжа цифровых технологий (МГКЦТ).
 
-### Онлайн-версия: [arseniizyk.github.io/mgkct-3d](https://arseniizyk.github.io/mgkct-3d/)
+### [Demo](https://arseniizyk.github.io/mgkct-3d/)
 
 ## Возможности
 
