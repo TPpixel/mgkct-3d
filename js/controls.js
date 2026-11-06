@@ -396,11 +396,20 @@ function findRoomAtScreenPoint(clientX, clientY) {
         .map(l => l.mesh);
 
     const intersects = _pickRaycaster.intersectObjects(visibleLabelMeshes, false);
-    if (intersects.length > 0) {
-        const hitMesh = intersects[0].object;
-        if (hitMesh.userData && hitMesh.userData.roomInfo) {
-            return hitMesh.userData.roomInfo;
+    for (let i = 0; i < intersects.length; i++) {
+        const hitMesh = intersects[i].object;
+        const rInfo = hitMesh && hitMesh.userData ? hitMesh.userData.roomInfo : null;
+        if (!rInfo) continue;
+        if (!STATE.is2D && typeof isPointOccludedIn3D === 'function') {
+            const fg = floorGroups[rInfo.floor];
+            const occlY = (fg ? fg.position.y : 0) + Math.min(Math.max(STATE.wallHeight * 0.75, 0.25), 1.35);
+            const wx = (fg ? fg.position.x : 0) + rInfo.x;
+            const wz = (fg ? fg.position.z : 0) + rInfo.z;
+            if (isPointOccludedIn3D(wx, occlY, wz, rInfo.floor, rInfo.building, false)) {
+                continue;
+            }
         }
+        return rInfo;
     }
 
     return null;
