@@ -923,7 +923,7 @@ body:has(#room-context-popup:not(.hidden)) .map-fab-bar {
     width: auto !important;
     max-width: calc(100vw - 28px) !important;
     gap: 8px !important;
-    transition: bottom 0.22s cubic-bezier(0.2, 0, 0, 1), opacity 0.2s ease !important;
+    transition: opacity 0.2s ease !important;
 }
 
 /* ============================================================================
