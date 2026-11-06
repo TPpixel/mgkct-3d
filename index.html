@@ -21,6 +21,15 @@
                 var saved = localStorage.getItem('mgkct_theme');
                 var theme = (saved === 'dark' || saved === 'light') ? saved : ((window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light');
                 document.documentElement.setAttribute('data-theme', theme);
+                if (document.body) {
+                    document.body.setAttribute('data-theme', theme);
+                } else {
+                    document.addEventListener('DOMContentLoaded', function() {
+                        if (document.body && !document.body.hasAttribute('data-theme')) {
+                            document.body.setAttribute('data-theme', theme);
+                        }
+                    });
+                }
             } catch (_) {}
         })();
     </script>
@@ -37,16 +46,6 @@
     <meta http-equiv="Expires" content="0" />
 </head>
 <body class="overflow-hidden select-none">
-    <script>
-        (function() {
-            try {
-                var saved = localStorage.getItem('mgkct_theme');
-                var theme = (saved === 'dark' || saved === 'light') ? saved : ((window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light');
-                document.body.setAttribute('data-theme', theme);
-            } catch (_) {}
-        })();
-    </script>
-
     <!-- Контейнер Three.js сцены -->
     <div id="canvas-container"></div>
     <!-- 2D Canvas для кристально чётких надписей номеров кабинетов (Screen-Space Retina) -->

@@ -482,65 +482,84 @@ function solveCampusJunctions(targetGroup, pendingLines) {
     }
 
     // Финальный проход де-оверлапа: гарантирует 0 взаимных проникновений 3D-боксов стен внутри группы
-    for (let i = 0; i < solved.length; i++) {
-        const A = solved[i];
-        if (A.c2 - A.c1 <= 0.01) continue;
-        for (let j = 0; j < solved.length; j++) {
-            if (i === j) continue;
-            const B = solved[j];
-            if (B.c2 - B.c1 <= 0.01) continue;
-            if (A.isHorizontal && !B.isHorizontal) {
-                const ax1 = A.c1, ax2 = A.c2;
-                const az1 = A.fixedCoord - A.thickness / 2, az2 = A.fixedCoord + A.thickness / 2;
-                const bx1 = B.fixedCoord - B.thickness / 2, bx2 = B.fixedCoord + B.thickness / 2;
-                const bz1 = B.c1, bz2 = B.c2;
-                const ox = Math.min(ax2, bx2) - Math.max(ax1, bx1);
-                const oz = Math.min(az2, bz2) - Math.max(az1, bz1);
-                if (ox > 0.001 && oz > 0.001) {
-                    if (Math.abs(A.c2 - B.fixedCoord) <= B.thickness + 0.05) {
-                        A.c2 = Math.min(A.c2, bx1);
-                        A.omitEndCap = true;
-                    } else if (Math.abs(A.c1 - B.fixedCoord) <= B.thickness + 0.05) {
-                        A.c1 = Math.max(A.c1, bx2);
-                        A.omitStartCap = true;
-                    } else if (Math.abs(B.c2 - A.fixedCoord) <= A.thickness + 0.05) {
-                        B.c2 = Math.min(B.c2, az1);
-                        B.omitEndCap = true;
-                    } else if (Math.abs(B.c1 - A.fixedCoord) <= A.thickness + 0.05) {
-                        B.c1 = Math.max(B.c1, az2);
-                        B.omitStartCap = true;
-                    } else if (B.thickness <= A.thickness && B.c1 < az1 && B.c2 > az2) {
-                        const tailC2 = B.c2;
-                        const tailOmitEnd = B.omitEndCap;
-                        B.c2 = az1;
-                        B.omitEndCap = true;
-                        solved.push({
-                            ...B,
-                            id: id++,
-                            c1: az2,
-                            c2: tailC2,
-                            origC1: az2,
-                            origC2: tailC2,
-                            omitStartCap: true,
-                            omitEndCap: tailOmitEnd
-                        });
-                    } else if (A.c1 < bx1 && A.c2 > bx2) {
-                        const tailC2 = A.c2;
-                        const tailOmitEnd = A.omitEndCap;
-                        A.c2 = bx1;
-                        A.omitEndCap = true;
-                        solved.push({
-                            ...A,
-                            id: id++,
-                            c1: bx2,
-                            c2: tailC2,
-                            origC1: bx2,
-                            origC2: tailC2,
-                            omitStartCap: true,
-                            omitEndCap: tailOmitEnd
-                        });
+    let overlapChanged = true;
+    let overlapPasses = 0;
+    while (overlapChanged && overlapPasses < 5) {
+        overlapChanged = false;
+        overlapPasses++;
+        const toAdd = [];
+        const currentLen = solved.length;
+        for (let i = 0; i < currentLen; i++) {
+            const A = solved[i];
+            if (A.c2 - A.c1 <= 0.01) continue;
+            for (let j = 0; j < currentLen; j++) {
+                if (i === j) continue;
+                const B = solved[j];
+                if (B.c2 - B.c1 <= 0.01) continue;
+                if (A.isHorizontal && !B.isHorizontal) {
+                    const ax1 = A.c1, ax2 = A.c2;
+                    const az1 = A.fixedCoord - A.thickness / 2, az2 = A.fixedCoord + A.thickness / 2;
+                    const bx1 = B.fixedCoord - B.thickness / 2, bx2 = B.fixedCoord + B.thickness / 2;
+                    const bz1 = B.c1, bz2 = B.c2;
+                    const ox = Math.min(ax2, bx2) - Math.max(ax1, bx1);
+                    const oz = Math.min(az2, bz2) - Math.max(az1, bz1);
+                    if (ox > 0.001 && oz > 0.001) {
+                        if (Math.abs(A.c2 - B.fixedCoord) <= B.thickness + 0.05) {
+                            A.c2 = Math.min(A.c2, bx1);
+                            A.omitEndCap = true;
+                            overlapChanged = true;
+                        } else if (Math.abs(A.c1 - B.fixedCoord) <= B.thickness + 0.05) {
+                            A.c1 = Math.max(A.c1, bx2);
+                            A.omitStartCap = true;
+                            overlapChanged = true;
+                        } else if (Math.abs(B.c2 - A.fixedCoord) <= A.thickness + 0.05) {
+                            B.c2 = Math.min(B.c2, az1);
+                            B.omitEndCap = true;
+                            overlapChanged = true;
+                        } else if (Math.abs(B.c1 - A.fixedCoord) <= A.thickness + 0.05) {
+                            B.c1 = Math.max(B.c1, az2);
+                            B.omitStartCap = true;
+                            overlapChanged = true;
+                        } else if (B.thickness <= A.thickness && B.c1 < az1 && B.c2 > az2) {
+                            const tailC2 = B.c2;
+                            const tailOmitEnd = B.omitEndCap;
+                            B.c2 = az1;
+                            B.omitEndCap = true;
+                            toAdd.push({
+                                ...B,
+                                id: id++,
+                                c1: az2,
+                                c2: tailC2,
+                                origC1: az2,
+                                origC2: tailC2,
+                                omitStartCap: true,
+                                omitEndCap: tailOmitEnd
+                            });
+                            overlapChanged = true;
+                        } else if (A.c1 < bx1 && A.c2 > bx2) {
+                            const tailC2 = A.c2;
+                            const tailOmitEnd = A.omitEndCap;
+                            A.c2 = bx1;
+                            A.omitEndCap = true;
+                            toAdd.push({
+                                ...A,
+                                id: id++,
+                                c1: bx2,
+                                c2: tailC2,
+                                origC1: bx2,
+                                origC2: tailC2,
+                                omitStartCap: true,
+                                omitEndCap: tailOmitEnd
+                            });
+                            overlapChanged = true;
+                        }
                     }
                 }
+            }
+        }
+        if (toAdd.length > 0) {
+            for (let k = 0; k < toAdd.length; k++) {
+                solved.push(toAdd[k]);
             }
         }
     }
@@ -1228,7 +1247,7 @@ function addRoomLabel3D(targetGroup, floorNum, text, x, z, isSmall = false, isWi
     // Увеличенные комфортные габариты плашки в 3D пространстве (без создания 250 тяжелых CanvasTexture, т.к. рендер идет через 2D Screen-Space Overlay)
     const baseW = isWide ? 6.4 : (isSmall ? 2.8 : 4.0);
     const scaleMult = (typeof STATE !== 'undefined' && STATE.labelScale) ? STATE.labelScale : 1.0;
-    const planeW = baseW * customScale * scaleMult;
+    const planeW = baseW * customScale;
     const planeH = planeW * (height / width);
     const geom = new THREE.PlaneGeometry(planeW, planeH);
 
@@ -1247,6 +1266,7 @@ function addRoomLabel3D(targetGroup, floorNum, text, x, z, isSmall = false, isWi
     mesh.rotation.x = -Math.PI / 2;
     // Плашка приподнята над полом комнаты (y = 0.04)
     mesh.position.set(x, 0.04, z);
+    mesh.scale.set(scaleMult, scaleMult, 1);
     mesh.userData.isInterior = true;
     mesh.userData.isRoomLabel = true;
     // 3D-меш скрываем из WebGL рендера, так как надписи отрисовываются
@@ -1745,8 +1765,9 @@ function updateRoomLabelsScale() {
         if (!item || !item.mesh) return;
         const planeW = item.baseW * item.customScale * scaleMult;
         const planeH = planeW * item.ratio;
-        item.mesh.geometry.dispose();
-        item.mesh.geometry = new THREE.PlaneGeometry(planeW, planeH);
+        item.currentW = planeW;
+        item.currentH = planeH;
+        item.mesh.scale.set(scaleMult, scaleMult, 1);
     });
     if (typeof lastAdaptiveDist !== 'undefined') {
         lastAdaptiveDist = -1;

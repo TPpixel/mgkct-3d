@@ -231,6 +231,15 @@ function init() {
                 4: { x1: 27.8, x2: 69.0, z1: -61.6, z2: -24.4, grp: bldg4FloorGroups[f] }
             }[b];
             if (btiBounds && btiBounds.grp && typeof THREE !== 'undefined' && THREE.TextureLoader) {
+                const existing = btiBounds.grp.getObjectByName('bti_overlay_plane');
+                if (existing) {
+                    btiBounds.grp.remove(existing);
+                    if (existing.geometry) existing.geometry.dispose();
+                    if (existing.material) {
+                        if (existing.material.map) existing.material.map.dispose();
+                        existing.material.dispose();
+                    }
+                }
                 const loader = new THREE.TextureLoader();
                 loader.load(`planning_zip/Корпус ${b}/${f}.jpg`, (tex) => {
                     const bw = btiBounds.x2 - btiBounds.x1;
@@ -244,6 +253,7 @@ function init() {
                             depthWrite: false
                         })
                     );
+                    plane.name = 'bti_overlay_plane';
                     plane.rotation.x = -Math.PI / 2;
                     plane.position.set((btiBounds.x1 + btiBounds.x2) / 2, 0.03, (btiBounds.z1 + btiBounds.z2) / 2);
                     btiBounds.grp.add(plane);
@@ -281,6 +291,10 @@ function init() {
         loadTimetableTexturesAsync();
     }
 
+    if (animFrameId !== null) {
+        cancelAnimationFrame(animFrameId);
+        animFrameId = null;
+    }
     animate();
 }
 
@@ -302,6 +316,7 @@ function buildStairValidationAxes() {
 
         const boxGeom = new THREE.BoxGeometry(w, 1, d);
         const boxEdges = new THREE.EdgesGeometry(boxGeom);
+        boxGeom.dispose();
         const wireframeBox = new THREE.LineSegments(boxEdges, MATERIALS.stairBoxEdge);
         wireframeBox.position.set(cx, 1, cz);
         stairValidationGroup.add(wireframeBox);
@@ -936,8 +951,13 @@ function applyPreset(presetName, shouldSave = true) {
     }
 }
 
+let animFrameId = null;
+
 function animate(currentTime = 0) {
-    requestAnimationFrame(animate);
+    if (animFrameId !== null) {
+        cancelAnimationFrame(animFrameId);
+    }
+    animFrameId = requestAnimationFrame(animate);
 
     // В фоновой вкладке полностью усыпляем рендерер (0% нагрузки на CPU/GPU)
     if (document.hidden) return;
@@ -946,7 +966,7 @@ function animate(currentTime = 0) {
     const targetFps = (STATE.preset === 'eco') ? 30 : 60;
     const interval = 1000 / targetFps;
     const delta = currentTime - lastRenderTime;
-    if (delta < interval - 1) {
+    if (lastRenderTime !== 0 && delta < interval - 1) {
         return;
     }
 

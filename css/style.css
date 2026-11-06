@@ -36,6 +36,7 @@
 }
 
 /* Material 3 Dark Mode Tokens (Google Maps Dark Mode) */
+:root[data-theme="dark"],
 body[data-theme="dark"] {
     --blue-primary: #1a73e8;
     --blue-light: #c2e7ff;

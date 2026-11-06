@@ -22,34 +22,60 @@ const MIME = {
 };
 
 function handleRequest(req, res) {
-    let reqPath = decodeURI(req.url.split('?')[0]);
+    let reqPath;
+    try {
+        reqPath = decodeURI(req.url.split('?')[0]);
+    } catch (e) {
+        res.writeHead(400, { 'Content-Type': 'text/plain; charset=utf-8' });
+        return res.end('Bad Request');
+    }
     if (reqPath === '/' || reqPath === '') {
         reqPath = '/index.html';
     }
 
+    const safeRoot = ROOT.endsWith(path.sep) ? ROOT : ROOT + path.sep;
     const filePath = path.normalize(path.join(ROOT, reqPath));
-    if (!filePath.startsWith(ROOT)) {
+    if (filePath !== ROOT && !filePath.startsWith(safeRoot)) {
         res.writeHead(403);
         return res.end('Forbidden');
     }
 
-    if (!fs.existsSync(filePath) || !fs.statSync(filePath).isFile()) {
-        res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
-        return res.end('File not found: ' + reqPath);
-    }
+    fs.stat(filePath, (err, stats) => {
+        if (err || !stats.isFile()) {
+            res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
+            return res.end('File not found: ' + reqPath);
+        }
 
-    const ext = path.extname(filePath).toLowerCase();
-    const contentType = MIME[ext] || 'application/octet-stream';
+        const ext = path.extname(filePath).toLowerCase();
+        const contentType = MIME[ext] || 'application/octet-stream';
 
-    res.writeHead(200, {
-        'Content-Type': contentType,
-        'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0',
-        'Pragma': 'no-cache',
-        'Expires': '0',
-        'Access-Control-Allow-Origin': '*'
+        const isStaticAsset = filePath.includes(path.sep + 'vendor' + path.sep) ||
+            ['.png', '.jpg', '.jpeg', '.svg', '.woff', '.woff2', '.ttf', '.ico'].includes(ext);
+
+        const headers = {
+            'Content-Type': contentType,
+            'Access-Control-Allow-Origin': '*'
+        };
+
+        if (isStaticAsset) {
+            headers['Cache-Control'] = 'public, max-age=86400';
+        } else {
+            headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0';
+            headers['Pragma'] = 'no-cache';
+            headers['Expires'] = '0';
+        }
+
+        res.writeHead(200, headers);
+
+        const fileStream = fs.createReadStream(filePath);
+        fileStream.on('error', () => {
+            if (!res.headersSent) {
+                res.writeHead(500, { 'Content-Type': 'text/plain; charset=utf-8' });
+            }
+            res.end('Internal Server Error');
+        });
+        fileStream.pipe(res);
     });
-
-    fs.createReadStream(filePath).pipe(res);
 }
 
 const server = http.createServer(handleRequest);
