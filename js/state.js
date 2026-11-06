@@ -220,17 +220,3 @@ function isBuildingVisible(bldgId) {
     return false;
 }
 window.isBuildingVisible = isBuildingVisible;
-
-// Единое пространство имен MGKCT для консолидации архитектурного состояния
-window.MGKCT = window.MGKCT || {};
-Object.assign(window.MGKCT, {
-    STATE,
-    ROOMS_REGISTRY,
-    DOORS_REGISTRY,
-    WALLS_REGISTRY,
-    BUILDING_CENTERS,
-    setBuildingCenter,
-    getActiveCenterX,
-    getActiveCenterZ,
-    isBuildingVisible
-});

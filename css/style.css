@@ -546,7 +546,7 @@ body[data-theme="dark"] .m3-nav-pill-btn:hover {
     right: 14px;
     top: 50%;
     transform: translateY(-50%);
-    z-index: 30;
+    z-index: var(--z-panel);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -684,7 +684,7 @@ body[data-theme="dark"] .floor-switcher-bar {
     position: fixed;
     right: 14px;
     bottom: 24px;
-    z-index: 30;
+    z-index: var(--z-panel);
     display: flex !important;
     flex-direction: column !important;
     align-items: center !important;
@@ -2123,7 +2123,7 @@ body.search-open #nav-pick-banner,
     align-self: center !important;
     margin: 6px auto 10px auto !important;
     box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18) !important;
-    z-index: 30 !important;
+    z-index: var(--z-panel) !important;
 }
 
 @media (max-width: 639px) {
