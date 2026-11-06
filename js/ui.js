@@ -1548,22 +1548,30 @@ function updateAdaptiveFabPosition() {
     const routeCard = document.getElementById('navigator-route-card');
 
     let activeCard = null;
-    if (popup && !popup.classList.contains('hidden') && document.body.classList.contains('room-card-open')) {
+    if (popup && !popup.classList.contains('hidden')) {
         activeCard = popup;
-    } else if (routeCard && !routeCard.classList.contains('hidden') && document.body.classList.contains('route-active')) {
+    } else if (routeCard && !routeCard.classList.contains('hidden')) {
         activeCard = routeCard;
     }
 
     if (activeCard) {
+        const cs = window.getComputedStyle(activeCard);
+        const cssBottom = parseFloat(cs.bottom) || 12;
+        const layoutHeight = activeCard.offsetHeight || 0;
         const rect = activeCard.getBoundingClientRect();
-        if (rect && rect.height > 0) {
-            // Отступ снизу viewport до верхней границы карточки + 10px чистого зазора
-            const bottomOffset = Math.round(window.innerHeight - rect.top + 10);
+        const rectFromBottom = (rect && rect.height > 0) ? (window.innerHeight - rect.top) : 0;
+        // Используем cssBottom + layoutHeight, чтобы стартовая CSS-анимация (translateY/scale)
+        // не занижала позицию кнопок FAB в момент открытия карточки
+        const cardTopFromBottom = Math.max(cssBottom + layoutHeight, rectFromBottom);
+        if (cardTopFromBottom > 0) {
+            const bottomOffset = Math.round(cardTopFromBottom + 12);
             if (bottomOffset > 0 && bottomOffset < window.innerHeight - 30) {
                 document.documentElement.style.setProperty('--card-fab-bottom', `${bottomOffset}px`);
                 return;
             }
         }
+    } else {
+        document.documentElement.style.removeProperty('--card-fab-bottom');
     }
 }
 window.updateAdaptiveFabPosition = updateAdaptiveFabPosition;
@@ -2001,7 +2009,10 @@ function showRoomContextPopup(roomInfo, clientX, clientY, shouldSelectAndFly = t
     popup.classList.remove('hidden');
     document.body.classList.add('room-card-open');
 
+    updateAdaptiveFabPosition();
     requestAnimationFrame(updateAdaptiveFabPosition);
+    setTimeout(updateAdaptiveFabPosition, 60);
+    setTimeout(updateAdaptiveFabPosition, 280);
 
     if (shouldSelectAndFly && typeof selectRoom === 'function') {
         selectRoom(roomInfo, true);
@@ -2042,6 +2053,7 @@ function setupRoomContextPopup() {
     const popup = document.getElementById('room-context-popup');
     if (popup) {
         popup.addEventListener('transitionend', updateAdaptiveFabPosition);
+        popup.addEventListener('animationend', updateAdaptiveFabPosition);
     }
 
     function getRoomNavPoint(r) {
