@@ -1386,8 +1386,9 @@ function setupSearch() {
             renderSearchResults('');
         }
 
-        if (typeof setBuildingFilter === "function") {
-            setBuildingFilter(String(b), false);
+        // Оставляем видимыми все корпуса комплекса, чтобы не изолировать один корпус при поиске кабинета
+        if (typeof setBuildingFilter === "function" && STATE.buildingFilter !== "both") {
+            setBuildingFilter("both", false);
         }
         const roomInfo = { floor: f, building: b, x: x, z: z, text: t };
 
