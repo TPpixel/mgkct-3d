@@ -112,7 +112,7 @@ html, body {
     left: 0;
     width: 100vw;
     height: 100vh;
-    z-index: 15;
+    z-index: var(--z-labels);
     pointer-events: none;
     image-rendering: -webkit-optimize-contrast;
     image-rendering: crisp-edges;
@@ -824,7 +824,7 @@ body:has(#room-context-popup:not(.hidden)) .map-fab-bar {
     top: auto !important;
     bottom: var(--card-fab-bottom, calc(max(16px, env(safe-area-inset-bottom, 16px)) + 120px)) !important;
     transform: none !important;
-    z-index: 45 !important;
+    z-index: var(--z-drawer) !important;
     display: flex !important;
     flex-direction: row !important;
     align-items: center !important;
@@ -890,7 +890,7 @@ body:has(#room-context-popup:not(.hidden)) .map-fab-bar {
         width: auto !important;
         max-width: calc(100vw - 28px) !important;
         gap: 8px !important;
-        z-index: 45 !important;
+        z-index: var(--z-drawer) !important;
     }
 }
 
@@ -942,7 +942,7 @@ input[type="search"] {
     width: min(480px, calc(100vw - 32px));
     max-width: calc(100vw - 32px);
     max-height: calc(100vh - 28px);
-    z-index: 50;
+    z-index: var(--z-modal);
     opacity: 0;
     visibility: hidden;
     pointer-events: none;
@@ -1560,7 +1560,7 @@ body.search-open #nav-pick-banner,
     width: auto;
     max-height: calc(100dvh - 32px);
     overflow-y: auto;
-    z-index: 60;
+    z-index: var(--z-banner);
     opacity: 0;
     visibility: hidden;
     pointer-events: none;
@@ -1629,7 +1629,7 @@ body.search-open #nav-pick-banner,
     background: rgba(0, 0, 0, 0.45);
     backdrop-filter: blur(4px);
     -webkit-backdrop-filter: blur(4px);
-    z-index: 45;
+    z-index: var(--z-drawer);
     opacity: 0;
     visibility: hidden;
     pointer-events: none;
@@ -1812,7 +1812,7 @@ body.search-open #nav-pick-banner,
     border-radius: 20px;
     overflow: hidden;
     max-height: 280px;
-    z-index: 75;
+    z-index: var(--z-toast);
 }
 
 /* Иконочные кнопки быстрых направлений и лифта (Google Material Expressive, без эмодзи) */
@@ -2142,7 +2142,7 @@ body.search-open #nav-pick-banner,
     color: var(--m3-on-surface) !important;
     border-radius: 9999px;
     top: max(14px, env(safe-area-inset-top, 14px)) !important;
-    z-index: 60 !important;
+    z-index: var(--z-banner) !important;
 }
 
 #nav-pick-text {
@@ -2409,7 +2409,7 @@ body:has(#room-context-popup:not(.hidden)) .floor-switcher-bar {
     bottom: 0;
     width: 360px;
     max-width: 90vw;
-    z-index: 50;
+    z-index: var(--z-modal);
     background: var(--m3-surface);
     border-left: 1px solid var(--m3-outline-variant);
     box-shadow: var(--m3-shadow-lg);
