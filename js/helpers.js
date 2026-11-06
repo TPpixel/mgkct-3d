@@ -1783,9 +1783,9 @@ function renderScreenSpaceLabels() {
 
         // 4. Отрисовка плашки номера кабинета (Тёмная / Светлая тема):
         const isDarkTheme = (typeof STATE !== 'undefined' && STATE.theme === 'dark');
-        const badgeBg = isDarkTheme ? '#1e293b' : '#ffffff';
-        const badgeStroke = isDarkTheme ? '#475569' : '#94a3b8';
-        const badgeText = isDarkTheme ? '#f8fafc' : '#0f172a';
+        const badgeBg = isDarkTheme ? '#262d3a' : '#ffffff';
+        const badgeStroke = isDarkTheme ? '#3b4658' : '#94a3b8';
+        const badgeText = isDarkTheme ? '#f1f5f9' : '#0f172a';
         const badgeSec = isDarkTheme ? '#94a3b8' : '#475569';
 
         overlayCtx.shadowColor = isDarkTheme ? 'rgba(0, 0, 0, 0.55)' : 'rgba(15, 23, 42, 0.10)';

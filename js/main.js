@@ -20,7 +20,7 @@ function init() {
 
     scene = new THREE.Scene();
     const isDarkBg = (typeof STATE !== 'undefined' && STATE.theme === 'dark');
-    scene.background = new THREE.Color(isDarkBg ? 0x0b0f17 : 0xeef2f6);
+    scene.background = new THREE.Color(isDarkBg ? 0x171c24 : 0xeef2f6);
 
     camera = new THREE.PerspectiveCamera(42, window.innerWidth / window.innerHeight, 0.2, 700);
     const cx = (typeof getActiveCenterX === 'function') ? getActiveCenterX() : 16.0;
