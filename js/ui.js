@@ -884,7 +884,7 @@ function popOverlayState(name) {
             try {
                 history.back();
             } catch (_) {}
-            requestAnimationFrame(() => { isPoppingStateInternal = false; });
+            setTimeout(() => { isPoppingStateInternal = false; }, 200);
         }
     }
 }
@@ -2002,7 +2002,7 @@ function hideRoomContextPopup(fromPopstate = false) {
                 } catch (_) {
                     history.back();
                 }
-                requestAnimationFrame(() => { isPoppingStateInternal = false; });
+                setTimeout(() => { isPoppingStateInternal = false; }, 200);
             } else {
                 popOverlayState('room-card');
             }
