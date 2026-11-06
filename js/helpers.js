@@ -423,8 +423,7 @@ function solveCampusJunctions(targetGroup, pendingLines) {
         for (let j = 0; j < vWalls.length; j++) {
             const B = vWalls[j];
 
-            if (true) {
-                const x0 = B.fixedCoord;
+            const x0 = B.fixedCoord;
                 const z0 = A.fixedCoord;
 
                 const xInA = (x0 >= A.origC1 - 0.06 && x0 <= A.origC2 + 0.06);
@@ -520,7 +519,6 @@ function solveCampusJunctions(targetGroup, pendingLines) {
                 }
             }
         }
-    }
 
     // Финальный проход де-оверлапа: гарантирует 0 взаимных проникновений 3D-боксов стен внутри группы
     let overlapChanged = true;
