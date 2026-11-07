@@ -187,6 +187,10 @@ function addFloorPolygon(targetGroup, points, isCore = false) {
 // Реестр групп с отложенным построением стен для бесшовного совмещения стыков (Junction Solver)
 const _pendingWallGroups = new Set();
 
+// Пространственный индекс 3D-боксов стен и дверей по этажам (1..7) для быстрого отсечения бейджей в 3D
+const OCCLUDER_WALLS_BY_FLOOR = { 1: [], 2: [], 3: [], 4: [], 5: [], 6: [], 7: [] };
+window.OCCLUDER_WALLS_BY_FLOOR = OCCLUDER_WALLS_BY_FLOOR;
+
 function addWallLine(targetGroup, x1, z1, x2, z2, openings = [], wallThickness = 0.18, isColumn = false) {
     const isHorizontal = Math.abs(z2 - z1) < 0.001;
     const fixedCoord = isHorizontal ? z1 : x1;
@@ -969,6 +973,26 @@ function flushWalls(targetGroup) {
             customEdgeGeom
         );
 
+        if (!seg.isColumn && targetGroup.userData && targetGroup.userData.floor) {
+            const flNum = targetGroup.userData.floor;
+            const cMin = Math.min(seg.c1, seg.c2);
+            const cMax = Math.max(seg.c1, seg.c2);
+            const halfT = seg.thickness / 2;
+            if (OCCLUDER_WALLS_BY_FLOOR[flNum]) {
+                OCCLUDER_WALLS_BY_FLOOR[flNum].push({
+                    building: targetGroup.userData.building,
+                    minX: seg.isHorizontal ? cMin : seg.fixedCoord - halfT,
+                    maxX: seg.isHorizontal ? cMax : seg.fixedCoord + halfT,
+                    minZ: seg.isHorizontal ? seg.fixedCoord - halfT : cMin,
+                    maxZ: seg.isHorizontal ? seg.fixedCoord + halfT : cMax,
+                    isExterior: Boolean(seg.isExterior),
+                    isDoor: Boolean(seg.isDoor),
+                    sharedBoundaryWith: sharedBoundaryWith,
+                    isDiagonal: false
+                });
+            }
+        }
+
         if (!seg.isDoor && !seg.isColumn && targetGroup.userData && targetGroup.userData.floor && typeof WALLS_REGISTRY !== 'undefined' && Array.isArray(WALLS_REGISTRY)) {
             const wallEntry = {
                 floor: targetGroup.userData.floor,
@@ -1008,6 +1032,27 @@ function addArbitraryWallSegment(targetGroup, x1, z1, x2, z2, thickness = 0.18, 
 
     registerMiterJoint(targetGroup, x1, z1, thickness);
     registerMiterJoint(targetGroup, x2, z2, thickness);
+
+    if (targetGroup && targetGroup.userData && targetGroup.userData.floor && OCCLUDER_WALLS_BY_FLOOR[targetGroup.userData.floor]) {
+        const halfT = thickness / 2;
+        OCCLUDER_WALLS_BY_FLOOR[targetGroup.userData.floor].push({
+            building: targetGroup.userData.building,
+            minX: Math.min(x1, x2) - halfT,
+            maxX: Math.max(x1, x2) + halfT,
+            minZ: Math.min(z1, z2) - halfT,
+            maxZ: Math.max(z1, z2) + halfT,
+            isExterior: Boolean(isExterior),
+            isDoor: Boolean(isDoor),
+            sharedBoundaryWith: null,
+            isDiagonal: true,
+            x1,
+            z1,
+            ux: dx / len,
+            uz: dz / len,
+            len,
+            halfT
+        });
+    }
 
     if (!isDoor && targetGroup && targetGroup.userData && targetGroup.userData.floor && typeof WALLS_REGISTRY !== 'undefined' && Array.isArray(WALLS_REGISTRY)) {
         WALLS_REGISTRY.push({
@@ -1092,7 +1137,27 @@ function addMiteredChamferWall(targetGroup, x1, z1, x2, z2, thickness = 0.18, is
     registerMiterJoint(targetGroup, x1, z1, thickness);
     registerMiterJoint(targetGroup, x2, z2, thickness);
 
-    // Регистрация бокса скошенной стены для резолюции видимых ребер (подавление поперечных торцевых швов)
+    // В 3D-режиме также регистрируем скошенную стену в индексе отсечения плашек
+    if (targetGroup.userData && targetGroup.userData.floor && OCCLUDER_WALLS_BY_FLOOR[targetGroup.userData.floor]) {
+        const diagLen = Math.hypot(dx, dz) || 1;
+        OCCLUDER_WALLS_BY_FLOOR[targetGroup.userData.floor].push({
+            building: targetGroup.userData.building,
+            minX: Math.min(x1, x2) - half,
+            maxX: Math.max(x1, x2) + half,
+            minZ: Math.min(z1, z2) - half,
+            maxZ: Math.max(z1, z2) + half,
+            isExterior: Boolean(isExterior),
+            isDoor: Boolean(isDoor),
+            sharedBoundaryWith: null,
+            isDiagonal: true,
+            x1,
+            z1,
+            ux: dx / diagLen,
+            uz: dz / diagLen,
+            len: diagLen,
+            halfT: half
+        });
+    }
     if (!targetGroup._pendingChamferBoxes) {
         targetGroup._pendingChamferBoxes = [];
     }
@@ -1622,9 +1687,14 @@ function renderScreenSpaceLabels() {
         const fg = floorGroups[r.floor];
         if (!fg || !fg.visible) continue;
 
-        // В многоэтажном виде отсекаем кабинеты, которые перекрыты сплошными плитами верхних этажей,
-        // чтобы они не просвечивали сквозь потолок и не конфликтовали с верхними плашками
-        if (!isSingle && typeof isLabelOccludedByUpperSlabs === 'function') {
+        // В 3D-режиме отсекаем плашки кабинетов, перекрытые вертикальными 3D-стенами, фасадами, крышей или плитами перекрытий
+        if (!STATE.is2D && typeof isPointOccludedIn3D === 'function') {
+            const occlAnchorY = fg.position.y + Math.min(Math.max(STATE.wallHeight * 0.75, 0.25), 1.35);
+            if (isPointOccludedIn3D(fg.position.x + r.x, occlAnchorY, fg.position.z + r.z, r.floor, r.building, false)) {
+                continue;
+            }
+        } else if (!isSingle && typeof isLabelOccludedByUpperSlabs === 'function') {
+            // В многоэтажном 2D/плоском виде отсекаем кабинеты, перекрытые сплошными плитами верхних этажей
             if (isLabelOccludedByUpperSlabs(r, r.floor, r.building)) {
                 continue;
             }

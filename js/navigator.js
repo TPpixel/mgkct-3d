@@ -3665,6 +3665,13 @@ window.calculateWalkTime = calculateWalkTime;
             const posX = fg ? fg.position.x : 0;
             const posZ = fg ? fg.position.z : 0;
 
+            if (typeof STATE !== 'undefined' && !STATE.is2D && typeof window.isPointOccludedIn3D === 'function') {
+                const isExtAnchor = Boolean(node.isOutdoor || node.type === 'entrance');
+                if (window.isPointOccludedIn3D(posX + node.x, posY + 1.35, posZ + node.z, node.floor, node.bldg, isExtAnchor)) {
+                    return;
+                }
+            }
+
             _tempVec.set(posX + node.x, posY + 1.35, posZ + node.z).project(window.camera);
             if (_tempVec.z > 1.0) return; // За камерой
 
@@ -3761,6 +3768,12 @@ window.calculateWalkTime = calculateWalkTime;
         const posY = fg ? fg.position.y : 0;
         const posX = fg ? fg.position.x : 0;
         const posZ = fg ? fg.position.z : 0;
+
+        if (typeof STATE !== 'undefined' && !STATE.is2D && typeof window.isPointOccludedIn3D === 'function') {
+            if (window.isPointOccludedIn3D(posX + st.x, posY + 0.8, posZ + st.z, st.fromFloor, null, false)) {
+                return;
+            }
+        }
 
         _tempVec.set(posX + st.x, posY + 0.8, posZ + st.z).project(window.camera);
         if (_tempVec.z > 1.0) return;
