@@ -242,8 +242,8 @@
             addRoomLabel(targetGroup, 3, '311', 47.2, -28.4, true, false, 4, 0.85);
             addRoomLabel(targetGroup, 3, '310', 43.9, -28.5, true, false, 4, 0.88);
 
-            addRoomLabel(targetGroup, 3, 'С/у', 42.3, -40.5, true, false, 4, 0.72);
-            addRoomLabel(targetGroup, 3, 'С/у', 42.3, -38.3, true, false, 4, 0.72);
+            addRoomLabel(targetGroup, 3, 'С/У', 42.3, -40.5, true, false, 4, 0.72);
+            addRoomLabel(targetGroup, 3, 'С/У', 42.3, -38.3, true, false, 4, 0.72);
 
             addRoomLabel(targetGroup, 3, '306', 34.2, -44.2, true, false, 4, 0.90);
             addRoomLabel(targetGroup, 3, '304', 34.2, -39.4, true, false, 4, 0.90);

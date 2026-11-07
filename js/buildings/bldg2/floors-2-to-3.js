@@ -109,7 +109,7 @@
             // 3D-плашки помещений 2-го этажа Корпуса 2 (buildingId = 2)
             addRoomLabel3D(targetGroup, 2, '203', 24.9, -10.5, true, false, 2, 0.90);
             addRoomLabel3D(targetGroup, 2, '205', 31.3, -10.5, false, false, 2, 1.05);
-            addRoomLabel3D(targetGroup, 2, 'С/У (Ж)', 39.5, -8.4, true, false, 2, 0.80);
+            addRoomLabel3D(targetGroup, 2, 'WC (Ж)', 39.5, -8.4, true, false, 2, 0.80);
             addRoomLabel3D(targetGroup, 2, 'С/У', 41.0, -8.4, true, false, 2, 0.80);
             addRoomLabel3D(targetGroup, 2, 'ЛК№2', 44.5, -12.5, true, false, 2, 0.88);
             addRoomLabel3D(targetGroup, 2, '209\nУчебная часть', 46.9, -10.5, false, true, 2, 1.05);
@@ -242,8 +242,8 @@
             addRoomLabel3D(targetGroup, 3, '305', 30.55, -10.5, true, false, 2, 0.90);
             addRoomLabel3D(targetGroup, 3, '306', 33.85, -10.5, true, false, 2, 0.90);
             addRoomLabel3D(targetGroup, 3, '307', 37.15, -10.5, true, false, 2, 0.90);
-            addRoomLabel3D(targetGroup, 3, 'С/У (М)', 39.55, -7.8, true, false, 2, 0.78);
-            addRoomLabel3D(targetGroup, 3, 'С/У (Ж)', 41.05, -7.8, true, false, 2, 0.78);
+            addRoomLabel3D(targetGroup, 3, 'WC (М)', 39.55, -7.8, true, false, 2, 0.78);
+            addRoomLabel3D(targetGroup, 3, 'WC (Ж)', 41.05, -7.8, true, false, 2, 0.78);
             addRoomLabel3D(targetGroup, 3, 'ЛК№2', 44.5, -12.5, true, false, 2, 0.88);
             addRoomLabel3D(targetGroup, 3, '313', 51.3, -10.5, false, false, 2, 1.0);
             addRoomLabel3D(targetGroup, 3, '314', 57.8, -10.5, false, false, 2, 1.0);

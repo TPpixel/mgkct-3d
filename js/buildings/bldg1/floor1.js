@@ -274,8 +274,8 @@
             addRoomLabel3D(targetGroup, 1, '102\nГардероб', -4.6, -10.2, false, true, 1, 1.05);
             addRoomLabel3D(targetGroup, 1, '106', 2.7, -10.2);
             addRoomLabel3D(targetGroup, 1, '105', 6.0, -10.2);
-            addRoomLabel3D(targetGroup, 1, 'С/У (М)', 9.3, -13.2, true);
-            addRoomLabel3D(targetGroup, 1, 'С/У (Ж)', 9.3, -7.0, true);
+            addRoomLabel3D(targetGroup, 1, 'WC (М)', 9.3, -13.2, true);
+            addRoomLabel3D(targetGroup, 1, 'WC (Ж)', 9.3, -7.0, true);
             addRoomLabel3D(targetGroup, 1, '107', 13.6, -10.2);
             addRoomLabel3D(targetGroup, 1, '104', 7.6, -2.4, true, false, 1, 0.90);
             addRoomLabel3D(targetGroup, 1, '103', 5.6, -2.4, true);

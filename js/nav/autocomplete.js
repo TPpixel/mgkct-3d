@@ -111,6 +111,11 @@
                         const formattedCode = formatNavNodeName(n.label, n.bldg).toLowerCase();
 
                         let extraKeywords = '';
+                        if (/^wc\b/i.test(lbl)) {
+                            extraKeywords = 'туалет санузел уборная wc с/у';
+                        } else if (/^с\/у/i.test(lbl)) {
+                            extraKeywords = 'служебный с/у санузел';
+                        }
                         if (typeof ROOMS_REGISTRY !== 'undefined' && Array.isArray(ROOMS_REGISTRY)) {
                             const rMatch = ROOMS_REGISTRY.find(r => 
                                 r.building === n.bldg && 
@@ -118,7 +123,7 @@
                                 (r.text === n.label || r.text.includes(n.label) || (n.bldg > 1 && r.text.includes(`${n.bldg}-${n.label}`)))
                             );
                             if (rMatch) {
-                                extraKeywords = (rMatch.text || '').toLowerCase();
+                                extraKeywords += ' ' + (rMatch.text || '').toLowerCase();
                                 if (typeof getRoomSubjectAndTeacher === 'function') {
                                     const details = getRoomSubjectAndTeacher(n.bldg, n.floor, n.label, rMatch.text);
                                     if (details) {

@@ -4,7 +4,7 @@ function formatRoomDisplayName(text, buildingNum) {
     const raw = String(text).trim();
     if (b <= 1 || isNaN(b)) return raw;
     if (raw.startsWith('2-') || raw.startsWith('3-') || raw.startsWith('4-') || raw.startsWith('5-')) return raw;
-    if (raw.startsWith('С/У') || raw.startsWith('С/У')) return raw;
+    if (/^(?:wc|с\/у)/i.test(raw)) return raw;
     const numPrefixMatch = raw.match(/^(\d+[а-яa-z]?)(.*)$/i);
     if (numPrefixMatch) {
         return b + '-' + numPrefixMatch[1] + numPrefixMatch[2];
@@ -21,7 +21,7 @@ function computeRoomLabelPriority(textStr) {
     if (/^\d+[\u0400-\u04FFA-Za-z]?$/.test(t)) return 1;
     if (t.includes('\n') || t.length > 3) return 2;
     if (t.startsWith('ЛК') || t.startsWith('\u041B\u041A')) return 3;
-    if (t.startsWith('С/У') || t.startsWith('\u0421/\u0423')) return 4;
+    if (/^(?:wc|с\/у)/i.test(t)) return 4;
     return 2;
 }
 

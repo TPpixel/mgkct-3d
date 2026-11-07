@@ -23,10 +23,10 @@ function addNavNodesBldg2F2(g) {
         g.addNode("door_mid_room_2_2_108", 2, 2, 32.9, -7.2, "door", "Дверь 205");
         g.addNode("door_room_room_2_2_108", 2, 2, 32.9, -7.6, "door", "Вход 205");
         g.addNode("door_corr_room_2_2_108", 2, 2, 32.9, -6.8, "door", "Коридор 205");
-        g.addNode("room_2_2_109", 2, 2, 39.5, -8.4, "room", "С/У (Ж)");
-        g.addNode("door_mid_room_2_2_109", 2, 2, 39.6, -7.2, "door", "Дверь С/У");
-        g.addNode("door_room_room_2_2_109", 2, 2, 39.6, -7.6, "door", "Вход С/У");
-        g.addNode("door_corr_room_2_2_109", 2, 2, 39.6, -6.8, "door", "Коридор С/У");
+        g.addNode("room_2_2_109", 2, 2, 39.5, -8.4, "room", "WC (Ж)");
+        g.addNode("door_mid_room_2_2_109", 2, 2, 39.6, -7.2, "door", "Дверь WC");
+        g.addNode("door_room_room_2_2_109", 2, 2, 39.6, -7.6, "door", "Вход WC");
+        g.addNode("door_corr_room_2_2_109", 2, 2, 39.6, -6.8, "door", "Коридор WC");
         g.addNode("room_2_2_110", 2, 2, 41, -8.4, "room", "С/У");
         g.addNode("door_mid_room_2_2_110", 2, 2, 41, -7.2, "door", "Дверь С/У");
         g.addNode("door_room_room_2_2_110", 2, 2, 41, -7.6, "door", "Вход С/У");

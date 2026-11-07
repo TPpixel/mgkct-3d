@@ -236,7 +236,7 @@
             addRoomLabel3D(targetGroup, 1, 'ЛК№2', 44.5, -9.2, true, false, 2, 0.88);
             addRoomLabel3D(targetGroup, 1, '109', 53.1, -10.3, false, false, 2, 1.05);
             addRoomLabel3D(targetGroup, 1, '111', 59.7, -10.3, true, false, 2, 0.90);
-            addRoomLabel3D(targetGroup, 1, 'С/У (М)', 62.7, -8.0, true, false, 2, 0.82);
+            addRoomLabel3D(targetGroup, 1, 'WC (М)', 62.7, -8.0, true, false, 2, 0.82);
             addRoomLabel3D(targetGroup, 1, 'ЛК№1', 66.0, -9.2, true, false, 2, 0.88);
             addRoomLabel3D(targetGroup, 1, '104\nБиблиотека', 29.5, -0.5, false, true, 2, 1.1);
             addRoomLabel3D(targetGroup, 1, '106', 46.7, -0.5, false, false, 2, 1.05);

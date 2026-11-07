@@ -146,8 +146,8 @@
             buildStaircaseUnit(targetGroup, 0.0, 4.0, 2.0, false);
 
             // Общие плашки ядра и лестниц
-            addRoomLabel3D(targetGroup, floorNum, 'С/У (М)', 6.2, -2.8, true);
-            addRoomLabel3D(targetGroup, floorNum, 'С/У (Ж)', 5.6, 1.3, true);
+            addRoomLabel3D(targetGroup, floorNum, 'WC (М)', 6.2, -2.8, true);
+            addRoomLabel3D(targetGroup, floorNum, 'WC (Ж)', 5.6, 1.3, true);
             addRoomLabel3D(targetGroup, floorNum, 'ЛК№1', 9.8, -2.0, true, false, 1, 0.85);
             addRoomLabel3D(targetGroup, floorNum, 'ЛК№2', 9.8, 2.0, true, false, 1, 0.85);
             addRoomLabel3D(targetGroup, floorNum, 'Лифтовой\nхолл', 1.8, 1.5, false, true);

@@ -207,8 +207,8 @@ function renderScreenSpaceLabels() {
 
         // Определение гендерного санузла (М / Ж)
         const rawWcText = (r.rawText || r.text || '');
-        const isMaleWc = /с\/у\s*\(?м\)?/i.test(rawWcText);
-        const isFemaleWc = /с\/у\s*\(?ж\)?/i.test(rawWcText);
+        const isMaleWc = /^wc\s*\(?м\)?/i.test(rawWcText);
+        const isFemaleWc = /^wc\s*\(?ж\)?/i.test(rawWcText);
         const isWcIcon = isMaleWc || isFemaleWc;
 
         // Отступы пропорционально сжимаются при отдалении камеры

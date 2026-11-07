@@ -1,6 +1,6 @@
 // Обработка жестов открытия поиска, горячих клавиш, чипов и делегирования кликов по выдаче
 function bindSearchGesturesAndEvents(ctx) {
-    const { searchModal, searchBackdrop, searchInput, searchResults, searchTagChips, btnOpenSearch, btnCloseSearch, btnClearSearch, btnQuickCanteen, btnQuickToilet, btnQuickInfo, quickButtons, toggleQuickCategory, openSearch, closeSearch } = ctx;
+    const { searchModal, searchBackdrop, searchInput, searchResults, searchTagChips, btnOpenSearch, btnCloseSearch, btnClearSearch, openSearch, closeSearch } = ctx;
 
     let searchOpeningGesture = false;
 
@@ -104,9 +104,10 @@ function bindSearchGesturesAndEvents(ctx) {
         if (btnClearSearch) {
             btnClearSearch.classList.toggle("hidden", !val);
         }
-        // При любом ручном изменении текста в поле поиска снимаем выделение со всех быстрых кнопок
-        quickButtons.forEach(b => b?.classList.remove("is-active"));
-        searchTagChips.forEach(c => c.classList.remove("is-active"));
+        // Синхронизируем активное состояние чипов с текущим текстом в поле поиска
+        searchTagChips.forEach(c => {
+            c.classList.toggle("is-active", Boolean(val) && (c.dataset.query || "").toLowerCase() === val.toLowerCase());
+        });
         if (searchDebounceTimer) {
             clearTimeout(searchDebounceTimer);
         }
@@ -204,7 +205,7 @@ function bindSearchGesturesAndEvents(ctx) {
         if (btnClearSearch) {
             btnClearSearch.classList.add('hidden');
         }
-        quickButtons.forEach(b => b?.classList.remove('is-active'));
+        searchTagChips.forEach(c => c.classList.remove('is-active'));
         if (typeof renderSearchResults === 'function') {
             renderSearchResults('');
         }
@@ -245,9 +246,11 @@ function bindSearchGesturesAndEvents(ctx) {
         if (urlParams.has("search")) {
             openSearch();
             const cat = urlParams.get("cat");
-            if (cat === "canteen") btnQuickCanteen?.click();
-            else if (cat === "toilet") btnQuickToilet?.click();
-            else if (cat === "info") btnQuickInfo?.click();
+            const catQuery = cat === "canteen" ? "Буфет" : (cat === "toilet" ? "Туалет" : (cat === "info" ? "101" : ""));
+            if (catQuery) {
+                const targetChip = searchTagChips.find(c => (c.dataset.query || "").toLowerCase() === catQuery.toLowerCase());
+                if (targetChip) targetChip.click();
+            }
         }
     } catch (_) {}
 }

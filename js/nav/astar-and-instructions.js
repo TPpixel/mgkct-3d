@@ -15,18 +15,16 @@
 
         // Собираем туалетные узлы прямо из графа — их ID валидны для A*.
         // Узел считается туалетом, если его ID содержит '_wc_', тип 'wc',
-        // или label === 'С/У' / 'С/У'.
+        // или label начинается с 'WC'.
         let bestNode = null;
         let bestScore = Infinity;
 
         for (const [nid, node] of g.nodes.entries()) {
+            if (node.type === 'door' || node.type === 'corridor') continue;
             const lbl = (node.label || '').trim();
             const isWC = node.type === 'wc'
                 || nid.includes('_wc_')
-                || lbl.startsWith('С/У')
-                || lbl.startsWith('\u0421/\u0423')
-                || lbl.toLowerCase().includes('туалет')
-                || lbl.toLowerCase().includes('санузел');
+                || /^wc\b/i.test(lbl);
             if (!isWC) continue;
 
             const floorDiff = Math.abs(node.floor - startFloor);

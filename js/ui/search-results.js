@@ -71,10 +71,12 @@ function renderSearchResults(query) {
             if (bldg === 2 && r.floor === 3 && (cleanText.includes("308") || cleanText.includes("спорт"))) alias = "спортзал спортивный зал спорт 308";
             if (bldg === 2 && r.floor === 3 && (cleanText.includes("312") || cleanText.includes("конференц"))) alias = "конференц-зал конференц зал собрания 312";
             if (bldg === 2 && r.floor === 2 && (cleanText.includes("209") || cleanText.includes("учебн"))) alias = "учебная часть учебная 209 2-209";
-            if (/^с\/у/i.test(cleanText)) {
+            if (/^wc\b/i.test(cleanText)) {
                 const isM = /м|муж/i.test(cleanText);
                 const isF = /ж|жен/i.test(cleanText);
                 alias = "туалет санузел уборная wc с/у" + (isM ? " мужской м" : "") + (isF ? " женский ж" : "");
+            } else if (/^с\/у/i.test(cleanText)) {
+                alias = "служебный с/у санузел";
             }
 
             if (targetBldg !== null) {

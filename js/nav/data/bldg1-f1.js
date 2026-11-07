@@ -38,8 +38,8 @@ function addNavNodesBldg1F1(g) {
         g.addNode("door_room_room_1_1_1", 1, 1, 4.2, -10, "door", "Вход 106");
         g.addNode("door_corr_room_1_1_1", 1, 1, 5, -10, "door", "Коридор 106");
         g.addNode("room_1_1_2", 1, 1, 6, -10.2, "room", "105");
-        g.addNode("room_1_1_3", 1, 1, 9.3, -13.2, "room", "С/У (М)");
-        g.addNode("room_1_1_4", 1, 1, 9.3, -7, "room", "С/У (Ж)");
+        g.addNode("room_1_1_3", 1, 1, 9.3, -13.2, "room", "WC (М)");
+        g.addNode("room_1_1_4", 1, 1, 9.3, -7, "room", "WC (Ж)");
         g.addNode("room_1_1_5", 1, 1, 13.6, -10.2, "room", "107");
         g.addNode("door_mid_room_1_1_5", 1, 1, 13.5, -6.2, "door", "Дверь 107");
         g.addNode("door_room_room_1_1_5", 1, 1, 13.5, -6.6, "door", "Вход 107");

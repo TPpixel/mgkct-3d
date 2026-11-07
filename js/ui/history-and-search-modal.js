@@ -136,46 +136,10 @@ function setupSearch() {
     const searchBackdrop = document.getElementById("search-backdrop");
     const searchInput = document.getElementById("search-input");
     const searchResults = document.getElementById("search-results");
-    const searchTagChips = searchModal ? searchModal.querySelectorAll(".search-tag-chip") : document.querySelectorAll("#search-modal .search-tag-chip");
+    const searchTagChips = searchModal ? Array.from(searchModal.querySelectorAll(".search-tag-chip")) : [];
     const btnOpenSearch = document.getElementById("btn-open-search");
     const btnCloseSearch = document.getElementById("btn-close-search");
     const btnClearSearch = document.getElementById("btn-clear-search");
-    const btnQuickCanteen = document.getElementById("btn-quick-canteen");
-    const btnQuickToilet = document.getElementById("btn-quick-toilet");
-    const btnQuickInfo = document.getElementById("btn-quick-info");
-    const quickButtons = [btnQuickCanteen, btnQuickToilet, btnQuickInfo];
-
-    function toggleQuickCategory(targetBtn, queryText) {
-        const wasActive = targetBtn?.classList.contains("is-active");
-        quickButtons.forEach(b => b?.classList.remove("is-active"));
-        if (!wasActive && targetBtn) {
-            targetBtn.classList.add("is-active");
-            if (searchInput) {
-                searchInput.value = queryText;
-                if (btnClearSearch) btnClearSearch.classList.remove("hidden");
-                searchInput.focus();
-            }
-            renderSearchResults(queryText);
-        } else {
-            if (searchInput) {
-                searchInput.value = "";
-                if (btnClearSearch) btnClearSearch.classList.add("hidden");
-            }
-            renderSearchResults("");
-        }
-    }
-
-    btnQuickCanteen?.addEventListener("click", () => {
-        toggleQuickCategory(btnQuickCanteen, "Столовая");
-    });
-
-    btnQuickToilet?.addEventListener("click", () => {
-        toggleQuickCategory(btnQuickToilet, "С/У");
-    });
-
-    btnQuickInfo?.addEventListener("click", () => {
-        toggleQuickCategory(btnQuickInfo, "101");
-    });
 
     function openSearch(fromPopstate = false, shouldFocus = true) {
         hideRoomContextPopup(true);
@@ -266,8 +230,7 @@ function setupSearch() {
         if (pill) pill.classList.add('hidden');
         searchBackdrop?.classList.remove("active");
         document.body.classList.remove("search-open");
-        quickButtons.forEach(b => b?.classList.remove("is-active"));
-        document.querySelectorAll(".search-tag-chip").forEach(c => c.classList.remove("is-active"));
+        searchTagChips.forEach(c => c.classList.remove("is-active"));
         const searchCard = document.querySelector(".m3-search-card");
         if (searchCard) {
             searchCard.classList.add("hidden");
@@ -288,5 +251,5 @@ function setupSearch() {
     window.openSearch = openSearch;
     window.closeSearch = closeSearch;
 
-    bindSearchGesturesAndEvents({ searchModal, searchBackdrop, searchInput, searchResults, searchTagChips, btnOpenSearch, btnCloseSearch, btnClearSearch, btnQuickCanteen, btnQuickToilet, btnQuickInfo, quickButtons, toggleQuickCategory, openSearch, closeSearch });
+    bindSearchGesturesAndEvents({ searchModal, searchBackdrop, searchInput, searchResults, searchTagChips, btnOpenSearch, btnCloseSearch, btnClearSearch, openSearch, closeSearch });
 }

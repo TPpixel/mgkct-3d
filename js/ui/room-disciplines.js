@@ -137,12 +137,18 @@ function formatSearchRoomBadgeAndTitle(item) {
         codeNum = "209";
         title = "Учебная часть";
         subtitle = "Учебная часть колледжа";
-    } else if (/^с\/у/i.test(rawOrig)) {
+    } else if (/^wc\b/i.test(rawOrig)) {
         const isM = /м|муж/i.test(rawOrig);
         const isF = /ж|жен/i.test(rawOrig);
         codeNum = "WC";
-        title = isM ? "Санузел (мужской)" : (isF ? "Санузел (женский)" : "Санузел");
+        title = isM ? "WC (мужской)" : (isF ? "WC (женский)" : "WC");
         subtitle = isM ? "Мужской туалет" : (isF ? "Женский туалет" : "Уборная");
+    } else if (/^с\/у/i.test(rawOrig)) {
+        const isM = /м|муж/i.test(rawOrig);
+        const isF = /ж|жен/i.test(rawOrig);
+        codeNum = (isM || isF) ? "WC" : "С/У";
+        title = isM ? "WC (мужской)" : (isF ? "WC (женский)" : "Служебный с/у");
+        subtitle = isM ? "Мужской туалет" : (isF ? "Женский туалет" : "Служебный санузел");
     } else if (/^лк\s*№?\s*(\d+)/i.test(rawOrig)) {
         const m = rawOrig.match(/^лк\s*№?\s*(\d+)/i);
         codeNum = `ЛК${m[1]}`;
