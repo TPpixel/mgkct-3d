@@ -800,12 +800,18 @@ function formatSearchRoomBadgeAndTitle(item) {
         codeNum = "209";
         title = "Учебная часть";
         subtitle = "Учебная часть колледжа";
-    } else if (/^с\/у/i.test(rawOrig)) {
+    } else if (/^wc\b/i.test(rawOrig)) {
         const isM = /м|муж/i.test(rawOrig);
         const isF = /ж|жен/i.test(rawOrig);
         codeNum = "WC";
-        title = isM ? "Санузел (мужской)" : (isF ? "Санузел (женский)" : "Санузел");
+        title = isM ? "WC (мужской)" : (isF ? "WC (женский)" : "WC");
         subtitle = isM ? "Мужской туалет" : (isF ? "Женский туалет" : "Уборная");
+    } else if (/^с\/у/i.test(rawOrig)) {
+        const isM = /м|муж/i.test(rawOrig);
+        const isF = /ж|жен/i.test(rawOrig);
+        codeNum = (isM || isF) ? "WC" : "С/У";
+        title = isM ? "WC (мужской)" : (isF ? "WC (женский)" : "Служебный с/у");
+        subtitle = isM ? "Мужской туалет" : (isF ? "Женский туалет" : "Служебный санузел");
     } else if (/^лк\s*№?\s*(\d+)/i.test(rawOrig)) {
         const m = rawOrig.match(/^лк\s*№?\s*(\d+)/i);
         codeNum = `ЛК${m[1]}`;
@@ -1034,46 +1040,10 @@ function setupSearch() {
     const searchBackdrop = document.getElementById("search-backdrop");
     const searchInput = document.getElementById("search-input");
     const searchResults = document.getElementById("search-results");
-    const searchTagChips = searchModal ? searchModal.querySelectorAll(".search-tag-chip") : document.querySelectorAll("#search-modal .search-tag-chip");
+    const searchTagChips = searchModal ? Array.from(searchModal.querySelectorAll(".search-tag-chip")) : [];
     const btnOpenSearch = document.getElementById("btn-open-search");
     const btnCloseSearch = document.getElementById("btn-close-search");
     const btnClearSearch = document.getElementById("btn-clear-search");
-    const btnQuickCanteen = document.getElementById("btn-quick-canteen");
-    const btnQuickToilet = document.getElementById("btn-quick-toilet");
-    const btnQuickInfo = document.getElementById("btn-quick-info");
-    const quickButtons = [btnQuickCanteen, btnQuickToilet, btnQuickInfo];
-
-    function toggleQuickCategory(targetBtn, queryText) {
-        const wasActive = targetBtn?.classList.contains("is-active");
-        quickButtons.forEach(b => b?.classList.remove("is-active"));
-        if (!wasActive && targetBtn) {
-            targetBtn.classList.add("is-active");
-            if (searchInput) {
-                searchInput.value = queryText;
-                if (btnClearSearch) btnClearSearch.classList.remove("hidden");
-                searchInput.focus();
-            }
-            renderSearchResults(queryText);
-        } else {
-            if (searchInput) {
-                searchInput.value = "";
-                if (btnClearSearch) btnClearSearch.classList.add("hidden");
-            }
-            renderSearchResults("");
-        }
-    }
-
-    btnQuickCanteen?.addEventListener("click", () => {
-        toggleQuickCategory(btnQuickCanteen, "Столовая");
-    });
-
-    btnQuickToilet?.addEventListener("click", () => {
-        toggleQuickCategory(btnQuickToilet, "С/У");
-    });
-
-    btnQuickInfo?.addEventListener("click", () => {
-        toggleQuickCategory(btnQuickInfo, "101");
-    });
 
     function openSearch(fromPopstate = false, shouldFocus = true) {
         hideRoomContextPopup(true);
@@ -1164,8 +1134,7 @@ function setupSearch() {
         if (pill) pill.classList.add('hidden');
         searchBackdrop?.classList.remove("active");
         document.body.classList.remove("search-open");
-        quickButtons.forEach(b => b?.classList.remove("is-active"));
-        document.querySelectorAll(".search-tag-chip").forEach(c => c.classList.remove("is-active"));
+        searchTagChips.forEach(c => c.classList.remove("is-active"));
         const searchCard = document.querySelector(".m3-search-card");
         if (searchCard) {
             searchCard.classList.add("hidden");
@@ -1292,9 +1261,9 @@ function setupSearch() {
         if (btnClearSearch) {
             btnClearSearch.classList.toggle("hidden", !val);
         }
-        // При любом ручном изменении текста в поле поиска снимаем выделение со всех быстрых кнопок
-        quickButtons.forEach(b => b?.classList.remove("is-active"));
-        searchTagChips.forEach(c => c.classList.remove("is-active"));
+        searchTagChips.forEach(c => {
+            c.classList.toggle("is-active", Boolean(val) && (c.dataset.query || "").toLowerCase() === val.toLowerCase());
+        });
         if (searchDebounceTimer) {
             clearTimeout(searchDebounceTimer);
         }
@@ -1392,7 +1361,7 @@ function setupSearch() {
         if (btnClearSearch) {
             btnClearSearch.classList.add('hidden');
         }
-        quickButtons.forEach(b => b?.classList.remove('is-active'));
+        searchTagChips.forEach(c => c.classList.remove('is-active'));
         if (typeof renderSearchResults === 'function') {
             renderSearchResults('');
         }
@@ -1494,10 +1463,12 @@ function setupSearch() {
             if (bldg === 2 && r.floor === 3 && (cleanText.includes("308") || cleanText.includes("спорт"))) alias = "спортзал спортивный зал спорт 308";
             if (bldg === 2 && r.floor === 3 && (cleanText.includes("312") || cleanText.includes("конференц"))) alias = "конференц-зал конференц зал собрания 312";
             if (bldg === 2 && r.floor === 2 && (cleanText.includes("209") || cleanText.includes("учебн"))) alias = "учебная часть учебная 209 2-209";
-            if (/^с\/у/i.test(cleanText)) {
+            if (/^wc\b/i.test(cleanText)) {
                 const isM = /м|муж/i.test(cleanText);
                 const isF = /ж|жен/i.test(cleanText);
                 alias = "туалет санузел уборная wc с/у" + (isM ? " мужской м" : "") + (isF ? " женский ж" : "");
+            } else if (/^с\/у/i.test(cleanText)) {
+                alias = "служебный с/у санузел";
             }
 
             if (targetBldg !== null) {
