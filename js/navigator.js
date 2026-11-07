@@ -5337,13 +5337,33 @@ window.calculateWalkTime = calculateWalkTime;
         document.body.classList.add('nav-picking-active');
         const banner = document.getElementById('nav-pick-banner');
         const textEl = document.getElementById('nav-pick-text');
+        const subtextEl = document.getElementById('nav-pick-subtext');
+        const iconWrap = document.getElementById('nav-pick-icon-wrap');
         const iconEl = document.getElementById('nav-pick-icon');
-        if (banner && textEl) {
-            textEl.textContent = text;
-            if (iconEl) {
-                iconEl.setAttribute('class', targetType === 'dest'
-                    ? 'w-5 h-5 flex-shrink-0 text-[#1a73e8] dark:text-[#70b3ff]'
-                    : 'w-5 h-5 flex-shrink-0 text-[#0284c7] dark:text-[#38bdf8]');
+
+        if (banner) {
+            if (textEl) {
+                textEl.textContent = 'Выберите на карте';
+            }
+            if (subtextEl) {
+                subtextEl.textContent = targetType === 'start'
+                    ? 'Начальная точка (Откуда)'
+                    : 'Конечный кабинет (Куда)';
+            }
+            if (iconWrap) {
+                if (targetType === 'start') {
+                    iconWrap.className = 'w-10 h-10 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-sm bg-[#c2e7ff] text-[#004a77] dark:bg-[#004a77] dark:text-[#c2e7ff] transition-all';
+                    if (iconEl) {
+                        iconEl.setAttribute('class', 'w-5 h-5 flex-shrink-0');
+                        iconEl.innerHTML = '<path d="M12 8c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm8.94 3A8.994 8.994 0 0 0 13 3.06V1h-2v2.06A8.994 8.994 0 0 0 3.06 11H1v2h2.06A8.994 8.994 0 0 0 11 20.94V23h2v-2.06A8.994 8.994 0 0 0 20.94 13H23v-2h-2.06zM12 19c-3.87 0-7-3.13-7-7s3.13-7 7-7 7 3.13 7 7-3.13 7-7 7z"/>';
+                    }
+                } else {
+                    iconWrap.className = 'w-10 h-10 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-sm bg-[#1a73e8] text-white dark:bg-[#1a73e8] dark:text-white transition-all';
+                    if (iconEl) {
+                        iconEl.setAttribute('class', 'w-5 h-5 flex-shrink-0');
+                        iconEl.innerHTML = '<path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>';
+                    }
+                }
             }
             banner.classList.remove('hidden');
         }

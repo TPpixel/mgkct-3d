@@ -7,10 +7,10 @@
     <!-- Resource Hints & Preconnections -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="stylesheet" href="css/tailwind.min.css?v=98">
-    <link rel="stylesheet" href="css/style.css?v=98">
-    <link rel="preload" href="js/vendor/three.min.js?v=98" as="script">
-    <link rel="preload" href="js/vendor/OrbitControls.js?v=98" as="script">
+    <link rel="stylesheet" href="css/tailwind.min.css?v=99">
+    <link rel="stylesheet" href="css/style.css?v=99">
+    <link rel="preload" href="js/vendor/three.min.js?v=99" as="script">
+    <link rel="preload" href="js/vendor/OrbitControls.js?v=99" as="script">
     <script>
         (function() {
             try {
@@ -456,15 +456,23 @@
         </div>
     </div>
 
-    <!-- Плавающий баннер режима указания точки на карте (внизу экрана вместо плашки маршрута) -->
+    <!-- Плавающий экспрессивный баннер выбора точки на карте (M3 Expressive Pick Banner) -->
     <div id="nav-pick-banner" class="hidden" role="status" aria-live="polite">
-        <div class="flex items-center gap-2.5 min-w-0 flex-1">
-            <svg id="nav-pick-icon" class="w-5 h-5 flex-shrink-0 text-[#1a73e8] dark:text-[#70b3ff]" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
-            </svg>
-            <span id="nav-pick-text" class="text-xs sm:text-sm font-semibold truncate text-slate-900 dark:text-white">Выберите кабинет на карте</span>
+        <div class="flex items-center gap-3 min-w-0 flex-1">
+            <!-- Экспрессивная плашка-иконка squircle -->
+            <div id="nav-pick-icon-wrap" class="w-10 h-10 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-sm transition-transform duration-200">
+                <svg id="nav-pick-icon" class="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+                </svg>
+            </div>
+            <!-- Двухуровневая типографика M3: действие + цель маршрута без обрезания текста -->
+            <div class="flex flex-col justify-center min-w-0 flex-1 leading-tight">
+                <span id="nav-pick-text" class="font-google font-extrabold text-[14px] sm:text-[15px] truncate text-slate-900 dark:text-white">Выберите на карте</span>
+                <span id="nav-pick-subtext" class="text-[11.5px] sm:text-xs font-bold text-[#1a73e8] dark:text-[#70b3ff] truncate">Конечный кабинет (Куда)</span>
+            </div>
         </div>
-        <button id="btn-cancel-pick" class="flex-shrink-0" type="button">Отмена</button>
+        <!-- Кнопка Отмена в стиле M3 Tonal Stadium Button с упругим откликом -->
+        <button id="btn-cancel-pick" class="flex-shrink-0" type="button" aria-label="Отменить выбор">Отмена</button>
     </div>
 
     <!-- Нижняя плавающая карточка активного маршрута (Google Maps Expressive Route Card) -->
@@ -633,21 +641,21 @@
     </div>
 
     <!-- Подключение Three.js и JS модулей -->
-    <script src="js/vendor/three.min.js?v=98"></script>
-    <script src="js/vendor/OrbitControls.js?v=98"></script>
-    <script src="js/state.js?v=98"></script>
-    <script src="js/materials.js?v=98"></script>
-    <script src="js/helpers.js?v=98"></script>
-    <script src="js/buildings/building1.js?v=98"></script>
-    <script src="js/buildings/building2.js?v=98"></script>
-    <script src="js/buildings/building3.js?v=98"></script>
-    <script src="js/buildings/building4.js?v=98"></script>
-    <script src="js/buildings/building5.js?v=98"></script>
-    <script src="js/territory.js?v=98"></script>
-    <script src="js/controls.js?v=98"></script>
-    <script src="js/navigator.js?v=98"></script>
-    <script src="js/ui.js?v=98"></script>
-    <script src="js/main.js?v=98"></script>
-    <script src="js/telemetry.js?v=98"></script>
+    <script src="js/vendor/three.min.js?v=99"></script>
+    <script src="js/vendor/OrbitControls.js?v=99"></script>
+    <script src="js/state.js?v=99"></script>
+    <script src="js/materials.js?v=99"></script>
+    <script src="js/helpers.js?v=99"></script>
+    <script src="js/buildings/building1.js?v=99"></script>
+    <script src="js/buildings/building2.js?v=99"></script>
+    <script src="js/buildings/building3.js?v=99"></script>
+    <script src="js/buildings/building4.js?v=99"></script>
+    <script src="js/buildings/building5.js?v=99"></script>
+    <script src="js/territory.js?v=99"></script>
+    <script src="js/controls.js?v=99"></script>
+    <script src="js/navigator.js?v=99"></script>
+    <script src="js/ui.js?v=99"></script>
+    <script src="js/main.js?v=99"></script>
+    <script src="js/telemetry.js?v=99"></script>
 </body>
 </html>

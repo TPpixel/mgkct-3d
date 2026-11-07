@@ -2527,59 +2527,146 @@ body.search-open #nav-pick-banner,
 }
 
 /* Плавающий баннер выбора на карте (Google Maps Pick Banner — внизу экрана вместо плашки маршрута) */
+/* ==========================================================================
+   M3 EXPRESSIVE MAP PICK BANNER (Нижний баннер выбора точки на карте)
+   ========================================================================== */
 #nav-pick-banner {
     position: fixed !important;
     bottom: max(16px, env(safe-area-inset-bottom, 16px)) !important;
     top: auto !important;
-    left: 12px !important;
-    right: 12px !important;
+    left: 14px !important;
+    right: 14px !important;
     width: auto !important;
-    max-width: 520px !important;
-    height: 56px !important;
-    padding: 0 14px 0 18px !important;
-    background: var(--m3-surface) !important;
-    border: 1px solid var(--m3-outline-variant) !important;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.14) !important;
-    color: var(--m3-on-surface) !important;
-    border-radius: 28px !important;
+    max-width: 480px !important;
+    height: 64px !important;
+    padding: 0 10px 0 12px !important;
+    background: rgba(255, 255, 255, 0.96) !important;
+    backdrop-filter: blur(24px) saturate(180%) !important;
+    -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
+    border: 1.5px solid rgba(0, 0, 0, 0.08) !important;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.16), 0 2px 8px rgba(0, 0, 0, 0.08) !important;
+    border-radius: 9999px !important;
     z-index: var(--z-modal, 60) !important;
     display: flex !important;
     align-items: center !important;
     justify-content: space-between !important;
+    gap: 12px !important;
     box-sizing: border-box !important;
     user-select: none !important;
     -webkit-user-select: none !important;
+    -webkit-tap-highlight-color: transparent !important;
+    animation: m3-pick-banner-enter 0.32s cubic-bezier(0.2, 0, 0, 1) !important;
+}
+
+[data-theme="dark"] #nav-pick-banner {
+    background: rgba(28, 30, 32, 0.94) !important;
+    border: 1.5px solid rgba(255, 255, 255, 0.14) !important;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.55), 0 2px 10px rgba(0, 0, 0, 0.3) !important;
+}
+
+@keyframes m3-pick-banner-enter {
+    from {
+        opacity: 0;
+        transform: translateY(24px) scale(0.96);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
 }
 
 #nav-pick-banner.hidden {
     display: none !important;
 }
 
+#nav-pick-icon-wrap {
+    width: 42px !important;
+    height: 42px !important;
+    border-radius: 14px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    flex-shrink: 0 !important;
+    transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.2s ease !important;
+}
+
 #nav-pick-text {
-    color: var(--m3-on-surface) !important;
+    font-family: 'Google Sans', 'Roboto', sans-serif !important;
+    font-size: 14px !important;
+    font-weight: 800 !important;
+    letter-spacing: -0.01em !important;
+    line-height: 1.2 !important;
+    color: #1f1f1f !important;
+}
+
+[data-theme="dark"] #nav-pick-text {
+    color: #ffffff !important;
+}
+
+#nav-pick-subtext {
+    font-family: 'Google Sans', 'Roboto', sans-serif !important;
+    font-size: 11.5px !important;
+    font-weight: 700 !important;
+    letter-spacing: -0.01em !important;
+    line-height: 1.2 !important;
+    margin-top: 1px !important;
+    color: #1a73e8 !important;
+}
+
+[data-theme="dark"] #nav-pick-subtext {
+    color: #70b3ff !important;
 }
 
 #btn-cancel-pick {
-    cursor: pointer;
-    border: 1px solid var(--m3-outline-variant) !important;
+    cursor: pointer !important;
+    border: 1px solid rgba(0, 0, 0, 0.08) !important;
     outline: none !important;
-    background: var(--m3-surface-container-high) !important;
-    color: var(--m3-on-surface) !important;
-    font-family: inherit !important;
-    font-size: 13px !important;
-    font-weight: 600 !important;
+    background: #f0f4f9 !important;
+    color: #1f1f1f !important;
+    font-family: 'Google Sans', 'Roboto', sans-serif !important;
+    font-size: 13.5px !important;
+    font-weight: 700 !important;
     border-radius: 9999px !important;
-    padding: 7px 16px !important;
-    transition: background-color 0.15s ease, filter 0.15s ease !important;
+    height: 42px !important;
+    padding: 0 18px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    transition: background-color 0.16s ease, transform 0.12s cubic-bezier(0.2, 0, 0, 1), border-color 0.16s ease !important;
     white-space: nowrap !important;
+    box-sizing: border-box !important;
+    -webkit-tap-highlight-color: transparent !important;
 }
 
-#btn-cancel-pick:hover {
-    filter: brightness(1.1);
+@media (hover: hover) and (pointer: fine) {
+    #btn-cancel-pick:hover {
+        background: #e2e7ef !important;
+        color: #1a73e8 !important;
+    }
 }
 
 #btn-cancel-pick:active {
-    filter: brightness(0.9);
+    transform: scale(0.93) !important;
+    background: #d8e0ec !important;
+}
+
+[data-theme="dark"] #btn-cancel-pick {
+    background: #282a2c !important;
+    border: 1px solid rgba(255, 255, 255, 0.14) !important;
+    color: #e3e3e3 !important;
+}
+
+@media (hover: hover) and (pointer: fine) {
+    [data-theme="dark"] #btn-cancel-pick:hover {
+        background: #35373a !important;
+        color: #ffffff !important;
+        border-color: rgba(255, 255, 255, 0.24) !important;
+    }
+}
+
+[data-theme="dark"] #btn-cancel-pick:active {
+    background: #202224 !important;
+    transform: scale(0.93) !important;
 }
 
 @media (min-width: 640px) {
@@ -2588,6 +2675,20 @@ body.search-open #nav-pick-banner,
         right: auto !important;
         transform: translateX(-50%) !important;
         width: 440px !important;
+        bottom: 24px !important;
+    }
+
+    @keyframes m3-pick-banner-enter {
+        from {
+            opacity: 0;
+            transform: translateX(-50%) translateY(24px) scale(0.96);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0) scale(1);
+        }
+    }
+}
         bottom: 24px !important;
     }
 }
