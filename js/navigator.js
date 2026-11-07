@@ -56,6 +56,52 @@ window.calculateWalkTime = calculateWalkTime;
     window.buildCollegeNavGraph = buildCollegeNavGraph;
 
     // ------------------------------------------------------------------------
+    // M3 EXPRESSIVE FLOATING TOAST NOTIFICATION
+    // ------------------------------------------------------------------------
+    const ELEVATOR_TOAST_ICON = '<svg class="w-4 h-4 text-[#70b3ff] flex-shrink-0" viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-10.5 3c.69 0 1.25.56 1.25 1.25S9.19 8.5 8.5 8.5 7.25 7.94 7.25 7.25 7.81 6 8.5 6zM11 14h-1v4H7v-4H6v-2.5c0-1.1.9-2 2-2h1c1.1 0 2 .9 2 2V14zm4.5 3L13 13h5l-2.5 4zm-2.5-6 2.5-4 2.5 4h-5z"/></svg>';
+    const STAIRS_TOAST_ICON = '<svg class="w-4 h-4 text-emerald-400 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19h4v-4h4v-4h4V7h4"></path></svg>';
+
+    let toastTimer = null;
+    function showToast(message, iconSvg = null, duration = 2800) {
+        const toast = document.getElementById('m3-toast');
+        if (!toast) return;
+        const iconContainer = document.getElementById('m3-toast-icon');
+        const textEl = document.getElementById('m3-toast-text');
+
+        if (toastTimer) {
+            clearTimeout(toastTimer);
+            toastTimer = null;
+        }
+
+        if (textEl) textEl.textContent = message;
+        if (iconContainer) {
+            if (iconSvg) {
+                iconContainer.innerHTML = iconSvg;
+                iconContainer.classList.remove('hidden');
+            } else {
+                iconContainer.innerHTML = '';
+                iconContainer.classList.add('hidden');
+            }
+        }
+
+        toast.classList.remove('hidden', 'is-leaving');
+        toast.classList.add('is-entering');
+        requestAnimationFrame(() => {
+            toast.classList.remove('is-entering');
+        });
+
+        toastTimer = setTimeout(() => {
+            toast.classList.add('is-leaving');
+            setTimeout(() => {
+                toast.classList.add('hidden');
+                toast.classList.remove('is-leaving');
+                toastTimer = null;
+            }, 240);
+        }, duration);
+    }
+    window.showToast = showToast;
+
+    // ------------------------------------------------------------------------
     // ПРИОРИТЕТНАЯ ОЧЕРЕДЬ (BINARY MIN-HEAP) ДЛЯ АЛГОРИТМА A*
     // ------------------------------------------------------------------------
     class MinHeap {
@@ -3802,7 +3848,9 @@ window.calculateWalkTime = calculateWalkTime;
         const sy = (-_tempVec.y * 0.5 + 0.5) * height;
 
         ctx.save();
-        const text = st.isUp ? `↑ Лестница на ${st.toFloor} этаж` : `↓ Лестница на ${st.toFloor} этаж`;
+        const text = st.isElevator
+            ? (st.isUp ? `↑ Лифт на ${st.toFloor} этаж` : `↓ Лифт на ${st.toFloor} этаж`)
+            : (st.isUp ? `↑ Лестница на ${st.toFloor} этаж` : `↓ Лестница на ${st.toFloor} этаж`);
         ctx.font = 'bold 11px Inter, sans-serif';
         const tw = ctx.measureText(text).width;
         const bw = tw + 22;
@@ -3894,19 +3942,21 @@ window.calculateWalkTime = calculateWalkTime;
         const floorSet = new Set(nodes.map(n => n.floor));
         const involvedFloors = Array.from(floorSet).sort((a, b) => a - b);
 
-        // Находим переходы по лестницам
+        // Находим переходы по лестницам и лифтам
         const stairTransitions = [];
         for (let i = 1; i < nodes.length; i++) {
             const prev = nodes[i - 1];
             const curr = nodes[i];
             if (curr.floor !== prev.floor) {
+                const isElev = prev.type === 'elevator' || curr.type === 'elevator';
                 stairTransitions.push({
                     fromFloor: prev.floor,
                     toFloor: curr.floor,
                     x: prev.x,
                     z: prev.z,
                     isUp: curr.floor > prev.floor,
-                    stairName: prev.label
+                    isElevator: isElev,
+                    stairName: isElev ? 'Лифт' : prev.label
                 });
             }
         }
@@ -3960,6 +4010,14 @@ window.calculateWalkTime = calculateWalkTime;
 
         // 5. Фокусируем камеру на начальном отрезке пути
         focusCameraOnSegment(nodes[0]);
+
+        // 6. Уведомление пользователя, если в построенном маршруте задействован лифт
+        const hasElevator = (routeData.nodes && routeData.nodes.some(n => n.type === 'elevator')) ||
+                            (routeData.instructions && routeData.instructions.some(i => i.isElevator)) ||
+                            (routeData.stairTransitions && routeData.stairTransitions.some(st => st.isElevator));
+        if (hasElevator) {
+            showToast('В маршруте используется лифт', ELEVATOR_TOAST_ICON, 3500);
+        }
 
         return routeData;
     }
@@ -4104,11 +4162,8 @@ window.calculateWalkTime = calculateWalkTime;
     }
 
     function onLocationPicked(roomInfo) {
-        const mode = NAV_STATE.pickingMode;
-        NAV_STATE.pickingMode = null;
-
-        const banner = document.getElementById('nav-pick-banner');
-        if (banner) banner.classList.add('hidden');
+        const mode = NAV_STATE.pickingMode || NAV_STATE.targetToChange || 'dest';
+        hidePickBanner();
 
         const g = NAV_STATE.graph || buildCollegeNavGraph();
         NAV_STATE.graph = g;
@@ -4234,7 +4289,6 @@ window.calculateWalkTime = calculateWalkTime;
                     const sInput = document.getElementById('search-input');
 
                     if (targetType === 'dest') {
-                        badgeEl.classList.add('ring-4', 'ring-white/80', 'ring-offset-2', 'ring-offset-[#1a73e8]', 'animate-pulse');
                         if (pill && pillText) {
                             pillText.textContent = 'Выбор конечного пункта (Куда)';
                             pill.className = 'is-dest mb-2 px-3 py-1.5 rounded-full self-start inline-flex items-center gap-2 text-xs font-bold transition-all shadow-sm bg-[#1a73e8] text-white';
@@ -4244,7 +4298,6 @@ window.calculateWalkTime = calculateWalkTime;
                             sInput.placeholder = 'Куда: выберите конечный кабинет...';
                         }
                     } else {
-                        badgeEl.classList.add('ring-4', 'ring-[#1a73e8]', 'ring-offset-2', 'ring-offset-[#c2e7ff]', 'animate-pulse');
                         if (pill && pillText) {
                             pillText.textContent = 'Выбор начального пункта (Откуда)';
                             pill.className = 'is-start mb-2 px-3 py-1.5 rounded-full self-start inline-flex items-center gap-2 text-xs font-bold transition-all shadow-sm bg-[#c2e7ff] text-[#004a77] border border-[#1a73e8]';
@@ -4293,11 +4346,20 @@ window.calculateWalkTime = calculateWalkTime;
             openNavigatorModal();
         };
 
-        // Круглая иконка лестницы: по нажатию переход на следующий этаж маршрута
+        // Круглая иконка лестницы/лифта: по нажатию переход на следующий этаж маршрута
         const stairsIconEl = card.querySelector('.m3-nav-stairs-icon');
         if (stairsIconEl) {
+            const hasElevator = (route && route.nodes && route.nodes.some(n => n.type === 'elevator')) ||
+                                (route && route.instructions && route.instructions.some(i => i.isElevator)) ||
+                                (route && route.stairTransitions && route.stairTransitions.some(st => st.isElevator));
+            if (hasElevator) {
+                stairsIconEl.innerHTML = `<svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-10.5 3c.69 0 1.25.56 1.25 1.25S9.19 8.5 8.5 8.5 7.25 7.94 7.25 7.25 7.81 6 8.5 6zM11 14h-1v4H7v-4H6v-2.5c0-1.1.9-2 2-2h1c1.1 0 2 .9 2 2V14zm4.5 3L13 13h5l-2.5 4zm-2.5-6 2.5-4 2.5 4h-5z"/></svg>`;
+                stairsIconEl.title = 'В маршруте используется лифт (нажмите для перехода по этажам)';
+            } else {
+                stairsIconEl.innerHTML = `<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19h4v-4h4v-4h4V7h4"></path></svg>`;
+                stairsIconEl.title = 'Перейти на следующий этаж';
+            }
             stairsIconEl.style.cursor = 'pointer';
-            stairsIconEl.title = 'Перейти на следующий этаж';
             stairsIconEl.onclick = (e) => {
                 e.stopPropagation();
                 if (route && route.involvedFloors && route.involvedFloors.length > 1) {
@@ -4522,8 +4584,8 @@ window.calculateWalkTime = calculateWalkTime;
     const ROOM_ALIASES = {
         'b3_f1_entrance_west': 'главный вход основной вход западный вход вход к3 корпус 3',
         'b1_f1_entrance_main': 'восточный вход главный вход 2 старый вход вход к1 корпус 1 ремонт',
-        'room_4_1_182': '104 4-104 гардероб раздевалка',
-        'room_4_1_183': '103 4-103 гардероб раздевалка',
+        'room_4_1_182': '104 4-104 гардероб раздевалка вешалка',
+        'room_4_1_183': '103 4-103 гардероб раздевалка вешалка',
         'room_4_1_186': '1 4-1 туалет санузел',
         'room_4_1_187': '2 4-2 туалет санузел',
         'room_4_1_188': '105 4-105 инвентарная',
@@ -4571,7 +4633,7 @@ window.calculateWalkTime = calculateWalkTime;
         'room_4_3_242': '311 4-311',
         'room_4_3_241': '312 4-312',
         'room_4_1_184': '102 4-102 столовая буфет обед',
-        'room_1_1_0': '102 1-102 гардероб раздевалка одежда',
+        'room_1_1_0': '102 1-102 гардероб раздевалка вешалка одежда',
         'room_2_1_103': '104 2-104 библиотека книги читальный зал',
         'room_4_2_230': '204 4-204 актовый зал сцена',
         'room_4_2_211': '206 4-206 спортзал спортивный зал спорт',
@@ -4900,13 +4962,14 @@ window.calculateWalkTime = calculateWalkTime;
         const btnElevIcon = document.getElementById('btn-toggle-elevators-icon');
         const elevText = document.getElementById('elevators-status-text');
 
-        function setElevatorsState(enabled) {
+        function setElevatorsState(enabled, userTriggered = false) {
             NAV_STATE.allowElevators = !!enabled;
             if (switchElev) switchElev.checked = NAV_STATE.allowElevators;
             if (btnElevIcon) {
                 btnElevIcon.classList.toggle('active', NAV_STATE.allowElevators);
                 btnElevIcon.setAttribute('aria-pressed', NAV_STATE.allowElevators ? 'true' : 'false');
                 btnElevIcon.title = NAV_STATE.allowElevators ? 'Лифты включены (нажмите, чтобы выключить)' : 'Использовать лифты';
+                btnElevIcon.blur();
             }
             const switchLabel = document.getElementById('elevators-switch-label');
             if (switchLabel) {
@@ -4935,25 +4998,36 @@ window.calculateWalkTime = calculateWalkTime;
             if (btnElev) {
                 btnElev.classList.toggle('active', NAV_STATE.allowElevators);
             }
+
+            if (userTriggered) {
+                if (NAV_STATE.allowElevators) {
+                    showToast('Лифты включены (разрешены в маршрутах)', ELEVATOR_TOAST_ICON, 3000);
+                } else {
+                    showToast('Лифты выключены (маршруты по лестницам)', STAIRS_TOAST_ICON, 3000);
+                }
+            }
+
             if (NAV_STATE.startPoint && NAV_STATE.destPoint) {
                 buildRoute(NAV_STATE.startPoint, NAV_STATE.destPoint);
             }
         }
 
         if (btnElevIcon) {
-            btnElevIcon.addEventListener('click', () => {
-                setElevatorsState(!NAV_STATE.allowElevators);
+            btnElevIcon.addEventListener('click', (e) => {
+                e.preventDefault();
+                setElevatorsState(!NAV_STATE.allowElevators, true);
             });
         }
         if (switchElev) {
             switchElev.checked = NAV_STATE.allowElevators;
             switchElev.addEventListener('change', () => {
-                setElevatorsState(switchElev.checked);
+                setElevatorsState(switchElev.checked, true);
             });
         }
         if (btnElev) {
-            btnElev.addEventListener('click', () => {
-                setElevatorsState(!NAV_STATE.allowElevators);
+            btnElev.addEventListener('click', (e) => {
+                e.preventDefault();
+                setElevatorsState(!NAV_STATE.allowElevators, true);
             });
         }
 
@@ -5011,6 +5085,10 @@ window.calculateWalkTime = calculateWalkTime;
         // Закрытие модалки по клавише Escape
         window.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
+                if (document.body.classList.contains('nav-picking-active')) {
+                    hidePickBanner();
+                    return;
+                }
                 const modal = document.getElementById('navigator-modal');
                 if (modal && (modal.classList.contains('open') || modal.classList.contains('active'))) {
                     closeNavigatorModal();
@@ -5024,10 +5102,26 @@ window.calculateWalkTime = calculateWalkTime;
             btnSwap.addEventListener('click', swapStartAndDest);
         }
 
-        // Кнопка очистки
+        // Кнопка сброса маршрута (возвращает дефолтный вход в колледж)
         const btnClear = document.getElementById('btn-nav-clear');
         if (btnClear) {
-            btnClear.addEventListener('click', clearRoute);
+            btnClear.addEventListener('click', (e) => {
+                e.preventDefault();
+                clearRoute();
+                NAV_STATE.startPoint = null;
+                setDefaultStartPoint();
+                if (inputDest) {
+                    inputDest.value = '';
+                    inputDest.focus();
+                }
+                if (btnClearDest) {
+                    btnClearDest.classList.add('hidden');
+                }
+                document.querySelectorAll('.nav-quick-chip').forEach(c => {
+                    c.classList.remove('is-active', 'active');
+                    c.blur();
+                });
+            });
         }
 
         // Кнопка закрытия карточки маршрута
@@ -5239,27 +5333,32 @@ window.calculateWalkTime = calculateWalkTime;
     }
 
     function showPickBanner(text, targetType = 'dest') {
+        NAV_STATE.pickingMode = targetType;
+        document.body.classList.add('nav-picking-active');
         const banner = document.getElementById('nav-pick-banner');
         const textEl = document.getElementById('nav-pick-text');
-        const dotEl = document.getElementById('nav-pick-dot');
+        const iconEl = document.getElementById('nav-pick-icon');
         if (banner && textEl) {
             textEl.textContent = text;
-            if (dotEl) {
-                dotEl.className = targetType === 'dest'
-                    ? 'w-3 h-3 rounded-full bg-[#1a73e8] animate-ping'
-                    : 'w-3 h-3 rounded-full bg-[#38bdf8] animate-ping';
+            if (iconEl) {
+                iconEl.setAttribute('class', targetType === 'dest'
+                    ? 'w-5 h-5 flex-shrink-0 text-[#1a73e8] dark:text-[#70b3ff]'
+                    : 'w-5 h-5 flex-shrink-0 text-[#0284c7] dark:text-[#38bdf8]');
             }
             banner.classList.remove('hidden');
         }
     }
 
     function hidePickBanner() {
+        document.body.classList.remove('nav-picking-active');
         const banner = document.getElementById('nav-pick-banner');
         if (banner) banner.classList.add('hidden');
         const pill = document.getElementById('search-route-target-pill');
         if (pill) pill.classList.add('hidden');
         const sInput = document.getElementById('search-input');
         if (sInput) sInput.placeholder = 'Поиск по кабинетам...';
+        NAV_STATE.pickingMode = null;
+        NAV_STATE.targetToChange = null;
         resetRouteCardPicks();
     }
 

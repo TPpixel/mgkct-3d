@@ -798,16 +798,15 @@ body[data-theme="dark"] .floor-switcher-bar {
     background: var(--m3-surface) !important;
     border: 1.5px solid var(--m3-outline-variant) !important;
     border-radius: 9999px !important;
-    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.14), 0 2px 6px rgba(0, 0, 0, 0.1);
-    color: var(--m3-on-surface-variant);
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.14), 0 2px 6px rgba(0, 0, 0, 0.1) !important;
+    color: var(--m3-on-surface-variant) !important;
     cursor: pointer;
-    font-size: 13px;
-    font-weight: 700;
-    line-height: 1 !important;
-    text-align: center !important;
+    font-size: 13px !important;
+    font-weight: 700 !important;
     font-family: var(--font-family-google);
+    line-height: 1 !important;
     transition: all 0.16s cubic-bezier(0.2, 0, 0, 1);
-    outline: none;
+    outline: none !important;
     flex-shrink: 0 !important;
     white-space: nowrap !important;
     overflow: hidden !important;
@@ -818,34 +817,43 @@ body[data-theme="dark"] .floor-switcher-bar {
 body[data-theme="dark"] .map-fab-btn {
     background: var(--m3-surface) !important;
     border: 1.5px solid var(--m3-outline-variant) !important;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
-    color: var(--m3-on-surface-variant);
-}
-
-#btn-toggle-2d {
-    font-size: 13px !important;
-    font-weight: 700 !important;
-    line-height: 1 !important;
-    letter-spacing: -0.02em !important;
-    text-indent: -0.02em !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    text-align: center !important;
-    padding: 0 !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6) !important;
+    color: var(--m3-on-surface-variant) !important;
 }
 
 @media (hover: hover) and (pointer: fine) {
-    .map-fab-btn:hover,
+    .map-fab-btn:hover {
+        background: var(--m3-surface-container-high) !important;
+        color: var(--m3-on-surface) !important;
+        box-shadow: var(--m3-shadow-lg) !important;
+    }
+
     body[data-theme="dark"] .map-fab-btn:hover {
         background: var(--m3-surface-container-high) !important;
-        color: var(--m3-on-surface);
-        box-shadow: var(--m3-shadow-lg);
+        color: var(--m3-on-surface) !important;
     }
+}
+
+.map-fab-btn:focus,
+.map-fab-btn:focus-visible {
+    outline: none !important;
 }
 
 .map-fab-btn:active {
     transform: scale(0.92);
+}
+
+#btn-toggle-2d {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    text-align: center !important;
+    font-size: 13px !important;
+    font-weight: 800 !important;
+    line-height: 1 !important;
+    letter-spacing: -0.02em !important;
+    text-indent: -0.02em !important;
+    padding-top: 1px !important;
 }
 
 .map-fab-btn.mode-active,
@@ -1436,12 +1444,20 @@ body.search-open #nav-pick-banner,
     }
 }
 
+.search-tag-chip:focus,
+.search-tag-chip:focus-visible {
+    outline: none !important;
+    background-color: transparent !important;
+}
+
 .search-tag-chip:active {
     transform: scale(0.96) !important;
 }
 
 /* Активная выбранная кнопка дока (#1a73e8 с белой иконкой — строго наш синий акцент) */
-.search-tag-chip.is-active {
+.search-tag-chip.is-active,
+.search-tag-chip.is-active:focus,
+.search-tag-chip.is-active:hover {
     background-color: #1a73e8 !important;
     color: #ffffff !important;
 }
@@ -1477,7 +1493,15 @@ body.search-open #nav-pick-banner,
     }
 }
 
-[data-theme="dark"] .search-tag-chip.is-active {
+[data-theme="dark"] .search-tag-chip:focus,
+[data-theme="dark"] .search-tag-chip:focus-visible {
+    outline: none !important;
+    background-color: transparent !important;
+}
+
+[data-theme="dark"] .search-tag-chip.is-active,
+[data-theme="dark"] .search-tag-chip.is-active:focus,
+[data-theme="dark"] .search-tag-chip.is-active:hover {
     background-color: #1a73e8 !important;
     color: #ffffff !important;
 }
@@ -2014,7 +2038,8 @@ body.search-open #nav-pick-banner,
     margin-bottom: 4px !important;
 }
 
-.m3-nav-quick-row > #btn-toggle-elevators-icon {
+.m3-nav-quick-row > #btn-toggle-elevators-icon,
+.m3-nav-elevator-btn {
     flex: 1 1 0% !important;
     min-width: 0 !important;
     height: 44px !important;
@@ -2032,7 +2057,8 @@ body.search-open #nav-pick-banner,
     -webkit-tap-highlight-color: transparent !important;
 }
 
-[data-theme="dark"] .m3-nav-quick-row > #btn-toggle-elevators-icon {
+[data-theme="dark"] .m3-nav-quick-row > #btn-toggle-elevators-icon,
+[data-theme="dark"] .m3-nav-elevator-btn {
     background-color: #282a2c !important;
     border: 1px solid rgba(255, 255, 255, 0.14) !important;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4) !important;
@@ -2040,18 +2066,21 @@ body.search-open #nav-pick-banner,
 }
 
 @media (hover: hover) and (pointer: fine) {
-    .m3-nav-quick-row > #btn-toggle-elevators-icon:hover {
+    .m3-nav-quick-row > #btn-toggle-elevators-icon:hover,
+    .m3-nav-elevator-btn:hover {
         background-color: #e2e7ef !important;
         color: #1f1f1f !important;
     }
 
-    [data-theme="dark"] .m3-nav-quick-row > #btn-toggle-elevators-icon:hover {
+    [data-theme="dark"] .m3-nav-quick-row > #btn-toggle-elevators-icon:hover,
+    [data-theme="dark"] .m3-nav-elevator-btn:hover {
         background-color: rgba(255, 255, 255, 0.08) !important;
         color: #e3e3e3 !important;
     }
 }
 
-.m3-nav-quick-row > #btn-toggle-elevators-icon:active {
+.m3-nav-quick-row > #btn-toggle-elevators-icon:active,
+.m3-nav-elevator-btn:active {
     transform: scale(0.95) !important;
 }
 
@@ -2121,31 +2150,86 @@ body.search-open #nav-pick-banner,
 
 /* Опция лифта: загорается Google синим при включении (без свечения) */
 .m3-elevator-toggle.active,
-.m3-nav-quick-row > #btn-toggle-elevators-icon.active {
+.m3-nav-quick-row > #btn-toggle-elevators-icon.active,
+.m3-nav-elevator-btn.active,
+.m3-nav-elevator-btn[aria-pressed="true"] {
     background-color: #1a73e8 !important;
     background: #1a73e8 !important;
-    color: #ffffff !important;
     border-color: #1a73e8 !important;
-    box-shadow: none !important;
+    color: #ffffff !important;
+    box-shadow: 0 2px 8px rgba(26, 115, 232, 0.35) !important;
 }
 
 .m3-elevator-toggle.active svg,
-.m3-nav-quick-row > #btn-toggle-elevators-icon.active svg {
+.m3-nav-quick-row > #btn-toggle-elevators-icon.active svg,
+.m3-nav-elevator-btn.active svg,
+.m3-nav-elevator-btn[aria-pressed="true"] svg {
     color: #ffffff !important;
 }
 
 [data-theme="dark"] .m3-elevator-toggle.active,
-[data-theme="dark"] .m3-nav-quick-row > #btn-toggle-elevators-icon.active {
+[data-theme="dark"] .m3-nav-quick-row > #btn-toggle-elevators-icon.active,
+[data-theme="dark"] .m3-nav-elevator-btn.active,
+[data-theme="dark"] .m3-nav-elevator-btn[aria-pressed="true"] {
     background-color: #1a73e8 !important;
     background: #1a73e8 !important;
-    color: #ffffff !important;
     border-color: #1a73e8 !important;
-    box-shadow: none !important;
+    color: #ffffff !important;
+    box-shadow: 0 2px 8px rgba(26, 115, 232, 0.45) !important;
 }
 
 [data-theme="dark"] .m3-elevator-toggle.active svg,
-[data-theme="dark"] .m3-nav-quick-row > #btn-toggle-elevators-icon.active svg {
+[data-theme="dark"] .m3-nav-quick-row > #btn-toggle-elevators-icon.active svg,
+[data-theme="dark"] .m3-nav-elevator-btn.active svg,
+[data-theme="dark"] .m3-nav-elevator-btn[aria-pressed="true"] svg {
     color: #ffffff !important;
+}
+
+/* Всплывающее уведомление Toast / SnackBar (M3 Expressive) */
+.m3-toast {
+    position: fixed !important;
+    top: 20px !important;
+    left: 50% !important;
+    transform: translateX(-50%) translateY(0) !important;
+    z-index: 100 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+    padding: 10px 18px !important;
+    border-radius: 9999px !important;
+    background: #1f1f1f !important;
+    color: #ffffff !important;
+    border: 1px solid rgba(255, 255, 255, 0.16) !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.32) !important;
+    font-size: 13.5px !important;
+    font-weight: 600 !important;
+    letter-spacing: -0.01em !important;
+    pointer-events: none !important;
+    transition: opacity 0.22s cubic-bezier(0.2, 0, 0, 1), transform 0.22s cubic-bezier(0.2, 0, 0, 1) !important;
+    opacity: 1 !important;
+    max-width: calc(100vw - 32px) !important;
+    box-sizing: border-box !important;
+}
+
+.m3-toast.hidden {
+    display: none !important;
+}
+
+.m3-toast.is-entering {
+    opacity: 0 !important;
+    transform: translateX(-50%) translateY(-14px) !important;
+}
+
+.m3-toast.is-leaving {
+    opacity: 0 !important;
+    transform: translateX(-50%) translateY(-14px) !important;
+}
+
+[data-theme="dark"] .m3-toast {
+    background: #282a2c !important;
+    color: #ffffff !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.6) !important;
 }
 
 /* Кнопка сбросить маршрут и Кнопка подтверждения маршрута — строго одинаковой ширины (50% / 50%) */
@@ -2442,19 +2526,101 @@ body.search-open #nav-pick-banner,
     }
 }
 
-/* Плавающий баннер выбора на карте (Google Maps Pick Banner — строго наверху) */
+/* Плавающий баннер выбора на карте (Google Maps Pick Banner — внизу экрана вместо плашки маршрута) */
 #nav-pick-banner {
+    position: fixed !important;
+    bottom: max(16px, env(safe-area-inset-bottom, 16px)) !important;
+    top: auto !important;
+    left: 12px !important;
+    right: 12px !important;
+    width: auto !important;
+    max-width: 520px !important;
+    height: 56px !important;
+    padding: 0 14px 0 18px !important;
     background: var(--m3-surface) !important;
-    border: 2px solid var(--m3-outline-variant) !important;
-    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.22) !important;
+    border: 1px solid var(--m3-outline-variant) !important;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.14) !important;
     color: var(--m3-on-surface) !important;
-    border-radius: 9999px;
-    top: max(14px, env(safe-area-inset-top, 14px)) !important;
-    z-index: var(--z-banner) !important;
+    border-radius: 28px !important;
+    z-index: var(--z-modal, 60) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    box-sizing: border-box !important;
+    user-select: none !important;
+    -webkit-user-select: none !important;
+}
+
+#nav-pick-banner.hidden {
+    display: none !important;
 }
 
 #nav-pick-text {
     color: var(--m3-on-surface) !important;
+}
+
+#btn-cancel-pick {
+    cursor: pointer;
+    border: 1px solid var(--m3-outline-variant) !important;
+    outline: none !important;
+    background: var(--m3-surface-container-high) !important;
+    color: var(--m3-on-surface) !important;
+    font-family: inherit !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    border-radius: 9999px !important;
+    padding: 7px 16px !important;
+    transition: background-color 0.15s ease, filter 0.15s ease !important;
+    white-space: nowrap !important;
+}
+
+#btn-cancel-pick:hover {
+    filter: brightness(1.1);
+}
+
+#btn-cancel-pick:active {
+    filter: brightness(0.9);
+}
+
+@media (min-width: 640px) {
+    #nav-pick-banner {
+        left: 50% !important;
+        right: auto !important;
+        transform: translateX(-50%) !important;
+        width: 440px !important;
+        bottom: 24px !important;
+    }
+}
+
+/* В режиме выбора точки на карте скрываем плашку маршрута, поисковый бар и шапку корпусов */
+body.nav-picking-active #navigator-route-card,
+body.nav-picking-active #bottom-search-bar,
+body.nav-picking-active .mobile-thumb-header {
+    display: none !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
+body.nav-picking-active .map-fab-bar {
+    bottom: calc(max(16px, env(safe-area-inset-bottom, 16px)) + 68px) !important;
+    right: 14px !important;
+    left: auto !important;
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    width: auto !important;
+    max-width: calc(100vw - 28px) !important;
+    gap: 8px !important;
+    z-index: var(--z-drawer) !important;
+}
+
+@media (min-width: 640px) {
+    body.nav-picking-active .map-fab-bar {
+        bottom: 24px !important;
+        right: 14px !important;
+        flex-direction: column !important;
+        width: 44px !important;
+    }
 }
 
 /* Шапка модального окна маршрута */
