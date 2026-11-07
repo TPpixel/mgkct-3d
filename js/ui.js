@@ -459,6 +459,8 @@ function setSliceFloor(newFloor) {
 
 
 function toggle2DView() {
+    const btn2D = document.getElementById('btn-toggle-2d');
+    if (btn2D && typeof btn2D.blur === 'function') btn2D.blur();
     setViewMode(!STATE.is2D);
 }
 
@@ -1032,7 +1034,7 @@ function setupSearch() {
     const searchBackdrop = document.getElementById("search-backdrop");
     const searchInput = document.getElementById("search-input");
     const searchResults = document.getElementById("search-results");
-    const searchTagChips = document.querySelectorAll(".search-tag-chip");
+    const searchTagChips = searchModal ? searchModal.querySelectorAll(".search-tag-chip") : document.querySelectorAll("#search-modal .search-tag-chip");
     const btnOpenSearch = document.getElementById("btn-open-search");
     const btnCloseSearch = document.getElementById("btn-close-search");
     const btnClearSearch = document.getElementById("btn-clear-search");
@@ -1290,10 +1292,9 @@ function setupSearch() {
         if (btnClearSearch) {
             btnClearSearch.classList.toggle("hidden", !val);
         }
+        // При любом ручном изменении текста в поле поиска снимаем выделение со всех быстрых кнопок
         quickButtons.forEach(b => b?.classList.remove("is-active"));
-        searchTagChips.forEach(c => {
-            c.classList.toggle("is-active", Boolean(val) && (c.dataset.query || "").toLowerCase() === val.toLowerCase());
-        });
+        searchTagChips.forEach(c => c.classList.remove("is-active"));
         if (searchDebounceTimer) {
             clearTimeout(searchDebounceTimer);
         }
@@ -1337,13 +1338,14 @@ function setupSearch() {
         }
     });
 
-    document.querySelectorAll(".search-tag-chip").forEach(chip => {
+    searchTagChips.forEach(chip => {
         chip.addEventListener("click", () => {
             const q = chip.dataset.query || "";
             const isAlreadyActive = chip.classList.contains("is-active");
 
             // Снимаем активность со всех чипов
-            document.querySelectorAll(".search-tag-chip").forEach(c => c.classList.remove("is-active"));
+            searchTagChips.forEach(c => c.classList.remove("is-active"));
+            if (typeof chip.blur === "function") chip.blur();
 
             if (isAlreadyActive) {
                 // Повторный клик по активному чипу снимает фильтр
@@ -2323,15 +2325,23 @@ function setupRoomContextPopup() {
                         if (btnClearB) btnClearB.classList.remove('hidden');
                     }
 
-                    const g = NAV_STATE.graph;
-                    if (!NAV_STATE.startPoint && g) {
-                        const entrance = g.getNode('b3_f1_entrance_west') || g.getNode('b1_f1_entrance_main');
-                        if (entrance) {
-                            NAV_STATE.startPoint = entrance;
-                            const inputA = document.getElementById('nav-input-start');
-                            if (inputA) {
-                                inputA.value = 'Главный вход (Корпус 3 / Западный)';
-                                inputA.setAttribute('data-is-default', 'true');
+                    if (!NAV_STATE.startPoint) {
+                        if (typeof setDefaultStartPoint === 'function') {
+                            setDefaultStartPoint();
+                        } else {
+                            const g = NAV_STATE.graph;
+                            if (g) {
+                                const entrance = g.getNode('b3_f1_entrance_west') || g.getNode('b1_f1_entrance_main');
+                                if (entrance) {
+                                    NAV_STATE.startPoint = entrance;
+                                    const inputA = document.getElementById('nav-input-start');
+                                    if (inputA) {
+                                        inputA.value = typeof formatNavInputString === 'function' ? formatNavInputString(entrance) : 'Главный вход (Корпус 3)';
+                                        inputA.setAttribute('data-is-default', 'true');
+                                        const btnClearA = document.getElementById('btn-clear-start');
+                                        if (btnClearA) btnClearA.classList.remove('hidden');
+                                    }
+                                }
                             }
                         }
                     }
