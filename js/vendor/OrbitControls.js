@@ -85,8 +85,8 @@
 			}; // Touch fingers
 
 			this.touches = {
-				ONE: THREE.TOUCH.ROTATE,
-				TWO: THREE.TOUCH.DOLLY_PAN
+				ONE: THREE.TOUCH.PAN,
+				TWO: THREE.TOUCH.DOLLY_ROTATE
 			}; // for reset
 
 			this.target0 = this.target.clone();
@@ -650,7 +650,7 @@
 						if ( angleDelta > Math.PI ) angleDelta -= 2 * Math.PI;
 						if ( angleDelta < - Math.PI ) angleDelta += 2 * Math.PI;
 						if ( Math.abs( angleDelta ) > 0.002 ) {
-							rotateLeft( angleDelta * scope.rotateSpeed );
+							rotateLeft( - angleDelta * scope.rotateSpeed );
 						}
 					}
 					scope._touchTwistAngle = angle;
