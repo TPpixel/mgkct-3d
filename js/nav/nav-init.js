@@ -179,7 +179,7 @@
             if (toilet) {
                 NAV_STATE.destPoint = toilet;
                 if (inputDest) {
-                    inputDest.value = `${toilet.label} (Корпус ${toilet.bldg}, ${toilet.floor} этаж)`;
+                    inputDest.value = formatNavInputString(toilet);
                     if (btnClearDest) btnClearDest.classList.remove('hidden');
                 }
                 buildRoute(NAV_STATE.startPoint, NAV_STATE.destPoint);

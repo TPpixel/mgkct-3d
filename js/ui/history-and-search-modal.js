@@ -136,7 +136,7 @@ function setupSearch() {
     const searchBackdrop = document.getElementById("search-backdrop");
     const searchInput = document.getElementById("search-input");
     const searchResults = document.getElementById("search-results");
-    const searchTagChips = document.querySelectorAll(".search-tag-chip");
+    const searchTagChips = searchModal ? searchModal.querySelectorAll(".search-tag-chip") : document.querySelectorAll("#search-modal .search-tag-chip");
     const btnOpenSearch = document.getElementById("btn-open-search");
     const btnCloseSearch = document.getElementById("btn-close-search");
     const btnClearSearch = document.getElementById("btn-clear-search");

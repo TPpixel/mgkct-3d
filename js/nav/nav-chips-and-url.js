@@ -79,16 +79,15 @@
                 if (targetNode) {
                     NAV_STATE.destPoint = targetNode;
                     const inputB = document.getElementById('nav-input-dest');
-                    if (inputB) inputB.value = `${targetNode.label} (Корпус ${targetNode.bldg}, ${targetNode.floor} этаж)`;
+                    if (inputB) {
+                        inputB.value = formatNavInputString(targetNode);
+                        const btnClearB = document.getElementById('btn-clear-dest');
+                        if (btnClearB) btnClearB.classList.remove('hidden');
+                    }
 
                     // Если точка отправления не выбрана, ставим Главный вход
                     if (!NAV_STATE.startPoint) {
-                        const mainEntrance = g.getNode('b3_f1_entrance_west') || g.getNode('b1_f1_entrance_main');
-                        if (mainEntrance) {
-                            NAV_STATE.startPoint = mainEntrance;
-                            const inputA = document.getElementById('nav-input-start');
-                            if (inputA) inputA.value = 'Главный вход (Корпус 3 / Западный)';
-                        }
+                        setDefaultStartPoint();
                     }
 
                     if (NAV_STATE.startPoint && NAV_STATE.destPoint) {

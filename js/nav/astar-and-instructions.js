@@ -50,7 +50,7 @@
             NAV_STATE.startPoint = entrance;
             const inputA = document.getElementById('nav-input-start');
             if (inputA && !inputA.value) {
-                inputA.value = 'Главный вход (Корпус 3 / Западный)';
+                inputA.value = formatNavInputString(entrance);
                 inputA.setAttribute('data-is-default', 'true');
                 const btnClearA = document.getElementById('btn-clear-start');
                 if (btnClearA) btnClearA.classList.remove('hidden');
@@ -61,7 +61,7 @@
     // ------------------------------------------------------------------------
     function formatNavNodeName(lbl, bldg) {
         if (!lbl) return '';
-        const raw = String(lbl).trim();
+        const raw = String(lbl).replace(/\s*\n\s*/g, ' ').trim();
         const b = parseInt(bldg, 10);
         if (b <= 1 || isNaN(b)) return raw;
         if (raw.startsWith('2-') || raw.startsWith('3-') || raw.startsWith('4-')) return raw;
@@ -73,16 +73,38 @@
 
     function formatNavInputString(nodeOrPoint) {
         if (!nodeOrPoint) return '';
-        const rawLbl = nodeOrPoint.label || nodeOrPoint.text || '';
+        const rawLbl = String(nodeOrPoint.label || nodeOrPoint.text || '').replace(/\s*\n\s*/g, ' ').trim();
         const b = parseInt(nodeOrPoint.bldg !== undefined ? nodeOrPoint.bldg : nodeOrPoint.building, 10);
         const f = parseInt(nodeOrPoint.floor, 10);
+
+        if (nodeOrPoint.id === 'b3_f1_entrance_west' || /главный вход/i.test(rawLbl)) {
+            return 'Главный вход (Корпус 3)';
+        }
+        if (nodeOrPoint.id === 'b1_f1_entrance_main' || /восточный вход/i.test(rawLbl)) {
+            return 'Восточный вход (Корпус 1)';
+        }
+
+        // Помещения вида "102 Столовая", "104 Библиотека", "209 Учебная часть"
+        const numTitleMatch = rawLbl.match(/^(\d+[а-яa-z]?)\s+(.+)$/i);
+        if (numTitleMatch) {
+            const numPart = (b > 1 && !numTitleMatch[1].startsWith(`${b}-`)) ? `${b}-${numTitleMatch[1]}` : numTitleMatch[1];
+            const cleanTitle = numTitleMatch[2].replace(/^\((.+)\)$/, '$1');
+            return `${numPart} • ${cleanTitle}`;
+        }
+
         const disp = formatNavNodeName(rawLbl, b);
-        const isNum = /^\d/.test(disp) || /^[2-4]-\d/.test(disp);
+        const isNum = /^\d+[а-яa-z]?$/i.test(disp) || /^[2-4]-\d+[а-яa-z]?$/i.test(disp);
         if (isNum) {
+            return f > 0 ? `Кабинет ${disp} (${f} эт.)` : `Кабинет ${disp}`;
+        }
+        if (/^с\/у/i.test(disp)) {
+            return (b > 0 && f > 0) ? `${disp} • К${b}, ${f} эт.` : disp;
+        }
+        if (disp.includes('(') || /корпус|к[1-4]/i.test(disp)) {
             return disp;
         }
         if (b > 0 && f > 0) {
-            return disp + ' (' + (b > 1 ? 'Корпус ' + b + ', ' : '') + f + ' этаж)';
+            return `${disp} (К${b}, ${f} эт.)`;
         }
         return disp;
     }
@@ -309,3 +331,5 @@
     window.generateRouteInstructions = generateRouteInstructions;
     window.formatNavNodeName = formatNavNodeName;
     window.formatNavInputString = formatNavInputString;
+    window.findClosestToilet = findClosestToilet;
+    window.setDefaultStartPoint = setDefaultStartPoint;

@@ -104,10 +104,9 @@ function bindSearchGesturesAndEvents(ctx) {
         if (btnClearSearch) {
             btnClearSearch.classList.toggle("hidden", !val);
         }
+        // При любом ручном изменении текста в поле поиска снимаем выделение со всех быстрых кнопок
         quickButtons.forEach(b => b?.classList.remove("is-active"));
-        searchTagChips.forEach(c => {
-            c.classList.toggle("is-active", Boolean(val) && (c.dataset.query || "").toLowerCase() === val.toLowerCase());
-        });
+        searchTagChips.forEach(c => c.classList.remove("is-active"));
         if (searchDebounceTimer) {
             clearTimeout(searchDebounceTimer);
         }
@@ -151,13 +150,14 @@ function bindSearchGesturesAndEvents(ctx) {
         }
     });
 
-    document.querySelectorAll(".search-tag-chip").forEach(chip => {
+    searchTagChips.forEach(chip => {
         chip.addEventListener("click", () => {
             const q = chip.dataset.query || "";
             const isAlreadyActive = chip.classList.contains("is-active");
 
             // Снимаем активность со всех чипов
-            document.querySelectorAll(".search-tag-chip").forEach(c => c.classList.remove("is-active"));
+            searchTagChips.forEach(c => c.classList.remove("is-active"));
+            if (typeof chip.blur === "function") chip.blur();
 
             if (isAlreadyActive) {
                 // Повторный клик по активному чипу снимает фильтр

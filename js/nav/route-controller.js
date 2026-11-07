@@ -148,11 +148,18 @@
         if (targetType === 'start') {
             NAV_STATE.startPoint = pointData;
             const inputA = document.getElementById('nav-input-start');
-            if (inputA) inputA.value = formatNavInputString(pointData);
+            if (inputA) {
+                inputA.value = formatNavInputString(pointData);
+                inputA.removeAttribute('data-is-default');
+            }
+            const btnClearA = document.getElementById('btn-clear-start');
+            if (btnClearA) btnClearA.classList.remove('hidden');
         } else {
             NAV_STATE.destPoint = pointData;
             const inputB = document.getElementById('nav-input-dest');
             if (inputB) inputB.value = formatNavInputString(pointData);
+            const btnClearB = document.getElementById('btn-clear-dest');
+            if (btnClearB) btnClearB.classList.remove('hidden');
         }
 
         if (NAV_STATE.startPoint && NAV_STATE.destPoint) {
@@ -261,11 +268,18 @@
         if (mode === 'start') {
             NAV_STATE.startPoint = pointData;
             const inputA = document.getElementById('nav-input-start');
-            if (inputA) inputA.value = formatNavInputString(pointData);
+            if (inputA) {
+                inputA.value = formatNavInputString(pointData);
+                inputA.removeAttribute('data-is-default');
+            }
+            const btnClearA = document.getElementById('btn-clear-start');
+            if (btnClearA) btnClearA.classList.remove('hidden');
         } else if (mode === 'dest') {
             NAV_STATE.destPoint = pointData;
             const inputB = document.getElementById('nav-input-dest');
             if (inputB) inputB.value = formatNavInputString(pointData);
+            const btnClearB = document.getElementById('btn-clear-dest');
+            if (btnClearB) btnClearB.classList.remove('hidden');
         }
 
         // Если обе точки выбраны, строим маршрут

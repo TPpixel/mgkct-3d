@@ -96,12 +96,12 @@
 
 /* Инпуты точек маршрута в стиле Google Maps с бейджами "Отсюда" и "Сюда" */
 .m3-nav-input-row {
-    height: 48px;
+    height: 46px;
     background: var(--m3-surface-container-high);
     border: 1.5px solid var(--m3-outline-variant);
     color: var(--m3-on-surface);
-    border-radius: 18px;
-    padding: 0 8px 0 6px;
+    border-radius: 16px;
+    padding: 0 6px 0 5px;
     display: flex;
     align-items: center;
     position: relative;
@@ -115,31 +115,35 @@
 }
 
 .m3-input-badge-start {
-    height: 32px;
-    padding: 0 10px;
-    border-radius: 11px;
+    height: 30px;
+    min-width: 58px;
+    padding: 0 7px;
+    border-radius: 10px;
     background: #c2e7ff;
     color: #1a73e8;
-    font-size: 11.5px;
+    font-size: 11px;
     font-weight: 700;
+    line-height: 1;
     display: flex;
     align-items: center;
-    gap: 5px;
+    justify-content: center;
     flex-shrink: 0;
     user-select: none;
 }
 
 .m3-input-badge-dest {
-    height: 32px;
-    padding: 0 10px;
-    border-radius: 11px;
+    height: 30px;
+    min-width: 58px;
+    padding: 0 7px;
+    border-radius: 10px;
     background: #1a73e8;
     color: #ffffff;
-    font-size: 11.5px;
+    font-size: 11px;
     font-weight: 700;
+    line-height: 1;
     display: flex;
     align-items: center;
-    gap: 5px;
+    justify-content: center;
     flex-shrink: 0;
     user-select: none;
     box-shadow: none;
@@ -164,34 +168,66 @@
     border: none !important;
     outline: none !important;
     color: var(--m3-on-surface);
-    font-size: 13.5px;
+    font-size: 13px;
     font-weight: 500;
-    padding: 0 6px;
+    padding: 0 2px 0 6px;
     margin: 0;
+    text-overflow: ellipsis;
     box-shadow: none !important;
+}
+
+#btn-clear-start,
+#btn-clear-dest {
+    margin-right: 8px !important;
+    margin-left: 2px !important;
 }
 
 #nav-input-start::placeholder,
 #nav-input-dest::placeholder {
     color: var(--m3-on-surface-variant);
-    font-size: 12.5px;
+    font-size: 12px;
 }
 
 /* Кнопки выбора точки на карте внутри инпутов */
 #btn-pick-start,
 #btn-pick-dest {
-    height: 32px;
-    padding: 0 10px;
+    height: 30px;
+    padding: 0 9px;
     border-radius: 10px;
     background: #c2e7ff;
     color: #1a73e8;
     border: none;
     font-size: 11px;
     font-weight: 700;
+    line-height: 1;
     transition: all 0.15s ease;
-    display: flex;
+    display: inline-flex;
     align-items: center;
+    justify-content: center;
     gap: 4px;
+}
+
+@media (max-width: 639px) {
+    #btn-pick-start,
+    #btn-pick-dest {
+        width: 30px;
+        min-width: 30px;
+        padding: 0;
+    }
+
+    #btn-pick-start .pick-map-label,
+    #btn-pick-dest .pick-map-label {
+        display: none;
+    }
+}
+
+#btn-pick-start svg,
+#btn-pick-dest svg {
+    width: 12px !important;
+    height: 15px !important;
+    display: block;
+    flex-shrink: 0;
+    transform: translateY(-0.5px);
 }
 
 #btn-pick-start:hover,
@@ -216,9 +252,9 @@
 
 /* Кнопка смены точек местами */
 #btn-nav-swap {
-    width: 44px;
-    height: 44px;
-    min-width: 44px;
+    width: 38px;
+    height: 38px;
+    min-width: 38px;
     border-radius: 50%;
     background: #c2e7ff;
     color: #1a73e8;
@@ -297,26 +333,146 @@
     transform: scale(0.92);
 }
 
+/* Строка быстрых направлений в навигаторе: отдельный тумблер лифта (1/6) + док из 5 кнопок (5/6), все кнопки равной ширины */
+.m3-nav-quick-row {
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    width: 100% !important;
+    margin-bottom: 4px !important;
+}
+
+.m3-nav-quick-row > #btn-toggle-elevators-icon {
+    flex: 1 1 0% !important;
+    min-width: 0 !important;
+    height: 44px !important;
+    border-radius: 9999px !important;
+    background-color: #f0f4f9 !important;
+    border: 1px solid rgba(0, 0, 0, 0.14) !important;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08) !important;
+    color: #444746 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 0 !important;
+    cursor: pointer !important;
+    transition: background-color 0.18s ease, color 0.18s ease, border-color 0.18s ease, transform 0.12s ease !important;
+    -webkit-tap-highlight-color: transparent !important;
+}
+
+[data-theme="dark"] .m3-nav-quick-row > #btn-toggle-elevators-icon {
+    background-color: #282a2c !important;
+    border: 1px solid rgba(255, 255, 255, 0.14) !important;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4) !important;
+    color: #c4c7c5 !important;
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .m3-nav-quick-row > #btn-toggle-elevators-icon:hover {
+        background-color: #e2e7ef !important;
+        color: #1f1f1f !important;
+    }
+
+    [data-theme="dark"] .m3-nav-quick-row > #btn-toggle-elevators-icon:hover {
+        background-color: rgba(255, 255, 255, 0.08) !important;
+        color: #e3e3e3 !important;
+    }
+}
+
+.m3-nav-quick-row > #btn-toggle-elevators-icon:active {
+    transform: scale(0.95) !important;
+}
+
+.m3-nav-quick-row > .m3-search-chips-bar {
+    flex: 5 1 0% !important;
+    min-width: 0 !important;
+    width: auto !important;
+    margin-bottom: 0 !important;
+}
+
+/* Кнопки быстрых направлений внутри дока навигатора (одинаковой ширины 1/5 от дока = 1/6 от всей строки) */
+.nav-quick-chip {
+    flex: 1 1 0% !important;
+    min-width: 0 !important;
+    height: 100% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    background: transparent !important;
+    border: none !important;
+    border-right: 1px solid rgba(0, 0, 0, 0.14) !important;
+    border-radius: 0 !important;
+    color: #444746 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    box-shadow: none !important;
+    cursor: pointer !important;
+    transition: background-color 0.16s ease, color 0.16s ease !important;
+    -webkit-tap-highlight-color: transparent !important;
+}
+
+.nav-quick-chip:last-child {
+    border-right: none !important;
+}
+
+.nav-quick-chip svg {
+    width: 20px !important;
+    height: 20px !important;
+    flex-shrink: 0 !important;
+    color: currentColor !important;
+}
+
+[data-theme="dark"] .nav-quick-chip {
+    border-right: 1px solid rgba(255, 255, 255, 0.14) !important;
+    color: #c4c7c5 !important;
+}
+
+[data-theme="dark"] .nav-quick-chip:last-child {
+    border-right: none !important;
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .nav-quick-chip:hover {
+        background-color: #e2e7ef !important;
+        color: #1f1f1f !important;
+    }
+
+    [data-theme="dark"] .nav-quick-chip:hover {
+        background-color: rgba(255, 255, 255, 0.08) !important;
+        color: #e3e3e3 !important;
+    }
+}
+
+.nav-quick-chip:active {
+    transform: scale(0.96) !important;
+}
+
 /* Опция лифта: загорается Google синим при включении (без свечения) */
-.m3-elevator-toggle.active {
+.m3-elevator-toggle.active,
+.m3-nav-quick-row > #btn-toggle-elevators-icon.active {
+    background-color: #1a73e8 !important;
     background: #1a73e8 !important;
     color: #ffffff !important;
     border-color: #1a73e8 !important;
     box-shadow: none !important;
 }
 
-.m3-elevator-toggle.active svg {
+.m3-elevator-toggle.active svg,
+.m3-nav-quick-row > #btn-toggle-elevators-icon.active svg {
     color: #ffffff !important;
 }
 
-[data-theme="dark"] .m3-elevator-toggle.active {
+[data-theme="dark"] .m3-elevator-toggle.active,
+[data-theme="dark"] .m3-nav-quick-row > #btn-toggle-elevators-icon.active {
+    background-color: #1a73e8 !important;
     background: #1a73e8 !important;
     color: #ffffff !important;
     border-color: #1a73e8 !important;
     box-shadow: none !important;
 }
 
-[data-theme="dark"] .m3-elevator-toggle.active svg {
+[data-theme="dark"] .m3-elevator-toggle.active svg,
+[data-theme="dark"] .m3-nav-quick-row > #btn-toggle-elevators-icon.active svg {
     color: #ffffff !important;
 }
 

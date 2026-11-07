@@ -7,19 +7,19 @@
     <!-- Resource Hints & Preconnections -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="stylesheet" href="css/tailwind.min.css?v=91">
-    <link rel="stylesheet" href="css/tokens-and-base.css?v=91">
-    <link rel="stylesheet" href="css/building-pills-and-theme.css?v=91">
-    <link rel="stylesheet" href="css/search-pill-and-floor-bar.css?v=91">
-    <link rel="stylesheet" href="css/map-fabs-and-hud.css?v=91">
-    <link rel="stylesheet" href="css/search-sheet.css?v=91">
-    <link rel="stylesheet" href="css/search-dock-and-results.css?v=91">
-    <link rel="stylesheet" href="css/navigator-modal.css?v=91">
-    <link rel="stylesheet" href="css/navigator-route-card.css?v=91">
-    <link rel="stylesheet" href="css/room-context-card.css?v=91">
-    <link rel="stylesheet" href="css/settings-and-utilities.css?v=91">
-    <link rel="preload" href="js/vendor/three.min.js?v=91" as="script">
-    <link rel="preload" href="js/vendor/OrbitControls.js?v=91" as="script">
+    <link rel="stylesheet" href="css/tailwind.min.css?v=95">
+    <link rel="stylesheet" href="css/tokens-and-base.css?v=95">
+    <link rel="stylesheet" href="css/building-pills-and-theme.css?v=95">
+    <link rel="stylesheet" href="css/search-pill-and-floor-bar.css?v=95">
+    <link rel="stylesheet" href="css/map-fabs-and-hud.css?v=95">
+    <link rel="stylesheet" href="css/search-sheet.css?v=95">
+    <link rel="stylesheet" href="css/search-dock-and-results.css?v=95">
+    <link rel="stylesheet" href="css/navigator-modal.css?v=95">
+    <link rel="stylesheet" href="css/navigator-route-card.css?v=95">
+    <link rel="stylesheet" href="css/room-context-card.css?v=95">
+    <link rel="stylesheet" href="css/settings-and-utilities.css?v=95">
+    <link rel="preload" href="js/vendor/three.min.js?v=95" as="script">
+    <link rel="preload" href="js/vendor/OrbitControls.js?v=95" as="script">
     <script>
         (function() {
             try {
@@ -152,7 +152,7 @@
             </svg>
         </button>
         <!-- Кнопка «3D / 2D» -->
-        <button id="btn-toggle-2d" class="map-fab-btn font-extrabold text-[12px]" title="Переключить 2D карта сверху / 3D ракурс">
+        <button id="btn-toggle-2d" class="map-fab-btn" title="Переключить 2D карта сверху / 3D ракурс">
             2D
         </button>
     </div>
@@ -326,31 +326,24 @@
         </div>
 
         <!-- Поля ввода маршрута (Google Maps стиль с бейджами "Отсюда" и "Сюда") -->
-        <div class="flex items-center gap-2.5 relative">
-            <div class="flex flex-col gap-2.5 flex-1 min-w-0">
+        <div class="flex items-center gap-1.5 sm:gap-2.5 relative">
+            <div class="flex flex-col gap-2 flex-1 min-w-0">
                 <!-- Откуда (Точка А) -->
                 <div class="m3-nav-input-row">
                     <div class="m3-input-badge-start">
-                        <svg class="w-3.5 h-3.5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                            <circle cx="12" cy="12" r="3"/>
-                            <line x1="12" y1="2" x2="12" y2="6"/>
-                            <line x1="12" y1="18" x2="12" y2="22"/>
-                            <line x1="2" y1="12" x2="6" y2="12"/>
-                            <line x1="18" y1="12" x2="22" y2="12"/>
-                        </svg>
                         <span>Отсюда</span>
                     </div>
-                    <input id="nav-input-start" type="search" name="nav_start" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" inputmode="search" enterkeyhint="search" role="searchbox" data-form-type="other" data-lpignore="true" placeholder="Кабинет, зал, главный вход..." 
+                    <input id="nav-input-start" type="search" name="nav_start" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" inputmode="search" enterkeyhint="search" role="searchbox" data-form-type="other" data-lpignore="true" placeholder="Кабинет или вход..." 
                            class="w-full">
-                    <button id="btn-clear-start" type="button" title="Очистить поле" class="w-6 h-6 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hidden text-xs transition flex-shrink-0 mr-1.5">
+                    <button id="btn-clear-start" type="button" title="Очистить поле" class="w-5 h-5 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hidden text-xs transition flex-shrink-0 mr-2">
                         ✕
                     </button>
-                    <button id="btn-pick-start" title="Указать точку на карте" class="flex-shrink-0">
-                        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
-                            <path d="M12 21s-6-5.33-6-10a6 6 0 0 1 12 0c0 4.67-6 10-6 10z"/>
-                            <circle cx="12" cy="11" r="2"/>
+                    <button id="btn-pick-start" title="Указать точку на карте" aria-label="Указать точку на карте" class="flex-shrink-0">
+                        <svg class="flex-shrink-0" viewBox="4 2 16 20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 19s-6.5-5.2-6.5-9.5a6.5 6.5 0 0 1 13 0c0 4.3-6.5 9.5-6.5 9.5z"/>
+                            <circle cx="12" cy="9.5" r="2.2"/>
                         </svg>
-                        <span>Карта</span>
+                        <span class="pick-map-label">Карта</span>
                     </button>
                     <!-- Выпадающий список автозаполнения Откуда -->
                     <div id="nav-dropdown-start" class="absolute left-0 right-0 top-full mt-1.5 hidden custom-scroll"></div>
@@ -359,22 +352,19 @@
                 <!-- Куда (Точка Б) -->
                 <div class="m3-nav-input-row">
                     <div class="m3-input-badge-dest">
-                        <svg class="w-3.5 h-3.5 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
-                        </svg>
                         <span>Сюда</span>
                     </div>
-                    <input id="nav-input-dest" type="search" name="nav_dest" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" inputmode="search" enterkeyhint="search" role="searchbox" data-form-type="other" data-lpignore="true" placeholder="Номер кабинета, столовая, спортзал..." 
+                    <input id="nav-input-dest" type="search" name="nav_dest" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" inputmode="search" enterkeyhint="search" role="searchbox" data-form-type="other" data-lpignore="true" placeholder="Кабинет, столовая..." 
                            class="w-full">
-                    <button id="btn-clear-dest" type="button" title="Очистить поле" class="w-6 h-6 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hidden text-xs transition flex-shrink-0 mr-1.5">
+                    <button id="btn-clear-dest" type="button" title="Очистить поле" class="w-5 h-5 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hidden text-xs transition flex-shrink-0 mr-2">
                         ✕
                     </button>
-                    <button id="btn-pick-dest" title="Указать точку на карте" class="flex-shrink-0">
-                        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
-                            <path d="M12 21s-6-5.33-6-10a6 6 0 0 1 12 0c0 4.67-6 10-6 10z"/>
-                            <circle cx="12" cy="11" r="2"/>
+                    <button id="btn-pick-dest" title="Указать точку на карте" aria-label="Указать точку на карте" class="flex-shrink-0">
+                        <svg class="flex-shrink-0" viewBox="4 2 16 20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 19s-6.5-5.2-6.5-9.5a6.5 6.5 0 0 1 13 0c0 4.3-6.5 9.5-6.5 9.5z"/>
+                            <circle cx="12" cy="9.5" r="2.2"/>
                         </svg>
-                        <span>Карта</span>
+                        <span class="pick-map-label">Карта</span>
                     </button>
                     <!-- Выпадающий список автозаполнения Куда -->
                     <div id="nav-dropdown-dest" class="absolute left-0 right-0 top-full mt-1.5 hidden custom-scroll"></div>
@@ -389,14 +379,14 @@
             </button>
         </div>
 
-        <!-- Быстрые направления и опции: слитный док-бар M3 Expressive -->
-        <div class="m3-search-chips-bar m3-dock-cluster flex items-center w-full flex-shrink-0 my-0.5">
-            <!-- 1. Опция лифта (Google Material Icon: elevator) -->
+        <!-- Быстрые направления и опции: тумблер лифта отдельно + слитный док-бар M3 Expressive -->
+        <div class="m3-nav-quick-row flex items-center gap-2 w-full flex-shrink-0 my-0.5">
+            <!-- 1. Опция лифта (отдельный тумблер-переключатель) -->
             <button id="btn-toggle-elevators-icon" type="button" 
                     title="Использовать лифты" 
                     aria-label="Использовать лифты"
                     aria-pressed="false"
-                    class="search-tag-chip m3-dock-btn m3-dock-start m3-elevator-toggle flex-1">
+                    class="m3-elevator-toggle flex items-center justify-center">
                 <svg class="w-5 h-5 flex-shrink-0 pointer-events-none" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-10.5 3c.69 0 1.25.56 1.25 1.25S9.19 8.5 8.5 8.5 7.25 7.94 7.25 7.25 7.81 6 8.5 6zM11 14h-1v4H7v-4H6v-2.5c0-1.1.9-2 2-2h1c1.1 0 2 .9 2 2V14zm4.5 3L13 13h5l-2.5 4zm-2.5-6 2.5-4 2.5 4h-5z"/>
                 </svg>
@@ -404,67 +394,70 @@
             <input type="checkbox" id="toggle-elevators-switch" class="hidden">
             <button id="btn-toggle-elevators" type="button" class="hidden"><span id="elevators-status-text">Без лифтов</span></button>
 
-            <!-- 2. Туалет (Google Material Icon: wc) -->
-            <button id="btn-quick-toilet" type="button" 
-                    title="Ближайший туалет" 
-                    aria-label="Ближайший туалет"
-                    class="search-tag-chip nav-quick-chip m3-dock-btn m3-dock-mid flex-1">
-                <svg class="w-5 h-5 flex-shrink-0 pointer-events-none" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M5.5 22v-7.5H4V9c0-1.1.9-2 2-2h3c1.1 0 2 .9 2 2v5.5H9.5V22h-4zM18 22v-6h3l-2.54-7.63C18.18 7.55 17.42 7 16.56 7h-.12c-.86 0-1.63.55-1.9 1.37L12 16h3v6h3zM7.5 6c1.11 0 2-.89 2-2s-.89-2-2-2-2 .89-2 2 .89 2 2 2zm9 0c1.11 0 2-.89 2-2s-.89-2-2-2-2 .89-2 2 .89 2 2 2z"/>
-                </svg>
-            </button>
+            <!-- Слитный док-бар из 5 быстрых направлений -->
+            <div class="m3-search-chips-bar m3-dock-cluster flex items-center flex-shrink-0">
+                <!-- 2. Туалет (Google Material Icon: wc) -->
+                <button id="btn-quick-toilet" type="button" 
+                        title="Ближайший туалет" 
+                        aria-label="Ближайший туалет"
+                        class="nav-quick-chip m3-dock-btn m3-dock-start flex-1">
+                    <svg class="w-5 h-5 flex-shrink-0 pointer-events-none" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M5.5 22v-7.5H4V9c0-1.1.9-2 2-2h3c1.1 0 2 .9 2 2v5.5H9.5V22h-4zM18 22v-6h3l-2.54-7.63C18.18 7.55 17.42 7 16.56 7h-.12c-.86 0-1.63.55-1.9 1.37L12 16h3v6h3zM7.5 6c1.11 0 2-.89 2-2s-.89-2-2-2-2 .89-2 2 .89 2 2 2zm9 0c1.11 0 2-.89 2-2s-.89-2-2-2-2 .89-2 2 .89 2 2 2z"/>
+                    </svg>
+                </button>
 
-            <!-- 3. Гардероб (Google Material Icon: checkroom) -->
-            <button class="search-tag-chip nav-quick-chip m3-dock-btn m3-dock-mid flex-1" 
-                    data-target="Гардероб" 
-                    title="Гардероб" 
-                    aria-label="Гардероб">
-                <svg class="w-5 h-5 flex-shrink-0 pointer-events-none" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M21.6 18.2 13 11.75v-.91c1.65-.49 2.8-2.17 2.43-4.05-.26-1.31-1.3-2.4-2.61-2.7C10.54 3.57 8.5 5.3 8.5 7.5h2c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5c0 .84-.69 1.52-1.53 1.5-.57-.01-1 .45-1 .99v1.76L2.4 18.2c-.77.58-.36 1.8.6 1.8h18c.96 0 1.37-1.22.6-1.8zM6 18l6-4.5 6 4.5H6z"/>
-                </svg>
-            </button>
+                <!-- 3. Гардероб (Google Material Icon: checkroom) -->
+                <button class="nav-quick-chip m3-dock-btn m3-dock-mid flex-1" 
+                        data-target="Гардероб" 
+                        title="Гардероб" 
+                        aria-label="Гардероб">
+                    <svg class="w-5 h-5 flex-shrink-0 pointer-events-none" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M21.6 18.2 13 11.75v-.91c1.65-.49 2.8-2.17 2.43-4.05-.26-1.31-1.3-2.4-2.61-2.7C10.54 3.57 8.5 5.3 8.5 7.5h2c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5c0 .84-.69 1.52-1.53 1.5-.57-.01-1 .45-1 .99v1.76L2.4 18.2c-.77.58-.36 1.8.6 1.8h18c.96 0 1.37-1.22.6-1.8zM6 18l6-4.5 6 4.5H6z"/>
+                    </svg>
+                </button>
 
-            <!-- 4. Столовая (Google Material Icon: restaurant) -->
-            <button class="search-tag-chip nav-quick-chip m3-dock-btn m3-dock-mid flex-1" 
-                    data-target="Столовая" 
-                    title="Столовая" 
-                    aria-label="Столовая">
-                <svg class="w-5 h-5 flex-shrink-0 pointer-events-none" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M11 9H9V2H7v7H5V2H3v7c0 2.12 1.66 3.84 3.75 3.97V22h2.5v-9.03C11.34 12.84 13 11.12 13 9V2h-2v7zm5-3v8h2.5v8H21V2c-2.76 0-5 2.24-5 4z"/>
-                </svg>
-            </button>
+                <!-- 4. Столовая (Google Material Icon: restaurant) -->
+                <button class="nav-quick-chip m3-dock-btn m3-dock-mid flex-1" 
+                        data-target="Столовая" 
+                        title="Столовая" 
+                        aria-label="Столовая">
+                    <svg class="w-5 h-5 flex-shrink-0 pointer-events-none" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M11 9H9V2H7v7H5V2H3v7c0 2.12 1.66 3.84 3.75 3.97V22h2.5v-9.03C11.34 12.84 13 11.12 13 9V2h-2v7zm5-3v8h2.5v8H21V2c-2.76 0-5 2.24-5 4z"/>
+                    </svg>
+                </button>
 
-            <!-- 5. Библиотека (Google Material Icon: local_library) -->
-            <button class="search-tag-chip nav-quick-chip m3-dock-btn m3-dock-mid flex-1" 
-                    data-target="Библиотека" 
-                    title="Библиотека" 
-                    aria-label="Библиотека">
-                <svg class="w-5 h-5 flex-shrink-0 pointer-events-none" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M12 11.55C9.64 9.35 6.48 8 3 8v11c3.48 0 6.64 1.35 9 3.55 2.36-2.19 5.52-3.55 9-3.55V8c-3.48 0-6.64 1.35-9 3.55zM12 8c1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3 1.34 3 3 3z"/>
-                </svg>
-            </button>
+                <!-- 5. Библиотека (Google Material Icon: local_library) -->
+                <button class="nav-quick-chip m3-dock-btn m3-dock-mid flex-1" 
+                        data-target="Библиотека" 
+                        title="Библиотека" 
+                        aria-label="Библиотека">
+                    <svg class="w-5 h-5 flex-shrink-0 pointer-events-none" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 11.55C9.64 9.35 6.48 8 3 8v11c3.48 0 6.64 1.35 9 3.55 2.36-2.19 5.52-3.55 9-3.55V8c-3.48 0-6.64 1.35-9 3.55zM12 8c1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3 1.34 3 3 3z"/>
+                    </svg>
+                </button>
 
-            <!-- 6. Учебная часть (Google Material Icon: school) -->
-            <button class="search-tag-chip nav-quick-chip m3-dock-btn m3-dock-end flex-1" 
-                    data-target="Учебная часть" 
-                    title="Учебная часть" 
-                    aria-label="Учебная часть">
-                <svg class="w-5 h-5 flex-shrink-0 pointer-events-none" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M5 13.18v4L12 21l7-3.82v-4L12 17l-7-3.82zM12 3 1 9l11 6 9-4.91V17h2V9L12 3z"/>
-                </svg>
-            </button>
+                <!-- 6. Учебная часть (Google Material Icon: school) -->
+                <button class="nav-quick-chip m3-dock-btn m3-dock-end flex-1" 
+                        data-target="Учебная часть" 
+                        title="Учебная часть" 
+                        aria-label="Учебная часть">
+                    <svg class="w-5 h-5 flex-shrink-0 pointer-events-none" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M5 13.18v4L12 21l7-3.82v-4L12 17l-7-3.82zM12 3 1 9l11 6 9-4.91V17h2V9L12 3z"/>
+                    </svg>
+                </button>
+            </div>
         </div>
 
         <!-- Нижние кнопки действий: Сбросить и Построить маршрут -->
         <div class="flex items-center justify-between gap-2 pt-2 border-t border-black/5 dark:border-white/10">
-            <button id="btn-nav-clear" type="button" class="inline-flex items-center justify-center gap-2 whitespace-nowrap flex-shrink-0" title="Сбросить маршрут">
+            <button id="btn-nav-clear" type="button" class="flex-1 inline-flex items-center justify-center gap-2 whitespace-nowrap" title="Сбросить маршрут">
                 <svg class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
                     <path d="M3 3v5h5"/>
                 </svg>
                 <span>Сбросить</span>
             </button>
-            <button id="btn-confirm-route" type="button" class="inline-flex items-center justify-center gap-2 whitespace-nowrap flex-shrink-0" title="Построить маршрут">
+            <button id="btn-confirm-route" type="button" class="flex-1 inline-flex items-center justify-center gap-2 whitespace-nowrap" title="Построить маршрут">
                 <span>Построить маршрут</span>
                 <svg class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                     <line x1="5" y1="12" x2="19" y2="12"></line>
@@ -622,17 +615,18 @@
 
         <!-- Нижний ряд: две большие капсульные кнопки [Отсюда] [Сюда] -->
         <div class="flex items-center gap-3 w-full">
-            <button id="btn-popup-from" class="m3-room-action-btn flex-1 h-14 rounded-full flex items-center justify-center gap-2 font-google font-semibold text-[15px] transition shadow-md active:scale-95" title="Маршрут отсюда">
-                <svg class="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="12" cy="12" r="3"></circle>
+            <button id="btn-popup-from" class="m3-room-action-btn flex-1 h-14 rounded-full flex items-center justify-center font-google font-semibold text-[15px] transition shadow-md active:scale-95" title="Маршрут отсюда">
+                <svg class="icon-from flex-shrink-0" viewBox="1 1 22 22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="7"></circle>
+                    <circle cx="12" cy="12" r="2.5"></circle>
                     <path d="M12 2v3m0 14v3M2 12h3m14 0h3"></path>
                 </svg>
                 <span>Отсюда</span>
             </button>
-            <button id="btn-popup-to" class="m3-room-action-btn flex-1 h-14 rounded-full flex items-center justify-center gap-2 font-google font-semibold text-[15px] transition shadow-md active:scale-95" title="Маршрут сюда">
-                <svg class="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M12 21s-6-5.333-6-10a6 6 0 0 1 12 0c0 4.667-6 10-6 10z"></path>
-                    <circle cx="12" cy="11" r="2.5"></circle>
+            <button id="btn-popup-to" class="m3-room-action-btn flex-1 h-14 rounded-full flex items-center justify-center font-google font-semibold text-[15px] transition shadow-md active:scale-95" title="Маршрут сюда">
+                <svg class="icon-to flex-shrink-0" viewBox="4 2 16 20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 19s-6.5-5.2-6.5-9.5a6.5 6.5 0 0 1 13 0c0 4.3-6.5 9.5-6.5 9.5z"></path>
+                    <circle cx="12" cy="9.5" r="2.3"></circle>
                 </svg>
                 <span>Сюда</span>
             </button>
@@ -640,112 +634,112 @@
     </div>
 
     <!-- Подключение Three.js и JS модулей -->
-    <script src="js/vendor/three.min.js?v=91"></script>
-    <script src="js/vendor/OrbitControls.js?v=91"></script>
-    <script src="js/state.js?v=91"></script>
+    <script src="js/vendor/three.min.js?v=95"></script>
+    <script src="js/vendor/OrbitControls.js?v=95"></script>
+    <script src="js/state.js?v=95"></script>
 
     <!-- Материалы и текстуры -->
-    <script src="js/materials/timetable-data.js?v=91"></script>
-    <script src="js/materials/timetable-board.js?v=91"></script>
-    <script src="js/materials/timetable-textures.js?v=91"></script>
-    <script src="js/materials/palettes-and-core.js?v=91"></script>
-    <script src="js/materials/territory-materials.js?v=91"></script>
+    <script src="js/materials/timetable-data.js?v=95"></script>
+    <script src="js/materials/timetable-board.js?v=95"></script>
+    <script src="js/materials/timetable-textures.js?v=95"></script>
+    <script src="js/materials/palettes-and-core.js?v=95"></script>
+    <script src="js/materials/territory-materials.js?v=95"></script>
 
     <!-- Геометрические хелперы, решатель стыков стен и 2D оверлей подписей -->
-    <script src="js/helpers/slabs-and-cache.js?v=91"></script>
-    <script src="js/helpers/walls-overlaps.js?v=91"></script>
-    <script src="js/helpers/walls-junctions.js?v=91"></script>
-    <script src="js/helpers/walls-chamfer-and-segments.js?v=91"></script>
-    <script src="js/helpers/walls-edges.js?v=91"></script>
-    <script src="js/helpers/walls-flush.js?v=91"></script>
-    <script src="js/helpers/labels-3d-and-grid.js?v=91"></script>
-    <script src="js/helpers/labels-screen-overlay.js?v=91"></script>
-    <script src="js/helpers/stairs-and-roofs.js?v=91"></script>
+    <script src="js/helpers/slabs-and-cache.js?v=95"></script>
+    <script src="js/helpers/walls-overlaps.js?v=95"></script>
+    <script src="js/helpers/walls-junctions.js?v=95"></script>
+    <script src="js/helpers/walls-chamfer-and-segments.js?v=95"></script>
+    <script src="js/helpers/walls-edges.js?v=95"></script>
+    <script src="js/helpers/walls-flush.js?v=95"></script>
+    <script src="js/helpers/labels-3d-and-grid.js?v=95"></script>
+    <script src="js/helpers/labels-screen-overlay.js?v=95"></script>
+    <script src="js/helpers/stairs-and-roofs.js?v=95"></script>
 
     <!-- Корпуса 1–5 (поэтажные модули) -->
-    <script src="js/buildings/bldg1/common.js?v=91"></script>
-    <script src="js/buildings/bldg1/floors-5-to-7.js?v=91"></script>
-    <script src="js/buildings/bldg1/floors-2-to-4.js?v=91"></script>
-    <script src="js/buildings/bldg1/floor1.js?v=91"></script>
-    <script src="js/buildings/bldg2/common-and-floor1.js?v=91"></script>
-    <script src="js/buildings/bldg2/floors-2-to-3.js?v=91"></script>
-    <script src="js/buildings/bldg3/common.js?v=91"></script>
-    <script src="js/buildings/bldg3/floor1.js?v=91"></script>
-    <script src="js/buildings/bldg3/floor2.js?v=91"></script>
-    <script src="js/buildings/bldg4/common.js?v=91"></script>
-    <script src="js/buildings/bldg4/floor1-south.js?v=91"></script>
-    <script src="js/buildings/bldg4/floor1-kitchen.js?v=91"></script>
-    <script src="js/buildings/bldg4/floor2.js?v=91"></script>
-    <script src="js/buildings/bldg4/floor3.js?v=91"></script>
-    <script src="js/buildings/building5.js?v=91"></script>
+    <script src="js/buildings/bldg1/common.js?v=95"></script>
+    <script src="js/buildings/bldg1/floors-5-to-7.js?v=95"></script>
+    <script src="js/buildings/bldg1/floors-2-to-4.js?v=95"></script>
+    <script src="js/buildings/bldg1/floor1.js?v=95"></script>
+    <script src="js/buildings/bldg2/common-and-floor1.js?v=95"></script>
+    <script src="js/buildings/bldg2/floors-2-to-3.js?v=95"></script>
+    <script src="js/buildings/bldg3/common.js?v=95"></script>
+    <script src="js/buildings/bldg3/floor1.js?v=95"></script>
+    <script src="js/buildings/bldg3/floor2.js?v=95"></script>
+    <script src="js/buildings/bldg4/common.js?v=95"></script>
+    <script src="js/buildings/bldg4/floor1-south.js?v=95"></script>
+    <script src="js/buildings/bldg4/floor1-kitchen.js?v=95"></script>
+    <script src="js/buildings/bldg4/floor2.js?v=95"></script>
+    <script src="js/buildings/bldg4/floor3.js?v=95"></script>
+    <script src="js/buildings/building5.js?v=95"></script>
 
     <!-- Территория колледжа, дорожная сеть, МАФ и озеленение -->
-    <script src="js/territory/core.js?v=91"></script>
-    <script src="js/territory/main-road.js?v=91"></script>
-    <script src="js/territory/bus-stop-shelter.js?v=91"></script>
-    <script src="js/territory/bus-stop-amenities.js?v=91"></script>
-    <script src="js/territory/driveways-and-plaza.js?v=91"></script>
-    <script src="js/territory/park-benches-and-bins.js?v=91"></script>
-    <script src="js/territory/bike-bollards-and-promenade.js?v=91"></script>
-    <script src="js/territory/landscaping-and-curbs.js?v=91"></script>
-    <script src="js/territory/road-markings.js?v=91"></script>
-    <script src="js/territory/trees-birch-and-linden.js?v=91"></script>
-    <script src="js/territory/trees-spruce-and-shrubs.js?v=91"></script>
-    <script src="js/territory/street-signs-and-gates.js?v=91"></script>
-    <script src="js/territory/ring-road.js?v=91"></script>
-    <script src="js/territory/traffic-lights-and-fence.js?v=91"></script>
+    <script src="js/territory/core.js?v=95"></script>
+    <script src="js/territory/main-road.js?v=95"></script>
+    <script src="js/territory/bus-stop-shelter.js?v=95"></script>
+    <script src="js/territory/bus-stop-amenities.js?v=95"></script>
+    <script src="js/territory/driveways-and-plaza.js?v=95"></script>
+    <script src="js/territory/park-benches-and-bins.js?v=95"></script>
+    <script src="js/territory/bike-bollards-and-promenade.js?v=95"></script>
+    <script src="js/territory/landscaping-and-curbs.js?v=95"></script>
+    <script src="js/territory/road-markings.js?v=95"></script>
+    <script src="js/territory/trees-birch-and-linden.js?v=95"></script>
+    <script src="js/territory/trees-spruce-and-shrubs.js?v=95"></script>
+    <script src="js/territory/street-signs-and-gates.js?v=95"></script>
+    <script src="js/territory/ring-road.js?v=95"></script>
+    <script src="js/territory/traffic-lights-and-fence.js?v=95"></script>
 
     <!-- Управление камерой и рейкастинг -->
-    <script src="js/controls/orbit-and-bounds.js?v=91"></script>
-    <script src="js/controls/view-and-picking.js?v=91"></script>
+    <script src="js/controls/orbit-and-bounds.js?v=95"></script>
+    <script src="js/controls/view-and-picking.js?v=95"></script>
 
     <!-- Навигационный движок (A*), база узлов графа и 3D/UI маршрутизация -->
-    <script src="js/nav/nav-core.js?v=91"></script>
-    <script src="js/nav/data/bldg1-f1.js?v=91"></script>
-    <script src="js/nav/data/bldg1-f2.js?v=91"></script>
-    <script src="js/nav/data/bldg1-f3.js?v=91"></script>
-    <script src="js/nav/data/bldg1-f4.js?v=91"></script>
-    <script src="js/nav/data/bldg1-f5.js?v=91"></script>
-    <script src="js/nav/data/bldg1-f6.js?v=91"></script>
-    <script src="js/nav/data/bldg1-f7-and-outdoor.js?v=91"></script>
-    <script src="js/nav/data/bldg2-f1.js?v=91"></script>
-    <script src="js/nav/data/bldg2-f2.js?v=91"></script>
-    <script src="js/nav/data/bldg2-f3.js?v=91"></script>
-    <script src="js/nav/data/bldg3-f1.js?v=91"></script>
-    <script src="js/nav/data/bldg3-f2.js?v=91"></script>
-    <script src="js/nav/data/bldg4-f1.js?v=91"></script>
-    <script src="js/nav/data/bldg4-f2-f3.js?v=91"></script>
-    <script src="js/nav/graph-builder.js?v=91"></script>
-    <script src="js/nav/astar-and-instructions.js?v=91"></script>
-    <script src="js/nav/route-3d-geometry.js?v=91"></script>
-    <script src="js/nav/route-3d-render.js?v=91"></script>
-    <script src="js/nav/route-screen-badges.js?v=91"></script>
-    <script src="js/nav/route-controller.js?v=91"></script>
-    <script src="js/nav/route-card-ui.js?v=91"></script>
-    <script src="js/nav/navigator-modal.js?v=91"></script>
-    <script src="js/nav/autocomplete.js?v=91"></script>
-    <script src="js/nav/nav-init.js?v=91"></script>
-    <script src="js/nav/nav-chips-and-url.js?v=91"></script>
+    <script src="js/nav/nav-core.js?v=95"></script>
+    <script src="js/nav/data/bldg1-f1.js?v=95"></script>
+    <script src="js/nav/data/bldg1-f2.js?v=95"></script>
+    <script src="js/nav/data/bldg1-f3.js?v=95"></script>
+    <script src="js/nav/data/bldg1-f4.js?v=95"></script>
+    <script src="js/nav/data/bldg1-f5.js?v=95"></script>
+    <script src="js/nav/data/bldg1-f6.js?v=95"></script>
+    <script src="js/nav/data/bldg1-f7-and-outdoor.js?v=95"></script>
+    <script src="js/nav/data/bldg2-f1.js?v=95"></script>
+    <script src="js/nav/data/bldg2-f2.js?v=95"></script>
+    <script src="js/nav/data/bldg2-f3.js?v=95"></script>
+    <script src="js/nav/data/bldg3-f1.js?v=95"></script>
+    <script src="js/nav/data/bldg3-f2.js?v=95"></script>
+    <script src="js/nav/data/bldg4-f1.js?v=95"></script>
+    <script src="js/nav/data/bldg4-f2-f3.js?v=95"></script>
+    <script src="js/nav/graph-builder.js?v=95"></script>
+    <script src="js/nav/astar-and-instructions.js?v=95"></script>
+    <script src="js/nav/route-3d-geometry.js?v=95"></script>
+    <script src="js/nav/route-3d-render.js?v=95"></script>
+    <script src="js/nav/route-screen-badges.js?v=95"></script>
+    <script src="js/nav/route-controller.js?v=95"></script>
+    <script src="js/nav/route-card-ui.js?v=95"></script>
+    <script src="js/nav/navigator-modal.js?v=95"></script>
+    <script src="js/nav/autocomplete.js?v=95"></script>
+    <script src="js/nav/nav-init.js?v=95"></script>
+    <script src="js/nav/nav-chips-and-url.js?v=95"></script>
 
     <!-- Пользовательский интерфейс (UI), поиск, шторки и карточка кабинета -->
-    <script src="js/ui/theme.js?v=91"></script>
-    <script src="js/ui/building-and-floor-modes.js?v=91"></script>
-    <script src="js/ui/camera-and-view-controls.js?v=91"></script>
-    <script src="js/ui/room-disciplines.js?v=91"></script>
-    <script src="js/ui/history-and-search-modal.js?v=91"></script>
-    <script src="js/ui/search-gestures.js?v=91"></script>
-    <script src="js/ui/search-results.js?v=91"></script>
-    <script src="js/ui/settings-and-viewport.js?v=91"></script>
-    <script src="js/ui/ui-init-and-popup-show.js?v=91"></script>
-    <script src="js/ui/room-popup-actions.js?v=91"></script>
+    <script src="js/ui/theme.js?v=95"></script>
+    <script src="js/ui/building-and-floor-modes.js?v=95"></script>
+    <script src="js/ui/camera-and-view-controls.js?v=95"></script>
+    <script src="js/ui/room-disciplines.js?v=95"></script>
+    <script src="js/ui/history-and-search-modal.js?v=95"></script>
+    <script src="js/ui/search-gestures.js?v=95"></script>
+    <script src="js/ui/search-results.js?v=95"></script>
+    <script src="js/ui/settings-and-viewport.js?v=95"></script>
+    <script src="js/ui/ui-init-and-popup-show.js?v=95"></script>
+    <script src="js/ui/room-popup-actions.js?v=95"></script>
 
     <!-- Инициализация Three.js сцены, отсечение (Occlusion) и цикл рендеринга -->
-    <script src="js/main/scene-init.js?v=91"></script>
-    <script src="js/main/url-and-bti-overlay.js?v=91"></script>
-    <script src="js/main/guides-and-roofs.js?v=91"></script>
-    <script src="js/main/occlusion-3d.js?v=91"></script>
-    <script src="js/main/visibility-and-walls.js?v=91"></script>
-    <script src="js/main/render-loop.js?v=91"></script>
-    <script src="js/telemetry.js?v=91"></script>
+    <script src="js/main/scene-init.js?v=95"></script>
+    <script src="js/main/url-and-bti-overlay.js?v=95"></script>
+    <script src="js/main/guides-and-roofs.js?v=95"></script>
+    <script src="js/main/occlusion-3d.js?v=95"></script>
+    <script src="js/main/visibility-and-walls.js?v=95"></script>
+    <script src="js/main/render-loop.js?v=95"></script>
+    <script src="js/telemetry.js?v=95"></script>
 </body>
 </html>

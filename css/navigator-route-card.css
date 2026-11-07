@@ -1,10 +1,12 @@
-/* Кнопка сбросить маршрут (отдельная самостоятельная pill-кнопка, но незаметная/tonal M3) */
+/* Кнопка сбросить маршрут и Кнопка подтверждения маршрута — строго одинаковой ширины (50% / 50%) */
 #btn-nav-clear {
+    flex: 1 1 0% !important;
+    min-width: 0 !important;
     height: 48px !important;
-    padding: 0 16px !important;
+    padding: 0 12px !important;
     border-radius: 9999px !important;
     font-weight: 700 !important;
-    font-size: 13.5px !important;
+    font-size: 13px !important;
     background: var(--m3-surface-container-high) !important;
     color: var(--m3-on-surface-variant) !important;
     border: 1.5px solid var(--m3-outline-variant) !important;
@@ -13,9 +15,8 @@
     flex-direction: row !important;
     align-items: center !important;
     justify-content: center !important;
-    gap: 8px !important;
+    gap: 6px !important;
     white-space: nowrap !important;
-    flex-shrink: 0 !important;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08) !important;
     cursor: pointer;
     -webkit-tap-highlight-color: transparent;
@@ -34,20 +35,21 @@
 
 /* Кнопка подтверждения маршрута (стрелка строго вровень с текстом в одну строку) */
 #btn-confirm-route {
+    flex: 1 1 0% !important;
+    min-width: 0 !important;
     display: inline-flex !important;
     flex-direction: row !important;
     align-items: center !important;
     justify-content: center !important;
-    gap: 8px !important;
+    gap: 6px !important;
     white-space: nowrap !important;
-    flex-shrink: 0 !important;
     background: #1a73e8 !important;
     color: #ffffff !important;
     border-radius: 9999px !important;
     height: 48px !important;
-    padding: 0 18px !important;
+    padding: 0 12px !important;
     font-weight: 700 !important;
-    font-size: 13.5px !important;
+    font-size: 13px !important;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18) !important;
     border: none !important;
     transition: all 0.18s ease !important;

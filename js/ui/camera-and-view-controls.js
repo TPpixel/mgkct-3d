@@ -20,6 +20,8 @@ function setSliceFloor(newFloor) {
 
 
 function toggle2DView() {
+    const btn2D = document.getElementById('btn-toggle-2d');
+    if (btn2D && typeof btn2D.blur === 'function') btn2D.blur();
     setViewMode(!STATE.is2D);
 }
 

@@ -91,6 +91,17 @@
             const valA = inputA.value;
             inputA.value = inputB.value;
             inputB.value = valA;
+            inputA.removeAttribute('data-is-default');
+            inputB.removeAttribute('data-is-default');
+        }
+
+        const btnClearA = document.getElementById('btn-clear-start');
+        if (btnClearA) {
+            btnClearA.classList.toggle('hidden', !inputA || !inputA.value);
+        }
+        const btnClearB = document.getElementById('btn-clear-dest');
+        if (btnClearB) {
+            btnClearB.classList.toggle('hidden', !inputB || !inputB.value);
         }
 
         if (NAV_STATE.startPoint && NAV_STATE.destPoint) {
@@ -113,6 +124,16 @@
         if (inputA) inputA.value = '';
         if (inputB) inputB.value = '';
 
+        const btnClearDest = document.getElementById('btn-clear-dest');
+        if (btnClearDest) btnClearDest.classList.add('hidden');
+        const dropStart = document.getElementById('nav-dropdown-start');
+        if (dropStart) dropStart.classList.add('hidden');
+        const dropDest = document.getElementById('nav-dropdown-dest');
+        if (dropDest) dropDest.classList.add('hidden');
+
+        // Возвращаем в поле «Отсюда» дефолтный вход в колледж вместо полной очистки
+        setDefaultStartPoint();
+
         const card = document.getElementById('navigator-route-card');
         if (card) card.classList.add('hidden');
         document.body.classList.remove('route-active');
@@ -127,6 +148,7 @@
 
     window.openNavigatorModal = openNavigatorModal;
     window.closeNavigatorModal = closeNavigatorModal;
+    window.swapStartAndDest = swapStartAndDest;
     window.clearRoute = clearRoute;
 
     // ------------------------------------------------------------------------

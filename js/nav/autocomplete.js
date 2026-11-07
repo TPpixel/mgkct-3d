@@ -220,6 +220,9 @@
                         e.stopPropagation();
                     }
                     input.value = formatNavInputString(item);
+                    if (inputId === 'nav-input-start') {
+                        input.removeAttribute('data-is-default');
+                    }
                     dropdown.classList.add('hidden');
                     if (clearBtn) clearBtn.classList.remove('hidden');
                     onSelect(item);

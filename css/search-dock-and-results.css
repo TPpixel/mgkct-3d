@@ -32,9 +32,11 @@
     transition: transform 0.16s ease !important;
 }
 
-.search-tag-chip:hover {
-    background-color: #e2e7ef !important;
-    color: #1f1f1f !important;
+@media (hover: hover) and (pointer: fine) {
+    .search-tag-chip:hover {
+        background-color: #e2e7ef !important;
+        color: #1f1f1f !important;
+    }
 }
 
 .search-tag-chip:active {
@@ -71,9 +73,11 @@
     color: currentColor !important;
 }
 
-[data-theme="dark"] .search-tag-chip:hover {
-    background-color: rgba(255, 255, 255, 0.08) !important;
-    color: #e3e3e3 !important;
+@media (hover: hover) and (pointer: fine) {
+    [data-theme="dark"] .search-tag-chip:hover {
+        background-color: rgba(255, 255, 255, 0.08) !important;
+        color: #e3e3e3 !important;
+    }
 }
 
 [data-theme="dark"] .search-tag-chip.is-active {
@@ -292,6 +296,34 @@ body[data-theme="light"] .room-search-item:hover {
     margin: 6px auto 10px auto !important;
     box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18) !important;
     z-index: var(--z-panel) !important;
+}
+
+#search-route-target-pill.is-start {
+    background-color: #c2e7ff !important;
+    color: #004a77 !important;
+    border: 1.5px solid #1a73e8 !important;
+}
+
+#search-route-target-pill.is-start #search-route-target-text {
+    color: #004a77 !important;
+}
+
+#search-route-target-pill.is-start span.animate-ping {
+    background-color: #004a77 !important;
+}
+
+#search-route-target-pill.is-dest {
+    background-color: #1a73e8 !important;
+    color: #ffffff !important;
+    border: 1.5px solid #1a73e8 !important;
+}
+
+#search-route-target-pill.is-dest #search-route-target-text {
+    color: #ffffff !important;
+}
+
+#search-route-target-pill.is-dest span.animate-ping {
+    background-color: #ffffff !important;
 }
 
 @media (max-width: 639px) {

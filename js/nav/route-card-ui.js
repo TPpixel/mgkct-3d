@@ -68,7 +68,7 @@
                         badgeEl.classList.add('ring-4', 'ring-white/80', 'ring-offset-2', 'ring-offset-[#1a73e8]', 'animate-pulse');
                         if (pill && pillText) {
                             pillText.textContent = 'Выбор конечного пункта (Куда)';
-                            pill.className = 'mb-2 px-3 py-1.5 rounded-full self-start inline-flex items-center gap-2 text-xs font-bold transition-all shadow-sm bg-[#1a73e8] text-white';
+                            pill.className = 'is-dest mb-2 px-3 py-1.5 rounded-full self-start inline-flex items-center gap-2 text-xs font-bold transition-all shadow-sm bg-[#1a73e8] text-white';
                             pill.classList.remove('hidden');
                         }
                         if (sInput) {
@@ -78,7 +78,7 @@
                         badgeEl.classList.add('ring-4', 'ring-[#1a73e8]', 'ring-offset-2', 'ring-offset-[#c2e7ff]', 'animate-pulse');
                         if (pill && pillText) {
                             pillText.textContent = 'Выбор начального пункта (Откуда)';
-                            pill.className = 'mb-2 px-3 py-1.5 rounded-full self-start inline-flex items-center gap-2 text-xs font-bold transition-all shadow-sm bg-[#c2e7ff] text-[#004a77] border border-[#1a73e8]';
+                            pill.className = 'is-start mb-2 px-3 py-1.5 rounded-full self-start inline-flex items-center gap-2 text-xs font-bold transition-all shadow-sm bg-[#c2e7ff] text-[#004a77] border border-[#1a73e8]';
                             pill.classList.remove('hidden');
                         }
                         if (sInput) {
