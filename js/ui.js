@@ -894,38 +894,43 @@ function initHistoryManager() {
 
         // 1. Если была открыта карточка кабинета
         if (isRoomCardOpen) {
-            hideRoomContextPopup(true);
+            hideRoomContextPopup(true, false);
 
             // Если пришли из поиска — возвращаемся обратно в поиск!
             if (targetOverlay === 'search') {
                 if (typeof openSearch === 'function') {
-                    openSearch(true);
+                    openSearch(true, false);
                 }
                 activeOverlay = 'search';
                 return;
             }
 
-            activeOverlay = null;
+            activeOverlay = (targetOverlay === 'route' || isRouteActive) ? 'route' : null;
             return;
         }
 
         // 2. Если был открыт поиск
         if (isSearchOpen) {
             if (typeof closeSearch === 'function') closeSearch(true);
-            activeOverlay = null;
+            activeOverlay = (targetOverlay === 'route' || isRouteActive) ? 'route' : null;
             return;
         }
 
         // 3. Если было открыто окно навигатора
         if (isNavModalOpen) {
             if (typeof closeNavigatorModal === 'function') closeNavigatorModal(true);
-            activeOverlay = null;
+            activeOverlay = (targetOverlay === 'route' || isRouteActive) ? 'route' : null;
             return;
         }
 
         // 4. Если был активен маршрут
         if (isRouteActive) {
             if (typeof clearRoute === 'function') clearRoute(true);
+            if (targetOverlay === 'search' && typeof openSearch === 'function') {
+                openSearch(true, false);
+                activeOverlay = 'search';
+                return;
+            }
             activeOverlay = null;
             return;
         }
@@ -944,10 +949,26 @@ function pushOverlayState(name, extra = {}) {
     } catch (_) {}
 }
 
+function replaceOverlayState(name, extra = {}) {
+    if (typeof window === 'undefined' || !window.history) return;
+    try {
+        const stateObj = { page: 'map', overlay: name, ...extra };
+        history.replaceState(stateObj, '');
+        activeOverlay = name;
+    } catch (_) {}
+}
+
 function popOverlayState(name) {
     if (typeof window === 'undefined' || !window.history) return;
     if (activeOverlay === name) {
-        activeOverlay = null;
+        const restoreRouteOverlay = Boolean(
+            name !== 'route' &&
+            history.state &&
+            history.state.overRoute &&
+            typeof NAV_STATE !== 'undefined' &&
+            NAV_STATE.activeRoute
+        );
+        activeOverlay = restoreRouteOverlay ? 'route' : null;
         if (history.state && history.state.overlay) {
             isPoppingStateInternal = true;
             try {
@@ -959,6 +980,7 @@ function popOverlayState(name) {
 }
 
 window.pushOverlayState = pushOverlayState;
+window.replaceOverlayState = replaceOverlayState;
 window.popOverlayState = popOverlayState;
 window.initHistoryManager = initHistoryManager;
 
@@ -1065,7 +1087,9 @@ function setupSearch() {
 
         // 3. Сохранение состояния навигации в history строго после фокусировки
         if (!fromPopstate) {
-            pushOverlayState('search');
+            pushOverlayState('search', {
+                overRoute: Boolean(window.NAV_STATE && window.NAV_STATE.activeRoute)
+            });
         }
 
         const q = searchInput ? searchInput.value : "";
@@ -1108,8 +1132,13 @@ function setupSearch() {
         if (searchInput) {
             searchInput.placeholder = 'Поиск по колледжу...';
         }
-        if (!keepPickBanner && typeof window.hidePickBanner === 'function') {
-            window.hidePickBanner();
+        if (!keepPickBanner) {
+            if (window.NAV_STATE) {
+                window.NAV_STATE.targetToChange = null;
+            }
+            if (typeof window.hidePickBanner === 'function') {
+                window.hidePickBanner();
+            }
         }
     }
 
@@ -1312,7 +1341,8 @@ function setupSearch() {
         const x = parseFloat(btn.dataset.x);
         const z = parseFloat(btn.dataset.z);
         const t = btn.dataset.text;
-        closeSearch(true);
+        const routePickTarget = (window.NAV_STATE && window.NAV_STATE.targetToChange) ? window.NAV_STATE.targetToChange : null;
+        closeSearch(!routePickTarget);
 
         // Очищаем строку поиска после выбора найденного кабинета
         if (searchInput) {
@@ -1336,15 +1366,16 @@ function setupSearch() {
             saveRecentSearch(roomInfo);
         }
 
-        // Если активен маршрут и пользователь выбирает кабинет в поиске для смены в маршруте
-        if (window.NAV_STATE && (window.NAV_STATE.targetToChange || window.NAV_STATE.activeRoute || (document.getElementById('navigator-route-card') && !document.getElementById('navigator-route-card').classList.contains('hidden')))) {
-            const targetType = window.NAV_STATE.targetToChange || 'dest';
+        // Если пользователь явно открыл поиск для смены точки маршрута (Куда / Откуда)
+        if (routePickTarget) {
             if (typeof window.applyRoomToActiveRoute === 'function') {
-                window.applyRoomToActiveRoute(roomInfo, targetType);
+                window.applyRoomToActiveRoute(roomInfo, routePickTarget);
             }
-            window.NAV_STATE.targetToChange = null;
+            if (window.NAV_STATE) {
+                window.NAV_STATE.targetToChange = null;
+            }
             if (typeof hideRoomContextPopup === 'function') {
-                hideRoomContextPopup(true);
+                hideRoomContextPopup(true, true);
             }
             return;
         }
@@ -1959,13 +1990,23 @@ function estimateWalkTime(roomInfo) {
 function showRoomContextPopup(roomInfo, clientX, clientY, shouldSelectAndFly = true, fromSearch = false) {
     if (!roomInfo) return;
 
-    // Не перекрываем активную карточку навигатора / маршрута
     const routeCard = document.getElementById('navigator-route-card');
-    if ((window.NAV_STATE && window.NAV_STATE.activeRoute) || (routeCard && !routeCard.classList.contains('hidden'))) {
-        return;
+    const hasActiveRoute = Boolean(window.NAV_STATE && window.NAV_STATE.activeRoute);
+
+    // Временно скрываем DOM-карточку активного маршрута, сохраняя сам 3D-маршрут на сцене
+    if (hasActiveRoute) {
+        if (routeCard) routeCard.classList.add('hidden');
+        document.body.classList.remove('route-active');
+        const bottomSearch = document.getElementById('bottom-search-bar');
+        if (bottomSearch) bottomSearch.classList.remove('route-active');
     }
 
-    pushOverlayState('room-card', { fromSearch: Boolean(fromSearch) });
+    const overlayMeta = { fromSearch: Boolean(fromSearch), overRoute: hasActiveRoute };
+    if (activeOverlay === 'room-card') {
+        replaceOverlayState('room-card', overlayMeta);
+    } else {
+        pushOverlayState('room-card', overlayMeta);
+    }
     currentPopupRoom = roomInfo;
 
     const popup = document.getElementById('room-context-popup');
@@ -2078,10 +2119,40 @@ function showRoomContextPopup(roomInfo, clientX, clientY, shouldSelectAndFly = t
     }
 }
 
-function hideRoomContextPopup(fromPopstate = false) {
+function collapseRoomCardHistoryForTarget(targetOverlay) {
+    if (typeof window === 'undefined' || !window.history) return;
+    const state = history.state || {};
+    if (state.overlay !== 'room-card') return;
+
+    if (state.overRoute && targetOverlay === 'route' && window.NAV_STATE && window.NAV_STATE.activeRoute) {
+        if (state.fromSearch) {
+            activeOverlay = 'route';
+            isPoppingStateInternal = true;
+            try {
+                history.go(-2);
+            } catch (_) {
+                history.back();
+            }
+            setTimeout(() => { isPoppingStateInternal = false; }, 200);
+        } else {
+            popOverlayState('room-card');
+        }
+    } else {
+        replaceOverlayState(targetOverlay, {
+            overRoute: Boolean(state.overRoute && targetOverlay !== 'route')
+        });
+    }
+}
+
+function hideRoomContextPopup(fromPopstate = false, suppressRouteRestore = false) {
+    const wasOverRoute = Boolean(
+        (typeof history !== 'undefined' && history.state && history.state.overRoute) ||
+        (window.NAV_STATE && window.NAV_STATE.activeRoute)
+    );
     if (!fromPopstate) {
         if (history.state && history.state.overlay === 'room-card') {
             if (history.state.fromSearch) {
+                activeOverlay = (wasOverRoute && window.NAV_STATE && window.NAV_STATE.activeRoute) ? 'route' : null;
                 isPoppingStateInternal = true;
                 try {
                     history.go(-2);
@@ -2097,17 +2168,34 @@ function hideRoomContextPopup(fromPopstate = false) {
     const popup = document.getElementById('room-context-popup');
     if (popup) popup.classList.add('hidden');
     document.body.classList.remove('room-card-open');
-    updateAdaptiveFabPosition();
     currentPopupRoom = null;
-    const widgetText = document.getElementById('search-widget-text');
-    if (widgetText) {
-        widgetText.textContent = 'Поиск по колледжу...';
+
+    if (!suppressRouteRestore && window.NAV_STATE && window.NAV_STATE.activeRoute) {
+        const routeCard = document.getElementById('navigator-route-card');
+        if (routeCard) routeCard.classList.remove('hidden');
+        document.body.classList.add('route-active');
+        const bottomSearch = document.getElementById('bottom-search-bar');
+        if (bottomSearch) bottomSearch.classList.add('route-active');
+        const floorsContainer = document.getElementById('nav-card-floors');
+        if (floorsContainer && typeof STATE !== 'undefined') {
+            const activeFloorStr = String(STATE.mode);
+            floorsContainer.querySelectorAll('.m3-nav-floor-pill').forEach(btn => {
+                btn.classList.toggle('active-pill', btn.textContent.trim() === activeFloorStr);
+            });
+        }
+    } else {
+        const widgetText = document.getElementById('search-widget-text');
+        if (widgetText) {
+            widgetText.textContent = 'Поиск по колледжу...';
+        }
     }
+
+    updateAdaptiveFabPosition();
 }
 
 function setupRoomContextPopup() {
     const btnClose = document.getElementById('btn-close-room-popup');
-    if (btnClose) btnClose.addEventListener('click', hideRoomContextPopup);
+    if (btnClose) btnClose.addEventListener('click', () => hideRoomContextPopup(false, false));
 
     const popup = document.getElementById('room-context-popup');
     if (popup) {
@@ -2149,11 +2237,19 @@ function setupRoomContextPopup() {
         btnFrom.addEventListener('click', () => {
             if (!currentPopupRoom) return;
             const r = currentPopupRoom;
-            hideRoomContextPopup();
 
             if (typeof NAV_STATE !== 'undefined') {
                 const roomNode = getRoomNavPoint(r);
                 if (roomNode) {
+                    const canRebuildActiveRoute = Boolean(
+                        NAV_STATE.activeRoute &&
+                        NAV_STATE.destPoint &&
+                        NAV_STATE.destPoint.id !== roomNode.id &&
+                        typeof buildRoute === 'function'
+                    );
+                    collapseRoomCardHistoryForTarget(canRebuildActiveRoute ? 'route' : 'navigator');
+                    hideRoomContextPopup(true, true);
+
                     NAV_STATE.startPoint = roomNode;
                     const inputA = document.getElementById('nav-input-start');
                     if (inputA) {
@@ -2163,11 +2259,15 @@ function setupRoomContextPopup() {
                         if (btnClearA) btnClearA.classList.remove('hidden');
                     }
 
-                    if (typeof openNavigatorModal === 'function') {
-                        openNavigatorModal();
+                    if (canRebuildActiveRoute) {
+                        buildRoute(roomNode, NAV_STATE.destPoint);
+                    } else if (typeof openNavigatorModal === 'function') {
+                        openNavigatorModal('dest');
                     }
+                    return;
                 }
             }
+            hideRoomContextPopup(false, false);
         });
     }
 
@@ -2176,7 +2276,6 @@ function setupRoomContextPopup() {
         btnTo.addEventListener('click', () => {
             if (!currentPopupRoom) return;
             const r = currentPopupRoom;
-            hideRoomContextPopup();
 
             if (typeof NAV_STATE !== 'undefined') {
                 const roomNode = getRoomNavPoint(r);
@@ -2202,13 +2301,19 @@ function setupRoomContextPopup() {
                         }
                     }
 
-                    if (NAV_STATE.startPoint && NAV_STATE.destPoint && typeof buildRoute === 'function') {
+                    const willBuildRoute = Boolean(NAV_STATE.startPoint && NAV_STATE.destPoint && typeof buildRoute === 'function');
+                    collapseRoomCardHistoryForTarget(willBuildRoute ? 'route' : 'navigator');
+                    hideRoomContextPopup(true, true);
+
+                    if (willBuildRoute) {
                         buildRoute(NAV_STATE.startPoint, NAV_STATE.destPoint);
                     } else if (typeof openNavigatorModal === 'function') {
                         openNavigatorModal();
                     }
+                    return;
                 }
             }
+            hideRoomContextPopup(false, false);
         });
     }
 }

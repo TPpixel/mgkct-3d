@@ -3812,7 +3812,7 @@ window.calculateWalkTime = calculateWalkTime;
     // ------------------------------------------------------------------------
     function buildRoute(startPoint, destPoint) {
         if (typeof hideRoomContextPopup === 'function') {
-            hideRoomContextPopup(true);
+            hideRoomContextPopup(true, true);
         }
         if (!NAV_STATE.graph) {
             NAV_STATE.graph = buildCollegeNavGraph();
@@ -3928,7 +3928,7 @@ window.calculateWalkTime = calculateWalkTime;
     function applyRoomToActiveRoute(roomInfo, targetType = 'dest') {
         if (!roomInfo) return;
         if (typeof hideRoomContextPopup === 'function') {
-            hideRoomContextPopup(true);
+            hideRoomContextPopup(true, true);
         }
         const g = NAV_STATE.graph || buildCollegeNavGraph();
         NAV_STATE.graph = g;
@@ -4006,8 +4006,8 @@ window.calculateWalkTime = calculateWalkTime;
             return true;
         }
 
-        // 3. Если маршрут активен и пользователь меняет кабинет (targetToChange) ИЛИ открыт поиск и кликнули по кабинету на карте
-        if (NAV_STATE.activeRoute && (NAV_STATE.targetToChange || (document.getElementById('search-modal') && document.getElementById('search-modal').classList.contains('active')))) {
+        // 3. Если маршрут активен и пользователь явно меняет точку маршрута (targetToChange)
+        if (NAV_STATE.activeRoute && NAV_STATE.targetToChange) {
             let hitRoom = preHitRoom;
             if (!hitRoom && Array.isArray(window.renderedScreenBadges) && window.renderedScreenBadges.length > 0) {
                 const cx = event.clientX;
@@ -4282,8 +4282,10 @@ window.calculateWalkTime = calculateWalkTime;
         if (!NAV_STATE.isInitialized && typeof initNavigator === 'function') {
             initNavigator();
         }
-        if (typeof hideRoomContextPopup === 'function') hideRoomContextPopup(true);
-        if (typeof pushOverlayState === 'function') pushOverlayState('navigator');
+        if (typeof hideRoomContextPopup === 'function') hideRoomContextPopup(true, false);
+        if (typeof pushOverlayState === 'function') {
+            pushOverlayState('navigator', { overRoute: Boolean(NAV_STATE.activeRoute) });
+        }
         if (typeof updateVisualViewportVars === 'function') updateVisualViewportVars();
         setDefaultStartPoint();
 
