@@ -1268,7 +1268,6 @@ function setupSearch() {
                 c.blur();
             }
         });
-        quickButtons.forEach(b => b?.classList.remove("is-active"));
     }
 
     searchInput?.addEventListener("input", (e) => {
