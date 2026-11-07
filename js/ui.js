@@ -459,6 +459,8 @@ function setSliceFloor(newFloor) {
 
 
 function toggle2DView() {
+    const btn2D = document.getElementById('btn-toggle-2d');
+    if (btn2D && typeof btn2D.blur === 'function') btn2D.blur();
     setViewMode(!STATE.is2D);
 }
 
@@ -1312,6 +1314,7 @@ function setupSearch() {
 
             // Снимаем активность со всех чипов
             searchTagChips.forEach(c => c.classList.remove("is-active"));
+            if (typeof chip.blur === "function") chip.blur();
 
             if (isAlreadyActive) {
                 // Повторный клик по активному чипу снимает фильтр
@@ -2293,15 +2296,23 @@ function setupRoomContextPopup() {
                         if (btnClearB) btnClearB.classList.remove('hidden');
                     }
 
-                    const g = NAV_STATE.graph;
-                    if (!NAV_STATE.startPoint && g) {
-                        const entrance = g.getNode('b3_f1_entrance_west') || g.getNode('b1_f1_entrance_main');
-                        if (entrance) {
-                            NAV_STATE.startPoint = entrance;
-                            const inputA = document.getElementById('nav-input-start');
-                            if (inputA) {
-                                inputA.value = 'Главный вход (Корпус 3 / Западный)';
-                                inputA.setAttribute('data-is-default', 'true');
+                    if (!NAV_STATE.startPoint) {
+                        if (typeof setDefaultStartPoint === 'function') {
+                            setDefaultStartPoint();
+                        } else {
+                            const g = NAV_STATE.graph;
+                            if (g) {
+                                const entrance = g.getNode('b3_f1_entrance_west') || g.getNode('b1_f1_entrance_main');
+                                if (entrance) {
+                                    NAV_STATE.startPoint = entrance;
+                                    const inputA = document.getElementById('nav-input-start');
+                                    if (inputA) {
+                                        inputA.value = typeof formatNavInputString === 'function' ? formatNavInputString(entrance) : 'Главный вход (Корпус 3)';
+                                        inputA.setAttribute('data-is-default', 'true');
+                                        const btnClearA = document.getElementById('btn-clear-start');
+                                        if (btnClearA) btnClearA.classList.remove('hidden');
+                                    }
+                                }
                             }
                         }
                     }

@@ -2826,7 +2826,7 @@ window.calculateWalkTime = calculateWalkTime;
             NAV_STATE.startPoint = entrance;
             const inputA = document.getElementById('nav-input-start');
             if (inputA && !inputA.value) {
-                inputA.value = 'Главный вход (Корпус 3 / Западный)';
+                inputA.value = formatNavInputString(entrance);
                 inputA.setAttribute('data-is-default', 'true');
                 const btnClearA = document.getElementById('btn-clear-start');
                 if (btnClearA) btnClearA.classList.remove('hidden');
@@ -2837,7 +2837,7 @@ window.calculateWalkTime = calculateWalkTime;
     // ------------------------------------------------------------------------
     function formatNavNodeName(lbl, bldg) {
         if (!lbl) return '';
-        const raw = String(lbl).trim();
+        const raw = String(lbl).replace(/\s*\n\s*/g, ' ').trim();
         const b = parseInt(bldg, 10);
         if (b <= 1 || isNaN(b)) return raw;
         if (raw.startsWith('2-') || raw.startsWith('3-') || raw.startsWith('4-')) return raw;
@@ -2849,16 +2849,38 @@ window.calculateWalkTime = calculateWalkTime;
 
     function formatNavInputString(nodeOrPoint) {
         if (!nodeOrPoint) return '';
-        const rawLbl = nodeOrPoint.label || nodeOrPoint.text || '';
+        const rawLbl = String(nodeOrPoint.label || nodeOrPoint.text || '').replace(/\s*\n\s*/g, ' ').trim();
         const b = parseInt(nodeOrPoint.bldg !== undefined ? nodeOrPoint.bldg : nodeOrPoint.building, 10);
         const f = parseInt(nodeOrPoint.floor, 10);
+
+        if (nodeOrPoint.id === 'b3_f1_entrance_west' || /главный вход/i.test(rawLbl)) {
+            return 'Главный вход (Корпус 3)';
+        }
+        if (nodeOrPoint.id === 'b1_f1_entrance_main' || /восточный вход/i.test(rawLbl)) {
+            return 'Восточный вход (Корпус 1)';
+        }
+
+        // Помещения вида "102 Столовая", "104 Библиотека", "209 Учебная часть"
+        const numTitleMatch = rawLbl.match(/^(\d+[а-яa-z]?)\s+(.+)$/i);
+        if (numTitleMatch) {
+            const numPart = (b > 1 && !numTitleMatch[1].startsWith(`${b}-`)) ? `${b}-${numTitleMatch[1]}` : numTitleMatch[1];
+            const cleanTitle = numTitleMatch[2].replace(/^\((.+)\)$/, '$1');
+            return `${numPart} • ${cleanTitle}`;
+        }
+
         const disp = formatNavNodeName(rawLbl, b);
-        const isNum = /^\d/.test(disp) || /^[2-4]-\d/.test(disp);
+        const isNum = /^\d+[а-яa-z]?$/i.test(disp) || /^[2-4]-\d+[а-яa-z]?$/i.test(disp);
         if (isNum) {
+            return f > 0 ? `Кабинет ${disp} (${f} эт.)` : `Кабинет ${disp}`;
+        }
+        if (/^с\/у/i.test(disp)) {
+            return (b > 0 && f > 0) ? `${disp} • К${b}, ${f} эт.` : disp;
+        }
+        if (disp.includes('(') || /корпус|к[1-4]/i.test(disp)) {
             return disp;
         }
         if (b > 0 && f > 0) {
-            return disp + ' (' + (b > 1 ? 'Корпус ' + b + ', ' : '') + f + ' этаж)';
+            return `${disp} (К${b}, ${f} эт.)`;
         }
         return disp;
     }
@@ -3999,11 +4021,18 @@ window.calculateWalkTime = calculateWalkTime;
         if (targetType === 'start') {
             NAV_STATE.startPoint = pointData;
             const inputA = document.getElementById('nav-input-start');
-            if (inputA) inputA.value = formatNavInputString(pointData);
+            if (inputA) {
+                inputA.value = formatNavInputString(pointData);
+                inputA.removeAttribute('data-is-default');
+            }
+            const btnClearA = document.getElementById('btn-clear-start');
+            if (btnClearA) btnClearA.classList.remove('hidden');
         } else {
             NAV_STATE.destPoint = pointData;
             const inputB = document.getElementById('nav-input-dest');
             if (inputB) inputB.value = formatNavInputString(pointData);
+            const btnClearB = document.getElementById('btn-clear-dest');
+            if (btnClearB) btnClearB.classList.remove('hidden');
         }
 
         if (NAV_STATE.startPoint && NAV_STATE.destPoint) {
@@ -4112,11 +4141,18 @@ window.calculateWalkTime = calculateWalkTime;
         if (mode === 'start') {
             NAV_STATE.startPoint = pointData;
             const inputA = document.getElementById('nav-input-start');
-            if (inputA) inputA.value = formatNavInputString(pointData);
+            if (inputA) {
+                inputA.value = formatNavInputString(pointData);
+                inputA.removeAttribute('data-is-default');
+            }
+            const btnClearA = document.getElementById('btn-clear-start');
+            if (btnClearA) btnClearA.classList.remove('hidden');
         } else if (mode === 'dest') {
             NAV_STATE.destPoint = pointData;
             const inputB = document.getElementById('nav-input-dest');
             if (inputB) inputB.value = formatNavInputString(pointData);
+            const btnClearB = document.getElementById('btn-clear-dest');
+            if (btnClearB) btnClearB.classList.remove('hidden');
         }
 
         // Если обе точки выбраны, строим маршрут
@@ -4201,7 +4237,7 @@ window.calculateWalkTime = calculateWalkTime;
                         badgeEl.classList.add('ring-4', 'ring-white/80', 'ring-offset-2', 'ring-offset-[#1a73e8]', 'animate-pulse');
                         if (pill && pillText) {
                             pillText.textContent = 'Выбор конечного пункта (Куда)';
-                            pill.className = 'mb-2 px-3 py-1.5 rounded-full self-start inline-flex items-center gap-2 text-xs font-bold transition-all shadow-sm bg-[#1a73e8] text-white';
+                            pill.className = 'is-dest mb-2 px-3 py-1.5 rounded-full self-start inline-flex items-center gap-2 text-xs font-bold transition-all shadow-sm bg-[#1a73e8] text-white';
                             pill.classList.remove('hidden');
                         }
                         if (sInput) {
@@ -4211,7 +4247,7 @@ window.calculateWalkTime = calculateWalkTime;
                         badgeEl.classList.add('ring-4', 'ring-[#1a73e8]', 'ring-offset-2', 'ring-offset-[#c2e7ff]', 'animate-pulse');
                         if (pill && pillText) {
                             pillText.textContent = 'Выбор начального пункта (Откуда)';
-                            pill.className = 'mb-2 px-3 py-1.5 rounded-full self-start inline-flex items-center gap-2 text-xs font-bold transition-all shadow-sm bg-[#c2e7ff] text-[#004a77] border border-[#1a73e8]';
+                            pill.className = 'is-start mb-2 px-3 py-1.5 rounded-full self-start inline-flex items-center gap-2 text-xs font-bold transition-all shadow-sm bg-[#c2e7ff] text-[#004a77] border border-[#1a73e8]';
                             pill.classList.remove('hidden');
                         }
                         if (sInput) {
@@ -4424,6 +4460,17 @@ window.calculateWalkTime = calculateWalkTime;
             const valA = inputA.value;
             inputA.value = inputB.value;
             inputB.value = valA;
+            inputA.removeAttribute('data-is-default');
+            inputB.removeAttribute('data-is-default');
+        }
+
+        const btnClearA = document.getElementById('btn-clear-start');
+        if (btnClearA) {
+            btnClearA.classList.toggle('hidden', !inputA || !inputA.value);
+        }
+        const btnClearB = document.getElementById('btn-clear-dest');
+        if (btnClearB) {
+            btnClearB.classList.toggle('hidden', !inputB || !inputB.value);
         }
 
         if (NAV_STATE.startPoint && NAV_STATE.destPoint) {
@@ -4445,6 +4492,16 @@ window.calculateWalkTime = calculateWalkTime;
         const inputB = document.getElementById('nav-input-dest');
         if (inputA) inputA.value = '';
         if (inputB) inputB.value = '';
+
+        const btnClearDest = document.getElementById('btn-clear-dest');
+        if (btnClearDest) btnClearDest.classList.add('hidden');
+        const dropStart = document.getElementById('nav-dropdown-start');
+        if (dropStart) dropStart.classList.add('hidden');
+        const dropDest = document.getElementById('nav-dropdown-dest');
+        if (dropDest) dropDest.classList.add('hidden');
+
+        // Возвращаем в поле «Отсюда» дефолтный вход в колледж вместо полной очистки
+        setDefaultStartPoint();
 
         const card = document.getElementById('navigator-route-card');
         if (card) card.classList.add('hidden');
@@ -4689,6 +4746,9 @@ window.calculateWalkTime = calculateWalkTime;
                         e.stopPropagation();
                     }
                     input.value = formatNavInputString(item);
+                    if (inputId === 'nav-input-start') {
+                        input.removeAttribute('data-is-default');
+                    }
                     dropdown.classList.add('hidden');
                     if (clearBtn) clearBtn.classList.remove('hidden');
                     onSelect(item);
@@ -4904,7 +4964,7 @@ window.calculateWalkTime = calculateWalkTime;
             if (toilet) {
                 NAV_STATE.destPoint = toilet;
                 if (inputDest) {
-                    inputDest.value = `${toilet.label} (Корпус ${toilet.bldg}, ${toilet.floor} этаж)`;
+                    inputDest.value = formatNavInputString(toilet);
                     if (btnClearDest) btnClearDest.classList.remove('hidden');
                 }
                 buildRoute(NAV_STATE.startPoint, NAV_STATE.destPoint);
@@ -5076,16 +5136,15 @@ window.calculateWalkTime = calculateWalkTime;
                 if (targetNode) {
                     NAV_STATE.destPoint = targetNode;
                     const inputB = document.getElementById('nav-input-dest');
-                    if (inputB) inputB.value = `${targetNode.label} (Корпус ${targetNode.bldg}, ${targetNode.floor} этаж)`;
+                    if (inputB) {
+                        inputB.value = formatNavInputString(targetNode);
+                        const btnClearB = document.getElementById('btn-clear-dest');
+                        if (btnClearB) btnClearB.classList.remove('hidden');
+                    }
 
                     // Если точка отправления не выбрана, ставим Главный вход
                     if (!NAV_STATE.startPoint) {
-                        const mainEntrance = g.getNode('b3_f1_entrance_west') || g.getNode('b1_f1_entrance_main');
-                        if (mainEntrance) {
-                            NAV_STATE.startPoint = mainEntrance;
-                            const inputA = document.getElementById('nav-input-start');
-                            if (inputA) inputA.value = 'Главный вход (Корпус 3 / Западный)';
-                        }
+                        setDefaultStartPoint();
                     }
 
                     if (NAV_STATE.startPoint && NAV_STATE.destPoint) {
