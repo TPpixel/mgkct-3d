@@ -4160,53 +4160,67 @@ window.calculateWalkTime = calculateWalkTime;
                 destEl.textContent = shortDest;
                 destEl.title = `Куда: ${destName} (нажмите для смены)`;
 
-                // Нажатие на кабинет открывает поиск для выбора нового конечного пункта
-                destEl.onclick = (e) => {
-                    e.stopPropagation();
-                    NAV_STATE.targetToChange = 'dest';
-                    resetRouteCardPicks();
-                    destEl.classList.add('ring-4', 'ring-white/80', 'ring-offset-2', 'ring-offset-[#1a73e8]', 'animate-pulse');
+                let routeEndpointSearchLock = false;
+                const handleRouteEndpointGesture = (targetType, badgeEl, e) => {
+                    if (e) {
+                        e.stopPropagation();
+                        if (routeEndpointSearchLock) {
+                            if (e.cancelable) e.preventDefault();
+                            return;
+                        }
+                        if (e.type === 'touchend' && e.cancelable) {
+                            e.preventDefault();
+                        }
+                    }
+                    routeEndpointSearchLock = true;
+                    setTimeout(() => { routeEndpointSearchLock = false; }, 350);
 
-                    if (typeof openSearch === 'function') {
-                        openSearch();
-                        const pill = document.getElementById('search-route-target-pill');
-                        const pillText = document.getElementById('search-route-target-text');
+                    if (badgeEl && typeof badgeEl.blur === 'function') {
+                        badgeEl.blur();
+                    }
+
+                    NAV_STATE.targetToChange = targetType;
+                    resetRouteCardPicks();
+
+                    const pill = document.getElementById('search-route-target-pill');
+                    const pillText = document.getElementById('search-route-target-text');
+                    const sInput = document.getElementById('search-input');
+
+                    if (targetType === 'dest') {
+                        badgeEl.classList.add('ring-4', 'ring-white/80', 'ring-offset-2', 'ring-offset-[#1a73e8]', 'animate-pulse');
                         if (pill && pillText) {
                             pillText.textContent = 'Выбор конечного пункта (Куда)';
-                            pill.className = 'mb-2 px-3 py-1.5 rounded-full inline-flex items-center gap-2 text-xs font-bold transition-all shadow-sm bg-[#1a73e8] text-white';
+                            pill.className = 'mb-2 px-3 py-1.5 rounded-full self-start inline-flex items-center gap-2 text-xs font-bold transition-all shadow-sm bg-[#1a73e8] text-white';
                             pill.classList.remove('hidden');
                         }
-                        const sInput = document.getElementById('search-input');
                         if (sInput) {
                             sInput.placeholder = 'Куда: выберите конечный кабинет...';
-                            sInput.focus();
                         }
-                    }
-                };
-
-                // Нажатие на начальную точку открывает поиск для выбора начального пункта
-                startEl.onclick = (e) => {
-                    e.stopPropagation();
-                    NAV_STATE.targetToChange = 'start';
-                    resetRouteCardPicks();
-                    startEl.classList.add('ring-4', 'ring-[#1a73e8]', 'ring-offset-2', 'ring-offset-[#c2e7ff]', 'animate-pulse');
-
-                    if (typeof openSearch === 'function') {
-                        openSearch();
-                        const pill = document.getElementById('search-route-target-pill');
-                        const pillText = document.getElementById('search-route-target-text');
+                    } else {
+                        badgeEl.classList.add('ring-4', 'ring-[#1a73e8]', 'ring-offset-2', 'ring-offset-[#c2e7ff]', 'animate-pulse');
                         if (pill && pillText) {
                             pillText.textContent = 'Выбор начального пункта (Откуда)';
-                            pill.className = 'mb-2 px-3 py-1.5 rounded-full inline-flex items-center gap-2 text-xs font-bold transition-all shadow-sm bg-[#c2e7ff] text-[#004a77] border border-[#1a73e8]';
+                            pill.className = 'mb-2 px-3 py-1.5 rounded-full self-start inline-flex items-center gap-2 text-xs font-bold transition-all shadow-sm bg-[#c2e7ff] text-[#004a77] border border-[#1a73e8]';
                             pill.classList.remove('hidden');
                         }
-                        const sInput = document.getElementById('search-input');
                         if (sInput) {
                             sInput.placeholder = 'Откуда: выберите начальную точку...';
-                            sInput.focus();
                         }
                     }
+
+                    // Открываем модалку поиска и синхронно фокусируем инпут в том же тике жеста пользователя
+                    if (typeof openSearch === 'function') {
+                        openSearch(false, true);
+                    }
                 };
+
+                // Нажатие на кабинет открывает поиск и клавиатуру для выбора нового конечного пункта
+                destEl.onclick = (e) => handleRouteEndpointGesture('dest', destEl, e);
+                destEl.ontouchend = (e) => handleRouteEndpointGesture('dest', destEl, e);
+
+                // Нажатие на начальную точку открывает поиск и клавиатуру для выбора начального пункта
+                startEl.onclick = (e) => handleRouteEndpointGesture('start', startEl, e);
+                startEl.ontouchend = (e) => handleRouteEndpointGesture('start', startEl, e);
             } else {
                 titleEl.textContent = `${startName} ➔ ${destName}`;
             }
@@ -4306,15 +4320,12 @@ window.calculateWalkTime = calculateWalkTime;
         }
     }
 
-    function openNavigatorModal() {
+    function openNavigatorModal(focusField = null) {
+        const requestedField = (focusField === 'start' || focusField === 'dest') ? focusField : null;
         if (!NAV_STATE.isInitialized && typeof initNavigator === 'function') {
             initNavigator();
         }
         if (typeof hideRoomContextPopup === 'function') hideRoomContextPopup(true, false);
-        if (typeof pushOverlayState === 'function') {
-            pushOverlayState('navigator', { overRoute: Boolean(NAV_STATE.activeRoute) });
-        }
-        if (typeof updateVisualViewportVars === 'function') updateVisualViewportVars();
         setDefaultStartPoint();
 
         // Синхронизируем поля ввода с актуальными точками текущего маршрута
@@ -4347,12 +4358,29 @@ window.calculateWalkTime = calculateWalkTime;
             backdrop.style.opacity = '1';
             modal.style.pointerEvents = 'auto';
             backdrop.style.pointerEvents = 'auto';
-            const inputDest = document.getElementById('nav-input-dest');
-            const isDesktop = (typeof window !== 'undefined' && window.innerWidth >= 640);
-            if (isDesktop && inputDest && (!NAV_STATE.destPoint || !inputDest.value)) {
-                setTimeout(() => inputDest.focus({ preventScroll: true }), 120);
+
+            // 1) При явном запросе поля ('start' / 'dest') синхронно фокусируем инпут в тике жеста (iOS/Android клавиатура)
+            if (requestedField) {
+                const targetInput = requestedField === 'start' ? inputA : inputB;
+                if (targetInput) {
+                    try {
+                        targetInput.focus({ preventScroll: true });
+                    } catch (_) {
+                        try { targetInput.focus(); } catch (_) {}
+                    }
+                }
+            } else {
+                // 2) При открытии общего окна ромбом не перекрываем быстрые чипы на телефоне, но сохраняем автофокус на ПК
+                const isDesktop = (typeof window !== 'undefined' && window.innerWidth >= 640);
+                if (isDesktop && inputB && (!NAV_STATE.destPoint || !inputB.value)) {
+                    try { inputB.focus({ preventScroll: true }); } catch (_) {}
+                }
             }
         }
+        if (typeof pushOverlayState === 'function') {
+            pushOverlayState('navigator', { overRoute: Boolean(NAV_STATE.activeRoute) });
+        }
+        if (typeof updateVisualViewportVars === 'function') updateVisualViewportVars();
     }
 
     function closeNavigatorModal(fromPopstate = false) {
@@ -4751,6 +4779,45 @@ window.calculateWalkTime = calculateWalkTime;
             });
         }
 
+        // Синхронная делегация фокуса при нажатии на бейджи «Отсюда» / «Сюда» и строки ввода в модалке маршрута
+        [inputStart, inputDest].forEach((inp) => {
+            if (!inp) return;
+            inp.addEventListener('focus', () => {
+                if (typeof updateVisualViewportVars === 'function') {
+                    updateVisualViewportVars();
+                    setTimeout(updateVisualViewportVars, 80);
+                    setTimeout(updateVisualViewportVars, 250);
+                }
+            });
+            inp.addEventListener('blur', () => {
+                if (typeof updateVisualViewportVars === 'function') {
+                    setTimeout(updateVisualViewportVars, 80);
+                    setTimeout(updateVisualViewportVars, 250);
+                }
+            });
+
+            const rowEl = inp.closest('.m3-nav-input-row');
+            if (rowEl) {
+                const focusRowInput = (e) => {
+                    if (!e || !e.target) return;
+                    if (e.target === inp) return;
+                    if (e.target.closest('button') || e.target.closest('#nav-dropdown-start') || e.target.closest('#nav-dropdown-dest')) {
+                        return;
+                    }
+                    if (e.type === 'touchend' && e.cancelable) {
+                        e.preventDefault();
+                    }
+                    try {
+                        inp.focus({ preventScroll: true });
+                    } catch (_) {
+                        try { inp.focus(); } catch (_) {}
+                    }
+                };
+                rowEl.addEventListener('click', focusRowInput);
+                rowEl.addEventListener('touchend', focusRowInput);
+            }
+        });
+
         // Переключатель лифтов: свич вкл/выкл и иконка
         const switchElev = document.getElementById('toggle-elevators-switch');
         const btnElev = document.getElementById('btn-toggle-elevators');
@@ -4851,18 +4918,18 @@ window.calculateWalkTime = calculateWalkTime;
         // Кнопка открытия навигатора в шапке
         const btnOpen = document.getElementById('btn-open-navigator');
         if (btnOpen) {
-            btnOpen.addEventListener('click', openNavigatorModal);
+            btnOpen.addEventListener('click', () => openNavigatorModal(null));
         }
 
         // Кнопка закрытия модалки
         const btnClose = document.getElementById('btn-close-navigator');
         if (btnClose) {
-            btnClose.addEventListener('click', closeNavigatorModal);
+            btnClose.addEventListener('click', () => closeNavigatorModal(false));
         }
 
         const backdrop = document.getElementById('navigator-backdrop');
         if (backdrop) {
-            backdrop.addEventListener('click', closeNavigatorModal);
+            backdrop.addEventListener('click', () => closeNavigatorModal(false));
         }
 
         // Закрытие модалки по клавише Escape
