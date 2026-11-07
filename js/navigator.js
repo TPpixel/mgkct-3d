@@ -867,10 +867,10 @@ window.calculateWalkTime = calculateWalkTime;
         g.addNode("door_mid_room_2_2_109", 2, 2, 39.6, -7.2, "door", "Дверь WC");
         g.addNode("door_room_room_2_2_109", 2, 2, 39.6, -7.6, "door", "Вход WC");
         g.addNode("door_corr_room_2_2_109", 2, 2, 39.6, -6.8, "door", "Коридор WC");
-        g.addNode("room_2_2_110", 2, 2, 41, -8.4, "room", "WC");
-        g.addNode("door_mid_room_2_2_110", 2, 2, 41, -7.2, "door", "Дверь WC");
-        g.addNode("door_room_room_2_2_110", 2, 2, 41, -7.6, "door", "Вход WC");
-        g.addNode("door_corr_room_2_2_110", 2, 2, 41, -6.8, "door", "Коридор WC");
+        g.addNode("room_2_2_110", 2, 2, 41, -8.4, "room", "С/У");
+        g.addNode("door_mid_room_2_2_110", 2, 2, 41, -7.2, "door", "Дверь С/У");
+        g.addNode("door_room_room_2_2_110", 2, 2, 41, -7.6, "door", "Вход С/У");
+        g.addNode("door_corr_room_2_2_110", 2, 2, 41, -6.8, "door", "Коридор С/У");
         g.addNode("room_2_2_111", 2, 2, 44.5, -12.5, "room", "ЛК№2");
         g.addNode("door_mid_room_2_2_111", 2, 2, 44.5, -7.2, "door", "Дверь ЛК№2");
         g.addNode("door_room_room_2_2_111", 2, 2, 44.5, -7.6, "door", "Вход ЛК№2");
@@ -1193,10 +1193,10 @@ window.calculateWalkTime = calculateWalkTime;
         g.addNode("door_mid_room_3_1_154", 1, 3, 4.6, -40.4, "door", "Дверь WC");
         g.addNode("door_room_room_3_1_154", 1, 3, 4.2, -40.4, "door", "Вход WC");
         g.addNode("door_corr_room_3_1_154", 1, 3, 5, -40.4, "door", "Коридор WC");
-        g.addNode("room_3_1_155", 1, 3, 3.3, -41.9, "room", "WC");
-        g.addNode("door_mid_room_3_1_155", 1, 3, 4.6, -41.9, "door", "Дверь WC");
-        g.addNode("door_room_room_3_1_155", 1, 3, 4.2, -41.9, "door", "Вход WC");
-        g.addNode("door_corr_room_3_1_155", 1, 3, 5, -41.9, "door", "Коридор WC");
+        g.addNode("room_3_1_155", 1, 3, 3.3, -41.9, "room", "С/У");
+        g.addNode("door_mid_room_3_1_155", 1, 3, 4.6, -41.9, "door", "Дверь С/У");
+        g.addNode("door_room_room_3_1_155", 1, 3, 4.2, -41.9, "door", "Вход С/У");
+        g.addNode("door_corr_room_3_1_155", 1, 3, 5, -41.9, "door", "Коридор С/У");
         g.addNode("room_3_1_156", 1, 3, 0.2, -43.1, "room", "WC (М)");
         g.addNode("room_3_1_157", 1, 3, 4.1, -46, "room", "ЛК№1");
         g.addNode("door_mid_room_3_1_157", 1, 3, 4.6, -46, "door", "Дверь ЛК№1");
@@ -1453,9 +1453,9 @@ window.calculateWalkTime = calculateWalkTime;
         g.addNode("b4_f3_c_377_481", 3, 4, 37.7, -48.1, "corridor", "К4 Эт.3 Коридор у ЛК№2");
         g.addNode("b4_f3_c_377_443", 3, 4, 37.7, -44.3, "corridor", "К4 Эт.3 Коридор у 303");
         g.addNode("b4_f3_c_377_426", 3, 4, 37.7, -42.6, "corridor", "К4 Эт.3 Коридор у 306");
-        g.addNode("b4_f3_c_377_407", 3, 4, 37.7, -40.7, "corridor", "К4 Эт.3 Коридор у сев. WC");
+        g.addNode("b4_f3_c_377_407", 3, 4, 37.7, -40.7, "corridor", "К4 Эт.3 Коридор у сев. С/У");
         g.addNode("b4_f3_c_377_383", 3, 4, 37.7, -38.3, "corridor", "К4 Эт.3 Коридор у 304");
-        g.addNode("b4_f3_sw_-38.0", 3, 4, 37.7, -37.8, "corridor", "К4 Эт.3 Коридор у юж. WC");
+        g.addNode("b4_f3_sw_-38.0", 3, 4, 37.7, -37.8, "corridor", "К4 Эт.3 Коридор у юж. С/У");
         g.addNode("b4_f3_c_377_334", 3, 4, 37.7, -33.4, "corridor", "К4 Эт.3 Коридор у 308");
         g.addNode("b4_f3_c_377_311", 3, 4, 37.7, -31.1, "corridor", "К4 Эт.3 Коридор у 309");
         g.addNode("b4_f3_c_377_303", 3, 4, 37.7, -30.3, "corridor", "К4 Эт.3 Поворот к ЛК№1");
@@ -1474,14 +1474,14 @@ window.calculateWalkTime = calculateWalkTime;
         g.addNode("b4_f3_c_440_425", 3, 4, 44, -42.5, "corridor", "Холл перед 305");
         g.addNode("b4_f3_door_305", 3, 4, 45.4, -42.5, "door", "Дверь 305");
         g.addNode("room_4_3_240", 3, 4, 47.2, -41.5, "room", "305");
-        g.addNode("b4_f3_door_wc_n", 3, 4, 39.4, -40.7, "door", "Дверь WC (сев)");
-        g.addNode("b4_f3_wc_n_in", 3, 4, 40.5, -40.9, "corridor", "Вход WC (сев)");
-        g.addNode("b4_f3_door_wc_n_inner", 3, 4, 41.5, -40.9, "door", "Внутр. дверь WC (сев)");
-        g.addNode("room_4_3_244", 3, 4, 42.3, -40.5, "room", "WC");
-        g.addNode("b4_f3_door_wc_s", 3, 4, 39.4, -37.8, "door", "Дверь WC (юг)");
-        g.addNode("b4_f3_wc_s_in", 3, 4, 40.5, -37.8, "corridor", "Вход WC (юг)");
-        g.addNode("b4_f3_door_wc_s_inner", 3, 4, 41.5, -37.8, "door", "Внутр. дверь WC (юг)");
-        g.addNode("room_4_3_245", 3, 4, 42.3, -38.3, "room", "WC");
+        g.addNode("b4_f3_door_wc_n", 3, 4, 39.4, -40.7, "door", "Дверь С/У (сев)");
+        g.addNode("b4_f3_wc_n_in", 3, 4, 40.5, -40.9, "corridor", "Вход С/У (сев)");
+        g.addNode("b4_f3_door_wc_n_inner", 3, 4, 41.5, -40.9, "door", "Внутр. дверь С/У (сев)");
+        g.addNode("room_4_3_244", 3, 4, 42.3, -40.5, "room", "С/У");
+        g.addNode("b4_f3_door_wc_s", 3, 4, 39.4, -37.8, "door", "Дверь С/У (юг)");
+        g.addNode("b4_f3_wc_s_in", 3, 4, 40.5, -37.8, "corridor", "Вход С/У (юг)");
+        g.addNode("b4_f3_door_wc_s_inner", 3, 4, 41.5, -37.8, "door", "Внутр. дверь С/У (юг)");
+        g.addNode("room_4_3_245", 3, 4, 42.3, -38.3, "room", "С/У");
         g.addNode("b4_f3_door_ante_312", 3, 4, 45.4, -30.3, "door", "Дверь в предбанник 312");
         g.addNode("b4_f3_ante_312_s", 3, 4, 46.15, -30.3, "corridor", "Предбанник 312 (юг)");
         g.addNode("b4_f3_ante_312_n", 3, 4, 46.15, -32.2, "corridor", "Предбанник 312 (север)");
@@ -2802,10 +2802,7 @@ window.calculateWalkTime = calculateWalkTime;
             const lbl = (node.label || '').trim();
             const isWC = node.type === 'wc'
                 || nid.includes('_wc_')
-                || /^(?:wc|с\/у)/i.test(lbl)
-                || lbl.startsWith('\u0421/\u0423')
-                || lbl.toLowerCase().includes('туалет')
-                || lbl.toLowerCase().includes('санузел');
+                || /^wc\b/i.test(lbl);
             if (!isWC) continue;
 
             const floorDiff = Math.abs(node.floor - startFloor);
@@ -4470,8 +4467,8 @@ window.calculateWalkTime = calculateWalkTime;
         'b1_f1_entrance_main': 'восточный вход главный вход 2 старый вход вход к1 корпус 1 ремонт',
         'room_4_1_182': '104 4-104 гардероб раздевалка',
         'room_4_1_183': '103 4-103 гардероб раздевалка',
-        'room_4_1_186': '1 4-1 туалет санузел wc с/у',
-        'room_4_1_187': '2 4-2 туалет санузел wc с/у',
+        'room_4_1_186': '1 4-1 туалет санузел',
+        'room_4_1_187': '2 4-2 туалет санузел',
         'room_4_1_188': '105 4-105 инвентарная',
         'room_4_1_189': '3 4-3',
         'room_4_1_190': '11 4-11 охлаждаемая камера',
@@ -4578,8 +4575,10 @@ window.calculateWalkTime = calculateWalkTime;
                         const formattedCode = formatNavNodeName(n.label, n.bldg).toLowerCase();
 
                         let extraKeywords = '';
-                        if (/^(?:wc|с\/у)/i.test(lbl)) {
+                        if (/^wc\b/i.test(lbl)) {
                             extraKeywords = 'туалет санузел уборная wc с/у';
+                        } else if (/^с\/у/i.test(lbl)) {
+                            extraKeywords = 'служебный с/у санузел';
                         }
                         if (typeof ROOMS_REGISTRY !== 'undefined' && Array.isArray(ROOMS_REGISTRY)) {
                             const rMatch = ROOMS_REGISTRY.find(r => 

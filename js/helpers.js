@@ -1336,10 +1336,9 @@ function formatRoomDisplayName(text, buildingNum) {
     if (!text) return '';
     const b = parseInt(buildingNum, 10);
     const raw = String(text).trim();
-    if (/^с\/у/i.test(raw)) return raw.replace(/^с\/у/i, 'WC');
     if (b <= 1 || isNaN(b)) return raw;
     if (raw.startsWith('2-') || raw.startsWith('3-') || raw.startsWith('4-') || raw.startsWith('5-')) return raw;
-    if (/^wc\b/i.test(raw)) return raw;
+    if (/^(?:wc|с\/у)/i.test(raw)) return raw;
     const numPrefixMatch = raw.match(/^(\d+[а-яa-z]?)(.*)$/i);
     if (numPrefixMatch) {
         return b + '-' + numPrefixMatch[1] + numPrefixMatch[2];
@@ -1797,8 +1796,8 @@ function renderScreenSpaceLabels() {
 
         // Определение гендерного санузла (М / Ж)
         const rawWcText = (r.rawText || r.text || '');
-        const isMaleWc = /(?:wc|с\/у)\s*\(?м\)?/i.test(rawWcText);
-        const isFemaleWc = /(?:wc|с\/у)\s*\(?ж\)?/i.test(rawWcText);
+        const isMaleWc = /^wc\s*\(?м\)?/i.test(rawWcText);
+        const isFemaleWc = /^wc\s*\(?ж\)?/i.test(rawWcText);
         const isWcIcon = isMaleWc || isFemaleWc;
 
         // Отступы пропорционально сжимаются при отдалении камеры

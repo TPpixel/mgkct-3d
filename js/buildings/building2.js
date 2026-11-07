@@ -374,7 +374,7 @@
             addRoomLabel3D(targetGroup, 2, '203', 24.9, -10.5, true, false, 2, 0.90);
             addRoomLabel3D(targetGroup, 2, '205', 31.3, -10.5, false, false, 2, 1.05);
             addRoomLabel3D(targetGroup, 2, 'WC (Ж)', 39.5, -8.4, true, false, 2, 0.80);
-            addRoomLabel3D(targetGroup, 2, 'WC', 41.0, -8.4, true, false, 2, 0.80);
+            addRoomLabel3D(targetGroup, 2, 'С/У', 41.0, -8.4, true, false, 2, 0.80);
             addRoomLabel3D(targetGroup, 2, 'ЛК№2', 44.5, -12.5, true, false, 2, 0.88);
             addRoomLabel3D(targetGroup, 2, '209\nУчебная часть', 46.9, -10.5, false, true, 2, 1.05);
             addRoomLabel3D(targetGroup, 2, '211', 54.5, -10.5, false, false, 2, 1.05);

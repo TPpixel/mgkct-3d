@@ -291,7 +291,7 @@
             addRoomLabel(targetGroup, 1, '109', 3.0, -38.0, true, false, 3, 0.88);
             addRoomLabel(targetGroup, 1, '108', -0.4, -38.7, true, false, 3, 0.78);
             addRoomLabel(targetGroup, 1, 'WC (Ж)', 0.2, -40.7, true, false, 3, 0.78);
-            addRoomLabel(targetGroup, 1, 'WC', 3.3, -41.9, true, false, 3, 0.76);
+            addRoomLabel(targetGroup, 1, 'С/У', 3.3, -41.9, true, false, 3, 0.76);
             addRoomLabel(targetGroup, 1, 'WC (М)', 0.2, -43.1, true, false, 3, 0.78);
             addRoomLabel(targetGroup, 1, 'ЛК№1', 1.5, -46.0, true, false, 3, 0.88);
             addRoomLabel(targetGroup, 1, '114', 1.5, -50.2, false, false, 3, 0.95);
