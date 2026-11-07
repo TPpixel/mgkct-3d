@@ -41,8 +41,18 @@ const WALL_SINK = 0.025;
 const OUTER_T = 0.24;
 const INNER_T = 0.18;
 
+// Единые высотные отметки бордюров территории и полотна маршрута (в метрах)
+const CURB_BASE_Y = 0.02;
+const CURB_TOP_Y = 0.12;
+const ROUTE_INDOOR_Y = 0.08;
+const ROUTE_OUTDOOR_CLEARANCE = 0.012;
+
 window.OUTER_T = OUTER_T;
 window.INNER_T = INNER_T;
+window.CURB_BASE_Y = CURB_BASE_Y;
+window.CURB_TOP_Y = CURB_TOP_Y;
+window.ROUTE_INDOOR_Y = ROUTE_INDOOR_Y;
+window.ROUTE_OUTDOOR_CLEARANCE = ROUTE_OUTDOOR_CLEARANCE;
 
 // Габариты Корпуса 2
 const B2_X_START = 20.4;

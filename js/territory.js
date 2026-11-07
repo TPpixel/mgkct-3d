@@ -1904,16 +1904,19 @@ function getCurbBlockGeometry(blockLen) {
     const key = Math.round(blockLen * 1000);
     if (_curbGeomCache.has(key)) return _curbGeomCache.get(key);
 
+    const baseY = (typeof CURB_BASE_Y === 'number') ? CURB_BASE_Y : 0.02;
+    const topY = ((typeof CURB_TOP_Y === 'number') ? CURB_TOP_Y : 0.12) - baseY;
+
     const shape = new THREE.Shape();
     // Поперечный профиль бордюра: ширина 0.18 м, высота 0.20 м
     // X: от -0.09 (лицевая сторона) до +0.09 (тыльная сторона к тротуару)
-    // Y: от -0.08 (заглубление в основание) до +0.10 (верхняя грань)
-    // Фаска 45° на лицевой грани: от (-0.065, 0.10) до (-0.09, 0.075)
+    // Y: от -0.08 (заглубление в основание) до topY (верхняя грань = CURB_TOP_Y в мире)
+    // Фаска 45° на лицевой грани: от (-0.065, topY) до (-0.09, topY - 0.025)
     shape.moveTo(-0.09, -0.08);
     shape.lineTo(0.09, -0.08);
-    shape.lineTo(0.09, 0.10);      // тыльный верхний угол (заподлицо с тротуаром)
-    shape.lineTo(-0.065, 0.10);    // начало фаски 45°
-    shape.lineTo(-0.09, 0.075);    // нижний край фаски
+    shape.lineTo(0.09, topY);          // тыльный верхний угол (заподлицо с тротуаром)
+    shape.lineTo(-0.065, topY);        // начало фаски 45°
+    shape.lineTo(-0.09, topY - 0.025); // нижний край фаски
     shape.closePath();
 
     const geom = new THREE.ExtrudeGeometry(shape, {
@@ -1944,6 +1947,7 @@ function addCurbSegment(group, x1, z1, x2, z2) {
     const actualBlockLen = Math.max(0.15, blockPitch - jointGap);
 
     const geom = getCurbBlockGeometry(actualBlockLen);
+    const curbBaseY = (typeof CURB_BASE_Y === 'number') ? CURB_BASE_Y : 0.02;
 
     for (let i = 0; i < numBlocks; i++) {
         const t = (i + 0.5) / numBlocks;
@@ -1951,10 +1955,10 @@ function addCurbSegment(group, x1, z1, x2, z2) {
         const bz = z1 + dz * t;
 
         if (_curbBatch) {
-            _curbBatch.push({ bx, by: 0.02, bz, rotY: -angle, geom });
+            _curbBatch.push({ bx, by: curbBaseY, bz, rotY: -angle, geom });
         } else {
             const curbMesh = new THREE.Mesh(geom, MATERIALS.curb);
-            curbMesh.position.set(bx, 0.02, bz);
+            curbMesh.position.set(bx, curbBaseY, bz);
             curbMesh.rotation.y = -angle;
             curbMesh.castShadow = true;
             curbMesh.receiveShadow = true;
