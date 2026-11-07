@@ -576,6 +576,7 @@
 				if ( event.touches.length == 1 ) {
 
 					rotateStart.set( event.touches[ 0 ].pageX, event.touches[ 0 ].pageY );
+					scope._touchTwistAngle = undefined;
 
 				} else {
 
@@ -658,7 +659,9 @@
 
 				rotateDelta.subVectors( rotateEnd, rotateStart ).multiplyScalar( scope.rotateSpeed );
 				const element = scope.domElement;
-				rotateLeft( 2 * Math.PI * rotateDelta.x / element.clientHeight ); // yes, height
+				if ( event.touches.length == 1 ) {
+					rotateLeft( 2 * Math.PI * rotateDelta.x / element.clientHeight ); // yes, height
+				}
 
 				rotateUp( 2 * Math.PI * rotateDelta.y / element.clientHeight );
 				rotateStart.copy( rotateEnd );
@@ -711,7 +714,10 @@
 
 			}
 
-			function handleTouchEnd( ) { // no-op
+			function handleTouchEnd( ) {
+
+				scope._touchTwistAngle = undefined;
+
 			} //
 			// event handlers - FSM: listen for events and reset state
 			//

@@ -2325,15 +2325,23 @@ function setupRoomContextPopup() {
                         if (btnClearB) btnClearB.classList.remove('hidden');
                     }
 
-                    const g = NAV_STATE.graph;
-                    if (!NAV_STATE.startPoint && g) {
-                        const entrance = g.getNode('b3_f1_entrance_west') || g.getNode('b1_f1_entrance_main');
-                        if (entrance) {
-                            NAV_STATE.startPoint = entrance;
-                            const inputA = document.getElementById('nav-input-start');
-                            if (inputA) {
-                                inputA.value = 'Главный вход (Корпус 3 / Западный)';
-                                inputA.setAttribute('data-is-default', 'true');
+                    if (!NAV_STATE.startPoint) {
+                        if (typeof setDefaultStartPoint === 'function') {
+                            setDefaultStartPoint();
+                        } else {
+                            const g = NAV_STATE.graph;
+                            if (g) {
+                                const entrance = g.getNode('b3_f1_entrance_west') || g.getNode('b1_f1_entrance_main');
+                                if (entrance) {
+                                    NAV_STATE.startPoint = entrance;
+                                    const inputA = document.getElementById('nav-input-start');
+                                    if (inputA) {
+                                        inputA.value = typeof formatNavInputString === 'function' ? formatNavInputString(entrance) : 'Главный вход (Корпус 3)';
+                                        inputA.setAttribute('data-is-default', 'true');
+                                        const btnClearA = document.getElementById('btn-clear-start');
+                                        if (btnClearA) btnClearA.classList.remove('hidden');
+                                    }
+                                }
                             }
                         }
                     }

@@ -4023,11 +4023,18 @@ window.calculateWalkTime = calculateWalkTime;
         if (targetType === 'start') {
             NAV_STATE.startPoint = pointData;
             const inputA = document.getElementById('nav-input-start');
-            if (inputA) inputA.value = formatNavInputString(pointData);
+            if (inputA) {
+                inputA.value = formatNavInputString(pointData);
+                inputA.removeAttribute('data-is-default');
+            }
+            const btnClearA = document.getElementById('btn-clear-start');
+            if (btnClearA) btnClearA.classList.remove('hidden');
         } else {
             NAV_STATE.destPoint = pointData;
             const inputB = document.getElementById('nav-input-dest');
             if (inputB) inputB.value = formatNavInputString(pointData);
+            const btnClearB = document.getElementById('btn-clear-dest');
+            if (btnClearB) btnClearB.classList.remove('hidden');
         }
 
         if (NAV_STATE.startPoint && NAV_STATE.destPoint) {
@@ -4136,11 +4143,18 @@ window.calculateWalkTime = calculateWalkTime;
         if (mode === 'start') {
             NAV_STATE.startPoint = pointData;
             const inputA = document.getElementById('nav-input-start');
-            if (inputA) inputA.value = formatNavInputString(pointData);
+            if (inputA) {
+                inputA.value = formatNavInputString(pointData);
+                inputA.removeAttribute('data-is-default');
+            }
+            const btnClearA = document.getElementById('btn-clear-start');
+            if (btnClearA) btnClearA.classList.remove('hidden');
         } else if (mode === 'dest') {
             NAV_STATE.destPoint = pointData;
             const inputB = document.getElementById('nav-input-dest');
             if (inputB) inputB.value = formatNavInputString(pointData);
+            const btnClearB = document.getElementById('btn-clear-dest');
+            if (btnClearB) btnClearB.classList.remove('hidden');
         }
 
         // Если обе точки выбраны, строим маршрут
@@ -4448,6 +4462,17 @@ window.calculateWalkTime = calculateWalkTime;
             const valA = inputA.value;
             inputA.value = inputB.value;
             inputB.value = valA;
+            inputA.removeAttribute('data-is-default');
+            inputB.removeAttribute('data-is-default');
+        }
+
+        const btnClearA = document.getElementById('btn-clear-start');
+        if (btnClearA) {
+            btnClearA.classList.toggle('hidden', !inputA || !inputA.value);
+        }
+        const btnClearB = document.getElementById('btn-clear-dest');
+        if (btnClearB) {
+            btnClearB.classList.toggle('hidden', !inputB || !inputB.value);
         }
 
         if (NAV_STATE.startPoint && NAV_STATE.destPoint) {
@@ -4718,6 +4743,9 @@ window.calculateWalkTime = calculateWalkTime;
                         e.stopPropagation();
                     }
                     input.value = formatNavInputString(item);
+                    if (inputId === 'nav-input-start') {
+                        input.removeAttribute('data-is-default');
+                    }
                     dropdown.classList.add('hidden');
                     if (clearBtn) clearBtn.classList.remove('hidden');
                     onSelect(item);
@@ -5105,16 +5133,15 @@ window.calculateWalkTime = calculateWalkTime;
                 if (targetNode) {
                     NAV_STATE.destPoint = targetNode;
                     const inputB = document.getElementById('nav-input-dest');
-                    if (inputB) inputB.value = formatNavInputString(targetNode);
+                    if (inputB) {
+                        inputB.value = formatNavInputString(targetNode);
+                        const btnClearB = document.getElementById('btn-clear-dest');
+                        if (btnClearB) btnClearB.classList.remove('hidden');
+                    }
 
                     // Если точка отправления не выбрана, ставим Главный вход
                     if (!NAV_STATE.startPoint) {
-                        const mainEntrance = g.getNode('b3_f1_entrance_west') || g.getNode('b1_f1_entrance_main');
-                        if (mainEntrance) {
-                            NAV_STATE.startPoint = mainEntrance;
-                            const inputA = document.getElementById('nav-input-start');
-                            if (inputA) inputA.value = formatNavInputString(mainEntrance);
-                        }
+                        setDefaultStartPoint();
                     }
 
                     if (NAV_STATE.startPoint && NAV_STATE.destPoint) {
