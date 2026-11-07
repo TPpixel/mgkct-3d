@@ -1,0 +1,263 @@
+/* Плавающий баннер выбора на карте (Google Maps Pick Banner — строго наверху) */
+#nav-pick-banner {
+    background: var(--m3-surface) !important;
+    border: 2px solid var(--m3-outline-variant) !important;
+    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.22) !important;
+    color: var(--m3-on-surface) !important;
+    border-radius: 9999px;
+    top: max(14px, env(safe-area-inset-top, 14px)) !important;
+    z-index: var(--z-banner) !important;
+}
+
+#nav-pick-text {
+    color: var(--m3-on-surface) !important;
+}
+
+/* Шапка модального окна маршрута */
+#nav-modal-title {
+    color: var(--m3-on-surface) !important;
+}
+
+#nav-modal-sub {
+    color: var(--m3-on-surface-variant) !important;
+}
+
+/* Переключатель лифтов */
+#elevators-switch-label {
+    background: var(--m3-surface-container-high) !important;
+    border: 1.5px solid var(--m3-outline-variant) !important;
+    color: var(--m3-on-surface) !important;
+}
+
+#elevators-switch-label span {
+    color: var(--m3-on-surface) !important;
+}
+
+/* ============================================================================
+   Карточка выбора кабинета и кнопки "Отсюда" / "Сюда" (M3 Expressive Bottom Card)
+   ============================================================================ */
+
+#room-context-popup {
+    bottom: max(12px, env(safe-area-inset-bottom, 12px)) !important;
+    left: 12px !important;
+    right: 12px !important;
+    width: auto !important;
+    animation: roomCardIn 0.25s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+    transition: transform 0.2s cubic-bezier(0.2, 0, 0, 1), opacity 0.2s ease, visibility 0.2s ease;
+}
+
+@media (min-width: 640px) {
+    #room-context-popup {
+        left: 50% !important;
+        right: auto !important;
+        transform: translateX(-50%) !important;
+        width: 420px !important;
+        max-width: calc(100% - 32px) !important;
+        bottom: 24px !important;
+    }
+}
+
+@keyframes roomCardIn {
+    from {
+        opacity: 0;
+        transform: translateY(32px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* При открытой карточке кабинета ПОЛНОСТЬЮ убираем нижнюю плашку поиска, бар корпусов и селектор этажей */
+body.room-card-open #bottom-search-bar,
+body:has(#room-context-popup:not(.hidden)) #bottom-search-bar,
+body.room-card-open .mobile-thumb-header,
+body:has(#room-context-popup:not(.hidden)) .mobile-thumb-header,
+body.room-card-open .floor-switcher-group,
+body.room-card-open .floor-switcher-bar,
+body:has(#room-context-popup:not(.hidden)) .floor-switcher-group,
+body:has(#room-context-popup:not(.hidden)) .floor-switcher-bar {
+    display: none !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
+/* Основная плашка кабинета (Material 3 Expressive Card с радиусом 28px) */
+.m3-room-card {
+    background-color: #f0f4f9;
+    border: 1px solid #d3e3fd;
+    border-radius: 28px !important;
+    box-shadow: 0 4px 24px rgba(60, 64, 67, 0.14), 0 1px 4px rgba(60, 64, 67, 0.08);
+    color: var(--m3-on-surface);
+}
+
+[data-theme="dark"] .m3-room-card {
+    background-color: #20242a;
+    border-color: rgba(255, 255, 255, 0.12);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.55);
+}
+
+#popup-room-code {
+    font-size: 26px;
+    font-weight: 700;
+    font-family: var(--font-family-google);
+    letter-spacing: -0.5px;
+    color: #1a73e8 !important;
+}
+
+[data-theme="dark"] #popup-room-code {
+    color: #ffffff !important;
+}
+
+#popup-room-title {
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 1.3;
+    color: var(--m3-on-surface) !important;
+}
+
+[data-theme="dark"] #popup-room-title {
+    color: #ffffff !important;
+}
+
+#popup-room-subtitle {
+    font-size: 13px;
+    color: var(--m3-on-surface-variant) !important;
+}
+
+[data-theme="dark"] #popup-room-subtitle {
+    color: #c4c7c5 !important;
+}
+
+/* Секции предмета и преподавателя в карточке кабинета (раздельные строки с иконками) */
+.m3-room-detail-chip {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 1.35;
+    color: var(--m3-on-surface);
+}
+
+.m3-room-detail-icon {
+    width: 24px;
+    height: 24px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.m3-room-detail-icon.subject-icon,
+.m3-room-detail-icon.teacher-icon {
+    background: var(--m3-surface-container-high);
+    color: var(--m3-on-surface-variant);
+    border: 1px solid var(--m3-outline-variant);
+}
+
+[data-theme="dark"] .m3-room-detail-icon.subject-icon,
+[data-theme="dark"] .m3-room-detail-icon.teacher-icon {
+    background: rgba(255, 255, 255, 0.08);
+    color: #c4c7c5;
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+#popup-room-bldg-badge,
+#popup-room-floor-badge {
+    background-color: #c2e7ff !important;
+    color: #1a73e8 !important;
+    border: none !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 5px !important;
+    font-weight: 700 !important;
+}
+
+#popup-room-bldg-badge svg,
+#popup-room-floor-badge svg {
+    color: #1a73e8 !important;
+    stroke: #1a73e8 !important;
+}
+
+[data-theme="dark"] #popup-room-bldg-badge,
+[data-theme="dark"] #popup-room-floor-badge {
+    background-color: #c2e7ff !important;
+    color: #1a73e8 !important;
+    border: none !important;
+}
+
+[data-theme="dark"] #popup-room-bldg-badge svg,
+[data-theme="dark"] #popup-room-floor-badge svg {
+    color: #1a73e8 !important;
+    stroke: #1a73e8 !important;
+}
+
+/* Две капсульные кнопки в стиле Google Maps (строго 2 оттенка синего: #c2e7ff и #1a73e8) */
+.m3-room-action-btn {
+    border: none !important;
+    cursor: pointer;
+    transition: all 0.16s cubic-bezier(0.2, 0, 0, 1);
+}
+
+/* Кнопка 1: "Отсюда" (Светло-синяя Google Maps Tonal Pill: #c2e7ff с текстом #1a73e8) */
+#btn-popup-from {
+    background-color: #c2e7ff !important;
+    color: #1a73e8 !important;
+    border: none !important;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15) !important;
+}
+
+#btn-popup-from:hover {
+    filter: brightness(0.96);
+    transform: scale(1.02);
+}
+
+#btn-popup-from:active {
+    transform: scale(0.96) !important;
+    filter: brightness(0.92);
+}
+
+/* Кнопка 2: "Сюда" (Основная синяя Google Maps Primary Action Pill: #1a73e8 с белым текстом) */
+#btn-popup-to {
+    background-color: #1a73e8 !important;
+    color: #ffffff !important;
+    border: none !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25) !important;
+}
+
+#btn-popup-to:hover {
+    filter: brightness(1.08);
+    transform: scale(1.02);
+}
+
+#btn-popup-to:active {
+    transform: scale(0.96) !important;
+    filter: brightness(0.92);
+}
+
+/* Тёмная тема для кнопок (сплошные гугловские оттенки без прозрачности) */
+[data-theme="dark"] #btn-popup-from {
+    background-color: #c2e7ff !important;
+    color: #1a73e8 !important;
+    border: none !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35) !important;
+}
+
+[data-theme="dark"] #btn-popup-from:hover {
+    filter: brightness(1.1);
+    transform: scale(1.02);
+}
+
+[data-theme="dark"] #btn-popup-to {
+    background-color: #1a73e8 !important;
+    color: #ffffff !important;
+    border: none !important;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4) !important;
+}
+
+[data-theme="dark"] #btn-popup-to:hover {
+    filter: brightness(1.1);
+    transform: scale(1.02);
+}
