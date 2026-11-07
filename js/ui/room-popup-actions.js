@@ -48,6 +48,7 @@ function hideRoomContextPopup(fromPopstate = false, suppressRouteRestore = false
     if (popup) popup.classList.add('hidden');
     document.body.classList.remove('room-card-open');
     currentPopupRoom = null;
+    window.currentPopupRoom = null;
 
     if (!suppressRouteRestore && window.NAV_STATE && window.NAV_STATE.activeRoute) {
         const routeCard = document.getElementById('navigator-route-card');
@@ -199,5 +200,4 @@ function setupRoomContextPopup() {
 
 window.showRoomContextPopup = showRoomContextPopup;
 window.hideRoomContextPopup = hideRoomContextPopup;
-window.setTerritoryMode = setTerritoryMode;
 window.toggleTerritoryView = toggleTerritoryView;

@@ -1,3 +1,26 @@
+let activeBadgeKeys = new Set();
+let nextActiveBadgeKeys = new Set();
+const candidateRooms = [];
+const _tempProjectVec = new THREE.Vector3();
+const _tempProjectVec2 = new THREE.Vector3();
+const _gridCellIndices = [];
+const spatialGrid = new Map();
+const _boxObjPool = [];
+let _boxObjPoolIdx = 0;
+let _labelQueryStamp = 0;
+
+function acquireBoxObj(x0, y0, x1, y1) {
+    if (_boxObjPoolIdx < _boxObjPool.length) {
+        const b = _boxObjPool[_boxObjPoolIdx++];
+        b.x0 = x0; b.y0 = y0; b.x1 = x1; b.y1 = y1; b._stamp = 0;
+        return b;
+    }
+    const b = { x0, y0, x1, y1, _stamp: 0 };
+    _boxObjPool.push(b);
+    _boxObjPoolIdx++;
+    return b;
+}
+
 function renderScreenSpaceLabels() {
     if (!overlayCanvas) {
         initLabelsOverlay();
@@ -20,9 +43,9 @@ function renderScreenSpaceLabels() {
     overlayCtx.clearRect(0, 0, overlayCanvas.width, overlayCanvas.height);
     overlayCtx.scale(dpr, dpr);
 
-    renderedScreenBadges = [];
-    window.renderedScreenBadges = renderedScreenBadges;
-    const nextActiveBadgeKeys = new Set();
+    renderedScreenBadges.length = 0;
+    _boxObjPoolIdx = 0;
+    nextActiveBadgeKeys.clear();
 
     if (!STATE.showLabels || !ROOMS_REGISTRY || ROOMS_REGISTRY.length === 0) {
         activeBadgeKeys.clear();
@@ -58,7 +81,7 @@ function renderScreenSpaceLabels() {
         return r._priority;
     }
 
-    const candidateRooms = [];
+    candidateRooms.length = 0;
     for (let i = 0; i < ROOMS_REGISTRY.length; i++) {
         const r = ROOMS_REGISTRY[i];
 
@@ -85,48 +108,51 @@ function renderScreenSpaceLabels() {
             }
         }
 
-        candidateRooms.push({ room: r, fg });
+        candidateRooms.push(r);
     }
 
     // 100% Детерминированная сортировка: приоритет + точный порядок по номеру комнаты и координатам
     // (полностью исключает случайную инверсию порядка и мерцание плашек от кадра к кадру)
     candidateRooms.sort((a, b) => {
-        const pa = getRoomPriority(a.room);
-        const pb = getRoomPriority(b.room);
+        const pa = getRoomPriority(a);
+        const pb = getRoomPriority(b);
         if (pa !== pb) return pa - pb;
-        const textCmp = a.room.text.localeCompare(b.room.text, undefined, { numeric: true });
-        if (textCmp !== 0) return textCmp;
-        if (a.room.floor !== b.room.floor) return a.room.floor - b.room.floor;
-        if (a.room.building !== b.room.building) return a.room.building - b.room.building;
-        if (a.room.x !== b.room.x) return a.room.x - b.room.x;
-        return a.room.z - b.room.z;
+        if (a.text !== b.text) {
+            const textCmp = a.text.localeCompare(b.text, undefined, { numeric: true });
+            if (textCmp !== 0) return textCmp;
+        }
+        if (a.floor !== b.floor) return a.floor - b.floor;
+        if (a.building !== b.building) return a.building - b.building;
+        if (a.x !== b.x) return a.x - b.x;
+        return a.z - b.z;
     });
 
-
-
-    let _labelQueryStamp = 0;
     // Пространственная 2D-сетка (Spatial Grid) для детекции коллизий бейджей с O(N) вместо O(N^2)
     const GRID_CELL_SIZE = 96;
     const gridCols = Math.max(1, Math.ceil(w / GRID_CELL_SIZE) + 2);
     const gridRows = Math.max(1, Math.ceil(h / GRID_CELL_SIZE) + 2);
-    const spatialGrid = new Map();
+    for (const cellList of spatialGrid.values()) {
+        cellList.length = 0;
+    }
 
     function getGridCellIndices(bx0, by0, bx1, by1) {
         const cMinX = Math.max(0, Math.floor((bx0 + 80) / GRID_CELL_SIZE));
         const cMaxX = Math.min(gridCols - 1, Math.floor((bx1 + 80) / GRID_CELL_SIZE));
         const cMinY = Math.max(0, Math.floor((by0 + 40) / GRID_CELL_SIZE));
         const cMaxY = Math.min(gridRows - 1, Math.floor((by1 + 40) / GRID_CELL_SIZE));
-        const indices = [];
+        _gridCellIndices.length = 0;
         for (let cy = cMinY; cy <= cMaxY; cy++) {
             for (let cx = cMinX; cx <= cMaxX; cx++) {
-                indices.push(cy * gridCols + cx);
+                _gridCellIndices.push(cy * gridCols + cx);
             }
         }
-        return indices;
+        return _gridCellIndices;
     }
 
     for (let i = 0; i < candidateRooms.length; i++) {
-        const { room: r, fg } = candidateRooms[i];
+        const r = candidateRooms[i];
+        const fg = floorGroups[r.floor];
+        if (!fg) continue;
 
         const worldX = fg.position.x + r.x;
         const worldY = fg.position.y + 0.12;
@@ -224,7 +250,7 @@ function renderScreenSpaceLabels() {
         if (overlap) continue;
 
         nextActiveBadgeKeys.add(badgeKey);
-        const boxObj = { x0, y0, x1, y1 };
+        const boxObj = acquireBoxObj(x0, y0, x1, y1);
         for (let c = 0; c < checkCells.length; c++) {
             const cIdx = checkCells[c];
             let cellList = spatialGrid.get(cIdx);
@@ -280,7 +306,9 @@ function renderScreenSpaceLabels() {
         }
     }
 
+    const tmpSet = activeBadgeKeys;
     activeBadgeKeys = nextActiveBadgeKeys;
+    nextActiveBadgeKeys = tmpSet;
 
     // Отрисовка Screen-Space Retina бейджей навигатора (Точки А, Б, лестничные указатели)
     if (typeof renderNavigatorScreenBadges === 'function' && typeof NAV_STATE !== 'undefined' && NAV_STATE.activeRoute) {

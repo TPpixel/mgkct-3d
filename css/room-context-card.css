@@ -1,38 +1,3 @@
-/* Плавающий баннер выбора на карте (Google Maps Pick Banner — строго наверху) */
-#nav-pick-banner {
-    background: var(--m3-surface) !important;
-    border: 2px solid var(--m3-outline-variant) !important;
-    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.22) !important;
-    color: var(--m3-on-surface) !important;
-    border-radius: 9999px;
-    top: max(14px, env(safe-area-inset-top, 14px)) !important;
-    z-index: var(--z-banner) !important;
-}
-
-#nav-pick-text {
-    color: var(--m3-on-surface) !important;
-}
-
-/* Шапка модального окна маршрута */
-#nav-modal-title {
-    color: var(--m3-on-surface) !important;
-}
-
-#nav-modal-sub {
-    color: var(--m3-on-surface-variant) !important;
-}
-
-/* Переключатель лифтов */
-#elevators-switch-label {
-    background: var(--m3-surface-container-high) !important;
-    border: 1.5px solid var(--m3-outline-variant) !important;
-    color: var(--m3-on-surface) !important;
-}
-
-#elevators-switch-label span {
-    color: var(--m3-on-surface) !important;
-}
-
 /* ============================================================================
    Карточка выбора кабинета и кнопки "Отсюда" / "Сюда" (M3 Expressive Bottom Card)
    ============================================================================ */
@@ -66,20 +31,6 @@
         opacity: 1;
         transform: translateY(0) scale(1);
     }
-}
-
-/* При открытой карточке кабинета ПОЛНОСТЬЮ убираем нижнюю плашку поиска, бар корпусов и селектор этажей */
-body.room-card-open #bottom-search-bar,
-body:has(#room-context-popup:not(.hidden)) #bottom-search-bar,
-body.room-card-open .mobile-thumb-header,
-body:has(#room-context-popup:not(.hidden)) .mobile-thumb-header,
-body.room-card-open .floor-switcher-group,
-body.room-card-open .floor-switcher-bar,
-body:has(#room-context-popup:not(.hidden)) .floor-switcher-group,
-body:has(#room-context-popup:not(.hidden)) .floor-switcher-bar {
-    display: none !important;
-    opacity: 0 !important;
-    pointer-events: none !important;
 }
 
 /* Основная плашка кабинета (Material 3 Expressive Card с радиусом 28px) */

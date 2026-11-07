@@ -1,8 +1,12 @@
 // Отрисовка 3-колоночной выдачи поиска кабинетов (M3 Expressive)
 function renderSearchResults(query) {
     const searchResults = document.getElementById("search-results");
-        if (!searchResults) return;
-        query = (query || "").trim().toLowerCase().replace(/ё/g, "е");
+    if (!searchResults) return;
+    if (query === undefined) {
+        const searchInput = document.getElementById("search-input");
+        query = searchInput ? searchInput.value : '';
+    }
+    query = (query || "").trim().toLowerCase().replace(/ё/g, "е");
 
         const searchCard = document.querySelector(".m3-search-card");
 
@@ -205,3 +209,5 @@ function renderSearchResults(query) {
             });
         });
     }
+
+window.renderSearchResults = renderSearchResults;

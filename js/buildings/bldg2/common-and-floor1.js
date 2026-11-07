@@ -15,19 +15,7 @@
 
             const steps = 9;
             const stepD = (zEnd - zStart) / steps;
-            const wFlight = (x2 - x1) / 2 - 0.16;
-
-            for (let m = 0; m < 2; m++) {
-                const cx = m === 0 ? (x1 + xMid) / 2 : (xMid + x2) / 2;
-                const dir = m === 0 ? 1 : -1;
-                for (let i = 0; i < steps; i++) {
-                    const ratio = dir === 1 ? (i + 1) / steps : (steps - i) / steps;
-                    const heightRatio = ratio * 0.52;
-                    const sz = zStart + (i + 0.5) * stepD;
-                    const geom = new THREE.BoxGeometry(wFlight, 1, stepD * 0.94);
-                    registerDynamicStairStep(targetGroup, geom, cx, sz, heightRatio, 0);
-                }
-            }
+            buildStandardStaircaseFlight(targetGroup, x1, x2, zStart, stepD, steps);
         }
 
         /**

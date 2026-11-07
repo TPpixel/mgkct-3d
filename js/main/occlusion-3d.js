@@ -176,6 +176,8 @@ function isPointOccludedIn3D(worldX, worldY, worldZ, itemFloor = 1, itemBldg = n
 }
 window.isPointOccludedIn3D = isPointOccludedIn3D;
 
+const _tempLabelWorldPos = new THREE.Vector3();
+
 function isLabelOccludedByUpperSlabs(labelItem, floorNum = null, bldId = null) {
     const f = floorNum !== null ? floorNum : labelItem.floor;
     const fg = floorGroups[f];

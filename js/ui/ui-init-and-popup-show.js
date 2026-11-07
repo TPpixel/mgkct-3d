@@ -97,7 +97,8 @@ function setupUI() {
 // ==========================================
 // Контекстное меню кабинета (Material 3 Expressive Bottom Card & Action Pills)
 // ==========================================
-let currentPopupRoom = null;
+currentPopupRoom = null;
+window.currentPopupRoom = null;
 const _popupProjVec = new THREE.Vector3();
 
 function updateRoomContextPopupScreenPos(viewW, viewH) {
@@ -150,6 +151,7 @@ function showRoomContextPopup(roomInfo, clientX, clientY, shouldSelectAndFly = t
         pushOverlayState('room-card', overlayMeta);
     }
     currentPopupRoom = roomInfo;
+    window.currentPopupRoom = currentPopupRoom;
 
     const popup = document.getElementById('room-context-popup');
     if (!popup) return;

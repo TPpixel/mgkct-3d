@@ -261,4 +261,41 @@ function mergeBufferGeometriesVanilla(geometries) {
     return mergedGeom;
 }
 
+function createExtrudedPolygonGeometry(points, yCenter = -0.02, thickness = 0.16) {
+    if (!points || points.length < 3) return null;
+    const shape = new THREE.Shape();
+    shape.moveTo(points[0][0], points[0][1]);
+    for (let i = 1; i < points.length; i++) {
+        shape.lineTo(points[i][0], points[i][1]);
+    }
+    shape.closePath();
+
+    const geom = new THREE.ExtrudeGeometry(shape, {
+        depth: thickness,
+        bevelEnabled: false
+    });
+    geom.rotateX(Math.PI / 2);
+    geom.translate(0, yCenter + thickness / 2, 0);
+    geom.computeVertexNormals();
+    return geom;
+}
+
+function buildStandardStaircaseFlight(targetGroup, x1, x2, zStart, stepD, steps = 9) {
+    const xMid = (x1 + x2) / 2;
+    const wFlight = (x2 - x1) / 2 - 0.16;
+    for (let m = 0; m < 2; m++) {
+        const cx = m === 0 ? (x1 + xMid) / 2 : (xMid + x2) / 2;
+        const dir = m === 0 ? 1 : -1;
+        for (let i = 0; i < steps; i++) {
+            const ratio = dir === 1 ? (i + 1) / steps : (steps - i) / steps;
+            const heightRatio = ratio * 0.52;
+            const sz = zStart + (i + 0.5) * stepD;
+            const geom = new THREE.BoxGeometry(wFlight, 1, stepD * 0.94);
+            registerDynamicStairStep(targetGroup, geom, cx, sz, heightRatio, 0);
+        }
+    }
+}
+
+window.createExtrudedPolygonGeometry = createExtrudedPolygonGeometry;
+window.buildStandardStaircaseFlight = buildStandardStaircaseFlight;
 window.mergeBufferGeometriesVanilla = mergeBufferGeometriesVanilla;

@@ -156,6 +156,9 @@ function buildDrivewaysAndInnerRoads(group) {
 // Верхняя грань Y = +0.06, нижняя грань Y = -0.10 (без ступеней, перепадов и швов)
 // ----------------------------------------------------
 function createPavementPolygonGeometry(points, yCenter = -0.02, thickness = 0.16) {
+    if (typeof createExtrudedPolygonGeometry === 'function') {
+        return createExtrudedPolygonGeometry(points, yCenter, thickness);
+    }
     if (!points || points.length < 3) return null;
     const shape = new THREE.Shape();
     shape.moveTo(points[0][0], points[0][1]);
@@ -169,9 +172,6 @@ function createPavementPolygonGeometry(points, yCenter = -0.02, thickness = 0.16
         bevelEnabled: false
     });
     geom.rotateX(Math.PI / 2);
-    // ExtrudeGeometry выдавливает вдоль +Z от 0 до thickness.
-    // rotateX(PI/2) отображает Z в -Y (от -thickness до 0).
-    // Чтобы совместить с BoxGeometry (верх Y = yCenter + thickness/2 = +0.06):
     geom.translate(0, yCenter + thickness / 2, 0);
     geom.computeVertexNormals();
     return geom;
@@ -298,3 +298,6 @@ function buildForecourtDualTonePaving(group) {
 function buildForecourtAndPlaza(group) {
     buildForecourtDualTonePaving(group);
 }
+
+window.buildForecourtDualTonePaving = buildForecourtDualTonePaving;
+window.buildForecourtAndPlaza = buildForecourtAndPlaza;

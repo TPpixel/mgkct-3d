@@ -851,10 +851,6 @@
                 MATERIALS.wall.transparent = val < 0.99;
                 MATERIALS.wall.opacity = val;
             }
-            if (window.MATERIALS && MATERIALS.innerWall) {
-                MATERIALS.innerWall.transparent = val < 0.99;
-                MATERIALS.innerWall.opacity = val;
-            }
         });
 
         document.getElementById('btn-delete-node')?.addEventListener('click', () => {

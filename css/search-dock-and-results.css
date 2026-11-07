@@ -268,3 +268,36 @@
 [data-theme="dark"] .m3-search-row:active {
     background: #2a303c !important;
 }
+
+/* Элементы списка результатов поиска и недавней истории */
+.room-search-item {
+    min-height: 46px;
+}
+.room-search-title {
+    line-height: 1.35;
+    padding-bottom: 2px;
+}
+.room-search-sub {
+    line-height: 1.2;
+}
+body[data-theme="light"] .room-search-item:hover {
+    background-color: #f1f5f9 !important;
+    border-color: #e2e8f0 !important;
+}
+
+/* Пометка выбора начального/конечного пункта маршрута в поиске (СТРОГО НАВЕРХУ) */
+#search-route-target-pill {
+    order: -1 !important;
+    align-self: center !important;
+    margin: 6px auto 10px auto !important;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18) !important;
+    z-index: var(--z-panel) !important;
+}
+
+@media (max-width: 639px) {
+    #search-route-target-pill {
+        order: 99 !important; /* В flex column-reverse выносит плашку на самый верх экрана над результатами поиска */
+        margin: 6px auto 12px auto !important;
+        align-self: center !important;
+    }
+}

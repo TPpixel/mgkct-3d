@@ -24,7 +24,7 @@
     transform: translateX(0);
 }
 
-@media (max-width: 640px) {
+@media (max-width: 639px) {
     .side-drawer {
         top: auto;
         bottom: 0;
@@ -202,22 +202,6 @@ body.ui-hidden .ui-overlay {
     visibility: hidden !important;
     pointer-events: none !important;
     transform: scale(0.97);
-}
-
-/* Элементы списка результатов поиска и недавней истории */
-.room-search-item {
-    min-height: 46px;
-}
-.room-search-title {
-    line-height: 1.35;
-    padding-bottom: 2px;
-}
-.room-search-sub {
-    line-height: 1.2;
-}
-body[data-theme="light"] .room-search-item:hover {
-    background-color: #f1f5f9 !important;
-    border-color: #e2e8f0 !important;
 }
 
 

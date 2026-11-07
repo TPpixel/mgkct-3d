@@ -242,6 +242,10 @@ function buildPromenadeAndForecourtAmenities(group) {
     buildPedestrianBollards(group, bollardPositions, yPave);
 }
 
+window.buildBicycleStation = buildBicycleStation;
+window.buildPedestrianBollards = buildPedestrianBollards;
+window.buildPromenadeAndForecourtAmenities = buildPromenadeAndForecourtAmenities;
+
 // ----------------------------------------------------
 // 6. ОЗЕЛЕНЕНИЕ (ГАЗОН КОРПУСА 2 С ДЕРЕВЬЯМИ И ДЕРЕВЬЯ ВДОЛЬ ВОСТОЧНОЙ ГРАНИЦЫ)
 // ----------------------------------------------------

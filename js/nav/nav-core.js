@@ -1,15 +1,17 @@
-// Безопасное экранирование HTML для предотвращения XSS-инъекций в автокомплите и навигаторе
-function escapeHtml(str) {
-    if (str === null || str === undefined) return '';
-    return String(str)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#39;');
-}
-if (typeof window !== 'undefined' && !window.escapeHtml) {
-    window.escapeHtml = escapeHtml;
+// Безопасное экранирование HTML берется из js/state.js (с фоллбэком при изолированном запуске)
+if (typeof escapeHtml !== 'function') {
+    function escapeHtml(str) {
+        if (str === null || str === undefined) return '';
+        return String(str)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    }
+    if (typeof window !== 'undefined' && !window.escapeHtml) {
+        window.escapeHtml = escapeHtml;
+    }
 }
 
 function calculateWalkTime(totalDistance, stairTransitionsCount = 0) {
@@ -46,8 +48,15 @@ window.calculateWalkTime = calculateWalkTime;
         routeFloorGroups: {},   // floorNum -> THREE.Group с геометрией пути
         animationTime: 0,
         activeStepIndex: 0,
-        allowElevators: false // По умолчанию выключены (только лестницы)
+        allowElevators: false,  // По умолчанию выключены (только лестницы)
+        _badgeWidthCache: new Map(),
+        _renderedStairBadges: [],
+        _tempBadgeVec: (typeof THREE !== 'undefined' && THREE.Vector3) ? new THREE.Vector3() : null
     };
+
+    const _badgeWidthCache = NAV_STATE._badgeWidthCache;
+    let renderedStairBadges = NAV_STATE._renderedStairBadges;
+    const _tempVec = NAV_STATE._tempBadgeVec;
 
     window.NAV_STATE = NAV_STATE;
 

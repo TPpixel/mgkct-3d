@@ -103,6 +103,7 @@ function init() {
     scene.add(territoryGroup);
 
     roadNetworkGroup = new THREE.Group();
+    window.roadNetworkGroup = roadNetworkGroup;
     scene.add(roadNetworkGroup);
 
     // Сборка Корпуса 1 (Этажи 1–7)
@@ -166,7 +167,10 @@ function init() {
         window.addEventListener(evt, () => requestRender(25), { passive: true });
     });
 
-    window.addEventListener('resize', onWindowResize);
+    window.addEventListener('resize', (e) => {
+        if (typeof onWindowResize === 'function') onWindowResize(e);
+        else if (typeof window.onWindowResize === 'function') window.onWindowResize(e);
+    });
     updateShadows();
     requestRender(60);
     if (renderer && scene && camera) {
@@ -181,11 +185,17 @@ function init() {
         loadTimetableTexturesAsync();
     }
 
-    if (animFrameId !== null) {
-        cancelAnimationFrame(animFrameId);
+    const curAnimId = (typeof animFrameId !== 'undefined') ? animFrameId : window.animFrameId;
+    if (curAnimId !== null && curAnimId !== undefined && typeof cancelAnimationFrame === 'function') {
+        cancelAnimationFrame(curAnimId);
         animFrameId = null;
+        window.animFrameId = null;
     }
-    animate();
+    if (typeof animate === 'function') {
+        animate();
+    } else if (typeof window.animate === 'function') {
+        window.animate();
+    }
     requestAnimationFrame(() => {
         requestAnimationFrame(() => {
             if (document.body) document.body.classList.add('ui-ready');

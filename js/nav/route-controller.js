@@ -277,6 +277,6 @@
         }
     }
 
-    // ------------------------------------------------------------------------
-    // UI: ОБНОВЛЕНИЕ ПАНЕЛЕЙ И МОДАЛОК
-    // ------------------------------------------------------------------------
+    window.buildRoute = buildRoute;
+    window.applyRoomToActiveRoute = applyRoomToActiveRoute;
+    window.handleNavigatorMapClick = handleNavigatorMapClick;

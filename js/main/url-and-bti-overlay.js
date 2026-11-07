@@ -97,7 +97,8 @@ function applyInitialUrlAndBtiParams() {
                     }
                 }
                 const loader = new THREE.TextureLoader();
-                loader.load(`planning_zip/Корпус ${b}/${f}.jpg`, (tex) => {
+                const btiUrl = `planning_zip/${encodeURIComponent(`Корпус ${b}`)}/${f}.jpg`;
+                loader.load(btiUrl, (tex) => {
                     const bw = btiBounds.x2 - btiBounds.x1;
                     const bd = btiBounds.z2 - btiBounds.z1;
                     const plane = new THREE.Mesh(
@@ -114,6 +115,8 @@ function applyInitialUrlAndBtiParams() {
                     plane.position.set((btiBounds.x1 + btiBounds.x2) / 2, 0.03, (btiBounds.z1 + btiBounds.z2) / 2);
                     btiBounds.grp.add(plane);
                     requestRender(30);
+                }, undefined, (err) => {
+                    console.warn(`[MGKCT] Не удалось загрузить подложку БТИ (${btiUrl}):`, err);
                 });
             }
         }

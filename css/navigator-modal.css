@@ -296,3 +296,61 @@
 .m3-nav-icon-btn:active {
     transform: scale(0.92);
 }
+
+/* Опция лифта: загорается Google синим при включении (без свечения) */
+.m3-elevator-toggle.active {
+    background: #1a73e8 !important;
+    color: #ffffff !important;
+    border-color: #1a73e8 !important;
+    box-shadow: none !important;
+}
+
+.m3-elevator-toggle.active svg {
+    color: #ffffff !important;
+}
+
+[data-theme="dark"] .m3-elevator-toggle.active {
+    background: #1a73e8 !important;
+    color: #ffffff !important;
+    border-color: #1a73e8 !important;
+    box-shadow: none !important;
+}
+
+[data-theme="dark"] .m3-elevator-toggle.active svg {
+    color: #ffffff !important;
+}
+
+/* Шапка модального окна маршрута */
+#nav-modal-title {
+    color: var(--m3-on-surface) !important;
+}
+
+#nav-modal-sub {
+    color: var(--m3-on-surface-variant) !important;
+}
+
+/* Переключатель лифтов */
+#elevators-switch-label {
+    background: var(--m3-surface-container-high) !important;
+    border: 1.5px solid var(--m3-outline-variant) !important;
+    color: var(--m3-on-surface) !important;
+}
+
+#elevators-switch-label span {
+    color: var(--m3-on-surface) !important;
+}
+
+/* Плавающий баннер выбора на карте (Google Maps Pick Banner — строго наверху) */
+#nav-pick-banner {
+    background: var(--m3-surface) !important;
+    border: 2px solid var(--m3-outline-variant) !important;
+    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.22) !important;
+    color: var(--m3-on-surface) !important;
+    border-radius: 9999px;
+    top: max(14px, env(safe-area-inset-top, 14px)) !important;
+    z-index: var(--z-banner) !important;
+}
+
+#nav-pick-text {
+    color: var(--m3-on-surface) !important;
+}

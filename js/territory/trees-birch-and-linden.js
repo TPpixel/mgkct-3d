@@ -260,6 +260,10 @@ function addLindenTree(group, x, z, scale = 1.0, seed = 0, y = 0) {
     return treeGroup;
 }
 
+window.createWhiteBirchTree = createWhiteBirchTree;
+window.addBirchTree = addBirchTree;
+window.addLindenTree = addLindenTree;
+
 // ----------------------------------------------------
 // 3. ЕЛЬ ОБЫКНОВЕННАЯ (PICEA ABIES)
 // ----------------------------------------------------

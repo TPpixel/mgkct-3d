@@ -266,8 +266,6 @@ function isPointInFloorFootprint(lx, lz, floorNum, bldId = null) {
     return false;
 }
 
-const _tempLabelWorldPos = new THREE.Vector3();
-
 function getBuildingMaxFloorCount(bldId) {
     if (bldId === 1) return 7;
     if (bldId === 2 || bldId === 4) return 3;

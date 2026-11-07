@@ -276,3 +276,4 @@
         setupNavQuickChips();
         applyNavUrlParams();
     }
+    window.initNavigator = initNavigator;

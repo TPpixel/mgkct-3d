@@ -1,12 +1,17 @@
-// Вспомогательная функция для безопасного экранирования HTML перед вставкой в innerHTML
-function escapeHtml(str) {
-    if (str === null || str === undefined) return '';
-    return String(str)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#39;');
+// Вспомогательная функция escapeHtml определена в js/state.js
+if (typeof escapeHtml !== 'function') {
+    function escapeHtml(str) {
+        if (str === null || str === undefined) return '';
+        return String(str)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    }
+    if (typeof window !== 'undefined' && !window.escapeHtml) {
+        window.escapeHtml = escapeHtml;
+    }
 }
 
 // ==========================================
@@ -214,4 +219,3 @@ if (typeof window !== 'undefined' && window.matchMedia) {
     });
 }
 window.setTheme = setTheme;
-window.getSystemTheme = getSystemTheme;

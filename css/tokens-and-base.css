@@ -9,10 +9,17 @@
     --z-labels: 15;
     --z-hud: 20;
     --z-panel: 30;
+    --z-theme: 35;
+    --z-card: 40;
     --z-drawer: 45;
     --z-modal: 50;
     --z-banner: 60;
     --z-toast: 75;
+
+    /* Динамические переменные viewport и раскладки */
+    --vvh: 100vh;
+    --keyboard-inset: 0px;
+    --card-fab-bottom: 24px;
 
     /* Google Fonts */
     --font-family-google: 'Google Sans', 'Roboto', 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
@@ -64,8 +71,8 @@ body[data-theme="dark"] {
     /* В тёмной теме те же строго 2 оттенка синего без посторонних цветов */
     --m3-primary: var(--blue-primary);
     --m3-on-primary: #ffffff;
-    --m3-primary-container: #c2e7ff;
-    --m3-on-primary-container: #1a73e8;
+    --m3-primary-container: var(--blue-light);
+    --m3-on-primary-container: var(--blue-primary);
 
     --m3-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.4), 0 1px 2px rgba(0, 0, 0, 0.24);
     --m3-shadow-md: 0 2px 8px rgba(0, 0, 0, 0.6), 0 1px 3px rgba(0, 0, 0, 0.4);

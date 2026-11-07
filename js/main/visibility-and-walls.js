@@ -25,20 +25,20 @@ function updateEdgesVisibility() {
     doorEdges.forEach(applyEdgeVisibility);
 
     // Кэшированный список вспомогательных LineSegments (без рекурсивного traverse каждого этажа)
-    if (!window._auxEdgesList) {
-        window._auxEdgesList = [];
+    if (!STATE.auxEdgesList) {
+        STATE.auxEdgesList = [];
         for (let f = 1; f <= 7; f++) {
             if (floorGroups[f]) {
                 floorGroups[f].traverse(child => {
                     if (child.isLineSegments && !handled.has(child)) {
-                        window._auxEdgesList.push(child);
+                        STATE.auxEdgesList.push(child);
                     }
                 });
             }
         }
     }
-    for (let i = 0; i < window._auxEdgesList.length; i++) {
-        applyEdgeVisibility(window._auxEdgesList[i]);
+    for (let i = 0; i < STATE.auxEdgesList.length; i++) {
+        applyEdgeVisibility(STATE.auxEdgesList[i]);
     }
     requestRender(20);
 }
@@ -254,3 +254,4 @@ function onWindowResize() {
     }
     requestRender(20);
 }
+window.onWindowResize = onWindowResize;

@@ -254,9 +254,6 @@
     // ------------------------------------------------------------------------
     // SCREEN-SPACE RETINA БЕЙДЖИ ДЛЯ ТОЧЕК "А", "Б" И ЛЕСТНИЦ НА 2D CANVAS
     // ------------------------------------------------------------------------
-    const _tempVec = new THREE.Vector3();
-    let renderedStairBadges = [];
-    const _badgeWidthCache = new Map();
 
     function checkStairBadgeClick(clientX, clientY) {
         if (!renderedStairBadges || renderedStairBadges.length === 0) return false;
@@ -274,3 +271,7 @@
         }
         return false;
     }
+
+    window.updateRouteVisibilityForCurrentMode = updateRouteVisibilityForCurrentMode;
+    window.checkStairBadgeClick = checkStairBadgeClick;
+    window.updateNavigatorAnimation = updateNavigatorAnimation;

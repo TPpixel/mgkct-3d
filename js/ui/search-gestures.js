@@ -61,10 +61,6 @@ function bindSearchGesturesAndEvents(ctx) {
         closeSearch(false, true);
     });
 
-    window.openSearch = openSearch;
-    window.closeSearch = closeSearch;
-    window.renderSearchResults = (q) => renderSearchResults(q !== undefined ? q : (searchInput ? searchInput.value : ''));
-
     const searchForm = searchModal?.querySelector("form");
     searchForm?.addEventListener("submit", (e) => {
         e.preventDefault();

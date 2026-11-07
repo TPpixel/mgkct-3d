@@ -247,3 +247,8 @@ function addArchitecturalTree(group, x, z, scale = 1.0, isRound = true) {
         return addSpruceTree(group, x, z, scale);
     }
 }
+
+window.addSpruceTree = addSpruceTree;
+window.addBotanicalHedgeSegment = addBotanicalHedgeSegment;
+window.addTreeRing = addTreeRing;
+window.addDecorativeShrub = addDecorativeShrub;

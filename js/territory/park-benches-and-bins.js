@@ -296,4 +296,7 @@ function buildParkWasteBin(group, x, z, rotY = 0, yGround = 0.06) {
     return binGroup;
 }
 
+window.buildCampusBench = buildCampusBench;
+window.buildParkWasteBin = buildParkWasteBin;
+
 // 3. ВЕЛОСИПЕДНАЯ СТАНЦИЯ (5 ИЗОГНУТЫХ ДУГ SHEFFIELD С МЕДАЛЬОНАМИ)

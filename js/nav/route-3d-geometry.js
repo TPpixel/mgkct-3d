@@ -51,7 +51,9 @@
             NAV_STATE._pulsingObjects.length = 0;
         }
         NAV_STATE.activeRoute = null;
-        _badgeWidthCache.clear();
+        if (NAV_STATE._badgeWidthCache) {
+            NAV_STATE._badgeWidthCache.clear();
+        }
         if (typeof requestRender === 'function') requestRender(20);
     }
 

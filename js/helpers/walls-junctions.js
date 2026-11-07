@@ -151,7 +151,7 @@ function solveCampusJunctions(targetGroup, pendingLines) {
     }));
 
     // Бесшовное сопряжение ортогональных стен с диагональными скосами (Miter Joints)
-    const miterJoints = targetGroup._miterJoints || _registeredMiterJoints;
+    const miterJoints = targetGroup._miterJoints || [];
     for (const w of solved) {
         if (w.isHorizontal) {
             const z0 = w.fixedCoord;

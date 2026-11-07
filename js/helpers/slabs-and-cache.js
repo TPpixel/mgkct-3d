@@ -13,8 +13,6 @@ if (typeof CanvasRenderingContext2D !== 'undefined' && !CanvasRenderingContext2D
     };
 }
 
-const _registeredMiterJoints = [];
-
 function registerMiterJoint(targetGroup, x, z, thickness) {
     if (!targetGroup) return;
     if (!targetGroup._miterJoints) targetGroup._miterJoints = [];
@@ -29,7 +27,6 @@ function registerMiterJoint(targetGroup, x, z, thickness) {
 const _boxGeomCache = new Map();
 const _edgesGeomCache = new Map();
 const _wallEdgesGeomCache = new Map();
-let _sharedHiddenLabelMat = null;
 const _textWidthCache = new Map();
 
 function clearHelpersGeometryCaches() {

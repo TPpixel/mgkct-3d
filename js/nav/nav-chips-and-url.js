@@ -210,24 +210,8 @@
         resetRouteCardPicks();
     }
 
-    // Экспорт глобальных функций
-    window.initNavigator = initNavigator;
-    window.buildRoute = buildRoute;
-    window.clearRoute = clearRoute;
-    window.openNavigatorModal = openNavigatorModal;
-    window.closeNavigatorModal = closeNavigatorModal;
-    window.handleNavigatorMapClick = handleNavigatorMapClick;
-    window.renderNavigatorScreenBadges = renderNavigatorScreenBadges;
-    window.updateNavigatorAnimation = updateNavigatorAnimation;
-    window.updateRouteVisibilityForCurrentMode = updateRouteVisibilityForCurrentMode;
+    // Экспорт глобальных функций модуля быстрых чипов и URL
     window.findClosestToilet = findClosestToilet;
     window.setDefaultStartPoint = setDefaultStartPoint;
-    window.aStarPath = aStarPath;
-    window.NAV_STATE = NAV_STATE;
-    window.doesIntersectWall = doesIntersectWall;
-    window.formatNavNodeName = formatNavNodeName;
-    window.formatNavInputString = formatNavInputString;
-    window.applyRoomToActiveRoute = applyRoomToActiveRoute;
-    window.checkStairBadgeClick = checkStairBadgeClick;
     window.showPickBanner = showPickBanner;
     window.hidePickBanner = hidePickBanner;

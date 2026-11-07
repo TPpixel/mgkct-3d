@@ -219,3 +219,6 @@ function selectRoom(roomInfo, shouldFly = true) {
 
     if (typeof requestRender === 'function') requestRender(60);
 }
+
+window.setTerritoryMode = setTerritoryMode;
+window.toggleTerritoryView = toggleTerritoryView;

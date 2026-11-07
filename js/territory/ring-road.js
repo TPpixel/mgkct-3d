@@ -162,16 +162,3 @@ function buildRingRoadAroundCollege(group) {
 }
 
 window.buildRingRoadAroundCollege = buildRingRoadAroundCollege;
-window.createWhiteBirchTree = createWhiteBirchTree;
-window.addBirchTree = addBirchTree;
-window.addLindenTree = addLindenTree;
-window.addSpruceTree = addSpruceTree;
-window.addBotanicalHedgeSegment = addBotanicalHedgeSegment;
-window.addTreeRing = addTreeRing;
-window.addDecorativeShrub = addDecorativeShrub;
-window.buildCampusBench = buildCampusBench;
-window.buildParkWasteBin = buildParkWasteBin;
-window.buildBicycleStation = buildBicycleStation;
-window.buildPedestrianBollards = buildPedestrianBollards;
-window.buildForecourtDualTonePaving = buildForecourtDualTonePaving;
-window.buildPromenadeAndForecourtAmenities = buildPromenadeAndForecourtAmenities;

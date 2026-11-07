@@ -1,7 +1,8 @@
     function renderNavigatorScreenBadges(ctx, dpr, width, height) {
         if (!NAV_STATE.activeRoute || !window.camera) return;
 
-        renderedStairBadges = [];
+        NAV_STATE._renderedStairBadges.length = 0;
+        renderedStairBadges = NAV_STATE._renderedStairBadges;
 
         const route = NAV_STATE.activeRoute;
         const mode = (typeof STATE !== 'undefined') ? STATE.mode : '1';
@@ -204,6 +205,8 @@
             toFloor: st.toFloor
         });
     }
+
+    window.renderNavigatorScreenBadges = renderNavigatorScreenBadges;
 
     // ------------------------------------------------------------------------
     // ПУБЛИЧНЫЙ МЕТОД ПОСТРОЕНИЯ МАРШРУТА

@@ -571,16 +571,6 @@
         </div>
     </div>
 
-    <!-- DOM-заглушки для совместимости с навигатором -->
-    <div style="display:none;">
-        <canvas id="labels-overlay-canvas"></canvas>
-        <div id="nav-pick-banner"></div>
-        <div id="nav-pick-text"></div>
-        <div id="nav-instructions"></div>
-        <div id="nav-start-input"></div>
-        <div id="nav-dest-input"></div>
-    </div>
-
     <!-- Скрипты Three.js -->
     <script src="../js/vendor/three.min.js"></script>
     <script src="../js/vendor/OrbitControls.js"></script>
@@ -593,28 +583,14 @@
     <script src="../js/materials/palettes-and-core.js"></script>
     <script src="../js/materials/territory-materials.js"></script>
     <script src="../js/helpers/slabs-and-cache.js"></script>
-    <script src="../js/helpers/walls-junctions.js"></script>
     <script src="../js/helpers/walls-overlaps.js"></script>
+    <script src="../js/helpers/walls-junctions.js"></script>
+    <script src="../js/helpers/walls-chamfer-and-segments.js"></script>
     <script src="../js/helpers/walls-edges.js"></script>
     <script src="../js/helpers/walls-flush.js"></script>
-    <script src="../js/helpers/walls-chamfer-and-segments.js"></script>
     <script src="../js/helpers/labels-3d-and-grid.js"></script>
     <script src="../js/helpers/labels-screen-overlay.js"></script>
     <script src="../js/helpers/stairs-and-roofs.js"></script>
-    <script src="../js/territory/core.js"></script>
-    <script src="../js/territory/main-road.js"></script>
-    <script src="../js/territory/bus-stop-shelter.js"></script>
-    <script src="../js/territory/bus-stop-amenities.js"></script>
-    <script src="../js/territory/driveways-and-plaza.js"></script>
-    <script src="../js/territory/park-benches-and-bins.js"></script>
-    <script src="../js/territory/bike-bollards-and-promenade.js"></script>
-    <script src="../js/territory/landscaping-and-curbs.js"></script>
-    <script src="../js/territory/road-markings.js"></script>
-    <script src="../js/territory/trees-birch-and-linden.js"></script>
-    <script src="../js/territory/trees-spruce-and-shrubs.js"></script>
-    <script src="../js/territory/street-signs-and-gates.js"></script>
-    <script src="../js/territory/ring-road.js"></script>
-    <script src="../js/territory/traffic-lights-and-fence.js"></script>
     <script src="../js/buildings/bldg1/common.js"></script>
     <script src="../js/buildings/bldg1/floors-5-to-7.js"></script>
     <script src="../js/buildings/bldg1/floors-2-to-4.js"></script>
@@ -630,8 +606,22 @@
     <script src="../js/buildings/bldg4/floor2.js"></script>
     <script src="../js/buildings/bldg4/floor3.js"></script>
     <script src="../js/buildings/building5.js"></script>
+    <script src="../js/territory/core.js"></script>
+    <script src="../js/territory/main-road.js"></script>
+    <script src="../js/territory/bus-stop-shelter.js"></script>
+    <script src="../js/territory/bus-stop-amenities.js"></script>
+    <script src="../js/territory/driveways-and-plaza.js"></script>
+    <script src="../js/territory/park-benches-and-bins.js"></script>
+    <script src="../js/territory/bike-bollards-and-promenade.js"></script>
+    <script src="../js/territory/landscaping-and-curbs.js"></script>
+    <script src="../js/territory/road-markings.js"></script>
+    <script src="../js/territory/trees-birch-and-linden.js"></script>
+    <script src="../js/territory/trees-spruce-and-shrubs.js"></script>
+    <script src="../js/territory/street-signs-and-gates.js"></script>
+    <script src="../js/territory/ring-road.js"></script>
+    <script src="../js/territory/traffic-lights-and-fence.js"></script>
 
-    <!-- Загрузка навигатора и графа -->
+    <!-- Загрузка графа навигации для редактирования узлов -->
     <script src="../js/nav/nav-core.js"></script>
     <script src="../js/nav/data/bldg1-f1.js"></script>
     <script src="../js/nav/data/bldg1-f2.js"></script>
@@ -648,16 +638,6 @@
     <script src="../js/nav/data/bldg4-f1.js"></script>
     <script src="../js/nav/data/bldg4-f2-f3.js"></script>
     <script src="../js/nav/graph-builder.js"></script>
-    <script src="../js/nav/astar-and-instructions.js"></script>
-    <script src="../js/nav/route-3d-geometry.js"></script>
-    <script src="../js/nav/route-3d-render.js"></script>
-    <script src="../js/nav/route-screen-badges.js"></script>
-    <script src="../js/nav/route-controller.js"></script>
-    <script src="../js/nav/route-card-ui.js"></script>
-    <script src="../js/nav/navigator-modal.js"></script>
-    <script src="../js/nav/autocomplete.js"></script>
-    <script src="../js/nav/nav-init.js"></script>
-    <script src="../js/nav/nav-chips-and-url.js"></script>
 
     <!-- Логика редактора -->
     <script src="editor.js"></script>

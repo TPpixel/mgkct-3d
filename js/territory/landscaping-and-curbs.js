@@ -164,6 +164,9 @@ function buildStreetFurniture(group) {
 // ----------------------------------------------------
 
 function createAsphaltTriangleGeometry(points, yTop = 0.02, depth = 0.14) {
+    if (typeof createExtrudedPolygonGeometry === 'function') {
+        return createExtrudedPolygonGeometry(points, yTop - depth / 2, depth);
+    }
     if (!points || points.length < 3) return null;
     const shape = new THREE.Shape();
     shape.moveTo(points[0][0], points[0][1]);

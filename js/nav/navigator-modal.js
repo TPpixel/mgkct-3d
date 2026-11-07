@@ -125,6 +125,10 @@
         clearRoute3D();
     }
 
+    window.openNavigatorModal = openNavigatorModal;
+    window.closeNavigatorModal = closeNavigatorModal;
+    window.clearRoute = clearRoute;
+
     // ------------------------------------------------------------------------
     // СЛОВАРЬ ПСЕВДОНИМОВ КАБИНЕТОВ ДЛЯ ПОИСКА НАВИГАТОРА
     // Вынесен на уровень модуля: создаётся один раз, а не при каждом keystroke.

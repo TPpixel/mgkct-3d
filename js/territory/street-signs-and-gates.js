@@ -245,5 +245,3 @@ function addBusStopSign(group, x, z) {
     group.add(signGroup);
 }
 
-window.buildTerritory = buildTerritory;
-

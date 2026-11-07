@@ -212,7 +212,6 @@ Object.assign(MATERIALS, {
 
 // Экспорт в глобальный scope window
 MATERIALS.trolleybusTimetable = MATERIALS.trolleybusTimetable1;
-window.MATERIALS = MATERIALS;
 window.createMinimalTexture = createMinimalTexture;
 window.createGlassFritTexture = createGlassFritTexture;
 window.createBusTimetableTexture = createBusTimetableTexture;

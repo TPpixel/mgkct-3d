@@ -15,6 +15,15 @@ function isCachedTerritoryGeometry(geom) {
     return false;
 }
 
+function disposeSingleTerritoryMaterial(m) {
+    if (!m) return;
+    const isShared = (typeof MATERIALS !== 'undefined') && Object.values(MATERIALS).includes(m);
+    if (isShared) return;
+    if (m.map && typeof m.map.dispose === 'function') m.map.dispose();
+    if (m.lightMap && typeof m.lightMap.dispose === 'function') m.lightMap.dispose();
+    if (typeof m.dispose === 'function') m.dispose();
+}
+
 function disposeTerritoryHierarchy(obj) {
     if (!obj) return;
     if (obj.geometry && typeof obj.geometry.dispose === 'function') {
@@ -23,13 +32,10 @@ function disposeTerritoryHierarchy(obj) {
         }
     }
     if (obj.material) {
-        const isShared = (typeof MATERIALS !== 'undefined') && Object.values(MATERIALS).includes(obj.material);
-        if (!isShared) {
-            if (Array.isArray(obj.material)) {
-                obj.material.forEach(m => m && typeof m.dispose === 'function' && m.dispose());
-            } else if (typeof obj.material.dispose === 'function') {
-                obj.material.dispose();
-            }
+        if (Array.isArray(obj.material)) {
+            obj.material.forEach(disposeSingleTerritoryMaterial);
+        } else {
+            disposeSingleTerritoryMaterial(obj.material);
         }
     }
     if (obj.children) {
@@ -90,6 +96,7 @@ function buildTerritory() {
     // Сбрасываем собранные бордюрные блоки в InstancedMesh (1 draw call)
     flushCurbBatch(t);
 }
+window.buildTerritory = buildTerritory;
 
 // ----------------------------------------------------
 // 1. БАЗОВАЯ ПОДЛОЖКА

@@ -80,13 +80,15 @@ function applyPreset(presetName, shouldSave = true) {
     }
 }
 
-let animFrameId = null;
+animFrameId = null;
+window.animFrameId = null;
 
 function animate(currentTime = 0) {
     if (animFrameId !== null) {
         cancelAnimationFrame(animFrameId);
     }
     animFrameId = requestAnimationFrame(animate);
+    window.animFrameId = animFrameId;
 
     // В фоновой вкладке полностью усыпляем рендерер (0% нагрузки на CPU/GPU)
     if (document.hidden) return;
@@ -218,6 +220,8 @@ function animate(currentTime = 0) {
 
     lastRenderTime = currentTime - (delta % interval);
 }
+
+window.animate = animate;
 
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);

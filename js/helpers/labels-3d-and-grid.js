@@ -13,6 +13,8 @@ function formatRoomDisplayName(text, buildingNum) {
 }
 window.formatRoomDisplayName = formatRoomDisplayName;
 
+let _sharedHiddenLabelMat = null;
+
 function computeRoomLabelPriority(textStr) {
     const t = (textStr || '').trim();
     if (/столов|спорт|актов|гардероб|библиот|конференц|учебн/i.test(t)) return 0;
@@ -155,10 +157,6 @@ function drawWcIcon(ctx, cx, cy, size, gender, color) {
     ctx.fill();
     ctx.restore();
 }
-window.renderedScreenBadges = renderedScreenBadges;
-let activeBadgeKeys = new Set();
-const _tempProjectVec = new THREE.Vector3();
-const _tempProjectVec2 = new THREE.Vector3();
 
 function initLabelsOverlay() {
     overlayCanvas = document.getElementById('labels-overlay-canvas');

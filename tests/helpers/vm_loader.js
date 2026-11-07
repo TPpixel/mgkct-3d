@@ -15,6 +15,12 @@ const vm = require('vm');
 const ROOT_DIR = path.resolve(__dirname, '../..');
 
 const LOGICAL_BUNDLE_MAP = {
+    'js/state.js': [
+        'js/state.js'
+    ],
+    'js/telemetry.js': [
+        'js/telemetry.js'
+    ],
     'js/materials.js': [
         'js/materials/timetable-data.js',
         'js/materials/timetable-board.js',
@@ -24,11 +30,11 @@ const LOGICAL_BUNDLE_MAP = {
     ],
     'js/helpers.js': [
         'js/helpers/slabs-and-cache.js',
-        'js/helpers/walls-junctions.js',
         'js/helpers/walls-overlaps.js',
+        'js/helpers/walls-junctions.js',
+        'js/helpers/walls-chamfer-and-segments.js',
         'js/helpers/walls-edges.js',
         'js/helpers/walls-flush.js',
-        'js/helpers/walls-chamfer-and-segments.js',
         'js/helpers/labels-3d-and-grid.js',
         'js/helpers/labels-screen-overlay.js',
         'js/helpers/stairs-and-roofs.js'
@@ -54,6 +60,9 @@ const LOGICAL_BUNDLE_MAP = {
         'js/buildings/bldg4/floor1-kitchen.js',
         'js/buildings/bldg4/floor2.js',
         'js/buildings/bldg4/floor3.js'
+    ],
+    'js/buildings/building5.js': [
+        'js/buildings/building5.js'
     ],
     'js/territory.js': [
         'js/territory/core.js',

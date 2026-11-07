@@ -119,8 +119,9 @@ function updateFloorInfo() {
 }
 
 function resolveSingleFloorTarget() {
-    if (currentPopupRoom && currentPopupRoom.floor) {
-        return String(currentPopupRoom.floor);
+    const popupRoom = (typeof currentPopupRoom !== 'undefined' ? currentPopupRoom : window.currentPopupRoom);
+    if (popupRoom && popupRoom.floor) {
+        return String(popupRoom.floor);
     }
     if (window.NAV_STATE && window.NAV_STATE.activeRoute && Array.isArray(window.NAV_STATE.activeRoute.involvedFloors) && window.NAV_STATE.activeRoute.involvedFloors.length > 0) {
         return String(window.NAV_STATE.activeRoute.involvedFloors[0]);
@@ -133,9 +134,10 @@ function resolveSingleFloorTarget() {
 function toggleAllFloorsMode() {
     if (STATE.mode === 'all') {
         const targetFloor = resolveSingleFloorTarget();
-        if (currentPopupRoom) {
+        const popupRoom = (typeof currentPopupRoom !== 'undefined' ? currentPopupRoom : window.currentPopupRoom);
+        if (popupRoom) {
             setMode(targetFloor, true, false);
-            selectRoom(currentPopupRoom, true);
+            selectRoom(popupRoom, true);
         } else {
             setMode(targetFloor);
         }
@@ -173,12 +175,13 @@ function setMode(newMode, shouldSave = true, shouldAnimateCam = true) {
     });
 
     // Скрываем контекстный попап кабинета, только если выбранный этаж стал невидим
-    if (currentPopupRoom) {
+    const popupRoom = (typeof currentPopupRoom !== 'undefined' ? currentPopupRoom : window.currentPopupRoom);
+    if (popupRoom) {
         let roomIsVisible = true;
         if (newMode === 'slice') {
-            roomIsVisible = (currentPopupRoom.floor <= (STATE.sliceMaxFloor || 7));
+            roomIsVisible = (popupRoom.floor <= (STATE.sliceMaxFloor || 7));
         } else if (newMode !== 'all' && newMode !== 'sideBySide') {
-            roomIsVisible = (String(currentPopupRoom.floor) === String(newMode));
+            roomIsVisible = (String(popupRoom.floor) === String(newMode));
         }
         if (!roomIsVisible) {
             hideRoomContextPopup();

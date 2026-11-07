@@ -114,7 +114,7 @@
             const dx = u.x - destX;
             const dz = u.z - destZ;
             const df = Math.abs(u.floor - destFloor);
-            return Math.hypot(dx, dz) + df * 5.0;
+            return Math.hypot(dx, dz) + df * 4.0;
         }
 
         const settled = new Set();
@@ -174,7 +174,21 @@
     // ГЕНЕРАТОР ПОШАГОВЫХ ТЕКСТОВЫХ ИНСТРУКЦИЙ (ПО-РУССКИ)
     // ------------------------------------------------------------------------
     function generateRouteInstructions(graph, path) {
-        if (!path || path.length < 2) return [];
+        if (!path || path.length === 0) return [];
+        if (path.length === 1) {
+            const singleNode = graph.getNode(path[0]);
+            const label = singleNode ? formatNavNodeName(singleNode.label, singleNode.bldg) : 'текущей точки';
+            const bldgStr = (singleNode && singleNode.bldg > 1 && !/^[2-4]-\d/.test(label)) ? ` (Корпус ${singleNode.bldg})` : '';
+            const floorStr = singleNode ? `, Этаж ${singleNode.floor}` : '';
+            return [{
+                type: 'arrival',
+                icon: '<svg class="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>',
+                text: `Вы уже находитесь в точке назначения: ${label}${bldgStr}${floorStr}`,
+                floor: singleNode ? singleNode.floor : 1,
+                bldg: singleNode ? singleNode.bldg : 1,
+                nodeId: path[0]
+            }];
+        }
 
         const instructions = [];
         const startNode = graph.getNode(path[0]);
@@ -290,6 +304,8 @@
         return instructions;
     }
 
-    // ------------------------------------------------------------------------
-    // ПОСТРОЕНИЕ 3D-ВИЗУАЛИЗАЦИИ МАРШРУТА В СЦЕНЕ THREE.JS
-    // ------------------------------------------------------------------------
+    window.doesIntersectWall = doesIntersectWall;
+    window.aStarPath = aStarPath;
+    window.generateRouteInstructions = generateRouteInstructions;
+    window.formatNavNodeName = formatNavNodeName;
+    window.formatNavInputString = formatNavInputString;
