@@ -117,6 +117,7 @@ const STATE = {
     theme: getInitialTheme(),
     buildingFilter: 'both',    // 'both' | '1' | '2' | '3' | '4'
     mode: '1',                 // По умолчанию 1-й этаж как в картах (1..7, 'all', 'sideBySide', 'slice')
+    lastSingleFloor: '1',      // Последний выбранный одиночный этаж (1..7) для корректного возврата из «Все этажи»
     sliceMaxFloor: 7,          // 1..7
     is2D: true,                // Вид сверху (2D карта) по умолчанию
     labelScale: 1.0,           // Масштаб шрифта номеров кабинетов
