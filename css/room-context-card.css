@@ -3,6 +3,7 @@
    ============================================================================ */
 
 #room-context-popup {
+    z-index: var(--z-card, 40) !important;
     bottom: max(12px, env(safe-area-inset-bottom, 12px)) !important;
     left: 12px !important;
     right: 12px !important;
