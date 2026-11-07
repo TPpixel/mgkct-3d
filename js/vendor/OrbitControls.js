@@ -85,8 +85,8 @@
 			}; // Touch fingers
 
 			this.touches = {
-				ONE: THREE.TOUCH.ROTATE,
-				TWO: THREE.TOUCH.DOLLY_PAN
+				ONE: THREE.TOUCH.PAN,
+				TWO: THREE.TOUCH.DOLLY_ROTATE
 			}; // for reset
 
 			this.target0 = this.target.clone();
@@ -582,6 +582,9 @@
 					const x = 0.5 * ( event.touches[ 0 ].pageX + event.touches[ 1 ].pageX );
 					const y = 0.5 * ( event.touches[ 0 ].pageY + event.touches[ 1 ].pageY );
 					rotateStart.set( x, y );
+					const dx = event.touches[ 1 ].pageX - event.touches[ 0 ].pageX;
+					const dy = event.touches[ 1 ].pageY - event.touches[ 0 ].pageY;
+					scope._touchTwistAngle = Math.atan2( dy, dx );
 
 				}
 
@@ -637,6 +640,19 @@
 					const x = 0.5 * ( event.touches[ 0 ].pageX + event.touches[ 1 ].pageX );
 					const y = 0.5 * ( event.touches[ 0 ].pageY + event.touches[ 1 ].pageY );
 					rotateEnd.set( x, y );
+
+					const dx = event.touches[ 1 ].pageX - event.touches[ 0 ].pageX;
+					const dy = event.touches[ 1 ].pageY - event.touches[ 0 ].pageY;
+					const angle = Math.atan2( dy, dx );
+					if ( typeof scope._touchTwistAngle === 'number' ) {
+						let angleDelta = angle - scope._touchTwistAngle;
+						if ( angleDelta > Math.PI ) angleDelta -= 2 * Math.PI;
+						if ( angleDelta < - Math.PI ) angleDelta += 2 * Math.PI;
+						if ( Math.abs( angleDelta ) > 0.002 ) {
+							rotateLeft( angleDelta * scope.rotateSpeed );
+						}
+					}
+					scope._touchTwistAngle = angle;
 
 				}
 
