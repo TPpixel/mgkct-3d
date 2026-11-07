@@ -299,8 +299,8 @@ function apply2DControls(is2D) {
             RIGHT: THREE.MOUSE.PAN
         };
         controls.touches = {
-            ONE: THREE.TOUCH.PAN,
-            TWO: THREE.TOUCH.DOLLY_ROTATE
+            ONE: THREE.TOUCH.ROTATE,
+            TWO: THREE.TOUCH.DOLLY_PAN
         };
         controls.minAzimuthAngle = -Infinity;
         controls.maxAzimuthAngle = Infinity;

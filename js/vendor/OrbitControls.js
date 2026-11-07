@@ -85,8 +85,8 @@
 			}; // Touch fingers
 
 			this.touches = {
-				ONE: THREE.TOUCH.PAN,
-				TWO: THREE.TOUCH.DOLLY_ROTATE
+				ONE: THREE.TOUCH.ROTATE,
+				TWO: THREE.TOUCH.DOLLY_PAN
 			}; // for reset
 
 			this.target0 = this.target.clone();
