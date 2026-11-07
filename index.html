@@ -7,10 +7,10 @@
     <!-- Resource Hints & Preconnections -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="stylesheet" href="css/tailwind.min.css?v=97">
-    <link rel="stylesheet" href="css/style.css?v=97">
-    <link rel="preload" href="js/vendor/three.min.js?v=97" as="script">
-    <link rel="preload" href="js/vendor/OrbitControls.js?v=97" as="script">
+    <link rel="stylesheet" href="css/tailwind.min.css?v=98">
+    <link rel="stylesheet" href="css/style.css?v=98">
+    <link rel="preload" href="js/vendor/three.min.js?v=98" as="script">
+    <link rel="preload" href="js/vendor/OrbitControls.js?v=98" as="script">
     <script>
         (function() {
             try {
@@ -470,18 +470,18 @@
     <!-- Нижняя плавающая карточка активного маршрута (Google Maps Expressive Route Card) -->
     <div id="navigator-route-card" class="fixed bottom-4 left-3 right-3 sm:left-1/2 sm:-translate-x-1/2 sm:w-full sm:max-w-md z-30 p-3.5 sm:p-4 rounded-[28px] hidden">
         <div class="flex items-center justify-between gap-3">
-            <!-- Левая колонка: Вертикальный блок маршрута (Конечный кабинет ↑ Начальная точка) -->
+            <!-- Левая колонка: Вертикальный блок маршрута (Начальная точка ↓ Конечный пункт) -->
             <div id="nav-card-title" class="flex flex-col items-center justify-center flex-shrink-0 cursor-pointer select-none" title="Изменить точки маршрута">
-                <!-- Конечный кабинет (крупный синий бейдж) -->
-                <span id="nav-card-dest-badge" class="px-3 py-1 rounded-xl bg-[#1a73e8] text-white font-google font-extrabold text-lg sm:text-xl tracking-tight shadow-sm inline-flex items-center justify-center">3-111</span>
-                <!-- Стрелка направления снизу вверх -->
+                <!-- Точка отправления (светло-голубой бейдж: Откуда) -->
+                <span id="nav-card-start-label" class="px-2.5 py-1 rounded-xl bg-[#c2e7ff] text-[#1a73e8] font-google font-bold text-xs truncate max-w-[125px] inline-flex items-center justify-center shadow-xs">Главный вход</span>
+                <!-- Стрелка направления сверху вниз -->
                 <div class="flex items-center justify-center my-0.5 text-slate-400 dark:text-slate-500">
                     <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M12 19V5M5 12l7-7 7 7"/>
+                        <path d="M12 5v14M5 12l7 7 7-7"/>
                     </svg>
                 </div>
-                <!-- Точка отправления (светло-голубой бейдж) -->
-                <span id="nav-card-start-label" class="px-2.5 py-1 rounded-xl bg-[#c2e7ff] text-[#1a73e8] font-google font-bold text-xs truncate max-w-[125px] inline-flex items-center justify-center shadow-xs">Главный вход</span>
+                <!-- Конечный кабинет (крупный синий бейдж: Куда) -->
+                <span id="nav-card-dest-badge" class="px-3 py-1 rounded-xl bg-[#1a73e8] text-white font-google font-extrabold text-lg sm:text-xl tracking-tight shadow-sm inline-flex items-center justify-center">3-111</span>
             </div>
 
             <!-- Правая колонка: Время и дистанция наверху, лестница и этажи внизу -->
@@ -633,21 +633,21 @@
     </div>
 
     <!-- Подключение Three.js и JS модулей -->
-    <script src="js/vendor/three.min.js?v=97"></script>
-    <script src="js/vendor/OrbitControls.js?v=97"></script>
-    <script src="js/state.js?v=97"></script>
-    <script src="js/materials.js?v=97"></script>
-    <script src="js/helpers.js?v=97"></script>
-    <script src="js/buildings/building1.js?v=97"></script>
-    <script src="js/buildings/building2.js?v=97"></script>
-    <script src="js/buildings/building3.js?v=97"></script>
-    <script src="js/buildings/building4.js?v=97"></script>
-    <script src="js/buildings/building5.js?v=97"></script>
-    <script src="js/territory.js?v=97"></script>
-    <script src="js/controls.js?v=97"></script>
-    <script src="js/navigator.js?v=97"></script>
-    <script src="js/ui.js?v=97"></script>
-    <script src="js/main.js?v=97"></script>
-    <script src="js/telemetry.js?v=97"></script>
+    <script src="js/vendor/three.min.js?v=98"></script>
+    <script src="js/vendor/OrbitControls.js?v=98"></script>
+    <script src="js/state.js?v=98"></script>
+    <script src="js/materials.js?v=98"></script>
+    <script src="js/helpers.js?v=98"></script>
+    <script src="js/buildings/building1.js?v=98"></script>
+    <script src="js/buildings/building2.js?v=98"></script>
+    <script src="js/buildings/building3.js?v=98"></script>
+    <script src="js/buildings/building4.js?v=98"></script>
+    <script src="js/buildings/building5.js?v=98"></script>
+    <script src="js/territory.js?v=98"></script>
+    <script src="js/controls.js?v=98"></script>
+    <script src="js/navigator.js?v=98"></script>
+    <script src="js/ui.js?v=98"></script>
+    <script src="js/main.js?v=98"></script>
+    <script src="js/telemetry.js?v=98"></script>
 </body>
 </html>
