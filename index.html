@@ -7,10 +7,10 @@
     <!-- Resource Hints & Preconnections -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="stylesheet" href="css/tailwind.min.css?v=95">
-    <link rel="stylesheet" href="css/style.css?v=95">
-    <link rel="preload" href="js/vendor/three.min.js?v=95" as="script">
-    <link rel="preload" href="js/vendor/OrbitControls.js?v=95" as="script">
+    <link rel="stylesheet" href="css/tailwind.min.css?v=109">
+    <link rel="stylesheet" href="css/style.css?v=109">
+    <link rel="preload" href="js/vendor/three.min.js?v=109" as="script">
+    <link rel="preload" href="js/vendor/OrbitControls.js?v=109" as="script">
     <script>
         (function() {
             try {
@@ -143,9 +143,7 @@
             </svg>
         </button>
         <!-- Кнопка «3D / 2D» -->
-        <button id="btn-toggle-2d" class="map-fab-btn" title="Переключить 2D карта сверху / 3D ракурс">
-            2D
-        </button>
+        <button id="btn-toggle-2d" class="map-fab-btn" title="Переключить 2D карта сверху / 3D ракурс" aria-label="Переключить 2D / 3D">2D</button>
     </div>
     <script>
         /* Мгновенная синхронизация активных кнопок HUD из localStorage и URL до первого рендера кадра (0 мс задержки) */
@@ -194,7 +192,7 @@
     <div id="search-modal" class="search-modal pointer-events-auto">
         <!-- Пометка: выбор начального или конечного пункта маршрута -->
         <div id="search-route-target-pill" class="hidden mb-2 px-3 py-1.5 rounded-full self-start inline-flex items-center gap-2 text-xs font-bold transition-all shadow-sm">
-            <span class="w-2.5 h-2.5 rounded-full bg-current animate-pulse"></span>
+            <span class="w-2 h-2 rounded-full bg-current"></span>
             <span id="search-route-target-text">Выбор конечного пункта (Куда)</span>
         </div>
         <!-- Нижняя строка: поисковая плашка + 3 быстрых кнопки (Столовая, Туалет, Справочная) -->
@@ -371,13 +369,13 @@
         </div>
 
         <!-- Быстрые направления и опции: тумблер лифта отдельно + слитный док-бар M3 Expressive -->
-        <div class="m3-nav-quick-row flex items-center gap-2 w-full flex-shrink-0 my-0.5">
-            <!-- 1. Опция лифта (отдельный тумблер-переключатель) -->
+        <div class="m3-nav-quick-row flex items-center gap-2.5 w-full flex-shrink-0 my-0.5">
+            <!-- 1. Опция лифта (отдельный круглый тумблер) -->
             <button id="btn-toggle-elevators-icon" type="button" 
                     title="Использовать лифты" 
                     aria-label="Использовать лифты"
                     aria-pressed="false"
-                    class="m3-elevator-toggle flex items-center justify-center">
+                    class="m3-nav-elevator-btn flex-shrink-0">
                 <svg class="w-5 h-5 flex-shrink-0 pointer-events-none" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-10.5 3c.69 0 1.25.56 1.25 1.25S9.19 8.5 8.5 8.5 7.25 7.94 7.25 7.25 7.81 6 8.5 6zM11 14h-1v4H7v-4H6v-2.5c0-1.1.9-2 2-2h1c1.1 0 2 .9 2 2V14zm4.5 3L13 13h5l-2.5 4zm-2.5-6 2.5-4 2.5 4h-5z"/>
                 </svg>
@@ -386,21 +384,21 @@
             <button id="btn-toggle-elevators" type="button" class="hidden"><span id="elevators-status-text">Без лифтов</span></button>
 
             <!-- Слитный док-бар из 5 быстрых направлений -->
-            <div class="m3-search-chips-bar m3-dock-cluster flex items-center flex-shrink-0">
+            <div class="m3-search-chips-bar m3-dock-cluster flex items-center flex-1 min-w-0 !mb-0">
                 <!-- 2. Туалет (Google Material Icon: wc) -->
                 <button id="btn-quick-toilet" type="button" 
                         title="Ближайший туалет" 
                         aria-label="Ближайший туалет"
-                        class="nav-quick-chip m3-dock-btn m3-dock-start flex-1">
+                        class="search-tag-chip nav-quick-chip m3-dock-btn m3-dock-start flex-1">
                     <svg class="w-5 h-5 flex-shrink-0 pointer-events-none" viewBox="0 0 24 24" fill="currentColor">
                         <path d="M5.5 22v-7.5H4V9c0-1.1.9-2 2-2h3c1.1 0 2 .9 2 2v5.5H9.5V22h-4zM18 22v-6h3l-2.54-7.63C18.18 7.55 17.42 7 16.56 7h-.12c-.86 0-1.63.55-1.9 1.37L12 16h3v6h3zM7.5 6c1.11 0 2-.89 2-2s-.89-2-2-2-2 .89-2 2 .89 2 2 2zm9 0c1.11 0 2-.89 2-2s-.89-2-2-2-2 .89-2 2 .89 2 2 2z"/>
                     </svg>
                 </button>
 
                 <!-- 3. Гардероб (Google Material Icon: checkroom) -->
-                <button class="nav-quick-chip m3-dock-btn m3-dock-mid flex-1" 
-                        data-target="Гардероб" 
-                        title="Гардероб" 
+                <button class="search-tag-chip nav-quick-chip m3-dock-btn m3-dock-mid flex-1"
+                        data-target="Гардероб"
+                        title="Гардероб"
                         aria-label="Гардероб">
                     <svg class="w-5 h-5 flex-shrink-0 pointer-events-none" viewBox="0 0 24 24" fill="currentColor">
                         <path d="M21.6 18.2 13 11.75v-.91c1.65-.49 2.8-2.17 2.43-4.05-.26-1.31-1.3-2.4-2.61-2.7C10.54 3.57 8.5 5.3 8.5 7.5h2c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5c0 .84-.69 1.52-1.53 1.5-.57-.01-1 .45-1 .99v1.76L2.4 18.2c-.77.58-.36 1.8.6 1.8h18c.96 0 1.37-1.22.6-1.8zM6 18l6-4.5 6 4.5H6z"/>
@@ -408,9 +406,9 @@
                 </button>
 
                 <!-- 4. Столовая (Google Material Icon: restaurant) -->
-                <button class="nav-quick-chip m3-dock-btn m3-dock-mid flex-1" 
-                        data-target="Столовая" 
-                        title="Столовая" 
+                <button class="search-tag-chip nav-quick-chip m3-dock-btn m3-dock-mid flex-1"
+                        data-target="Столовая"
+                        title="Столовая"
                         aria-label="Столовая">
                     <svg class="w-5 h-5 flex-shrink-0 pointer-events-none" viewBox="0 0 24 24" fill="currentColor">
                         <path d="M11 9H9V2H7v7H5V2H3v7c0 2.12 1.66 3.84 3.75 3.97V22h2.5v-9.03C11.34 12.84 13 11.12 13 9V2h-2v7zm5-3v8h2.5v8H21V2c-2.76 0-5 2.24-5 4z"/>
@@ -418,9 +416,9 @@
                 </button>
 
                 <!-- 5. Библиотека (Google Material Icon: local_library) -->
-                <button class="nav-quick-chip m3-dock-btn m3-dock-mid flex-1" 
-                        data-target="Библиотека" 
-                        title="Библиотека" 
+                <button class="search-tag-chip nav-quick-chip m3-dock-btn m3-dock-mid flex-1"
+                        data-target="Библиотека"
+                        title="Библиотека"
                         aria-label="Библиотека">
                     <svg class="w-5 h-5 flex-shrink-0 pointer-events-none" viewBox="0 0 24 24" fill="currentColor">
                         <path d="M12 11.55C9.64 9.35 6.48 8 3 8v11c3.48 0 6.64 1.35 9 3.55 2.36-2.19 5.52-3.55 9-3.55V8c-3.48 0-6.64 1.35-9 3.55zM12 8c1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3 1.34 3 3 3z"/>
@@ -428,9 +426,9 @@
                 </button>
 
                 <!-- 6. Учебная часть (Google Material Icon: school) -->
-                <button class="nav-quick-chip m3-dock-btn m3-dock-end flex-1" 
-                        data-target="Учебная часть" 
-                        title="Учебная часть" 
+                <button class="search-tag-chip nav-quick-chip m3-dock-btn m3-dock-end flex-1"
+                        data-target="Учебная часть"
+                        title="Учебная часть"
                         aria-label="Учебная часть">
                     <svg class="w-5 h-5 flex-shrink-0 pointer-events-none" viewBox="0 0 24 24" fill="currentColor">
                         <path d="M5 13.18v4L12 21l7-3.82v-4L12 17l-7-3.82zM12 3 1 9l11 6 9-4.91V17h2V9L12 3z"/>
@@ -458,28 +456,40 @@
         </div>
     </div>
 
-    <!-- Плавающий баннер режима указания точки на карте (наверху экрана) -->
-    <div id="nav-pick-banner" class="fixed top-3.5 left-1/2 -translate-x-1/2 z-50 px-5 py-2.5 rounded-full border border-black/10 dark:border-white/10 shadow-2xl flex items-center gap-3 hidden">
-        <div id="nav-pick-dot" class="w-3 h-3 rounded-full bg-[#1a73e8] animate-ping"></div>
-        <span id="nav-pick-text" class="text-xs font-bold text-slate-900 dark:text-white">Нажмите на любой кабинет на карте</span>
-        <button id="btn-cancel-pick" class="px-3 py-1 rounded-full bg-[#c2e7ff] hover:opacity-90 text-[#1a73e8] text-xs font-bold transition ml-1">Отмена</button>
+    <!-- Плавающий экспрессивный баннер выбора точки на карте (M3 Expressive Pick Banner) -->
+    <div id="nav-pick-banner" class="hidden" role="status" aria-live="polite">
+        <div class="flex items-center gap-3 min-w-0 flex-1">
+            <!-- Экспрессивная плашка-иконка squircle -->
+            <div id="nav-pick-icon-wrap" class="w-10 h-10 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-sm transition-transform duration-200">
+                <svg id="nav-pick-icon" class="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+                </svg>
+            </div>
+            <!-- Двухуровневая типографика M3: действие + цель маршрута без обрезания текста -->
+            <div class="flex flex-col justify-center min-w-0 flex-1 leading-tight">
+                <span id="nav-pick-text" class="font-google font-extrabold text-[14px] sm:text-[15px] truncate text-slate-900 dark:text-white">Выберите на карте</span>
+                <span id="nav-pick-subtext" class="text-[11.5px] sm:text-xs font-bold text-[#1a73e8] dark:text-[#70b3ff] truncate">Конечный кабинет (Куда)</span>
+            </div>
+        </div>
+        <!-- Кнопка Отмена в стиле M3 Tonal Stadium Button с упругим откликом -->
+        <button id="btn-cancel-pick" class="flex-shrink-0" type="button" aria-label="Отменить выбор">Отмена</button>
     </div>
 
     <!-- Нижняя плавающая карточка активного маршрута (Google Maps Expressive Route Card) -->
     <div id="navigator-route-card" class="fixed bottom-4 left-3 right-3 sm:left-1/2 sm:-translate-x-1/2 sm:w-full sm:max-w-md z-30 p-3.5 sm:p-4 rounded-[28px] hidden">
         <div class="flex items-center justify-between gap-3">
-            <!-- Левая колонка: Вертикальный блок маршрута (Конечный кабинет ↑ Начальная точка) -->
+            <!-- Левая колонка: Вертикальный блок маршрута (Начальная точка ↓ Конечный пункт) -->
             <div id="nav-card-title" class="flex flex-col items-center justify-center flex-shrink-0 cursor-pointer select-none" title="Изменить точки маршрута">
-                <!-- Конечный кабинет (крупный синий бейдж) -->
-                <span id="nav-card-dest-badge" class="px-3 py-1 rounded-xl bg-[#1a73e8] text-white font-google font-extrabold text-lg sm:text-xl tracking-tight shadow-sm inline-flex items-center justify-center">3-111</span>
-                <!-- Стрелка направления снизу вверх -->
+                <!-- Точка отправления (светло-голубой бейдж: Откуда) -->
+                <span id="nav-card-start-label" class="px-2.5 py-1 rounded-xl bg-[#c2e7ff] text-[#1a73e8] font-google font-bold text-xs truncate max-w-[125px] inline-flex items-center justify-center shadow-xs">Главный вход</span>
+                <!-- Стрелка направления сверху вниз -->
                 <div class="flex items-center justify-center my-0.5 text-slate-400 dark:text-slate-500">
                     <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M12 19V5M5 12l7-7 7 7"/>
+                        <path d="M12 5v14M5 12l7 7 7-7"/>
                     </svg>
                 </div>
-                <!-- Точка отправления (светло-голубой бейдж) -->
-                <span id="nav-card-start-label" class="px-2.5 py-1 rounded-xl bg-[#c2e7ff] text-[#1a73e8] font-google font-bold text-xs truncate max-w-[125px] inline-flex items-center justify-center shadow-xs">Главный вход</span>
+                <!-- Конечный кабинет (крупный синий бейдж: Куда) -->
+                <span id="nav-card-dest-badge" class="px-3 py-1 rounded-xl bg-[#1a73e8] text-white font-google font-extrabold text-lg sm:text-xl tracking-tight shadow-sm inline-flex items-center justify-center">3-111</span>
             </div>
 
             <!-- Правая колонка: Время и дистанция наверху, лестница и этажи внизу -->
@@ -523,6 +533,12 @@
         <div id="nav-steps-container" class="hidden pt-2 border-t border-black/5 dark:border-white/10 max-h-56 overflow-y-auto custom-scroll">
             <ul id="nav-steps-list" class="flex flex-col gap-1.5"></ul>
         </div>
+    </div>
+
+    <!-- Всплывающее уведомление (Toast / SnackBar M3 Expressive) -->
+    <div id="m3-toast" class="m3-toast hidden" role="status" aria-live="polite">
+        <div id="m3-toast-icon" class="flex-shrink-0 flex items-center justify-center"></div>
+        <span id="m3-toast-text" class="text-xs sm:text-sm font-semibold whitespace-nowrap"></span>
     </div>
 
     <!-- Всплывающий контекстный виджет при клике на кабинет на карте (Google Maps Room Info Card & Buttons) -->
@@ -625,21 +641,21 @@
     </div>
 
     <!-- Подключение Three.js и JS модулей -->
-    <script src="js/vendor/three.min.js?v=95"></script>
-    <script src="js/vendor/OrbitControls.js?v=95"></script>
-    <script src="js/state.js?v=95"></script>
-    <script src="js/materials.js?v=95"></script>
-    <script src="js/helpers.js?v=95"></script>
-    <script src="js/buildings/building1.js?v=95"></script>
-    <script src="js/buildings/building2.js?v=95"></script>
-    <script src="js/buildings/building3.js?v=95"></script>
-    <script src="js/buildings/building4.js?v=95"></script>
-    <script src="js/buildings/building5.js?v=95"></script>
-    <script src="js/territory.js?v=95"></script>
-    <script src="js/controls.js?v=95"></script>
-    <script src="js/navigator.js?v=108"></script>
-    <script src="js/ui.js?v=95"></script>
-    <script src="js/main.js?v=95"></script>
-    <script src="js/telemetry.js?v=95"></script>
+    <script src="js/vendor/three.min.js?v=109"></script>
+    <script src="js/vendor/OrbitControls.js?v=109"></script>
+    <script src="js/state.js?v=109"></script>
+    <script src="js/materials.js?v=109"></script>
+    <script src="js/helpers.js?v=109"></script>
+    <script src="js/buildings/building1.js?v=109"></script>
+    <script src="js/buildings/building2.js?v=109"></script>
+    <script src="js/buildings/building3.js?v=109"></script>
+    <script src="js/buildings/building4.js?v=109"></script>
+    <script src="js/buildings/building5.js?v=109"></script>
+    <script src="js/territory.js?v=109"></script>
+    <script src="js/controls.js?v=109"></script>
+    <script src="js/navigator.js?v=109"></script>
+    <script src="js/ui.js?v=109"></script>
+    <script src="js/main.js?v=109"></script>
+    <script src="js/telemetry.js?v=109"></script>
 </body>
 </html>

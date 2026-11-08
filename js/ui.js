@@ -1150,6 +1150,15 @@ function setupSearch() {
                 window.hidePickBanner();
             }
         }
+        if (!window.NAV_STATE || !window.NAV_STATE.activeRoute) {
+            const bottomSearch = document.getElementById('bottom-search-bar');
+            if (bottomSearch) {
+                bottomSearch.classList.remove('route-active', 'hidden');
+                bottomSearch.style.removeProperty('display');
+                bottomSearch.style.removeProperty('opacity');
+                bottomSearch.style.removeProperty('pointer-events');
+            }
+        }
     }
 
     window.openSearch = openSearch;
@@ -1207,9 +1216,11 @@ function setupSearch() {
     const btnSearchPickMap = document.getElementById("btn-search-pick-map");
     btnSearchPickMap?.addEventListener("click", () => {
         const targetType = (window.NAV_STATE && window.NAV_STATE.targetToChange) ? window.NAV_STATE.targetToChange : 'dest';
-        const label = targetType === 'dest' ? 'конечный пункт (Куда)' : 'начальный пункт (Откуда)';
+        if (window.NAV_STATE) {
+            window.NAV_STATE.pickingMode = targetType;
+        }
         if (typeof window.showPickBanner === 'function') {
-            window.showPickBanner(`Нажмите на кабинет на карте (${targetType === 'dest' ? 'Куда' : 'Откуда'})`, targetType);
+            window.showPickBanner(`Выберите кабинет на карте (${targetType === 'dest' ? 'Куда' : 'Откуда'})`, targetType);
         }
         closeSearch(false, true);
     });
@@ -1251,19 +1262,31 @@ function setupSearch() {
             searchInput.value = "";
             searchInput.focus();
             btnClearSearch.classList.add("hidden");
-            searchTagChips.forEach(c => c.classList.remove("is-active"));
+            syncSearchChipState("");
             renderSearchResults("");
         }
     });
+
+    function syncSearchChipState(rawQuery) {
+        const queryText = (rawQuery || "").trim().toLowerCase();
+        const searchModal = document.getElementById("search-modal");
+        const chips = searchModal ? searchModal.querySelectorAll(".search-tag-chip") : [];
+        chips.forEach(c => {
+            const chipQuery = (c.dataset.query || "").trim().toLowerCase();
+            const matches = Boolean(queryText) && chipQuery === queryText;
+            c.classList.toggle("is-active", matches);
+            if (!matches) {
+                c.blur();
+            }
+        });
+    }
 
     searchInput?.addEventListener("input", (e) => {
         const val = (e.target.value || "").trim();
         if (btnClearSearch) {
             btnClearSearch.classList.toggle("hidden", !val);
         }
-        searchTagChips.forEach(c => {
-            c.classList.toggle("is-active", Boolean(val) && (c.dataset.query || "").toLowerCase() === val.toLowerCase());
-        });
+        syncSearchChipState(val);
         if (searchDebounceTimer) {
             clearTimeout(searchDebounceTimer);
         }
@@ -1271,6 +1294,14 @@ function setupSearch() {
         searchDebounceTimer = setTimeout(() => {
             renderSearchResults(query);
         }, 150);
+    });
+
+    searchInput?.addEventListener("change", (e) => {
+        syncSearchChipState(e.target.value);
+    });
+
+    searchInput?.addEventListener("keyup", (e) => {
+        syncSearchChipState(e.target.value);
     });
 
     searchInput?.addEventListener("keydown", (e) => {
@@ -1312,7 +1343,7 @@ function setupSearch() {
             const q = chip.dataset.query || "";
             const isAlreadyActive = chip.classList.contains("is-active");
 
-            // Снимаем активность со всех чипов
+            // Снимаем активность со всех чипов и снимаем фокус
             searchTagChips.forEach(c => c.classList.remove("is-active"));
             if (typeof chip.blur === "function") chip.blur();
 
@@ -1320,14 +1351,15 @@ function setupSearch() {
                 // Повторный клик по активному чипу снимает фильтр
                 if (searchInput) searchInput.value = "";
                 if (btnClearSearch) btnClearSearch.classList.add("hidden");
+                syncSearchChipState("");
                 renderSearchResults("");
             } else {
-                chip.classList.add("is-active");
                 if (searchInput) {
                     searchInput.value = q;
                     if (btnClearSearch) btnClearSearch.classList.remove("hidden");
                     searchInput.focus();
                 }
+                syncSearchChipState(q);
                 renderSearchResults(q);
             }
         });
@@ -1458,7 +1490,7 @@ function setupSearch() {
             if (bldg === 4 && r.floor === 1 && (cleanText.includes("102") || cleanText.includes("столов"))) alias = "столовая буфет обед еда 102";
             if (bldg === 4 && r.floor === 2 && (cleanText.includes("206") || cleanText.includes("спорт"))) alias = "спортзал спортивный зал спорт 206";
             if (bldg === 4 && r.floor === 2 && (cleanText.includes("204") || cleanText.includes("актов"))) alias = "актовый зал актовый сцена 204";
-            if (bldg === 1 && r.floor === 1 && (cleanText.includes("102") || cleanText.includes("гардероб"))) alias = "гардероб раздевалка одежда 102";
+            if (bldg === 1 && r.floor === 1 && (cleanText.includes("102") || cleanText.includes("гардероб"))) alias = "гардероб раздевалка вешалка одежда 102";
             if (bldg === 2 && r.floor === 1 && (cleanText.includes("104") || cleanText.includes("библиот"))) alias = "библиотека книги читальный зал 104";
             if (bldg === 2 && r.floor === 3 && (cleanText.includes("308") || cleanText.includes("спорт"))) alias = "спортзал спортивный зал спорт 308";
             if (bldg === 2 && r.floor === 3 && (cleanText.includes("312") || cleanText.includes("конференц"))) alias = "конференц-зал конференц зал собрания 312";
@@ -1636,15 +1668,18 @@ function updateVisualViewportVars() {
 }
 window.updateVisualViewportVars = updateVisualViewportVars;
 
-// Адаптивная привязка плавающих кнопок FAB над окном карточки кабинета или маршрута
+// Адаптивная привязка плавающих кнопок FAB над окном карточки кабинета, маршрута или баннера выбора
 function updateAdaptiveFabPosition() {
     if (typeof window === "undefined" || typeof document === "undefined") return;
 
     const popup = document.getElementById('room-context-popup');
     const routeCard = document.getElementById('navigator-route-card');
+    const pickBanner = document.getElementById('nav-pick-banner');
 
     let activeCard = null;
-    if (popup && !popup.classList.contains('hidden')) {
+    if (pickBanner && !pickBanner.classList.contains('hidden')) {
+        activeCard = pickBanner;
+    } else if (popup && !popup.classList.contains('hidden')) {
         activeCard = popup;
     } else if (routeCard && !routeCard.classList.contains('hidden')) {
         activeCard = routeCard;
@@ -1682,8 +1717,10 @@ function setupVisualViewportHandler() {
         });
         const popup = document.getElementById('room-context-popup');
         const routeCard = document.getElementById('navigator-route-card');
+        const pickBanner = document.getElementById('nav-pick-banner');
         if (popup) ro.observe(popup);
         if (routeCard) ro.observe(routeCard);
+        if (pickBanner) ro.observe(pickBanner);
     }
 
     if (window.visualViewport) {
@@ -1899,8 +1936,14 @@ function setupUI() {
 
     document.getElementById('btn-toggle-all-floors')?.addEventListener('click', toggleAllFloorsMode);
 
-    document.getElementById('btn-toggle-territory')?.addEventListener('click', toggleTerritoryView);
-    document.getElementById('btn-toggle-2d')?.addEventListener('click', toggle2DView);
+    document.getElementById('btn-toggle-territory')?.addEventListener('click', (e) => {
+        toggleTerritoryView();
+        e.currentTarget?.blur();
+    });
+    document.getElementById('btn-toggle-2d')?.addEventListener('click', (e) => {
+        toggle2DView();
+        e.currentTarget?.blur();
+    });
     document.getElementById('btn-zoom-in')?.addEventListener('click', () => {
         if (typeof zoomIn === 'function') zoomIn();
     });
@@ -2195,6 +2238,13 @@ function hideRoomContextPopup(fromPopstate = false, suppressRouteRestore = false
         const widgetText = document.getElementById('search-widget-text');
         if (widgetText) {
             widgetText.textContent = 'Поиск по колледжу...';
+        }
+        const bottomSearch = document.getElementById('bottom-search-bar');
+        if (bottomSearch) {
+            bottomSearch.classList.remove('route-active', 'hidden');
+            bottomSearch.style.removeProperty('display');
+            bottomSearch.style.removeProperty('opacity');
+            bottomSearch.style.removeProperty('pointer-events');
         }
     }
 
