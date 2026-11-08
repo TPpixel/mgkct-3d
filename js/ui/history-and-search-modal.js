@@ -246,6 +246,15 @@ function setupSearch() {
                 window.hidePickBanner();
             }
         }
+        if (!window.NAV_STATE || !window.NAV_STATE.activeRoute) {
+            const bottomSearch = document.getElementById('bottom-search-bar');
+            if (bottomSearch) {
+                bottomSearch.classList.remove('route-active', 'hidden');
+                bottomSearch.style.removeProperty('display');
+                bottomSearch.style.removeProperty('opacity');
+                bottomSearch.style.removeProperty('pointer-events');
+            }
+        }
     }
 
     window.openSearch = openSearch;

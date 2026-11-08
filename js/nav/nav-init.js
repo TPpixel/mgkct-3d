@@ -115,13 +115,14 @@
         const btnElevIcon = document.getElementById('btn-toggle-elevators-icon');
         const elevText = document.getElementById('elevators-status-text');
 
-        function setElevatorsState(enabled) {
+        function setElevatorsState(enabled, userTriggered = false) {
             NAV_STATE.allowElevators = !!enabled;
             if (switchElev) switchElev.checked = NAV_STATE.allowElevators;
             if (btnElevIcon) {
                 btnElevIcon.classList.toggle('active', NAV_STATE.allowElevators);
                 btnElevIcon.setAttribute('aria-pressed', NAV_STATE.allowElevators ? 'true' : 'false');
                 btnElevIcon.title = NAV_STATE.allowElevators ? 'Лифты включены (нажмите, чтобы выключить)' : 'Использовать лифты';
+                btnElevIcon.blur();
             }
             const switchLabel = document.getElementById('elevators-switch-label');
             if (switchLabel) {
@@ -150,25 +151,36 @@
             if (btnElev) {
                 btnElev.classList.toggle('active', NAV_STATE.allowElevators);
             }
+
+            if (userTriggered) {
+                if (NAV_STATE.allowElevators) {
+                    showToast('Лифты включены (разрешены в маршрутах)', ELEVATOR_TOAST_ICON, 3000);
+                } else {
+                    showToast('Лифты выключены (маршруты по лестницам)', STAIRS_TOAST_ICON, 3000);
+                }
+            }
+
             if (NAV_STATE.startPoint && NAV_STATE.destPoint) {
                 buildRoute(NAV_STATE.startPoint, NAV_STATE.destPoint);
             }
         }
 
         if (btnElevIcon) {
-            btnElevIcon.addEventListener('click', () => {
-                setElevatorsState(!NAV_STATE.allowElevators);
+            btnElevIcon.addEventListener('click', (e) => {
+                e.preventDefault();
+                setElevatorsState(!NAV_STATE.allowElevators, true);
             });
         }
         if (switchElev) {
             switchElev.checked = NAV_STATE.allowElevators;
             switchElev.addEventListener('change', () => {
-                setElevatorsState(switchElev.checked);
+                setElevatorsState(switchElev.checked, true);
             });
         }
         if (btnElev) {
-            btnElev.addEventListener('click', () => {
-                setElevatorsState(!NAV_STATE.allowElevators);
+            btnElev.addEventListener('click', (e) => {
+                e.preventDefault();
+                setElevatorsState(!NAV_STATE.allowElevators, true);
             });
         }
 
@@ -226,6 +238,10 @@
         // Закрытие модалки по клавише Escape
         window.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
+                if (document.body.classList.contains('nav-picking-active')) {
+                    hidePickBanner();
+                    return;
+                }
                 const modal = document.getElementById('navigator-modal');
                 if (modal && (modal.classList.contains('open') || modal.classList.contains('active'))) {
                     closeNavigatorModal();
@@ -239,10 +255,26 @@
             btnSwap.addEventListener('click', swapStartAndDest);
         }
 
-        // Кнопка очистки
+        // Кнопка сброса маршрута (возвращает дефолтный вход в колледж)
         const btnClear = document.getElementById('btn-nav-clear');
         if (btnClear) {
-            btnClear.addEventListener('click', clearRoute);
+            btnClear.addEventListener('click', (e) => {
+                e.preventDefault();
+                clearRoute();
+                NAV_STATE.startPoint = null;
+                setDefaultStartPoint();
+                if (inputDest) {
+                    inputDest.value = '';
+                    inputDest.focus();
+                }
+                if (btnClearDest) {
+                    btnClearDest.classList.add('hidden');
+                }
+                document.querySelectorAll('.nav-quick-chip').forEach(c => {
+                    c.classList.remove('is-active', 'active');
+                    c.blur();
+                });
+            });
         }
 
         // Кнопка закрытия карточки маршрута

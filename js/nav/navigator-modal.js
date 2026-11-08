@@ -78,6 +78,17 @@
             modal.style.pointerEvents = '';
             backdrop.style.pointerEvents = '';
         }
+        if (!NAV_STATE.activeRoute) {
+            const bottomSearch = document.getElementById('bottom-search-bar');
+            if (bottomSearch) {
+                bottomSearch.classList.remove('route-active', 'hidden');
+                bottomSearch.style.removeProperty('display');
+                bottomSearch.style.removeProperty('opacity');
+                bottomSearch.style.removeProperty('pointer-events');
+                bottomSearch.style.removeProperty('transform');
+            }
+            document.body.classList.remove('route-active');
+        }
     }
 
     function swapStartAndDest() {
@@ -136,9 +147,15 @@
 
         const card = document.getElementById('navigator-route-card');
         if (card) card.classList.add('hidden');
-        document.body.classList.remove('route-active');
+        document.body.classList.remove('route-active', 'nav-picking-active');
         const bottomSearch = document.getElementById('bottom-search-bar');
-        if (bottomSearch) bottomSearch.classList.remove('route-active');
+        if (bottomSearch) {
+            bottomSearch.classList.remove('route-active', 'hidden');
+            bottomSearch.style.removeProperty('display');
+            bottomSearch.style.removeProperty('opacity');
+            bottomSearch.style.removeProperty('pointer-events');
+            bottomSearch.style.removeProperty('transform');
+        }
         if (typeof window.updateAdaptiveFabPosition === 'function') {
             window.updateAdaptiveFabPosition();
         }

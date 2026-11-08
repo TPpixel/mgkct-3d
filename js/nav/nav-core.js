@@ -61,6 +61,54 @@ window.calculateWalkTime = calculateWalkTime;
     window.NAV_STATE = NAV_STATE;
 
     // ------------------------------------------------------------------------
+    // M3 EXPRESSIVE FLOATING TOAST NOTIFICATION
+    // ------------------------------------------------------------------------
+    const ELEVATOR_TOAST_ICON = '<svg class="w-4 h-4 text-[#70b3ff] flex-shrink-0" viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-10.5 3c.69 0 1.25.56 1.25 1.25S9.19 8.5 8.5 8.5 7.25 7.94 7.25 7.25 7.81 6 8.5 6zM11 14h-1v4H7v-4H6v-2.5c0-1.1.9-2 2-2h1c1.1 0 2 .9 2 2V14zm4.5 3L13 13h5l-2.5 4zm-2.5-6 2.5-4 2.5 4h-5z"/></svg>';
+    const STAIRS_TOAST_ICON = '<svg class="w-4 h-4 text-emerald-400 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19h4v-4h4v-4h4V7h4"></path></svg>';
+    window.ELEVATOR_TOAST_ICON = ELEVATOR_TOAST_ICON;
+    window.STAIRS_TOAST_ICON = STAIRS_TOAST_ICON;
+
+    let toastTimer = null;
+    function showToast(message, iconSvg = null, duration = 2800) {
+        const toast = document.getElementById('m3-toast');
+        if (!toast) return;
+        const iconContainer = document.getElementById('m3-toast-icon');
+        const textEl = document.getElementById('m3-toast-text');
+
+        if (toastTimer) {
+            clearTimeout(toastTimer);
+            toastTimer = null;
+        }
+
+        if (textEl) textEl.textContent = message;
+        if (iconContainer) {
+            if (iconSvg) {
+                iconContainer.innerHTML = iconSvg;
+                iconContainer.classList.remove('hidden');
+            } else {
+                iconContainer.innerHTML = '';
+                iconContainer.classList.add('hidden');
+            }
+        }
+
+        toast.classList.remove('hidden', 'is-leaving');
+        toast.classList.add('is-entering');
+        requestAnimationFrame(() => {
+            toast.classList.remove('is-entering');
+        });
+
+        toastTimer = setTimeout(() => {
+            toast.classList.add('is-leaving');
+            setTimeout(() => {
+                toast.classList.add('hidden');
+                toast.classList.remove('is-leaving');
+                toastTimer = null;
+            }, 240);
+        }, duration);
+    }
+    window.showToast = showToast;
+
+    // ------------------------------------------------------------------------
     // ПРИОРИТЕТНАЯ ОЧЕРЕДЬ (BINARY MIN-HEAP) ДЛЯ АЛГОРИТМА A*
     // ------------------------------------------------------------------------
     class MinHeap {

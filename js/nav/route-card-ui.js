@@ -65,7 +65,7 @@
                     const sInput = document.getElementById('search-input');
 
                     if (targetType === 'dest') {
-                        badgeEl.classList.add('ring-4', 'ring-white/80', 'ring-offset-2', 'ring-offset-[#1a73e8]', 'animate-pulse');
+                        badgeEl.classList.add('ring-4', 'ring-white/80', 'ring-offset-2', 'ring-offset-[#1a73e8]');
                         if (pill && pillText) {
                             pillText.textContent = 'Выбор конечного пункта (Куда)';
                             pill.className = 'is-dest mb-2 px-3 py-1.5 rounded-full self-start inline-flex items-center gap-2 text-xs font-bold transition-all shadow-sm bg-[#1a73e8] text-white';
@@ -75,7 +75,7 @@
                             sInput.placeholder = 'Куда: выберите конечный кабинет...';
                         }
                     } else {
-                        badgeEl.classList.add('ring-4', 'ring-[#1a73e8]', 'ring-offset-2', 'ring-offset-[#c2e7ff]', 'animate-pulse');
+                        badgeEl.classList.add('ring-4', 'ring-[#1a73e8]', 'ring-offset-2', 'ring-offset-[#c2e7ff]');
                         if (pill && pillText) {
                             pillText.textContent = 'Выбор начального пункта (Откуда)';
                             pill.className = 'is-start mb-2 px-3 py-1.5 rounded-full self-start inline-flex items-center gap-2 text-xs font-bold transition-all shadow-sm bg-[#c2e7ff] text-[#004a77] border border-[#1a73e8]';
@@ -124,11 +124,20 @@
             openNavigatorModal();
         };
 
-        // Круглая иконка лестницы: по нажатию переход на следующий этаж маршрута
+        // Круглая иконка лестницы/лифта: по нажатию переход на следующий этаж маршрута
         const stairsIconEl = card.querySelector('.m3-nav-stairs-icon');
         if (stairsIconEl) {
             stairsIconEl.style.cursor = 'pointer';
-            stairsIconEl.title = 'Перейти на следующий этаж';
+            const hasElevator = (route && route.nodes && route.nodes.some(n => n.type === 'elevator')) ||
+                                (route && route.instructions && route.instructions.some(i => i.isElevator)) ||
+                                (route && route.stairTransitions && route.stairTransitions.some(st => st.isElevator));
+            if (hasElevator) {
+                stairsIconEl.innerHTML = `<svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-10.5 3c.69 0 1.25.56 1.25 1.25S9.19 8.5 8.5 8.5 7.25 7.94 7.25 7.25 7.81 6 8.5 6zM11 14h-1v4H7v-4H6v-2.5c0-1.1.9-2 2-2h1c1.1 0 2 .9 2 2V14zm4.5 3L13 13h5l-2.5 4zm-2.5-6 2.5-4 2.5 4h-5z"/></svg>`;
+                stairsIconEl.title = 'В маршруте используется лифт (нажмите для перехода по этажам)';
+            } else {
+                stairsIconEl.innerHTML = `<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19h4v-4h4v-4h4V7h4"></path></svg>`;
+                stairsIconEl.title = 'Перейти на следующий этаж';
+            }
             stairsIconEl.onclick = (e) => {
                 e.stopPropagation();
                 if (route && route.involvedFloors && route.involvedFloors.length > 1) {

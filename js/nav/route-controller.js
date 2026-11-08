@@ -21,19 +21,21 @@
         const floorSet = new Set(nodes.map(n => n.floor));
         const involvedFloors = Array.from(floorSet).sort((a, b) => a - b);
 
-        // Находим переходы по лестницам
+        // Находим переходы по лестницам и лифтам
         const stairTransitions = [];
         for (let i = 1; i < nodes.length; i++) {
             const prev = nodes[i - 1];
             const curr = nodes[i];
             if (curr.floor !== prev.floor) {
+                const isElev = prev.type === 'elevator' || curr.type === 'elevator';
                 stairTransitions.push({
                     fromFloor: prev.floor,
                     toFloor: curr.floor,
                     x: prev.x,
                     z: prev.z,
                     isUp: curr.floor > prev.floor,
-                    stairName: prev.label
+                    isElevator: isElev,
+                    stairName: isElev ? 'Лифт' : prev.label
                 });
             }
         }
@@ -87,6 +89,14 @@
 
         // 5. Фокусируем камеру на начальном отрезке пути
         focusCameraOnSegment(nodes[0]);
+
+        // 6. Уведомление пользователя, если в построенном маршруте задействован лифт
+        const hasElevator = (routeData.nodes && routeData.nodes.some(n => n.type === 'elevator')) ||
+                            (routeData.instructions && routeData.instructions.some(i => i.isElevator)) ||
+                            (routeData.stairTransitions && routeData.stairTransitions.some(st => st.isElevator));
+        if (hasElevator && typeof showToast === 'function') {
+            showToast('В маршруте используется лифт', window.ELEVATOR_TOAST_ICON, 3500);
+        }
 
         return routeData;
     }
@@ -231,11 +241,8 @@
     }
 
     function onLocationPicked(roomInfo) {
-        const mode = NAV_STATE.pickingMode;
-        NAV_STATE.pickingMode = null;
-
-        const banner = document.getElementById('nav-pick-banner');
-        if (banner) banner.classList.add('hidden');
+        const mode = NAV_STATE.pickingMode || NAV_STATE.targetToChange || 'dest';
+        hidePickBanner();
 
         const g = NAV_STATE.graph || buildCollegeNavGraph();
         NAV_STATE.graph = g;

@@ -39,12 +39,20 @@
     }
 }
 
+.search-tag-chip:focus,
+.search-tag-chip:focus-visible {
+    outline: none !important;
+    background-color: transparent !important;
+}
+
 .search-tag-chip:active {
     transform: scale(0.96) !important;
 }
 
 /* Активная выбранная кнопка дока (#1a73e8 с белой иконкой — строго наш синий акцент) */
-.search-tag-chip.is-active {
+.search-tag-chip.is-active,
+.search-tag-chip.is-active:focus,
+.search-tag-chip.is-active:hover {
     background-color: #1a73e8 !important;
     color: #ffffff !important;
 }
@@ -80,7 +88,15 @@
     }
 }
 
-[data-theme="dark"] .search-tag-chip.is-active {
+[data-theme="dark"] .search-tag-chip:focus,
+[data-theme="dark"] .search-tag-chip:focus-visible {
+    outline: none !important;
+    background-color: transparent !important;
+}
+
+[data-theme="dark"] .search-tag-chip.is-active,
+[data-theme="dark"] .search-tag-chip.is-active:focus,
+[data-theme="dark"] .search-tag-chip.is-active:hover {
     background-color: #1a73e8 !important;
     color: #ffffff !important;
 }

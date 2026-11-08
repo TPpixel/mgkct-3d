@@ -342,7 +342,8 @@
     margin-bottom: 4px !important;
 }
 
-.m3-nav-quick-row > #btn-toggle-elevators-icon {
+.m3-nav-quick-row > #btn-toggle-elevators-icon,
+.m3-nav-elevator-btn {
     flex: 1 1 0% !important;
     min-width: 0 !important;
     height: 44px !important;
@@ -360,7 +361,8 @@
     -webkit-tap-highlight-color: transparent !important;
 }
 
-[data-theme="dark"] .m3-nav-quick-row > #btn-toggle-elevators-icon {
+[data-theme="dark"] .m3-nav-quick-row > #btn-toggle-elevators-icon,
+[data-theme="dark"] .m3-nav-elevator-btn {
     background-color: #282a2c !important;
     border: 1px solid rgba(255, 255, 255, 0.14) !important;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4) !important;
@@ -368,18 +370,21 @@
 }
 
 @media (hover: hover) and (pointer: fine) {
-    .m3-nav-quick-row > #btn-toggle-elevators-icon:hover {
+    .m3-nav-quick-row > #btn-toggle-elevators-icon:hover,
+    .m3-nav-elevator-btn:hover {
         background-color: #e2e7ef !important;
         color: #1f1f1f !important;
     }
 
-    [data-theme="dark"] .m3-nav-quick-row > #btn-toggle-elevators-icon:hover {
+    [data-theme="dark"] .m3-nav-quick-row > #btn-toggle-elevators-icon:hover,
+    [data-theme="dark"] .m3-nav-elevator-btn:hover {
         background-color: rgba(255, 255, 255, 0.08) !important;
         color: #e3e3e3 !important;
     }
 }
 
-.m3-nav-quick-row > #btn-toggle-elevators-icon:active {
+.m3-nav-quick-row > #btn-toggle-elevators-icon:active,
+.m3-nav-elevator-btn:active {
     transform: scale(0.95) !important;
 }
 
@@ -449,31 +454,86 @@
 
 /* Опция лифта: загорается Google синим при включении (без свечения) */
 .m3-elevator-toggle.active,
-.m3-nav-quick-row > #btn-toggle-elevators-icon.active {
+.m3-nav-quick-row > #btn-toggle-elevators-icon.active,
+.m3-nav-elevator-btn.active,
+.m3-nav-elevator-btn[aria-pressed="true"] {
     background-color: #1a73e8 !important;
     background: #1a73e8 !important;
-    color: #ffffff !important;
     border-color: #1a73e8 !important;
-    box-shadow: none !important;
+    color: #ffffff !important;
+    box-shadow: 0 2px 8px rgba(26, 115, 232, 0.35) !important;
 }
 
 .m3-elevator-toggle.active svg,
-.m3-nav-quick-row > #btn-toggle-elevators-icon.active svg {
+.m3-nav-quick-row > #btn-toggle-elevators-icon.active svg,
+.m3-nav-elevator-btn.active svg,
+.m3-nav-elevator-btn[aria-pressed="true"] svg {
     color: #ffffff !important;
 }
 
 [data-theme="dark"] .m3-elevator-toggle.active,
-[data-theme="dark"] .m3-nav-quick-row > #btn-toggle-elevators-icon.active {
+[data-theme="dark"] .m3-nav-quick-row > #btn-toggle-elevators-icon.active,
+[data-theme="dark"] .m3-nav-elevator-btn.active,
+[data-theme="dark"] .m3-nav-elevator-btn[aria-pressed="true"] {
     background-color: #1a73e8 !important;
     background: #1a73e8 !important;
-    color: #ffffff !important;
     border-color: #1a73e8 !important;
-    box-shadow: none !important;
+    color: #ffffff !important;
+    box-shadow: 0 2px 8px rgba(26, 115, 232, 0.45) !important;
 }
 
 [data-theme="dark"] .m3-elevator-toggle.active svg,
-[data-theme="dark"] .m3-nav-quick-row > #btn-toggle-elevators-icon.active svg {
+[data-theme="dark"] .m3-nav-quick-row > #btn-toggle-elevators-icon.active svg,
+[data-theme="dark"] .m3-nav-elevator-btn.active svg,
+[data-theme="dark"] .m3-nav-elevator-btn[aria-pressed="true"] svg {
     color: #ffffff !important;
+}
+
+/* Всплывающее уведомление Toast / SnackBar (M3 Expressive) */
+.m3-toast {
+    position: fixed !important;
+    top: 20px !important;
+    left: 50% !important;
+    transform: translateX(-50%) translateY(0) !important;
+    z-index: 100 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+    padding: 10px 18px !important;
+    border-radius: 9999px !important;
+    background: #1f1f1f !important;
+    color: #ffffff !important;
+    border: 1px solid rgba(255, 255, 255, 0.16) !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.32) !important;
+    font-size: 13.5px !important;
+    font-weight: 600 !important;
+    letter-spacing: -0.01em !important;
+    pointer-events: none !important;
+    transition: opacity 0.22s cubic-bezier(0.2, 0, 0, 1), transform 0.22s cubic-bezier(0.2, 0, 0, 1) !important;
+    opacity: 1 !important;
+    max-width: calc(100vw - 32px) !important;
+    box-sizing: border-box !important;
+}
+
+.m3-toast.hidden {
+    display: none !important;
+}
+
+.m3-toast.is-entering {
+    opacity: 0 !important;
+    transform: translateX(-50%) translateY(-14px) !important;
+}
+
+.m3-toast.is-leaving {
+    opacity: 0 !important;
+    transform: translateX(-50%) translateY(-14px) !important;
+}
+
+[data-theme="dark"] .m3-toast {
+    background: #282a2c !important;
+    color: #ffffff !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.6) !important;
 }
 
 /* Шапка модального окна маршрута */
@@ -496,17 +556,201 @@
     color: var(--m3-on-surface) !important;
 }
 
-/* Плавающий баннер выбора на карте (Google Maps Pick Banner — строго наверху) */
+/* Плавающий баннер выбора на карте (Google Maps Pick Banner — внизу экрана вместо плашки маршрута) */
+/* ==========================================================================
+   M3 EXPRESSIVE MAP PICK BANNER (Нижний баннер выбора точки на карте)
+   ========================================================================== */
 #nav-pick-banner {
-    background: var(--m3-surface) !important;
-    border: 2px solid var(--m3-outline-variant) !important;
-    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.22) !important;
-    color: var(--m3-on-surface) !important;
-    border-radius: 9999px;
-    top: max(14px, env(safe-area-inset-top, 14px)) !important;
-    z-index: var(--z-banner) !important;
+    position: fixed !important;
+    bottom: max(16px, env(safe-area-inset-bottom, 16px)) !important;
+    top: auto !important;
+    left: 14px !important;
+    right: 14px !important;
+    width: auto !important;
+    max-width: 480px !important;
+    height: 64px !important;
+    padding: 0 10px 0 12px !important;
+    background: rgba(255, 255, 255, 0.96) !important;
+    backdrop-filter: blur(24px) saturate(180%) !important;
+    -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
+    border: 1.5px solid rgba(0, 0, 0, 0.08) !important;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.16), 0 2px 8px rgba(0, 0, 0, 0.08) !important;
+    border-radius: 9999px !important;
+    z-index: var(--z-modal, 60) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 12px !important;
+    box-sizing: border-box !important;
+    user-select: none !important;
+    -webkit-user-select: none !important;
+    -webkit-tap-highlight-color: transparent !important;
+    animation: m3-pick-banner-enter 0.32s cubic-bezier(0.2, 0, 0, 1) !important;
+}
+
+[data-theme="dark"] #nav-pick-banner {
+    background: rgba(28, 30, 32, 0.94) !important;
+    border: 1.5px solid rgba(255, 255, 255, 0.14) !important;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.55), 0 2px 10px rgba(0, 0, 0, 0.3) !important;
+}
+
+@keyframes m3-pick-banner-enter {
+    from {
+        opacity: 0;
+        transform: translateY(24px) scale(0.96);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+#nav-pick-banner.hidden {
+    display: none !important;
+}
+
+#nav-pick-icon-wrap {
+    width: 42px !important;
+    height: 42px !important;
+    border-radius: 14px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    flex-shrink: 0 !important;
+    transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.2s ease !important;
+}
+
+#nav-pick-icon-wrap.is-dest {
+    background: #1a73e8 !important;
+    color: #ffffff !important;
+}
+
+[data-theme="dark"] #nav-pick-icon-wrap.is-dest {
+    background: #1a73e8 !important;
+    color: #ffffff !important;
+}
+
+#nav-pick-icon-wrap.is-start {
+    background: #c2e7ff !important;
+    color: #004a77 !important;
+}
+
+[data-theme="dark"] #nav-pick-icon-wrap.is-start {
+    background: #004a77 !important;
+    color: #c2e7ff !important;
+}
+
+#nav-pick-icon {
+    width: 22px !important;
+    height: 22px !important;
+    fill: currentColor !important;
 }
 
 #nav-pick-text {
-    color: var(--m3-on-surface) !important;
+    font-family: 'Google Sans', 'Roboto', sans-serif !important;
+    font-size: 14px !important;
+    font-weight: 800 !important;
+    letter-spacing: -0.01em !important;
+    line-height: 1.2 !important;
+    color: #1f1f1f !important;
+}
+
+[data-theme="dark"] #nav-pick-text {
+    color: #ffffff !important;
+}
+
+#nav-pick-subtext {
+    font-family: 'Google Sans', 'Roboto', sans-serif !important;
+    font-size: 11.5px !important;
+    font-weight: 700 !important;
+    letter-spacing: -0.01em !important;
+    line-height: 1.2 !important;
+    margin-top: 1px !important;
+    color: #1a73e8 !important;
+}
+
+[data-theme="dark"] #nav-pick-subtext {
+    color: #70b3ff !important;
+}
+
+#btn-cancel-pick {
+    cursor: pointer !important;
+    border: 1px solid rgba(0, 0, 0, 0.08) !important;
+    outline: none !important;
+    background: #f0f4f9 !important;
+    color: #1f1f1f !important;
+    font-family: 'Google Sans', 'Roboto', sans-serif !important;
+    font-size: 13.5px !important;
+    font-weight: 700 !important;
+    border-radius: 9999px !important;
+    height: 42px !important;
+    padding: 0 18px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    transition: background-color 0.16s ease, transform 0.12s cubic-bezier(0.2, 0, 0, 1), border-color 0.16s ease !important;
+    white-space: nowrap !important;
+    box-sizing: border-box !important;
+    -webkit-tap-highlight-color: transparent !important;
+}
+
+@media (hover: hover) and (pointer: fine) {
+    #btn-cancel-pick:hover {
+        background: #e2e7ef !important;
+        color: #1a73e8 !important;
+    }
+}
+
+#btn-cancel-pick:active {
+    transform: scale(0.93) !important;
+    background: #d8e0ec !important;
+}
+
+[data-theme="dark"] #btn-cancel-pick {
+    background: #282a2c !important;
+    border: 1px solid rgba(255, 255, 255, 0.14) !important;
+    color: #e3e3e3 !important;
+}
+
+@media (hover: hover) and (pointer: fine) {
+    [data-theme="dark"] #btn-cancel-pick:hover {
+        background: #35373a !important;
+        color: #ffffff !important;
+        border-color: rgba(255, 255, 255, 0.24) !important;
+    }
+}
+
+[data-theme="dark"] #btn-cancel-pick:active {
+    background: #202224 !important;
+    transform: scale(0.93) !important;
+}
+
+@media (min-width: 640px) {
+    #nav-pick-banner {
+        left: 50% !important;
+        right: auto !important;
+        transform: translateX(-50%) !important;
+        width: 440px !important;
+        bottom: 24px !important;
+    }
+
+    @keyframes m3-pick-banner-enter {
+        from {
+            opacity: 0;
+            transform: translateX(-50%) translateY(24px) scale(0.96);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0) scale(1);
+        }
+    }
+}
+
+/* В режиме выбора точки на карте скрываем плашку маршрута, поисковый бар и шапку корпусов */
+body.nav-picking-active #navigator-route-card,
+body.nav-picking-active #bottom-search-bar,
+body.nav-picking-active .mobile-thumb-header {
+    display: none !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
 }

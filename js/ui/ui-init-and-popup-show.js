@@ -33,8 +33,14 @@ function setupUI() {
 
     document.getElementById('btn-toggle-all-floors')?.addEventListener('click', toggleAllFloorsMode);
 
-    document.getElementById('btn-toggle-territory')?.addEventListener('click', toggleTerritoryView);
-    document.getElementById('btn-toggle-2d')?.addEventListener('click', toggle2DView);
+    document.getElementById('btn-toggle-territory')?.addEventListener('click', (e) => {
+        toggleTerritoryView();
+        e.currentTarget?.blur();
+    });
+    document.getElementById('btn-toggle-2d')?.addEventListener('click', (e) => {
+        toggle2DView();
+        e.currentTarget?.blur();
+    });
     document.getElementById('btn-zoom-in')?.addEventListener('click', () => {
         if (typeof zoomIn === 'function') zoomIn();
     });

@@ -66,7 +66,7 @@ function renderSearchResults(query) {
             if (bldg === 4 && r.floor === 1 && (cleanText.includes("102") || cleanText.includes("столов"))) alias = "столовая буфет обед еда 102";
             if (bldg === 4 && r.floor === 2 && (cleanText.includes("206") || cleanText.includes("спорт"))) alias = "спортзал спортивный зал спорт 206";
             if (bldg === 4 && r.floor === 2 && (cleanText.includes("204") || cleanText.includes("актов"))) alias = "актовый зал актовый сцена 204";
-            if (bldg === 1 && r.floor === 1 && (cleanText.includes("102") || cleanText.includes("гардероб"))) alias = "гардероб раздевалка одежда 102";
+            if (bldg === 1 && r.floor === 1 && (cleanText.includes("102") || cleanText.includes("гардероб"))) alias = "гардероб раздевалка вешалка одежда 102";
             if (bldg === 2 && r.floor === 1 && (cleanText.includes("104") || cleanText.includes("библиот"))) alias = "библиотека книги читальный зал 104";
             if (bldg === 2 && r.floor === 3 && (cleanText.includes("308") || cleanText.includes("спорт"))) alias = "спортзал спортивный зал спорт 308";
             if (bldg === 2 && r.floor === 3 && (cleanText.includes("312") || cleanText.includes("конференц"))) alias = "конференц-зал конференц зал собрания 312";

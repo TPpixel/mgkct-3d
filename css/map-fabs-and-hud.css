@@ -11,16 +11,15 @@
     background: var(--m3-surface) !important;
     border: 1.5px solid var(--m3-outline-variant) !important;
     border-radius: 9999px !important;
-    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.14), 0 2px 6px rgba(0, 0, 0, 0.1);
-    color: var(--m3-on-surface-variant);
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.14), 0 2px 6px rgba(0, 0, 0, 0.1) !important;
+    color: var(--m3-on-surface-variant) !important;
     cursor: pointer;
-    font-size: 13px;
-    font-weight: 700;
-    line-height: 1 !important;
-    text-align: center !important;
+    font-size: 13px !important;
+    font-weight: 700 !important;
     font-family: var(--font-family-google);
+    line-height: 1 !important;
     transition: all 0.16s cubic-bezier(0.2, 0, 0, 1);
-    outline: none;
+    outline: none !important;
     flex-shrink: 0 !important;
     white-space: nowrap !important;
     overflow: hidden !important;
@@ -31,34 +30,43 @@
 body[data-theme="dark"] .map-fab-btn {
     background: var(--m3-surface) !important;
     border: 1.5px solid var(--m3-outline-variant) !important;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
-    color: var(--m3-on-surface-variant);
-}
-
-#btn-toggle-2d {
-    font-size: 13px !important;
-    font-weight: 700 !important;
-    line-height: 1 !important;
-    letter-spacing: -0.02em !important;
-    text-indent: -0.02em !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    text-align: center !important;
-    padding: 0 !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6) !important;
+    color: var(--m3-on-surface-variant) !important;
 }
 
 @media (hover: hover) and (pointer: fine) {
-    .map-fab-btn:hover,
+    .map-fab-btn:hover {
+        background: var(--m3-surface-container-high) !important;
+        color: var(--m3-on-surface) !important;
+        box-shadow: var(--m3-shadow-lg) !important;
+    }
+
     body[data-theme="dark"] .map-fab-btn:hover {
         background: var(--m3-surface-container-high) !important;
-        color: var(--m3-on-surface);
-        box-shadow: var(--m3-shadow-lg);
+        color: var(--m3-on-surface) !important;
     }
+}
+
+.map-fab-btn:focus,
+.map-fab-btn:focus-visible {
+    outline: none !important;
 }
 
 .map-fab-btn:active {
     transform: scale(0.92);
+}
+
+#btn-toggle-2d {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    text-align: center !important;
+    font-size: 13px !important;
+    font-weight: 800 !important;
+    line-height: 1 !important;
+    letter-spacing: -0.02em !important;
+    text-indent: -0.02em !important;
+    padding-top: 1px !important;
 }
 
 .map-fab-btn.mode-active,
@@ -310,4 +318,26 @@ body:has(#navigator-modal.active) .mobile-thumb-header {
     opacity: 0 !important;
     pointer-events: none !important;
     transform: translateY(12px) !important;
+}
+
+body.nav-picking-active .map-fab-bar {
+    bottom: calc(max(16px, env(safe-area-inset-bottom, 16px)) + 68px) !important;
+    right: 14px !important;
+    left: auto !important;
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    width: auto !important;
+    max-width: calc(100vw - 28px) !important;
+    gap: 8px !important;
+    z-index: var(--z-drawer) !important;
+}
+
+@media (min-width: 640px) {
+    body.nav-picking-active .map-fab-bar {
+        bottom: 24px !important;
+        right: 14px !important;
+        flex-direction: column !important;
+        width: 44px !important;
+    }
 }

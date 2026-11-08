@@ -18,15 +18,18 @@ function updateVisualViewportVars() {
 }
 window.updateVisualViewportVars = updateVisualViewportVars;
 
-// Адаптивная привязка плавающих кнопок FAB над окном карточки кабинета или маршрута
+// Адаптивная привязка плавающих кнопок FAB над окном карточки кабинета, маршрута или баннера выбора
 function updateAdaptiveFabPosition() {
     if (typeof window === "undefined" || typeof document === "undefined") return;
 
     const popup = document.getElementById('room-context-popup');
     const routeCard = document.getElementById('navigator-route-card');
+    const pickBanner = document.getElementById('nav-pick-banner');
 
     let activeCard = null;
-    if (popup && !popup.classList.contains('hidden')) {
+    if (pickBanner && !pickBanner.classList.contains('hidden')) {
+        activeCard = pickBanner;
+    } else if (popup && !popup.classList.contains('hidden')) {
         activeCard = popup;
     } else if (routeCard && !routeCard.classList.contains('hidden')) {
         activeCard = routeCard;
@@ -64,8 +67,10 @@ function setupVisualViewportHandler() {
         });
         const popup = document.getElementById('room-context-popup');
         const routeCard = document.getElementById('navigator-route-card');
+        const pickBanner = document.getElementById('nav-pick-banner');
         if (popup) ro.observe(popup);
         if (routeCard) ro.observe(routeCard);
+        if (pickBanner) ro.observe(pickBanner);
     }
 
     if (window.visualViewport) {

@@ -5,24 +5,16 @@
 function addNavNodesBldg1F4(g) {
         g.addNode("b1_f4_nc_-6.0", 4, 1, -6, -5, "corridor", "К1 Эт.4 Сев. коридор");
         g.addNode("b1_f4_nc_door_-5.8", 4, 1, -5.8, -5, "door", "К1 Эт.4 Дверь север");
-        g.addNode("b1_f4_nc_-3.0", 4, 1, -3, -5.8, "corridor", "К1 Эт.4 Сев. коридор");
-        g.addNode("b1_f4_nc_0.0", 4, 1, 0, -5.8, "corridor", "К1 Эт.4 Сев. коридор");
-        g.addNode("b1_f4_nc_3.0", 4, 1, 3, -5.8, "corridor", "К1 Эт.4 Сев. коридор");
-        g.addNode("b1_f4_nc_5.9", 4, 1, 5.9, -5.8, "corridor", "К1 Эт.4 Сев. коридор");
-        g.addNode("b1_f4_nc_9.4", 4, 1, 9.4, -5.8, "corridor", "К1 Эт.4 Сев. коридор");
-        g.addNode("b1_f4_nc_12.5", 4, 1, 12.5, -5.8, "corridor", "К1 Эт.4 Сев. коридор");
-        g.addNode("b1_f4_nc_16.0", 4, 1, 15.6, -5.8, "corridor", "К1 Эт.4 Сев. коридор");
-        g.addNode("b1_f4_wc_-3.0", 4, 1, -3, -3, "corridor", "К1 Эт.4 Зап. коридор");
-        g.addNode("b1_f4_wc_0.0", 4, 1, -3, 0, "corridor", "К1 Эт.4 Зап. коридор");
-        g.addNode("b1_f4_wc_1.7", 4, 1, -3, 1.7, "corridor", "К1 Эт.4 Зап. коридор");
-        g.addNode("b1_f4_wc_3.5", 4, 1, -3, 3.5, "corridor", "К1 Эт.4 Зап. коридор");
-        g.addNode("b1_f4_wc_6.0", 4, 1, -3, 6, "corridor", "К1 Эт.4 Зап. коридор");
-        g.addNode("b1_f4_sc_0.0", 4, 1, 0, 6, "corridor", "К1 Эт.4 Юж. коридор");
-        g.addNode("b1_f4_sc_1.8", 4, 1, 1.8, 6, "corridor", "К1 Эт.4 Юж. коридор");
-        g.addNode("b1_f4_sc_3.5", 4, 1, 3.5, 6, "corridor", "К1 Эт.4 Юж. коридор");
-        g.addNode("b1_f4_sc_5.6", 4, 1, 5.6, 6, "corridor", "К1 Эт.4 Юж. коридор");
-        g.addNode("b1_f4_sc_9.4", 4, 1, 9.4, 6, "corridor", "К1 Эт.4 Юж. коридор");
-        g.addNode("b1_f4_sc_10.5", 4, 1, 10.5, 6, "corridor", "К1 Эт.4 Юж. коридор");
+        g.addNode("b1_f4_nc_-3.0", 4, 1, -4.4, -5.0, "corridor", "К1 Эт.4 Сев. коридор");
+        g.addNode("b1_f4_nc_3.0", 4, 1, 3.2, -5.0, "corridor", "К1 Эт.4 Сев. коридор");
+        g.addNode("b1_f4_nc_5.9", 4, 1, 5.4, -5.0, "corridor", "К1 Эт.4 Сев. коридор");
+        g.addNode("b1_f4_wc_-3.0", 4, 1, -4.4, -2.2, "corridor", "К1 Эт.4 Зап. коридор");
+        g.addNode("b1_f4_wc_0.0", 4, 1, -4.4, 0.0, "corridor", "К1 Эт.4 Зап. коридор");
+        g.addNode("b1_f4_wc_3.5", 4, 1, -4.4, 3.5, "corridor", "К1 Эт.4 Зап. коридор");
+        g.addNode("b1_f4_wc_6.0", 4, 1, -4.4, 5.6, "corridor", "К1 Эт.4 Зап. коридор");
+        g.addNode("b1_f4_sc_5.6", 4, 1, 5.5, 5.6, "corridor", "К1 Эт.4 Юж. коридор");
+        g.addNode("b1_f4_sc_9.4", 4, 1, 9.4, 5.6, "corridor", "К1 Эт.4 Юж. коридор");
+        g.addNode("b1_f4_sc_10.5", 4, 1, 10.6, 5.6, "corridor", "К1 Эт.4 Юж. коридор");
         g.addNode("b1_f4_stair_lk1", 4, 1, 9.4, -2.0, "stair", "К1 ЛК№1 (Эт.4)");
         g.addNode("b1_f4_stair_lk2", 4, 1, 9.4, 1.9, "stair", "К1 ЛК№2 (Эт.4)");
         g.addNode("b1_f4_elev", 4, 1, 1.8, 1.5, "elevator", "К1 Лифты (Эт.4)");
@@ -47,13 +39,9 @@ function addNavNodesBldg1F4(g) {
         g.addNode("door_room_room_1_4_48", 4, 1, -0.8, 1.7, "door", "Вход Лифтовой холл");
         g.addNode("door_corr_room_1_4_48", 4, 1, -1.6, 1.7, "door", "Коридор Лифтовой холл");
         g.addNode("room_1_4_49", 4, 1, -4.2, -10.2, "room", "403");
-        g.addNode("door_mid_room_1_4_49", 4, 1, -0.4, -6.2, "door", "Дверь 403");
+        g.addNode("door_mid_room_1_4_49", 4, 1, -0.4, -5.0, "door", "Дверь 403");
         g.addNode("door_room_room_1_4_49", 4, 1, -0.4, -6.6, "door", "Вход 403");
-        g.addNode("door_corr_room_1_4_49", 4, 1, -0.4, -5.8, "door", "Коридор 403");
         g.addNode("room_1_4_50", 4, 1, 3.5, -11.4, "room", "403А");
-        g.addNode("door_mid_room_1_4_50", 4, 1, 3.5, -8.6, "door", "Дверь 403А");
-        g.addNode("door_room_room_1_4_50", 4, 1, 3.5, -9, "door", "Вход 403А");
-        g.addNode("door_corr_room_1_4_50", 4, 1, 3.5, -8.2, "door", "Коридор 403А");
         g.addNode("door_mid_room_1_4_51", 4, 1, 7.9, -6.2, "door", "Дверь 404");
         g.addNode("door_corr_room_1_4_51", 4, 1, 7.9, -5.8, "door", "Коридор 404");
         g.addNode("room_1_4_52", 4, 1, -9.9, -2.3, "room", "402А");
@@ -77,37 +65,26 @@ function addNavNodesBldg1F4(g) {
         g.addNode("custom_b1_f4_c_79_-75_z02", 4, 1, 7.9, -7.5, "corridor", "Коридор (7.9, -7.5)");
         g.addNode("room_1_4_51", 4, 1, 10.6, -10.2, "room", "404");
         g.addNode("custom_b1_f4_c_33_-111_dfg", 4, 1, 3.3, -11.1, "corridor", "Коридор (3.3, -11.1)");
+        // --- USER ADDED NODES (FLOOR 4 EDIT) ---
+        g.addNode('outdoor_node_44768', 4, 1, -4.4, 1.4, 'corridor', 'Внутренний двор');
+        g.addNode('outdoor_node_21264', 4, 1, -4.4, 1.7, 'corridor', 'Внутренний двор');
+        g.addNode('outdoor_node_15968', 4, 1, 7.9, -5.0, 'corridor', 'Внутренний двор');
+        g.addNode('outdoor_node_78604', 4, 1, 9.4, -5.0, 'corridor', 'Внутренний двор');
+        // Benchmark corridor nodes
+        g.addNode("b1_f4_nc_0.0", 4, 1, 0.0, -5.0, "corridor", "К1 Эт.4 Сев. коридор");
 }
 
 function addNavEdgesBldg1F4(g) {
         g.addEdge("b1_f4_nc_-6.0", "b1_f4_nc_door_-5.8", 0.2);
         g.addEdge("b1_f4_nc_door_-5.8", "b1_f4_nc_-3.0", 2.9);
-        g.addEdge("b1_f4_nc_-3.0", "b1_f4_nc_0.0", 3);
         g.addEdge("b1_f4_nc_-3.0", "b1_f4_wc_-3.0", 2.8);
-        g.addEdge("b1_f4_nc_0.0", "b1_f4_nc_3.0", 3);
-        g.addEdge("b1_f4_nc_0.0", "door_corr_room_1_4_49", 0.4);
         g.addEdge("b1_f4_nc_3.0", "b1_f4_nc_5.9", 2.9);
-        g.addEdge("b1_f4_nc_5.9", "b1_f4_nc_9.4", 3.5);
         g.addEdge("b1_f4_nc_5.9", "door_corr_room_1_4_44", 1.5);
-        g.addEdge("b1_f4_nc_9.4", "b1_f4_nc_12.5", 3.1);
-        g.addEdge("b1_f4_nc_9.4", "b1_f4_stair_lk1", 3.9);
-        g.addEdge("b1_f4_nc_9.4", "door_corr_room_1_4_46", 1.6);
-        g.addEdge("b1_f4_nc_9.4", "door_corr_room_1_4_51", 1.5);
-        g.addEdge("b1_f4_nc_12.5", "b1_f4_nc_16.0", 3.1);
         g.addEdge("b1_f4_wc_-3.0", "b1_f4_wc_0.0", 3);
         g.addEdge("b1_f4_wc_-3.0", "door_corr_room_1_4_52", 2.5);
-        g.addEdge("b1_f4_wc_0.0", "b1_f4_wc_1.7", 1.7);
-        g.addEdge("b1_f4_wc_1.7", "b1_f4_wc_3.5", 1.8);
-        g.addEdge("b1_f4_wc_1.7", "b1_f4_elev", 4.8);
-        g.addEdge("b1_f4_wc_1.7", "door_corr_room_1_4_48", 1.4);
-        g.addEdge("b1_f4_wc_1.7", "door_corr_room_1_4_53", 2.4);
         g.addEdge("b1_f4_wc_3.5", "b1_f4_wc_6.0", 2.5);
-        g.addEdge("b1_f4_wc_6.0", "b1_f4_sc_0.0", 3);
         g.addEdge("b1_f4_wc_6.0", "door_corr_room_1_4_54", 2.4);
         g.addEdge("b1_f4_wc_6.0", "door_corr_room_1_4_55", 1.6);
-        g.addEdge("b1_f4_sc_0.0", "b1_f4_sc_1.8", 1.8);
-        g.addEdge("b1_f4_sc_1.8", "b1_f4_sc_3.5", 1.7);
-        g.addEdge("b1_f4_sc_3.5", "b1_f4_sc_5.6", 2.1);
         g.addEdge("b1_f4_sc_5.6", "b1_f4_sc_9.4", 3.8);
         g.addEdge("b1_f4_sc_5.6", "door_corr_room_1_4_45", 1.6);
         g.addEdge("b1_f4_sc_9.4", "b1_f4_sc_10.5", 1.1);
@@ -130,12 +107,7 @@ function addNavEdgesBldg1F4(g) {
         g.addEdge("door_mid_room_1_4_48", "door_corr_room_1_4_48", 0.4);
         g.addEdge("room_1_4_49", "door_room_room_1_4_49", 5.2);
         g.addEdge("door_mid_room_1_4_49", "door_room_room_1_4_49", 0.4);
-        g.addEdge("door_mid_room_1_4_49", "door_corr_room_1_4_49", 0.4);
         g.addEdge("door_room_room_1_4_49", "custom_b1_f4_c_-4_-75_ptb", 0.9);
-        g.addEdge("room_1_4_50", "door_room_room_1_4_50", 2.4);
-        g.addEdge("door_mid_room_1_4_50", "door_room_room_1_4_50", 0.4);
-        g.addEdge("door_mid_room_1_4_50", "door_corr_room_1_4_50", 0.4);
-        g.addEdge("door_corr_room_1_4_50", "custom_b1_f4_c_33_-75_ydr", 0.8);
         g.addEdge("door_mid_room_1_4_51", "door_corr_room_1_4_51", 0.4);
         g.addEdge("door_mid_room_1_4_51", "custom_b1_f4_c_79_-75_z02", 1.3);
         g.addEdge("room_1_4_52", "door_room_room_1_4_52", 3.7);
@@ -154,4 +126,20 @@ function addNavEdgesBldg1F4(g) {
         g.addEdge("custom_b1_f4_c_33_-75_ydr", "custom_b1_f4_c_79_-75_z02", 4.6);
         g.addEdge("custom_b1_f4_c_33_-75_ydr", "custom_b1_f4_c_33_-111_dfg", 3.6);
         g.addEdge("custom_b1_f4_c_79_-75_z02", "room_1_4_51", 3.8);
+        // --- USER ADDED EDGES (FLOOR 4 EDIT) ---
+        g.addEdge('b1_f4_nc_-3.0', 'door_mid_room_1_4_49');
+        g.addEdge('room_1_4_50', 'custom_b1_f4_c_33_-111_dfg');
+        g.addEdge('outdoor_node_78604', 'door_corr_room_1_4_46');
+        g.addEdge('b1_f4_nc_3.0', 'door_mid_room_1_4_49');
+        g.addEdge('outdoor_node_21264', 'b1_f4_wc_3.5');
+        g.addEdge('outdoor_node_15968', 'outdoor_node_78604');
+        g.addEdge('door_corr_room_1_4_53', 'outdoor_node_44768');
+        g.addEdge('door_corr_room_1_4_51', 'outdoor_node_15968');
+        g.addEdge('b1_f4_wc_0.0', 'outdoor_node_44768');
+        g.addEdge('outdoor_node_21264', 'door_corr_room_1_4_48');
+        g.addEdge('b1_f4_wc_6.0', 'b1_f4_sc_5.6');
+        g.addEdge('b1_f4_nc_5.9', 'outdoor_node_15968');
+        g.addEdge('outdoor_node_44768', 'outdoor_node_21264');
+        g.addEdge("b1_f4_nc_0.0", "b1_f4_nc_3.0");
+        g.addEdge("b1_f4_nc_0.0", "door_mid_room_1_4_49");
 }

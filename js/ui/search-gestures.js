@@ -54,9 +54,11 @@ function bindSearchGesturesAndEvents(ctx) {
     const btnSearchPickMap = document.getElementById("btn-search-pick-map");
     btnSearchPickMap?.addEventListener("click", () => {
         const targetType = (window.NAV_STATE && window.NAV_STATE.targetToChange) ? window.NAV_STATE.targetToChange : 'dest';
-        const label = targetType === 'dest' ? 'конечный пункт (Куда)' : 'начальный пункт (Откуда)';
+        if (window.NAV_STATE) {
+            window.NAV_STATE.pickingMode = targetType;
+        }
         if (typeof window.showPickBanner === 'function') {
-            window.showPickBanner(`Нажмите на кабинет на карте (${targetType === 'dest' ? 'Куда' : 'Откуда'})`, targetType);
+            window.showPickBanner(`Выберите кабинет на карте (${targetType === 'dest' ? 'Куда' : 'Откуда'})`, targetType);
         }
         closeSearch(false, true);
     });
@@ -94,20 +96,31 @@ function bindSearchGesturesAndEvents(ctx) {
             searchInput.value = "";
             searchInput.focus();
             btnClearSearch.classList.add("hidden");
-            searchTagChips.forEach(c => c.classList.remove("is-active"));
+            syncSearchChipState("");
             renderSearchResults("");
         }
     });
+
+    function syncSearchChipState(rawQuery) {
+        const queryText = (rawQuery || "").trim().toLowerCase();
+        const searchModalEl = document.getElementById("search-modal");
+        const chips = searchModalEl ? searchModalEl.querySelectorAll(".search-tag-chip") : [];
+        chips.forEach(c => {
+            const chipQuery = (c.dataset.query || "").trim().toLowerCase();
+            const matches = Boolean(queryText) && chipQuery === queryText;
+            c.classList.toggle("is-active", matches);
+            if (!matches) {
+                c.blur();
+            }
+        });
+    }
 
     searchInput?.addEventListener("input", (e) => {
         const val = (e.target.value || "").trim();
         if (btnClearSearch) {
             btnClearSearch.classList.toggle("hidden", !val);
         }
-        // Синхронизируем активное состояние чипов с текущим текстом в поле поиска
-        searchTagChips.forEach(c => {
-            c.classList.toggle("is-active", Boolean(val) && (c.dataset.query || "").toLowerCase() === val.toLowerCase());
-        });
+        syncSearchChipState(val);
         if (searchDebounceTimer) {
             clearTimeout(searchDebounceTimer);
         }
@@ -115,6 +128,14 @@ function bindSearchGesturesAndEvents(ctx) {
         searchDebounceTimer = setTimeout(() => {
             renderSearchResults(query);
         }, 150);
+    });
+
+    searchInput?.addEventListener("change", (e) => {
+        syncSearchChipState(e.target.value);
+    });
+
+    searchInput?.addEventListener("keyup", (e) => {
+        syncSearchChipState(e.target.value);
     });
 
     searchInput?.addEventListener("keydown", (e) => {
@@ -156,7 +177,7 @@ function bindSearchGesturesAndEvents(ctx) {
             const q = chip.dataset.query || "";
             const isAlreadyActive = chip.classList.contains("is-active");
 
-            // Снимаем активность со всех чипов
+            // Снимаем активность со всех чипов и снимаем фокус
             searchTagChips.forEach(c => c.classList.remove("is-active"));
             if (typeof chip.blur === "function") chip.blur();
 
@@ -164,14 +185,15 @@ function bindSearchGesturesAndEvents(ctx) {
                 // Повторный клик по активному чипу снимает фильтр
                 if (searchInput) searchInput.value = "";
                 if (btnClearSearch) btnClearSearch.classList.add("hidden");
+                syncSearchChipState("");
                 renderSearchResults("");
             } else {
-                chip.classList.add("is-active");
                 if (searchInput) {
                     searchInput.value = q;
                     if (btnClearSearch) btnClearSearch.classList.remove("hidden");
                     searchInput.focus();
                 }
+                syncSearchChipState(q);
                 renderSearchResults(q);
             }
         });

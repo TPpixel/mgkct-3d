@@ -14,18 +14,16 @@ function addNavNodesBldg4F2F3(g) {
         g.addNode("bridge_k3_k4_f2", 2, 4, 23.2, -45.4, "bridge", "Переход К3 ↔ К4 (2 эт.)");
         g.addNode("room_4_2_213", 2, 4, 24, -45.4, "room", "Переход\nК3 ↔ К4");
         g.addNode("b4_f2_bridge_k3_door", 2, 4, 32.4, -45.4, "door", "Дверь Перехода К3 ↔ К4");
-        g.addNode("b4_f2_vest_k3", 2, 4, 34.8, -45.5, "corridor", "Тамбур Перехода К3 ↔ К4");
-        g.addNode("b4_f2_door_vest_k3", 2, 4, 36, -45.5, "door", "Вход из Перехода в холл К4");
         g.addNode("bridge_k4_k2_f2", 2, 4, 37.4, -20.6, "bridge", "Переход К4 ↔ К2 (2 эт.)");
         g.addNode("room_4_2_214", 2, 4, 37.4, -20.6, "room", "Переход\nК4 ↔ К2");
         g.addNode("b4_f2_sw_-27.4", 2, 4, 37.4, -27.4, "corridor", "К4 Эт.2 Юж. коридор");
         g.addNode("b4_f2_c_375_483", 2, 4, 37.5, -48.3, "corridor", "К4 Эт.2 Холл у ЛК№2");
-        g.addNode("b4_f2_c_375_455", 2, 4, 37.5, -45.5, "corridor", "К4 Эт.2 Холл у Перехода");
+        g.addNode("b4_f2_c_375_455", 2, 4, 37.5, -45.4, "corridor", "К4 Эт.2 Холл у Перехода");
         g.addNode("b4_f2_sw_-44.5", 2, 4, 37.5, -44.7, "corridor", "К4 Эт.2 Юж. коридор");
         g.addNode("b4_f2_c_375_396", 2, 4, 37.5, -39.6, "corridor", "К4 Эт.2 Коридор у 205");
         g.addNode("b4_f2_c_375_349", 2, 4, 37.5, -34.9, "corridor", "К4 Эт.2 Коридор у 202");
         g.addNode("b4_f2_c_375_330", 2, 4, 37.5, -33, "corridor", "К4 Эт.2 Юж. холл");
-        g.addNode("b4_f2_c_375_291", 2, 4, 37.5, -29.1, "corridor", "К4 Эт.2 Коридор у 201");
+        g.addNode("b4_f2_c_375_291", 2, 4, 37.4, -29.0, "corridor", "К4 Эт.2 Коридор у 201");
         g.addNode("b4_f2_c_lk1", 2, 4, 40.6, -33, "corridor", "К4 Эт.2 Холл у ЛК№1");
         g.addNode("b4_f2_c_473_330", 2, 4, 47.35, -33, "corridor", "К4 Эт.2 Холл у 204");
         g.addNode("b4_f2_c_473_358", 2, 4, 47.35, -35.8, "corridor", "К4 Эт.2 Подход к 203/204");
@@ -69,10 +67,10 @@ function addNavNodesBldg4F2F3(g) {
         g.addNode("door_mid_room_4_2_224", 2, 4, 36, -29.1, "door", "Дверь 201");
         g.addNode("b4_f2_recess_207_208", 2, 4, 42.46, -43.2, "corridor", "Ниша раздевалок 207/208");
         g.addNode("door_room_room_4_2_225", 2, 4, 41.35, -43.2, "door", "Дверь 207");
-        g.addNode("b4_f2_207_n", 2, 4, 40.5, -43.2, "corridor", "Вход в 207");
+        g.addNode("b4_f2_207_n", 2, 4, 40.9, -43.2, "corridor", "Вход в 207");
         g.addNode("room_4_2_225", 2, 4, 40.9, -38.6, "room", "207");
         g.addNode("door_corr_room_4_2_226", 2, 4, 43.56, -43.2, "door", "Дверь 208");
-        g.addNode("b4_f2_208_n", 2, 4, 44.4, -43.2, "corridor", "Вход в 208");
+        g.addNode("b4_f2_208_n", 2, 4, 44.0, -43.2, "corridor", "Вход в 208");
         g.addNode("room_4_2_226", 2, 4, 44, -38.6, "room", "208");
         g.addNode("room_4_2_227", 2, 4, 47.2, -42.3, "room", "209");
         g.addNode("b4_f2_door_209", 2, 4, 47.35, -44, "door", "Дверь 209");
@@ -101,7 +99,7 @@ function addNavNodesBldg4F2F3(g) {
         g.addNode("b4_f3_c_406_303", 3, 4, 40.6, -30.3, "corridor", "Проход у ЛК№1 (Эт.3)");
         g.addNode("b4_f3_c_435_303", 3, 4, 43.5, -30.3, "corridor", "Проход у 310 (Эт.3)");
         g.addNode("b4_f3_door_301_w", 3, 4, 39.4, -48.9, "door", "Западный вход 301");
-        g.addNode("room_4_3_237", 3, 4, 48.8, -48.7, "room", "301");
+        g.addNode("room_4_3_237", 3, 4, 49.0, -49.0, "room", "301");
         g.addNode("b4_f3_door_301_e", 3, 4, 58.4, -48.9, "door", "Восточный выход 301");
         g.addNode("b4_f3_vest_lk3", 3, 4, 60.1, -48.9, "corridor", "Тамбур ЛК№3 (Эт.3)");
         g.addNode("door_mid_room_4_3_239", 3, 4, 39.4, -44.3, "door", "Дверь 303");
@@ -143,9 +141,6 @@ function addNavEdgesBldg4F2F3(g) {
         g.addEdge("bridge_k3_k4_f2", "room_4_2_213", 0.8);
         g.addEdge("room_4_2_213", "b4_f2_bridge_k3_door", 8.4);
         g.addEdge("bridge_k3_k4_f2", "b4_f2_bridge_k3_door", 9.2);
-        g.addEdge("b4_f2_bridge_k3_door", "b4_f2_vest_k3", 2.4);
-        g.addEdge("b4_f2_vest_k3", "b4_f2_door_vest_k3", 1.2);
-        g.addEdge("b4_f2_door_vest_k3", "b4_f2_c_375_455", 1.5);
         g.addEdge("bridge_k4_k2_f2", "room_4_2_214", 0.1);
         g.addEdge("bridge_k4_k2_f2", "b4_f2_sw_-27.4", 6.8);
         g.addEdge("room_4_2_214", "b4_f2_sw_-27.4", 6.8);
@@ -279,4 +274,10 @@ function addNavEdgesBldg4F2F3(g) {
         g.addEdge("b4_f2_stair_lk1", "b4_f3_stair_lk1", 5.5);
         g.addEdge("b4_f2_stair_lk2", "b4_f3_stair_lk2", 5.5);
         g.addEdge("b4_f2_stair_lk3", "b4_f3_stair_lk3", 5.5);
+        g.addEdge('b4_f2_c_375_349', 'b4_f2_c_473_358');
+        g.addEdge('b4_f2_c_473_358', 'b4_f2_c_lk1');
+        g.addEdge('b4_f2_c_375_330', 'b4_f2_c_473_358');
+        g.addEdge('b4_f2_c_375_349', 'b4_f2_c_473_330');
+        g.addEdge('b4_f2_c_375_349', 'b4_f2_c_lk1');
+        g.addEdge('b4_f2_bridge_k3_door', 'b4_f2_c_375_455');
 }

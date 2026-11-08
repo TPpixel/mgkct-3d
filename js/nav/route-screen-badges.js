@@ -140,7 +140,9 @@
         const sy = (-_tempVec.y * 0.5 + 0.5) * height;
 
         ctx.save();
-        const text = st.isUp ? `↑ Лестница на ${st.toFloor} этаж` : `↓ Лестница на ${st.toFloor} этаж`;
+        const text = st.isElevator
+            ? (st.isUp ? `↑ Лифт на ${st.toFloor} этаж` : `↓ Лифт на ${st.toFloor} этаж`)
+            : (st.isUp ? `↑ Лестница на ${st.toFloor} этаж` : `↓ Лестница на ${st.toFloor} этаж`);
         ctx.font = 'bold 11px Inter, sans-serif';
         const tw = ctx.measureText(text).width;
         const bw = tw + 22;

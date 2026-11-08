@@ -6,7 +6,7 @@
             btnPickStart.addEventListener('click', () => {
                 NAV_STATE.pickingMode = 'start';
                 closeNavigatorModal();
-                showPickBanner('Нажмите на кабинет или точку отправления на карте');
+                showPickBanner('Нажмите на кабинет или точку отправления на карте', 'start');
             });
         }
 
@@ -16,7 +16,7 @@
             btnPickDest.addEventListener('click', () => {
                 NAV_STATE.pickingMode = 'dest';
                 closeNavigatorModal();
-                showPickBanner('Нажмите на кабинет или пункт назначения на карте');
+                showPickBanner('Нажмите на кабинет или пункт назначения на карте', 'dest');
             });
         }
 
@@ -185,28 +185,93 @@
     }
 
     function showPickBanner(text, targetType = 'dest') {
+        NAV_STATE.pickingMode = targetType;
+        document.body.classList.add('nav-picking-active');
         const banner = document.getElementById('nav-pick-banner');
         const textEl = document.getElementById('nav-pick-text');
-        const dotEl = document.getElementById('nav-pick-dot');
-        if (banner && textEl) {
-            textEl.textContent = text;
-            if (dotEl) {
-                dotEl.className = targetType === 'dest'
-                    ? 'w-3 h-3 rounded-full bg-[#1a73e8] animate-ping'
-                    : 'w-3 h-3 rounded-full bg-[#38bdf8] animate-ping';
+        const subtextEl = document.getElementById('nav-pick-subtext');
+        const iconWrap = document.getElementById('nav-pick-icon-wrap');
+        const iconEl = document.getElementById('nav-pick-icon');
+
+        // Эксплицитно скрываем карточку маршрута во время выбора точки, чтобы не было наложения
+        const routeCard = document.getElementById('navigator-route-card');
+        if (routeCard) {
+            routeCard.classList.add('hidden');
+            routeCard.setAttribute('data-hidden-by-pick', 'true');
+        }
+
+        if (banner) {
+            if (textEl) {
+                textEl.textContent = 'Выберите на карте';
+            }
+            if (subtextEl) {
+                subtextEl.textContent = targetType === 'start'
+                    ? 'Начальная точка (Откуда)'
+                    : 'Конечный кабинет (Куда)';
+            }
+            if (iconWrap) {
+                iconWrap.classList.remove('is-start', 'is-dest');
+                if (targetType === 'start') {
+                    iconWrap.classList.add('is-start');
+                    if (iconEl) {
+                        iconEl.setAttribute('class', 'w-5 h-5 flex-shrink-0');
+                        iconEl.innerHTML = '<path d="M12 8c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm8.94 3A8.994 8.994 0 0 0 13 3.06V1h-2v2.06A8.994 8.994 0 0 0 3.06 11H1v2h2.06A8.994 8.994 0 0 0 11 20.94V23h2v-2.06A8.994 8.994 0 0 0 20.94 13H23v-2h-2.06zM12 19c-3.87 0-7-3.13-7-7s3.13-7 7-7 7 3.13 7 7-3.13 7-7 7z"/>';
+                    }
+                } else {
+                    iconWrap.classList.add('is-dest');
+                    if (iconEl) {
+                        iconEl.setAttribute('class', 'w-5 h-5 flex-shrink-0');
+                        iconEl.innerHTML = '<path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>';
+                    }
+                }
             }
             banner.classList.remove('hidden');
+        }
+
+        if (typeof window.updateAdaptiveFabPosition === 'function') {
+            window.updateAdaptiveFabPosition();
         }
     }
 
     function hidePickBanner() {
+        document.body.classList.remove('nav-picking-active');
         const banner = document.getElementById('nav-pick-banner');
         if (banner) banner.classList.add('hidden');
         const pill = document.getElementById('search-route-target-pill');
         if (pill) pill.classList.add('hidden');
         const sInput = document.getElementById('search-input');
         if (sInput) sInput.placeholder = 'Поиск по кабинетам...';
+        NAV_STATE.pickingMode = null;
+        NAV_STATE.targetToChange = null;
         resetRouteCardPicks();
+
+        // Восстанавливаем карточку маршрута, если есть активный маршрут
+        const routeCard = document.getElementById('navigator-route-card');
+        if (routeCard) {
+            const wasHidden = routeCard.getAttribute('data-hidden-by-pick') === 'true';
+            routeCard.removeAttribute('data-hidden-by-pick');
+            if (NAV_STATE.activeRoute || wasHidden) {
+                if (NAV_STATE.activeRoute) {
+                    routeCard.classList.remove('hidden');
+                }
+            }
+        }
+
+        // Восстанавливаем поисковый бар, если маршрута нет
+        const bottomSearch = document.getElementById('bottom-search-bar');
+        if (bottomSearch) {
+            bottomSearch.classList.remove('hidden');
+            if (!NAV_STATE.activeRoute) {
+                bottomSearch.classList.remove('route-active');
+                bottomSearch.style.removeProperty('display');
+                bottomSearch.style.removeProperty('opacity');
+                bottomSearch.style.removeProperty('pointer-events');
+            }
+        }
+
+        if (typeof window.updateAdaptiveFabPosition === 'function') {
+            window.updateAdaptiveFabPosition();
+        }
     }
 
     // Экспорт глобальных функций модуля быстрых чипов и URL

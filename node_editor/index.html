@@ -404,6 +404,11 @@
             <button id="toggle-layer-buildings" class="tb-btn active" title="Вкл/выкл стены и кабинеты здания">Стены / Здания</button>
             <button id="toggle-layer-territory" class="tb-btn active" title="Вкл/выкл улицу и внутренний двор">Двор / Улица</button>
             <button id="toggle-layer-nodes" class="tb-btn active" title="Вкл/выкл отображение навигационных узлов">Узлы (Nodes)</button>
+            <div class="tb-divider"></div>
+            <button id="toggle-ortho-mode" class="tb-btn" title="Только углы 90° (Ортогональный режим). Горячая клавиша: 'O' или удержание Shift">
+                <span style="font-weight:bold; font-size:12px;">&#x22BE;</span>
+                <span id="ortho-btn-text">Только 90° [O]</span>
+            </button>
         </div>
 
         <div class="tb-group">
@@ -443,6 +448,13 @@
                 </button>
                 <button class="tool-btn mode-btn" data-mode="delete" title="Удалить узел кликом">
                     <span>&times;</span> Удалить
+                </button>
+            </div>
+
+            <div class="panel-section-title">Привязка углов</div>
+            <div class="form-row">
+                <button id="btn-toggle-ortho" class="tool-btn" style="width:100%; justify-content:center; font-weight:600;" title="Принудительное выравнивание под прямым углом 90° (клавиша 'O' или удержание Shift)">
+                    <span style="font-size:13px;">&#x22BE;</span> Только 90° [Shift]
                 </button>
             </div>
 
@@ -526,7 +538,11 @@
                 <div class="panel-section-title">Связанные ребра (<span id="prop-edges-count">0</span>)</div>
                 <ul id="prop-edges-list" class="edge-list"></ul>
 
-                <button id="btn-delete-node" class="tb-btn btn-danger" style="width:100%; height:26px; justify-content:center; margin-top:8px;">
+                <button id="btn-align-ortho-node" class="tb-btn" style="width:100%; height:26px; justify-content:center; margin-top:8px;" title="Выровнять координаты узла строго под 90° относительно первого соседа">
+                    &#x22BE; Выровнять под 90° к соседу
+                </button>
+
+                <button id="btn-delete-node" class="tb-btn btn-danger" style="width:100%; height:26px; justify-content:center; margin-top:6px;">
                     Удалить выбранный узел
                 </button>
             </div>
@@ -640,6 +656,6 @@
     <script src="../js/nav/graph-builder.js"></script>
 
     <!-- Логика редактора -->
-    <script src="editor.js"></script>
+    <script src="editor.js?v=96"></script>
 </body>
 </html>
