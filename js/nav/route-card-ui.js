@@ -7,6 +7,10 @@
         const bottomSearch = document.getElementById('bottom-search-bar');
         if (bottomSearch) bottomSearch.classList.add('route-active');
 
+        if (typeof window.setFloorSwitcherCollapsed === 'function' && !window._postponeFloorCollapse) {
+            window.setFloorSwitcherCollapsed(true, true);
+        }
+
         if (typeof window.updateAdaptiveFabPosition === 'function') {
             requestAnimationFrame(() => {
                 window.updateAdaptiveFabPosition();

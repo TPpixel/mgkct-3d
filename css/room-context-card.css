@@ -23,6 +23,20 @@
     }
 }
 
+/* Анимация сдвига интерфейса карточки кабинета вниз при выборе маршрута */
+#room-context-popup.closing-down {
+    transform: translateY(120%) scale(0.96) !important;
+    opacity: 0 !important;
+    transition: transform 0.22s cubic-bezier(0.4, 0, 1, 1), opacity 0.18s ease !important;
+    pointer-events: none !important;
+}
+
+@media (min-width: 640px) {
+    #room-context-popup.closing-down {
+        transform: translate(-50%, 120%) scale(0.96) !important;
+    }
+}
+
 @keyframes roomCardIn {
     from {
         opacity: 0;

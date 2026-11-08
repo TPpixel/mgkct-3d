@@ -148,6 +148,9 @@
         const card = document.getElementById('navigator-route-card');
         if (card) card.classList.add('hidden');
         document.body.classList.remove('route-active', 'nav-picking-active');
+        if (typeof setFloorSwitcherCollapsed === 'function') {
+            setFloorSwitcherCollapsed(false);
+        }
         const bottomSearch = document.getElementById('bottom-search-bar');
         if (bottomSearch) {
             bottomSearch.classList.remove('route-active', 'hidden');
