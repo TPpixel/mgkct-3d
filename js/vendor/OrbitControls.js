@@ -323,7 +323,7 @@
 
 			function rotateLeft( angle ) {
 
-				sphericalDelta.theta += angle;
+				sphericalDelta.theta -= angle;
 
 			}
 
@@ -650,7 +650,7 @@
 						if ( angleDelta > Math.PI ) angleDelta -= 2 * Math.PI;
 						if ( angleDelta < - Math.PI ) angleDelta += 2 * Math.PI;
 						if ( Math.abs( angleDelta ) > 0.002 ) {
-							rotateLeft( angleDelta * scope.rotateSpeed );
+							rotateLeft( - angleDelta * scope.rotateSpeed );
 						}
 					}
 					scope._touchTwistAngle = angle;

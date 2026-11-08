@@ -1269,7 +1269,9 @@ function setupSearch() {
 
     function syncSearchChipState(rawQuery) {
         const queryText = (rawQuery || "").trim().toLowerCase();
-        document.querySelectorAll(".search-tag-chip").forEach(c => {
+        const searchModal = document.getElementById("search-modal");
+        const chips = searchModal ? searchModal.querySelectorAll(".search-tag-chip") : [];
+        chips.forEach(c => {
             const chipQuery = (c.dataset.query || "").trim().toLowerCase();
             const matches = Boolean(queryText) && chipQuery === queryText;
             c.classList.toggle("is-active", matches);
