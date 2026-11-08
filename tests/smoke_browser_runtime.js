@@ -135,15 +135,17 @@ async function runSmokeTest() {
     const browserProc = spawn(browserBin, browserArgs, { stdio: ['ignore', 'pipe', 'pipe'] });
     console.log(`[BROWSER] Headless process spawned (PID=${browserProc.pid})`);
 
-    browserProc.stderr.on('data', (chunk) => {
+    const handleBrowserOutput = (chunk) => {
         const text = chunk.toString();
-        const match = text.match(/DevTools listening on ws:\/\/(?:127\.0\.0\.1|localhost):(\d+)\//);
+        const match = text.match(/DevTools listening on ws:\/\/[^:]+:(\d+)\//i);
         if (match && !detectedPort) {
             detectedPort = parseInt(match[1], 10);
             if (portResolve) portResolve(detectedPort);
         }
         browserLogs.push(text.trim());
-    });
+    };
+    browserProc.stderr.on('data', handleBrowserOutput);
+    browserProc.stdout.on('data', handleBrowserOutput);
 
     browserProc.on('exit', (code, sig) => {
         if (code !== null && code !== 0) {
@@ -165,7 +167,10 @@ async function runSmokeTest() {
         // Wait for Chrome to output the dynamic devtools listening port
         const debugPort = await Promise.race([
             portPromise,
-            new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout waiting for DevTools port from browser')), 10000))
+            new Promise((_, reject) => setTimeout(() => {
+                const logs = browserLogs.length > 0 ? `\nBrowser output:\n${browserLogs.join('\n')}` : '';
+                reject(new Error(`Timeout waiting for DevTools port from browser.${logs}`));
+            }, 25000))
         ]);
 
         console.log(`[CDP] DevTools port detected: ${debugPort}`);
