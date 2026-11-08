@@ -1150,6 +1150,15 @@ function setupSearch() {
                 window.hidePickBanner();
             }
         }
+        if (!window.NAV_STATE || !window.NAV_STATE.activeRoute) {
+            const bottomSearch = document.getElementById('bottom-search-bar');
+            if (bottomSearch) {
+                bottomSearch.classList.remove('route-active', 'hidden');
+                bottomSearch.style.removeProperty('display');
+                bottomSearch.style.removeProperty('opacity');
+                bottomSearch.style.removeProperty('pointer-events');
+            }
+        }
     }
 
     window.openSearch = openSearch;
@@ -2227,6 +2236,13 @@ function hideRoomContextPopup(fromPopstate = false, suppressRouteRestore = false
         const widgetText = document.getElementById('search-widget-text');
         if (widgetText) {
             widgetText.textContent = 'Поиск по колледжу...';
+        }
+        const bottomSearch = document.getElementById('bottom-search-bar');
+        if (bottomSearch) {
+            bottomSearch.classList.remove('route-active', 'hidden');
+            bottomSearch.style.removeProperty('display');
+            bottomSearch.style.removeProperty('opacity');
+            bottomSearch.style.removeProperty('pointer-events');
         }
     }
 

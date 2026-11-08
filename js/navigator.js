@@ -4509,6 +4509,17 @@ window.calculateWalkTime = calculateWalkTime;
             modal.style.pointerEvents = '';
             backdrop.style.pointerEvents = '';
         }
+        if (!NAV_STATE.activeRoute) {
+            const bottomSearch = document.getElementById('bottom-search-bar');
+            if (bottomSearch) {
+                bottomSearch.classList.remove('route-active', 'hidden');
+                bottomSearch.style.removeProperty('display');
+                bottomSearch.style.removeProperty('opacity');
+                bottomSearch.style.removeProperty('pointer-events');
+                bottomSearch.style.removeProperty('transform');
+            }
+            document.body.classList.remove('route-active');
+        }
     }
 
     function swapStartAndDest() {
@@ -4567,9 +4578,15 @@ window.calculateWalkTime = calculateWalkTime;
 
         const card = document.getElementById('navigator-route-card');
         if (card) card.classList.add('hidden');
-        document.body.classList.remove('route-active');
+        document.body.classList.remove('route-active', 'nav-picking-active');
         const bottomSearch = document.getElementById('bottom-search-bar');
-        if (bottomSearch) bottomSearch.classList.remove('route-active');
+        if (bottomSearch) {
+            bottomSearch.classList.remove('route-active', 'hidden');
+            bottomSearch.style.removeProperty('display');
+            bottomSearch.style.removeProperty('opacity');
+            bottomSearch.style.removeProperty('pointer-events');
+            bottomSearch.style.removeProperty('transform');
+        }
         if (typeof window.updateAdaptiveFabPosition === 'function') {
             window.updateAdaptiveFabPosition();
         }
@@ -5348,12 +5365,6 @@ window.calculateWalkTime = calculateWalkTime;
             routeCard.setAttribute('data-hidden-by-pick', 'true');
         }
 
-        // Скрываем нижний поисковый бар во время выбора точки на карте
-        const bottomSearch = document.getElementById('bottom-search-bar');
-        if (bottomSearch) {
-            bottomSearch.classList.add('hidden');
-        }
-
         if (banner) {
             if (textEl) {
                 textEl.textContent = 'Выберите на карте';
@@ -5413,8 +5424,14 @@ window.calculateWalkTime = calculateWalkTime;
 
         // Восстанавливаем поисковый бар, если маршрута нет
         const bottomSearch = document.getElementById('bottom-search-bar');
-        if (bottomSearch && !NAV_STATE.activeRoute) {
+        if (bottomSearch) {
             bottomSearch.classList.remove('hidden');
+            if (!NAV_STATE.activeRoute) {
+                bottomSearch.classList.remove('route-active');
+                bottomSearch.style.removeProperty('display');
+                bottomSearch.style.removeProperty('opacity');
+                bottomSearch.style.removeProperty('pointer-events');
+            }
         }
 
         if (typeof window.updateAdaptiveFabPosition === 'function') {
