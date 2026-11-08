@@ -93,9 +93,9 @@ function zoomOut() {
 }
 
 function findRoomAtScreenPoint(clientX, clientY) {
-    // 1. Проверяем попадание в экранные плашки кабинетов (интеллектуальный поиск ближайшего центра)
+    // 1. Проверяем попадание в экранные плашки номеров кабинетов (комфортная зона 24px для пальцев)
     if (Array.isArray(renderedScreenBadges) && renderedScreenBadges.length > 0) {
-        const hitMargin = 14; // Комфортная зона тапа для мобильного (большой палец)
+        const hitMargin = 28;
         let bestBadge = null;
         let bestDist = Infinity;
 
@@ -118,8 +118,9 @@ function findRoomAtScreenPoint(clientX, clientY) {
         }
     }
 
-    // 2. Иначе 3D Raycasting по плоскостям плашек видимого этажа
-    if (!renderer || !camera) return null;
+    // 2. Пространственный выбор: пересечение луча с плоскостью активного этажа и поиск по комнате
+    if (!renderer || !camera || typeof ROOMS_REGISTRY === 'undefined' || !ROOMS_REGISTRY.length) return null;
+
     const rect = renderer.domElement.getBoundingClientRect();
     const x = ((clientX - rect.left) / rect.width) * 2 - 1;
     const y = -((clientY - rect.top) / rect.height) * 2 + 1;
@@ -131,34 +132,43 @@ function findRoomAtScreenPoint(clientX, clientY) {
         ? parseInt(STATE.mode, 10)
         : null;
 
-    const visibleLabelMeshes = labelSprites
-        .filter(l => {
-            if (!l.mesh) return false;
-            if (activeFloor !== null && l.floor !== activeFloor) return false;
-            let p = l.mesh.parent;
-            while (p) {
-                if (p.visible === false) return false;
-                p = p.parent;
-            }
-            return true;
-        })
-        .map(l => l.mesh);
+    const fg = (typeof floorGroups !== 'undefined' && activeFloor) ? floorGroups[activeFloor] : null;
+    const activeFloorY = fg ? fg.position.y : (controls && controls.target ? controls.target.y : 0);
 
-    const intersects = _pickRaycaster.intersectObjects(visibleLabelMeshes, false);
-    for (let i = 0; i < intersects.length; i++) {
-        const hitMesh = intersects[i].object;
-        const rInfo = hitMesh && hitMesh.userData ? hitMesh.userData.roomInfo : null;
-        if (!rInfo) continue;
-        if (!STATE.is2D && typeof isPointOccludedIn3D === 'function') {
-            const fg = floorGroups[rInfo.floor];
-            const occlY = (fg ? fg.position.y : 0) + Math.min(Math.max(STATE.wallHeight * 0.75, 0.25), 1.35);
-            const wx = (fg ? fg.position.x : 0) + rInfo.x;
-            const wz = (fg ? fg.position.z : 0) + rInfo.z;
-            if (isPointOccludedIn3D(wx, occlY, wz, rInfo.floor, rInfo.building, false)) {
-                continue;
+    _pickFloorPlane.constant = -activeFloorY;
+    if (_pickRaycaster.ray.intersectPlane(_pickFloorPlane, _pickHitVec)) {
+        const hitX = _pickHitVec.x;
+        const hitZ = _pickHitVec.z;
+
+        let closestRoom = null;
+        let closestDist = Infinity;
+
+        for (let i = 0; i < ROOMS_REGISTRY.length; i++) {
+            const r = ROOMS_REGISTRY[i];
+            if (activeFloor !== null && r.floor !== activeFloor) continue;
+            if (STATE.buildingFilter && STATE.buildingFilter !== 'both' && String(r.building) !== String(STATE.buildingFilter)) continue;
+
+            const fg = floorGroups && floorGroups[r.floor];
+            const rx = (fg ? fg.position.x : 0) + r.x;
+            const rz = (fg ? fg.position.z : 0) + r.z;
+
+            const worldDist = Math.hypot(hitX - rx, hitZ - rz);
+            const maxRadius = r.isWide ? 8.0 : (r.isSmall ? 4.0 : 5.4);
+            if (worldDist <= maxRadius && worldDist < closestDist) {
+                if (!STATE.is2D && typeof isPointOccludedIn3D === 'function') {
+                    const occlY = (fg ? fg.position.y : 0) + Math.min(Math.max(STATE.wallHeight * 0.75, 0.25), 1.35);
+                    if (isPointOccludedIn3D(rx, occlY, rz, r.floor, r.building, false)) {
+                        continue;
+                    }
+                }
+                closestDist = worldDist;
+                closestRoom = r;
             }
         }
-        return rInfo;
+
+        if (closestRoom) {
+            return closestRoom;
+        }
     }
 
     return null;
