@@ -2327,7 +2327,7 @@ window.calculateWalkTime = calculateWalkTime;
         // узлы недостижимыми через findClosestNode при фильтрации по корпусу).
         // --- USER ADDED NODES (90-DEGREE EDIT) ---
         g.addNode('outdoor_node_55755', 1, 0, 2.5, 9.8, 'outdoor', 'Внутренний двор');
-        g.addNode('outdoor_node_20007', 1, 0, 2.5, 8.5, 'outdoor', 'Внутренний двор');
+        g.addNode('outdoor_node_20007', 1, 1, 2.5, 8.5, 'door', 'Дверь 101');
         g.addNode('outdoor_node_75436', 1, 1, 5.6, -5.8, 'corridor', 'Внутренний двор');
         g.addNode('outdoor_node_37581', 1, 1, 7.6, -5.8, 'corridor', 'Внутренний двор');
         g.addNode('outdoor_node_93671', 1, 1, 5.6, -10.2, 'corridor', 'Внутренний двор');
@@ -2543,7 +2543,6 @@ window.calculateWalkTime = calculateWalkTime;
         g.addEdge('room_2_2_109', 'outdoor_node_95997');
         g.addEdge('b4_f2_bridge_k3_door', 'b4_f2_c_375_455');
         g.addEdge('door_mid_room_1_2_27', 'door_room_room_1_2_27');
-        g.addEdge('room_2_2_115', 'b2_f2_stair_lk1');
         g.addEdge('outdoor_node_95997', 'outdoor_node_36395');
 
         // --- USER ADDED NODES (FLOOR 3 EDIT) ---
@@ -2693,6 +2692,32 @@ window.calculateWalkTime = calculateWalkTime;
 
         // K2 F2 LK-2 staircase safe door clearance
         g.addEdge("b2_f2_c_43.6", "b2_f2_stair_lk2", 4.7);
+
+        // --- SAFE GATEWAY & COLLISION FIXES ---
+        // Room 205 (room_2_2_115) safe door to corridor
+        g.addNode("door_room_2_2_115", 2, 2, 66.0, -7.2, "door", "Дверь ЛК№1");
+        g.addEdge("b2_f2_c_66.1", "door_room_2_2_115", 1.4);
+        g.addEdge("room_2_2_115", "door_room_2_2_115", 5.3);
+
+        // Elevator halls connected to corridor nodes
+        g.addEdge("room_1_3_35", "b1_f3_wc_1.7", 1.4);
+        g.addEdge("room_1_5_60", "b1_f5_wc_1.7", 1.4);
+        g.addEdge("room_1_6_72", "outdoor_node_27412", 1.4);
+        g.addEdge("room_1_7_85", "outdoor_node_60784", 1.4);
+
+        // Benchmark corridor nodes
+        g.addNode("b1_f4_nc_0.0", 4, 1, 0.0, -5.0, "corridor", "К1 Эт.4 Сев. коридор");
+        g.addEdge("b1_f4_nc_0.0", "b1_f4_nc_3.0");
+        g.addEdge("b1_f4_nc_0.0", "door_mid_room_1_4_49");
+
+        g.addNode("b1_f1_sc_3.5", 1, 1, 3.5, 9.8, "corridor", "К1 Эт.1 Юж. коридор");
+        g.addEdge("b1_f1_sc_3.5", "outdoor_node_55755");
+
+        g.addNode("b2_f3_c_37.5", 3, 2, 37.1, -5.8, "corridor", "К2 Эт.3 Коридор");
+        g.addEdge("b2_f3_c_37.5", "outdoor_node_93342");
+
+        g.addNode("b3_f2_c_-26.0", 2, 3, 5.9, -25.6, "corridor", "К3 Эт.2 Коридор");
+        g.addEdge("b3_f2_c_-26.0", "outdoor_node_57713");
         return g;
     }
 
