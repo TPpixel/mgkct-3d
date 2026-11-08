@@ -768,9 +768,9 @@ window.calculateWalkTime = calculateWalkTime;
         g.addNode("room_1_2_26", 2, 1, -10.2, 5.2, "room", "204");
         g.addNode("door_room_room_1_2_26", 2, 1, -10.2, 3.6, "door", "Вход 204");
         g.addNode("room_1_2_27", 2, 1, -8, 12.2, "room", "205");
-        g.addNode("door_mid_room_1_2_27", 2, 1, -5.8, 5.1, "door", "Дверь 205");
-        g.addNode("door_room_room_1_2_27", 2, 1, -8.0, 5.1, "door", "Вход 205");
-        g.addNode("door_corr_room_1_2_27", 2, 1, -5.4, 5.1, "door", "Коридор 205");
+        g.addNode("door_mid_room_1_2_27", 2, 1, -6.8, 7.2, "door", "Дверь 205");
+        g.addNode("door_room_room_1_2_27", 2, 1, -6.8, 7.6, "door", "Вход 205");
+        g.addNode("door_corr_room_1_2_27", 2, 1, -6.8, 5.1, "door", "Коридор 205");
         g.addNode("room_1_2_28", 2, 1, -4.2, 11.5, "room", "203");
         g.addNode("door_mid_room_1_2_28", 2, 1, -4, 7.2, "door", "Дверь 203");
         g.addNode("door_room_room_1_2_28", 2, 1, -4, 7.6, "door", "Вход 203");
@@ -2513,7 +2513,6 @@ window.calculateWalkTime = calculateWalkTime;
         g.addEdge('outdoor_node_73767', 'door_corr_room_3_2_178');
         g.addEdge('door_corr_room_1_2_29', 'outdoor_node_90335');
         g.addEdge('door_corr_room_3_2_163', 'outdoor_node_63619');
-        g.addEdge('outdoor_node_39582', 'b2_f2_stair_lk2');
         g.addEdge('door_corr_room_3_2_168', 'outdoor_node_13653');
         g.addEdge('outdoor_node_57713', 'outdoor_node_31274');
         g.addEdge('door_corr_room_3_2_162', 'outdoor_node_57713');
@@ -2672,6 +2671,28 @@ window.calculateWalkTime = calculateWalkTime;
         g.addEdge('outdoor_node_29350', 'outdoor_node_17144');
         g.addEdge('door_corr_room_1_2_27', 'outdoor_node_17144');
         g.addEdge('outdoor_node_29350', 'door_corr_room_1_2_28');
+
+        // --- ARCHITECTURE INTEGRITY FIXES (DOORS, ELEVATORS & LK-2) ---
+        g.addNode("door_mid_room_1_1_1", 1, 1, 4.6, -10.0, "door", "Дверь 106");
+        g.addNode("door_room_room_1_1_1", 1, 1, 4.2, -10.0, "door", "Вход 106");
+        g.addNode("door_corr_room_1_1_1", 1, 1, 5.0, -10.0, "door", "Коридор 106");
+        g.addEdge("room_1_1_1", "door_room_room_1_1_1", 1.5);
+        g.addEdge("door_mid_room_1_1_1", "door_room_room_1_1_1", 0.4);
+        g.addEdge("door_mid_room_1_1_1", "door_corr_room_1_1_1", 0.4);
+        g.addEdge("door_corr_room_1_1_1", "outdoor_node_93671", 0.6);
+
+        // Elevator halls connected to floor elevators
+        g.addNode("b1_f1_elev", 1, 1, 1.8, 1.5, "elevator", "К1 Лифты (Эт.1)");
+        g.addEdge("b1_f1_elev", "b1_f2_elev", 4.0, true, { isElevator: true });
+        g.addEdge("b1_f1_elev", "room_1_1_8", 0.2);
+
+        g.addEdge("room_1_3_35", "b1_f3_elev", 0.2);
+        g.addEdge("room_1_5_60", "b1_f5_elev", 0.2);
+        g.addEdge("room_1_6_72", "b1_f6_elev", 0.2);
+        g.addEdge("room_1_7_85", "b1_f7_elev", 0.2);
+
+        // K2 F2 LK-2 staircase safe door clearance
+        g.addEdge("b2_f2_c_43.6", "b2_f2_stair_lk2", 4.7);
         return g;
     }
 
