@@ -1,3 +1,26 @@
+function setFloorSwitcherCollapsed(collapsed, isNewRoute = false) {
+    const switcher = document.querySelector('.floor-switcher-group');
+    const collapseBtn = document.getElementById('btn-toggle-floor-collapse');
+    if (!switcher) return;
+    switcher.classList.toggle('collapsed', Boolean(collapsed));
+    if (collapseBtn) {
+        collapseBtn.classList.toggle('is-expanded', !collapsed);
+        collapseBtn.setAttribute('aria-expanded', String(!collapsed));
+        const t = collapsed ? 'Развернуть меню этажей' : 'Свернуть меню этажей';
+        collapseBtn.setAttribute('title', t);
+        collapseBtn.setAttribute('aria-label', t);
+        if (collapsed && isNewRoute) {
+            setTimeout(() => { collapseBtn.classList.add('fab-absorbing'); setTimeout(() => collapseBtn.classList.remove('fab-absorbing'), 450); }, 180);
+        }
+    }
+}
+function toggleFloorSwitcherCollapse() {
+    const switcher = document.querySelector('.floor-switcher-group');
+    if (switcher) setFloorSwitcherCollapsed(!switcher.classList.contains('collapsed'), false);
+}
+window.setFloorSwitcherCollapsed = setFloorSwitcherCollapsed;
+window.toggleFloorSwitcherCollapse = toggleFloorSwitcherCollapse;
+
 function setupUI() {
     initHistoryManager();
     setupVisualViewportHandler();
@@ -10,11 +33,8 @@ function setupUI() {
         btn.addEventListener('click', () => {
             const f = btn.dataset.floor;
             if (!f) return;
-            if (f === 'all') {
-                toggleAllFloorsMode();
-            } else {
-                setMode(f);
-            }
+            if (f === 'all') toggleAllFloorsMode();
+            else setMode(f);
         });
     });
 
@@ -39,6 +59,10 @@ function setupUI() {
     });
     document.getElementById('btn-toggle-2d')?.addEventListener('click', (e) => {
         toggle2DView();
+        e.currentTarget?.blur();
+    });
+    document.getElementById('btn-toggle-floor-collapse')?.addEventListener('click', (e) => {
+        toggleFloorSwitcherCollapse();
         e.currentTarget?.blur();
     });
     document.getElementById('btn-zoom-in')?.addEventListener('click', () => {
@@ -95,7 +119,6 @@ function setupUI() {
     }
     setTheme(initialTheme || getSystemTheme(), false);
 }
-
 
 // ==========================================
 // КОНТЕКСТНЫЙ ПОПАП КАБИНЕТА (ОТСЮДА / СЮДА)
@@ -256,8 +279,9 @@ function showRoomContextPopup(roomInfo, clientX, clientY, shouldSelectAndFly = t
     popup.style.left = '';
     popup.style.top = '';
 
-    popup.classList.remove('hidden');
+    popup.classList.remove('hidden', 'closing-down');
     document.body.classList.add('room-card-open');
+    setFloorSwitcherCollapsed(false);
 
     updateAdaptiveFabPosition();
     requestAnimationFrame(updateAdaptiveFabPosition);

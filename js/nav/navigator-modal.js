@@ -129,6 +129,9 @@
         NAV_STATE.startPoint = null;
         NAV_STATE.destPoint = null;
         NAV_STATE.activeRoute = null;
+        if (NAV_STATE._renderedStairBadges) {
+            NAV_STATE._renderedStairBadges.length = 0;
+        }
 
         const inputA = document.getElementById('nav-input-start');
         const inputB = document.getElementById('nav-input-dest');
@@ -148,6 +151,9 @@
         const card = document.getElementById('navigator-route-card');
         if (card) card.classList.add('hidden');
         document.body.classList.remove('route-active', 'nav-picking-active');
+        if (typeof setFloorSwitcherCollapsed === 'function') {
+            setFloorSwitcherCollapsed(false);
+        }
         const bottomSearch = document.getElementById('bottom-search-bar');
         if (bottomSearch) {
             bottomSearch.classList.remove('route-active', 'hidden');

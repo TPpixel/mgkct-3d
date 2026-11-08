@@ -5,6 +5,8 @@
 // Независимые рейкастеры и векторы для предотвращения взаимной мутации состояния
 const _pickRaycaster = new THREE.Raycaster();
 const _pickMouseVec = new THREE.Vector2();
+const _pickFloorPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
+const _pickHitVec = new THREE.Vector3();
 
 const _zoomRaycaster = new THREE.Raycaster();
 const _zoomMouseVec = new THREE.Vector2();
@@ -173,16 +175,19 @@ function initControls(camera, domElement) {
     }, { passive: true });
 
     // Клик / тап по карте для выбора кабинета
+    let pointerDownType = 'mouse';
     domElement.addEventListener('pointerdown', (e) => {
         if (STATE.targetCamPos || STATE.targetControlsCenter) {
             STATE.targetCamPos = null;
             STATE.targetControlsCenter = null;
-            resetControlsMomentum();
-            if (controls) controls.update();
         }
+        resetControlsMomentum();
+        if (controls) controls.update();
+
         if (e.isPrimary !== false) {
             pointerDownPos = { x: e.clientX, y: e.clientY };
             pointerDownTime = performance.now();
+            pointerDownType = e.pointerType || 'mouse';
             if (camera && controls) {
                 pointerDownCamPos.copy(camera.position);
                 pointerDownTarget.copy(controls.target);
@@ -191,45 +196,25 @@ function initControls(camera, domElement) {
     }, { passive: true });
 
     domElement.addEventListener('pointerup', (e) => {
-        // 1. Игнорируем вторичные пальцы / указатели
-        if (e.isPrimary === false) {
-            return;
-        }
+        if (e.isPrimary === false) return;
+        if (e.button !== undefined && e.button !== 0 && (e.pointerType === 'mouse' || pointerDownType === 'mouse')) return;
+        if (multiTouchActive || (performance.now() - lastMultiTouchTime < MULTI_TOUCH_GUARD_MS)) return;
+        if (performance.now() - lastZoomTime < 300) return;
+        if (performance.now() - pointerDownTime > 650) return;
 
-        // 2. Блокируем клик, если активен или недавно завершился pinch-зум двумя пальцами
-        if (multiTouchActive || (performance.now() - lastMultiTouchTime < MULTI_TOUCH_GUARD_MS)) {
-            return;
-        }
-
-        // 3. Блокируем клик, если недавно происходил зум к курсору колесиком или кнопками
-        if (performance.now() - lastZoomTime < 350) {
-            return;
-        }
-
-        // 4. Отсекаем долгое удержание пальца (жест панорамирования или ожидания, а не быстрый тап)
-        const holdDuration = performance.now() - pointerDownTime;
-        if (holdDuration > 550) {
-            return;
-        }
-
-        // 5. Проверяем физическое смещение курсора на экране
+        const isTouch = (pointerDownType === 'touch' || e.pointerType === 'touch');
+        const maxMove = isTouch ? 24 : 12;
         const dx = Math.abs(e.clientX - pointerDownPos.x);
         const dy = Math.abs(e.clientY - pointerDownPos.y);
-        if (Math.hypot(dx, dy) >= 12) {
-            return;
-        }
+        if (Math.hypot(dx, dy) >= maxMove) return;
 
-        // 6. Физическая проверка: если камера сдвинулась или масштабировалась во время касания,
-        // значит выполнялся зум или сдвиг сцены
         if (camera && controls) {
             const camDistMoved = camera.position.distanceTo(pointerDownCamPos);
             const targetDistMoved = controls.target.distanceTo(pointerDownTarget);
-            if (camDistMoved > 0.25 || targetDistMoved > 0.25) {
-                return;
-            }
+            const maxCamMove = isTouch ? 1.4 : 0.6;
+            if (camDistMoved > maxCamMove || targetDistMoved > maxCamMove) return;
         }
 
-        // Чистый одиночный клик / тап по карте
         handleMapClick(e);
     });
 

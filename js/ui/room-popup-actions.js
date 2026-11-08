@@ -63,7 +63,10 @@ function hideRoomContextPopup(fromPopstate = false, suppressRouteRestore = false
                 btn.classList.toggle('active-pill', btn.textContent.trim() === activeFloorStr);
             });
         }
-    } else {
+    } else if (!suppressRouteRestore) {
+        if (typeof setFloorSwitcherCollapsed === 'function') {
+            setFloorSwitcherCollapsed(false);
+        }
         const widgetText = document.getElementById('search-widget-text');
         if (widgetText) {
             widgetText.textContent = 'Поиск по колледжу...';
@@ -134,8 +137,6 @@ function setupRoomContextPopup() {
                         NAV_STATE.destPoint.id !== roomNode.id &&
                         typeof buildRoute === 'function'
                     );
-                    collapseRoomCardHistoryForTarget(canRebuildActiveRoute ? 'route' : 'navigator');
-                    hideRoomContextPopup(true, true);
 
                     NAV_STATE.startPoint = roomNode;
                     const inputA = document.getElementById('nav-input-start');
@@ -147,9 +148,28 @@ function setupRoomContextPopup() {
                     }
 
                     if (canRebuildActiveRoute) {
-                        buildRoute(roomNode, NAV_STATE.destPoint);
-                    } else if (typeof openNavigatorModal === 'function') {
-                        openNavigatorModal('dest');
+                        const popup = document.getElementById('room-context-popup');
+                        if (popup) popup.classList.add('closing-down');
+                        setTimeout(() => {
+                            if (popup) popup.classList.remove('closing-down');
+                            document.body.classList.add('route-active');
+                            collapseRoomCardHistoryForTarget('route');
+                            hideRoomContextPopup(true, true);
+                            window._postponeFloorCollapse = true;
+                            buildRoute(roomNode, NAV_STATE.destPoint);
+                            window._postponeFloorCollapse = false;
+                            setTimeout(() => {
+                                if (typeof setFloorSwitcherCollapsed === 'function') {
+                                    setFloorSwitcherCollapsed(true, true);
+                                }
+                            }, 250);
+                        }, 160);
+                    } else {
+                        collapseRoomCardHistoryForTarget('navigator');
+                        hideRoomContextPopup(true, true);
+                        if (typeof openNavigatorModal === 'function') {
+                            openNavigatorModal('dest');
+                        }
                     }
                     return;
                 }
@@ -197,12 +217,27 @@ function setupRoomContextPopup() {
                     }
 
                     const willBuildRoute = Boolean(NAV_STATE.startPoint && NAV_STATE.destPoint && typeof buildRoute === 'function');
-                    collapseRoomCardHistoryForTarget(willBuildRoute ? 'route' : 'navigator');
-                    hideRoomContextPopup(true, true);
-
                     if (willBuildRoute) {
-                        buildRoute(NAV_STATE.startPoint, NAV_STATE.destPoint);
+                        const popup = document.getElementById('room-context-popup');
+                        if (popup) popup.classList.add('closing-down');
+
+                        setTimeout(() => {
+                            if (popup) popup.classList.remove('closing-down');
+                            document.body.classList.add('route-active');
+                            collapseRoomCardHistoryForTarget('route');
+                            hideRoomContextPopup(true, true);
+                            window._postponeFloorCollapse = true;
+                            buildRoute(NAV_STATE.startPoint, NAV_STATE.destPoint);
+                            window._postponeFloorCollapse = false;
+                            setTimeout(() => {
+                                if (typeof setFloorSwitcherCollapsed === 'function') {
+                                    setFloorSwitcherCollapsed(true, true);
+                                }
+                            }, 250);
+                        }, 160);
                     } else if (typeof openNavigatorModal === 'function') {
+                        collapseRoomCardHistoryForTarget('navigator');
+                        hideRoomContextPopup(true, true);
                         openNavigatorModal();
                     }
                     return;

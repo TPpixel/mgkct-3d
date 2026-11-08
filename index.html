@@ -11,12 +11,12 @@
     <link rel="stylesheet" href="css/tokens-and-base.css?v=109">
     <link rel="stylesheet" href="css/building-pills-and-theme.css?v=109">
     <link rel="stylesheet" href="css/search-pill-and-floor-bar.css?v=109">
-    <link rel="stylesheet" href="css/map-fabs-and-hud.css?v=109">
+    <link rel="stylesheet" href="css/map-fabs-and-hud.css?v=117">
     <link rel="stylesheet" href="css/search-sheet.css?v=109">
     <link rel="stylesheet" href="css/search-dock-and-results.css?v=109">
     <link rel="stylesheet" href="css/navigator-modal.css?v=109">
     <link rel="stylesheet" href="css/navigator-route-card.css?v=109">
-    <link rel="stylesheet" href="css/room-context-card.css?v=109">
+    <link rel="stylesheet" href="css/room-context-card.css?v=111">
     <link rel="stylesheet" href="css/settings-and-utilities.css?v=109">
     <link rel="preload" href="js/vendor/three.min.js?v=109" as="script">
     <link rel="preload" href="js/vendor/OrbitControls.js?v=109" as="script">
@@ -138,13 +138,6 @@
     <!-- Правые плавающие кнопки управления картой (Все этажи, Слои территории, 2D/3D FAB) -->
     <div class="ui-overlay map-fab-bar">
         <!-- Кнопка «Все этажи» (показывается при активном маршруте сверху справа) -->
-        <button id="btn-toggle-all-floors" class="map-fab-btn route-only-fab" title="Все этажи" aria-label="Все этажи">
-            <svg class="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
-                <polyline points="2 17 12 22 22 17"></polyline>
-                <polyline points="2 12 12 17 22 12"></polyline>
-            </svg>
-        </button>
         <!-- Кнопка «Вид со спутника» -->
         <button id="btn-toggle-territory" class="map-fab-btn" title="Прилегающая территория (дороги, окружение)" aria-label="Переключить отображение территории">
             <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -153,6 +146,12 @@
         </button>
         <!-- Кнопка «3D / 2D» -->
         <button id="btn-toggle-2d" class="map-fab-btn" title="Переключить 2D карта сверху / 3D ракурс" aria-label="Переключить 2D / 3D">2D</button>
+        <!-- Кнопка «Свернуть / развернуть этажи» (появляется при выборе кабинета и в режиме маршрута на смартфонах) -->
+        <button id="btn-toggle-floor-collapse" class="map-fab-btn floor-collapse-fab is-expanded" title="Свернуть меню этажей" aria-label="Свернуть меню этажей">
+            <svg class="floor-collapse-arrow w-5 h-5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="18 15 12 9 6 15"></polyline>
+            </svg>
+        </button>
     </div>
     <script>
         /* Мгновенная синхронизация активных кнопок HUD из localStorage и URL до первого рендера кадра (0 мс задержки) */
@@ -192,6 +191,7 @@
     </script>
     <!-- Скрытые элементы масштабирования для обратной совместимости со скриптами -->
     <div style="display:none">
+        <button id="btn-toggle-all-floors"></button>
         <button id="btn-zoom-in"></button>
         <button id="btn-zoom-out"></button>
     </div>

@@ -1,8 +1,10 @@
     function renderNavigatorScreenBadges(ctx, dpr, width, height) {
-        if (!NAV_STATE.activeRoute || !window.camera) return;
-
-        NAV_STATE._renderedStairBadges.length = 0;
+        if (NAV_STATE && NAV_STATE._renderedStairBadges) {
+            NAV_STATE._renderedStairBadges.length = 0;
+        }
         renderedStairBadges = NAV_STATE._renderedStairBadges;
+
+        if (!NAV_STATE.activeRoute || !window.camera) return;
 
         const route = NAV_STATE.activeRoute;
         const mode = (typeof STATE !== 'undefined') ? STATE.mode : '1';

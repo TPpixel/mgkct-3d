@@ -256,10 +256,15 @@
     // ------------------------------------------------------------------------
 
     function checkStairBadgeClick(clientX, clientY) {
+        if (!NAV_STATE || !NAV_STATE.activeRoute) return false;
         if (!renderedStairBadges || renderedStairBadges.length === 0) return false;
+        const currentFloor = (typeof STATE !== 'undefined' && STATE.mode !== 'all' && STATE.mode !== 'sideBySide' && STATE.mode !== 'slice')
+            ? parseInt(STATE.mode, 10)
+            : null;
         const hitMargin = 16;
         for (let i = renderedStairBadges.length - 1; i >= 0; i--) {
             const b = renderedStairBadges[i];
+            if (currentFloor !== null && b.fromFloor !== currentFloor) continue;
             if (clientX >= b.x0 - hitMargin && clientX <= b.x1 + hitMargin &&
                 clientY >= b.y0 - hitMargin && clientY <= b.y1 + hitMargin) {
                 if (typeof setMode === 'function') {
