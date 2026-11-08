@@ -50,6 +50,9 @@
         if (NAV_STATE._pulsingObjects) {
             NAV_STATE._pulsingObjects.length = 0;
         }
+        if (NAV_STATE._renderedStairBadges) {
+            NAV_STATE._renderedStairBadges.length = 0;
+        }
         NAV_STATE.activeRoute = null;
         if (NAV_STATE._badgeWidthCache) {
             NAV_STATE._badgeWidthCache.clear();

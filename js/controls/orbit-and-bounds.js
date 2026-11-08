@@ -197,6 +197,7 @@ function initControls(camera, domElement) {
 
     domElement.addEventListener('pointerup', (e) => {
         if (e.isPrimary === false) return;
+        if (e.button !== undefined && e.button !== 0 && (e.pointerType === 'mouse' || pointerDownType === 'mouse')) return;
         if (multiTouchActive || (performance.now() - lastMultiTouchTime < MULTI_TOUCH_GUARD_MS)) return;
         if (performance.now() - lastZoomTime < 300) return;
         if (performance.now() - pointerDownTime > 650) return;

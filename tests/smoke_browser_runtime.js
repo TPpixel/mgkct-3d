@@ -294,6 +294,43 @@ async function runSmokeTest() {
             errors.push(`Architecture registry incomplete: rooms=${stateInfo?.roomCount}, walls=${stateInfo?.wallCount}`);
         }
 
+        // Regression check: Ghost stair badges and random floor switches on click
+        const clickAuditRes = await sendCDP('Runtime.evaluate', {
+            expression: `(() => {
+                const results = [];
+                // 1. Build route with stair transition, then clear it
+                if (typeof buildRoute === 'function' && typeof clearRoute === 'function') {
+                    buildRoute('101', '305');
+                    clearRoute();
+                    if (NAV_STATE._renderedStairBadges && NAV_STATE._renderedStairBadges.length > 0) {
+                        results.push('NAV_STATE._renderedStairBadges not cleared after clearRoute()');
+                    }
+                    if (checkStairBadgeClick(150, 150)) {
+                        results.push('checkStairBadgeClick returned true when no route is active');
+                    }
+                }
+                // 2. Mode all floor switch check
+                if (typeof setMode === 'function' && typeof findRoomAtScreenPoint === 'function') {
+                    setMode('all');
+                    let switchedInAll = false;
+                    const onFloorChange = () => { switchedInAll = true; };
+                    window.addEventListener('floorChanged', onFloorChange);
+                    findRoomAtScreenPoint(window.innerWidth / 2, window.innerHeight / 2);
+                    window.removeEventListener('floorChanged', onFloorChange);
+                    if (switchedInAll || STATE.mode !== 'all') {
+                        results.push('findRoomAtScreenPoint unexpectedly triggered floor change in all-floors mode');
+                    }
+                    setMode('1');
+                }
+                return results;
+            })()`,
+            returnByValue: true
+        });
+        const clickDefects = clickAuditRes.result?.result?.value;
+        if (Array.isArray(clickDefects) && clickDefects.length > 0) {
+            clickDefects.forEach(d => errors.push(d));
+        }
+
         // Graceful CDP browser shutdown to release file handles and child processes on Windows
         await sendCDP('Browser.close').catch(() => {});
         ws.close();

@@ -93,14 +93,21 @@ function zoomOut() {
 }
 
 function findRoomAtScreenPoint(clientX, clientY) {
-    // 1. Проверяем попадание в экранные плашки номеров кабинетов (комфортная зона 24px для пальцев)
+    const activeFloor = (STATE.mode !== 'all' && STATE.mode !== 'sideBySide' && STATE.mode !== 'slice')
+        ? parseInt(STATE.mode, 10)
+        : null;
+
+    // 1. Проверяем попадание в экранные плашки номеров кабинетов
     if (Array.isArray(renderedScreenBadges) && renderedScreenBadges.length > 0) {
-        const hitMargin = 28;
+        const hitMargin = 16;
         let bestBadge = null;
         let bestDist = Infinity;
 
         for (let i = 0; i < renderedScreenBadges.length; i++) {
             const b = renderedScreenBadges[i];
+            // В режиме конкретного этажа исключаем плашки других этажей
+            if (activeFloor !== null && b.room && b.room.floor !== activeFloor) continue;
+
             if (clientX >= b.x0 - hitMargin && clientX <= b.x1 + hitMargin &&
                 clientY >= b.y0 - hitMargin && clientY <= b.y1 + hitMargin) {
                 const midX = (b.x0 + b.x1) / 2;
@@ -121,16 +128,16 @@ function findRoomAtScreenPoint(clientX, clientY) {
     // 2. Пространственный выбор: пересечение луча с плоскостью активного этажа и поиск по комнате
     if (!renderer || !camera || typeof ROOMS_REGISTRY === 'undefined' || !ROOMS_REGISTRY.length) return null;
 
+    // В режимах «Все этажи» / «Срез» без конкретного этажа пространственный поиск
+    // по плоской проекции Y=0 запрещен, чтобы случайный клик по зданию не вызывал переключение этажа
+    if (activeFloor === null) return null;
+
     const rect = renderer.domElement.getBoundingClientRect();
     const x = ((clientX - rect.left) / rect.width) * 2 - 1;
     const y = -((clientY - rect.top) / rect.height) * 2 + 1;
 
     _pickMouseVec.set(x, y);
     _pickRaycaster.setFromCamera(_pickMouseVec, camera);
-
-    const activeFloor = (STATE.mode !== 'all' && STATE.mode !== 'sideBySide' && STATE.mode !== 'slice')
-        ? parseInt(STATE.mode, 10)
-        : null;
 
     const fg = (typeof floorGroups !== 'undefined' && activeFloor) ? floorGroups[activeFloor] : null;
     const activeFloorY = fg ? fg.position.y : (controls && controls.target ? controls.target.y : 0);
@@ -145,15 +152,14 @@ function findRoomAtScreenPoint(clientX, clientY) {
 
         for (let i = 0; i < ROOMS_REGISTRY.length; i++) {
             const r = ROOMS_REGISTRY[i];
-            if (activeFloor !== null && r.floor !== activeFloor) continue;
+            if (r.floor !== activeFloor) continue;
             if (STATE.buildingFilter && STATE.buildingFilter !== 'both' && String(r.building) !== String(STATE.buildingFilter)) continue;
 
-            const fg = floorGroups && floorGroups[r.floor];
             const rx = (fg ? fg.position.x : 0) + r.x;
             const rz = (fg ? fg.position.z : 0) + r.z;
 
             const worldDist = Math.hypot(hitX - rx, hitZ - rz);
-            const maxRadius = r.isWide ? 8.0 : (r.isSmall ? 4.0 : 5.4);
+            const maxRadius = r.isWide ? 5.2 : (r.isSmall ? 2.6 : 3.8);
             if (worldDist <= maxRadius && worldDist < closestDist) {
                 if (!STATE.is2D && typeof isPointOccludedIn3D === 'function') {
                     const occlY = (fg ? fg.position.y : 0) + Math.min(Math.max(STATE.wallHeight * 0.75, 0.25), 1.35);

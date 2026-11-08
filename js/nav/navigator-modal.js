@@ -129,6 +129,9 @@
         NAV_STATE.startPoint = null;
         NAV_STATE.destPoint = null;
         NAV_STATE.activeRoute = null;
+        if (NAV_STATE._renderedStairBadges) {
+            NAV_STATE._renderedStairBadges.length = 0;
+        }
 
         const inputA = document.getElementById('nav-input-start');
         const inputB = document.getElementById('nav-input-dest');
